@@ -35,6 +35,7 @@ CareerPilot AI - full-stack portfolio project для управления пои
 - Архитектурный подход: modular monolith.
 - Backend и frontend находятся в одном monorepo.
 - Основная текущая задача: согласование frontend service layer с Spring Boot REST API.
+- Первый vertical slice Auth (`register -> login -> me`) реализован и выровнен по контракту.
 - `DashboardPage` и `SettingsPage` пока частично используют mock/local state.
 - Backend tests могут требовать доступный Docker runtime из-за Testcontainers.
 

@@ -136,6 +136,8 @@ npm.cmd run build
 - `DB_NAME`
 - `MINIO_ROOT_USER`
 - `MINIO_ROOT_PASSWORD`
+- `JWT_SECRET` (base64 secret для подписи access token)
+- `JWT_ACCESS_TOKEN_EXPIRATION_MS` (TTL access token в миллисекундах)
 
 Файлы `.env` и `.env.*` не должны попадать в Git. Для публичного репозитория коммитится только `.env.example`.
 
@@ -199,6 +201,13 @@ docker compose config
 - endpoints, которые вызывает frontend service layer;
 - `TARGET/TODO` endpoints для mock-only зон;
 - `FUTURE TODO` endpoints для profile/resume.
+
+### Auth v1 интеграция (текущий статус)
+
+- Реализованы backend endpoints `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`.
+- Frontend в API mode (`VITE_USE_MOCKS=false`) использует `cp_access_token` и `Authorization: Bearer <accessToken>`.
+- Logout остаётся frontend-only и очищает `localStorage`.
+- Password recovery endpoints (`/auth/forgot-password`, `/auth/reset-password`) остаются следующим шагом.
 
 ## Mock/API режим frontend
 

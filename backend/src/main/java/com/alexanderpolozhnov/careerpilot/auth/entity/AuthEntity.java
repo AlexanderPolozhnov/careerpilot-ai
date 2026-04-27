@@ -25,6 +25,12 @@ public class AuthEntity extends BaseAuditableEntity {
     @Column(name = "full_name", nullable = false, length = 255)
     private String fullName;
 
+    @Column(name = "first_name", length = 120)
+    private String firstName;
+
+    @Column(name = "last_name", length = 120)
+    private String lastName;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private UserRole role = UserRole.USER;

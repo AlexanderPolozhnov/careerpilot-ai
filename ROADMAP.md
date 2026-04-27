@@ -101,9 +101,9 @@ Roadmap отражает текущее состояние перед первы
 
 ## Backend endpoints first
 
-- [ ] `POST /api/auth/login`
-- [ ] `POST /api/auth/register`
-- [ ] `GET /api/auth/me`
+- [x] `POST /api/auth/login`
+- [x] `POST /api/auth/register`
+- [x] `GET /api/auth/me`
 - [ ] `POST /api/auth/forgot-password`
 - [ ] `POST /api/auth/reset-password`
 - [ ] `GET /api/vacancies`
@@ -124,6 +124,6 @@ Roadmap отражает текущее состояние перед первы
 - [x] `DashboardPage` напрямую использует mock data и пока не вызывает backend.
 - [x] `SettingsPage` использует mock/local-only поведение и пока не сохраняет настройки через backend.
 - [x] `authService.me()` не mock-aware: при сохраненном token может вызвать `GET /auth/me` даже в mock mode.
-- [x] Некоторые backend controllers уже существуют, но еще не полностью совпадают с frontend contract.
+- [~] Некоторые backend controllers уже существуют, но еще не полностью совпадают с frontend contract (Auth login/register/me уже выровнен).
 - [x] Backend tests зависят от Testcontainers и требуют доступный Docker runtime.
 - [x] GitHub Actions пока запланирован, но не настроен.

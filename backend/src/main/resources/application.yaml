@@ -20,3 +20,8 @@ spring:
     enabled: true
     default-schema: careerpilot
     schemas: careerpilot
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:Q2FyZWVyUGlsb3RBdXRoU2VjcmV0S2V5Rm9yRGV2RW52aXJvbm1lbnQxMjM0NTY3ODkwMTIzNDU2Nzg5MA==}
+    access-token-expiration-ms: ${JWT_ACCESS_TOKEN_EXPIRATION_MS:3600000}

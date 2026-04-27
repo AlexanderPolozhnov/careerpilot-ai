@@ -1,7 +1,7 @@
 package com.alexanderpolozhnov.careerpilot.common.api.error;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Map;
 
 public record ApiErrorResponse(
         Instant timestamp,
@@ -9,6 +9,7 @@ public record ApiErrorResponse(
         String error,
         String message,
         String path,
-        List<String> details
+        String code,
+        Map<String, String> fieldErrors
 ) {
 }
