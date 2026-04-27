@@ -191,4 +191,4 @@ npm run build
 
 ## Примечание о публичном репозитории
 
-Секреты, local env files, build artifacts, IDE configs и dependency folders исключены через `.gitignore`. Перед первым commit стоит проверить `git status --short` и убедиться, что в candidate files не попали `.env`, `node_modules`, `dist`, `target` и `.idea`.
+Секреты, local env files, build artifacts, IDE configs и dependency folders исключены через `.gitignore`.
