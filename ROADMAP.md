@@ -48,7 +48,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Dependencies for Spring Security, Spring Data JPA, MapStruct, Bean Validation, OpenAPI / Swagger.
 - [x] Test stack dependencies: JUnit 5, Mockito, Testcontainers.
 - [~] Authentication API.
-- [~] Vacancy API.
+- [x] Vacancy API (list/detail/create/update/delete aligned for Authenticated user).
 - [~] Company API.
 - [~] Application API.
 - [~] AI provider abstraction и Ollama-oriented layer.
@@ -59,7 +59,7 @@ Roadmap отражает текущее состояние перед первы
 ## Phase 4 — Frontend/Backend Integration
 
 - [~] Auth integration.
-- [ ] Vacancies integration.
+- [~] Vacancies integration.
 - [ ] Companies integration.
 - [ ] Applications integration.
 - [ ] AI assistant integration.
@@ -106,8 +106,8 @@ Roadmap отражает текущее состояние перед первы
 - [x] `GET /api/auth/me`
 - [ ] `POST /api/auth/forgot-password`
 - [ ] `POST /api/auth/reset-password`
-- [ ] `GET /api/vacancies`
-- [ ] `GET /api/vacancies/{id}`
+- [x] `GET /api/vacancies`
+- [x] `GET /api/vacancies/{id}`
 - [ ] `POST /api/applications`
 - [ ] `GET /api/applications/board`
 - [ ] `GET /api/companies`

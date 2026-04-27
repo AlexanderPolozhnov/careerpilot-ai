@@ -7,6 +7,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -38,6 +42,10 @@ public class VacancyEntity extends BaseAuditableEntity {
     private String location;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "remote_type", nullable = false, length = 50)
+    private RemoteType remoteType = RemoteType.REMOTE;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "employment_type", length = 50)
     private EmploymentType employmentType;
 
@@ -56,7 +64,13 @@ public class VacancyEntity extends BaseAuditableEntity {
     @Column(name = "description_clean", columnDefinition = "TEXT")
     private String descriptionClean;
 
+    @Column(name = "deadline")
+    private Instant deadline;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private VacancyStatus status = VacancyStatus.NEW;
+    private VacancyStatus status = VacancyStatus.ACTIVE;
+
+    @OneToMany(mappedBy = "vacancy", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<VacancyTagEntity> tags = new ArrayList<>();
 }

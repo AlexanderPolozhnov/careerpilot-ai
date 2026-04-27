@@ -3,28 +3,25 @@ package com.alexanderpolozhnov.careerpilot.common.service;
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.auth.repository.AuthRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class CurrentUserResolver {
-
-    private static final String DEV_EMAIL = "dev@careerpilot.local";
-
     private final AuthRepository authRepository;
 
-    public AuthEntity resolveOrCreate() {
-        return authRepository.findAll()
-                .stream()
-                .findFirst()
-                .orElseGet(() -> authRepository.save(createDevUser()));
+    public AuthEntity resolveRequired() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getName() == null) {
+            throw new IllegalArgumentException("Unauthorized");
+        }
+        return authRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
-    private AuthEntity createDevUser() {
-        AuthEntity user = new AuthEntity();
-        user.setEmail(DEV_EMAIL);
-        user.setPasswordHash("dev-password-hash");
-        user.setFullName("CareerPilot Dev User");
-        return user;
+    public AuthEntity resolveOrCreate() {
+        return resolveRequired();
     }
 }

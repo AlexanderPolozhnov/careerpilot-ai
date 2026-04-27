@@ -209,6 +209,12 @@ docker compose config
 - Logout остаётся frontend-only и очищает `localStorage`.
 - Password recovery endpoints (`/auth/forgot-password`, `/auth/reset-password`) остаются следующим шагом.
 
+### Vacancies v1 интеграция (текущий статус)
+
+- Реализованы backend endpoints `GET /api/vacancies`, `GET /api/vacancies/{id}`, `POST /api/vacancies`, `PUT /api/vacancies/{id}`, `DELETE /api/vacancies/{id}`.
+- Все vacancy операции требуют JWT и scoped по владельцу (user ownership через `SecurityContext`).
+- `PATCH /api/vacancies/{id}/archive` остается отдельным TODO шагом.
+
 ## Mock/API режим frontend
 
 Основной переключатель:

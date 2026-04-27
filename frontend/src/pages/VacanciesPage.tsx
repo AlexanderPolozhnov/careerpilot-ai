@@ -9,10 +9,11 @@ import { LoadingState } from '@/components/LoadingState'
 import { ErrorState } from '@/components/ErrorState'
 import { vacancyService } from '@/services/vacancy.service'
 import type { Vacancy, VacancyStatus, RemoteType } from '@/types'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export default function VacanciesPage() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<VacancyStatus | 'ALL'>('ALL')
   const [remote, setRemote] = useState<RemoteType | 'ALL'>('ALL')
@@ -27,6 +28,11 @@ export default function VacanciesPage() {
         page: 0,
         size: 100,
       }),
+  })
+
+  const createMutation = useMutation({
+    mutationFn: vacancyService.create,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['vacancies'] }),
   })
 
   const visibleItems = useMemo<Vacancy[]>(() => listQuery.data?.content ?? [], [listQuery.data])
@@ -65,7 +71,26 @@ export default function VacanciesPage() {
               {view === 'list' ? 'Table' : 'List'}
             </button>
             <span className="pill">{visibleItems.length} {t('vacancies.results')}</span>
-            <button type="button" className="btn-secondary text-sm">
+            <button
+              type="button"
+              className="btn-secondary text-sm"
+              onClick={async () => {
+                const title = window.prompt('Введите название вакансии')
+                if (!title || !title.trim()) {
+                  return
+                }
+                try {
+                  await createMutation.mutateAsync({
+                    title: title.trim(),
+                    companyId: '',
+                    remote: 'REMOTE',
+                  })
+                } catch (error) {
+                  window.alert(error instanceof Error ? error.message : 'Не удалось создать вакансию')
+                }
+              }}
+              disabled={createMutation.isPending}
+            >
               Add vacancy
             </button>
           </>

@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 import { EmptyState } from '@/components/EmptyState'
 import { MatchScoreBadge, RemoteBadge, StatusBadge } from '@/components/StatusBadge'
@@ -10,10 +10,12 @@ import { aiService } from '@/services/ai.service'
 import { applicationService } from '@/services/application.service'
 import type { AiResult, Vacancy } from '@/types'
 import { formatSalary } from '@/lib/utils'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export default function VacancyDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [insight, setInsight] = useState<AiResult | null>(null)
   const [actionNote, setActionNote] = useState<string | null>(null)
 
@@ -35,6 +37,20 @@ export default function VacancyDetailPage() {
   const vacancy: Vacancy | null = vacancyQuery.data ?? null
   const aiInsight = insight ?? insightQuery.data ?? null
   const company = useMemo(() => vacancy?.company, [vacancy])
+
+  const updateMutation = useMutation({
+    mutationFn: ({ vacancyId, title }: { vacancyId: string; title: string }) =>
+      vacancyService.update(vacancyId, { title }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['vacancies'] }),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (vacancyId: string) => vacancyService.delete(vacancyId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['vacancies'] })
+      navigate('/app/vacancies')
+    },
+  })
 
   return (
     <section className="space-y-4">
@@ -127,6 +143,42 @@ export default function VacancyDetailPage() {
               )}
 
               <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  className="btn-secondary text-sm"
+                  disabled={updateMutation.isPending}
+                  onClick={async () => {
+                    const nextTitle = window.prompt('Новое название вакансии', vacancy.title)
+                    if (!nextTitle || !nextTitle.trim() || !id) {
+                      return
+                    }
+                    try {
+                      await updateMutation.mutateAsync({ vacancyId: id, title: nextTitle.trim() })
+                      setActionNote('Вакансия обновлена.')
+                    } catch (error) {
+                      setActionNote(error instanceof Error ? error.message : 'Не удалось обновить вакансию')
+                    }
+                  }}
+                >
+                  Edit title
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary text-sm"
+                  disabled={deleteMutation.isPending}
+                  onClick={async () => {
+                    if (!id || !window.confirm('Удалить вакансию?')) {
+                      return
+                    }
+                    try {
+                      await deleteMutation.mutateAsync(id)
+                    } catch (error) {
+                      setActionNote(error instanceof Error ? error.message : 'Не удалось удалить вакансию')
+                    }
+                  }}
+                >
+                  Delete
+                </button>
                 <button
                   type="button"
                   className="btn-secondary text-sm"
