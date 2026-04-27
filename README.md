@@ -67,7 +67,7 @@ CareerPilot AI - full-stack portfolio project для управления пои
 
 ## Стек технологий
 
-### Backend
+### Бэкенд
 
 - Java 21
 - Spring Boot 3
@@ -82,7 +82,7 @@ CareerPilot AI - full-stack portfolio project для управления пои
 - Mockito
 - Testcontainers
 
-### Frontend
+### Фронтенд
 
 - React
 - TypeScript
@@ -94,25 +94,25 @@ CareerPilot AI - full-stack portfolio project для управления пои
 - Zod
 - i18next
 
-### AI layer
+### AI-слой
 
 - Ollama как default local provider
 - provider abstraction
 - AI response caching
 - prompt templates
 
-### Infrastructure
+### Инфраструктура
 
 - Docker
 - Docker Compose
 - PostgreSQL
 - Redis
-- GitHub Actions planned
+- GitHub Actions — запланировано
 
 ## Структура репозитория
 
 ```text
-careerpilot-ai-public/
+careerpilot-ai/
 |-- backend/
 |-- frontend/
 |-- docs/
@@ -125,20 +125,20 @@ careerpilot-ai-public/
 
 ## Локальный запуск
 
-### Infrastructure
+### Инфраструктура
 
 ```bash
 docker compose up -d postgres redis
 ```
 
-Optional profiles:
+Опциональные профили:
 
 ```bash
 docker compose --profile storage up -d minio
 docker compose --profile ai up -d ollama
 ```
 
-### Backend
+### Бэкенд
 
 Windows:
 
@@ -154,7 +154,7 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
-Tests:
+Тесты:
 
 ```powershell
 cd backend
@@ -163,7 +163,7 @@ cd backend
 
 Backend использует `.env.example` как пример локальных переменных. Реальные `.env` файлы не коммитятся.
 
-### Frontend
+### Фронтенд
 
 ```bash
 cd frontend
@@ -178,7 +178,7 @@ npm run lint
 npm run build
 ```
 
-Основные frontend env vars:
+Основные переменные окружения фронтенда:
 
 - `VITE_API_BASE_URL`
 - `VITE_USE_MOCKS`

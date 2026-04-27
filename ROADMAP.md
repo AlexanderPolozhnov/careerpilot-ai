@@ -96,35 +96,34 @@ Roadmap отражает текущее состояние перед первы
 
 ## Current Merge Focus
 
-Текущий фокус - согласовать существующий frontend service layer со Spring Boot backend по контракту из `docs/FRONTEND_BACKEND_CONTRACT.md`.
-
-Приоритет не в расширении функциональности, а в том, чтобы убрать расхождения между frontend calls, DTO shapes, enum values, pagination и error response.
+- [~] Согласовать существующий frontend service layer со Spring Boot backend по контракту из `docs/FRONTEND_BACKEND_CONTRACT.md`.
+- [~] Приоритет не в расширении функциональности, а в устранении расхождений между frontend calls, DTO shapes, enum values, pagination и error response.
 
 ## Backend endpoints first
 
-1. `POST /api/auth/login`
-2. `POST /api/auth/register`
-3. `GET /api/auth/me`
-4. `POST /api/auth/forgot-password`
-5. `POST /api/auth/reset-password`
-6. `GET /api/vacancies`
-7. `GET /api/vacancies/{id}`
-8. `POST /api/applications`
-9. `GET /api/applications/board`
-10. `GET /api/companies`
-11. `GET /api/ai/history`
-12. `POST /api/ai/analyze-vacancy`
-13. `POST /api/ai/resume-match`
-14. `POST /api/ai/cover-letter`
-15. `POST /api/ai/interview-questions`
-16. `GET /api/analytics/summary`
+- [ ] `POST /api/auth/login`
+- [ ] `POST /api/auth/register`
+- [ ] `GET /api/auth/me`
+- [ ] `POST /api/auth/forgot-password`
+- [ ] `POST /api/auth/reset-password`
+- [ ] `GET /api/vacancies`
+- [ ] `GET /api/vacancies/{id}`
+- [ ] `POST /api/applications`
+- [ ] `GET /api/applications/board`
+- [ ] `GET /api/companies`
+- [ ] `GET /api/ai/history`
+- [ ] `POST /api/ai/analyze-vacancy`
+- [ ] `POST /api/ai/resume-match`
+- [ ] `POST /api/ai/cover-letter`
+- [ ] `POST /api/ai/interview-questions`
+- [ ] `GET /api/analytics/summary`
 
 ## Known limitations
 
-- Часть frontend работает через `VITE_USE_MOCKS=true` и mock data.
-- `DashboardPage` напрямую использует mock data и пока не вызывает backend.
-- `SettingsPage` использует mock/local-only поведение и пока не сохраняет настройки через backend.
-- `authService.me()` не mock-aware: при сохраненном token может вызвать `GET /auth/me` даже в mock mode.
-- Некоторые backend controllers уже существуют, но еще не полностью совпадают с frontend contract.
-- Backend tests зависят от Testcontainers и требуют доступный Docker runtime.
-- GitHub Actions пока запланирован, но не настроен.
+- [x] Часть frontend работает через `VITE_USE_MOCKS=true` и mock data.
+- [x] `DashboardPage` напрямую использует mock data и пока не вызывает backend.
+- [x] `SettingsPage` использует mock/local-only поведение и пока не сохраняет настройки через backend.
+- [x] `authService.me()` не mock-aware: при сохраненном token может вызвать `GET /auth/me` даже в mock mode.
+- [x] Некоторые backend controllers уже существуют, но еще не полностью совпадают с frontend contract.
+- [x] Backend tests зависят от Testcontainers и требуют доступный Docker runtime.
+- [x] GitHub Actions пока запланирован, но не настроен.

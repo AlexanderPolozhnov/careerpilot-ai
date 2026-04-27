@@ -9,7 +9,7 @@
 ## Monorepo-структура
 
 ```text
-careerpilot-ai-public/
+careerpilot-ai/
 |-- backend/                 Spring Boot backend
 |-- frontend/                React + TypeScript frontend
 |-- docs/                    публичная документация и API contract
@@ -19,7 +19,7 @@ careerpilot-ai-public/
 `-- LICENSE
 ```
 
-## Backend setup
+## Настройка бэкенда
 
 Backend находится в `backend/`.
 
@@ -69,7 +69,7 @@ cd backend
 
 Важно: backend tests могут требовать Docker, потому что test configuration использует Testcontainers для PostgreSQL.
 
-## Frontend setup
+## Настройка фронтенда
 
 Frontend находится в `frontend/`.
 
@@ -92,7 +92,7 @@ cd frontend
 npm install
 ```
 
-Dev server:
+Сервер разработки:
 
 ```bash
 npm run dev
@@ -104,7 +104,7 @@ Lint:
 npm run lint
 ```
 
-Production build:
+Сборка production-версии:
 
 ```bash
 npm run build
@@ -123,9 +123,9 @@ npm.cmd run lint
 npm.cmd run build
 ```
 
-## Environment variables
+## Переменные окружения
 
-### Backend
+### Бэкенд
 
 Пример локальных backend variables находится в `backend/.env.example`.
 
@@ -139,7 +139,7 @@ npm.cmd run build
 
 Файлы `.env` и `.env.*` не должны попадать в Git. Для публичного репозитория коммитится только `.env.example`.
 
-### Frontend
+### Фронтенд
 
 Frontend читает Vite env variables через `import.meta.env`.
 
@@ -163,13 +163,13 @@ VITE_USE_MOCKS=false
 docker compose up -d postgres redis
 ```
 
-Optional MinIO profile:
+Опциональный профиль MinIO:
 
 ```bash
 docker compose --profile storage up -d minio
 ```
 
-Optional Ollama profile:
+Опциональный профиль Ollama:
 
 ```bash
 docker compose --profile ai up -d ollama
@@ -217,7 +217,7 @@ docker compose config
 - Frontend test runner пока не настроен.
 - CI через GitHub Actions запланирован, но не добавлен.
 - Backend tests требуют доступный Docker runtime для Testcontainers.
-- Production deployment documentation пока planned.
+- Документация по production deployment пока запланирована.
 
 ## Merge readiness
 

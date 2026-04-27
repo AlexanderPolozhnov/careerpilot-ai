@@ -51,7 +51,7 @@ Backend-модуль CareerPilot AI реализуется на Java 21 и Sprin
 
 Тесты могут требовать Docker, потому что test configuration использует Testcontainers.
 
-## Environment variables
+## Переменные окружения
 
 Локальный пример находится в `.env.example`.
 

@@ -27,7 +27,7 @@ Frontend-модуль CareerPilot AI: React-приложение для упра
 npm install
 ```
 
-Dev server:
+Сервер разработки:
 
 ```bash
 npm run dev
@@ -39,7 +39,7 @@ Lint:
 npm run lint
 ```
 
-Production build:
+Сборка production-версии:
 
 ```bash
 npm run build
@@ -53,7 +53,7 @@ npm run preview
 
 В PowerShell можно использовать `npm.cmd`, если execution policy блокирует `npm.ps1`.
 
-## Environment variables
+## Переменные окружения
 
 - `VITE_API_BASE_URL` - base URL для backend API. Default in code: `http://localhost:8080/api`.
 - `VITE_USE_MOCKS` - переключатель mock/API режима. Default in code: `true`.
@@ -65,7 +65,7 @@ VITE_API_BASE_URL=http://localhost:8080/api
 VITE_USE_MOCKS=false
 ```
 
-## Mock data
+## Мок-данные
 
 Mock data находится в `src/mock/data.ts`.
 
