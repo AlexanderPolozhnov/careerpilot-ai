@@ -47,27 +47,28 @@ Roadmap отражает текущее состояние перед первы
 - [x] Domain-oriented module structure.
 - [x] Dependencies for Spring Security, Spring Data JPA, MapStruct, Bean Validation, OpenAPI / Swagger.
 - [x] Test stack dependencies: JUnit 5, Mockito, Testcontainers.
-- [~] Authentication API.
-- [x] Vacancy API (list/detail/create/update/delete aligned for Authenticated user).
-- [~] Company API.
-- [~] Application API.
-- [~] AI provider abstraction и Ollama-oriented layer.
+- [x] Authentication API (register/login/me endpoints with JWT).
+- [x] GlobalExceptionHandler и unified error response format.
+- [~] Vacancy API (list/detail/create/update/delete aligned for Authenticated user).
+- [ ] Company API.
+- [ ] Application API.
+- [ ] AI provider abstraction и Ollama-oriented layer.
 - [ ] Notification API alignment with frontend contract.
 - [ ] Analytics API alignment with frontend contract.
-- [ ] Unified error response and validation coverage across public endpoints.
+- [ ] Unified validation coverage across public endpoints.
 
 ## Phase 4 — Frontend/Backend Integration
 
-- [~] Auth integration.
-- [~] Vacancies integration.
+- [x] Auth integration (JWT-based, token storage, protected routes, manual verification complete).
+- [~] Vacancies integration (backend endpoints ready, frontend integration in progress).
 - [ ] Companies integration.
 - [ ] Applications integration.
 - [ ] AI assistant integration.
 - [ ] Analytics integration.
-- [ ] Dashboard integration.
+- [ ] Dashboard integration (replacing mock data with backend services).
 - [ ] Settings/preferences integration.
 - [ ] Notifications integration.
-- [ ] Manual API smoke scenarios documented.
+- [ ] Manual API smoke scenarios documented and verified.
 
 ## Phase 5 — AI Features
 
@@ -94,10 +95,14 @@ Roadmap отражает текущее состояние перед первы
 - [ ] Deployment notes.
 - [ ] Security hardening: refresh/revocation strategy, rate limits for AI endpoints, audit trail.
 
-## Current Merge Focus
+## Current Development Focus
 
-- [~] Согласовать существующий frontend service layer со Spring Boot backend по контракту из `docs/FRONTEND_BACKEND_CONTRACT.md`.
-- [~] Приоритет не в расширении функциональности, а в устранении расхождений между frontend calls, DTO shapes, enum values, pagination и error response.
+- [x] Auth vertical slice реализован и проверен (register/login/me endpoints, JWT token flow).
+- [~] Vacancies vertical slice in progress (backend endpoints implementation, frontend integration testing).
+- [ ] Приоритет: реализация vertical slices в порядке: Auth → Vacancies → Companies → Applications → Analytics → AI → Notifications.
+- [ ] Каждый slice должен соответствовать контракту из `docs/FRONTEND_BACKEND_CONTRACT.md`.
+- [ ] Устранение расхождений между frontend calls, DTO shapes, enum values, pagination и error response по контракту.
+- [ ] Замена mock-only зон реальными backend-backed сервисами.
 
 ## Backend endpoints first
 

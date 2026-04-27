@@ -32,30 +32,36 @@ CareerPilot AI - full-stack portfolio project для управления пои
 ## Текущий статус
 
 - Статус проекта: **В активной разработке**.
-- Архитектурный подход: modular monolith.
+- Архитектурный подход: modular monolith с vertical slices подходом.
 - Backend и frontend находятся в одном monorepo.
-- Основная текущая задача: согласование frontend service layer с Spring Boot REST API.
-- Первый vertical slice Auth (`register -> login -> me`) реализован и выровнен по контракту.
+- Основная текущая задача: реализация backend endpoints для каждого vertical slice.
+- **Реализовано:** Auth vertical slice (`POST /auth/register`, `POST /auth/login`, `GET /auth/me`) полностью интегрирован и вручную проверен.
+- **Следующий шаг:** Vacancies vertical slice.
 - `DashboardPage` и `SettingsPage` пока частично используют mock/local state.
-- Backend tests могут требовать доступный Docker runtime из-за Testcontainers.
+- Backend tests требуют доступный Docker runtime из-за Testcontainers.
 
 ## Что уже реализовано
 
 - Monorepo-структура `backend/`, `frontend/`, `docs/`.
-- Backend foundation на `Java 21`, `Spring Boot 3`, `PostgreSQL`, `Flyway`.
-- Domain-oriented backend modules: auth, vacancy, application, company, AI, analytics и смежные модули.
+- Backend foundation на `Java 21`, `Spring Boot 3`, `PostgreSQL`, `Flyway`, `Spring Security`, JWT.
+- Domain-oriented backend modules: auth (полностью), vacancy, application, company, AI, analytics и смежные модули.
 - Frontend foundation на `React`, `TypeScript`, `Vite`, `Tailwind CSS`.
 - Typed frontend service layer для REST API.
+- **Auth vertical slice:** endpoints register/login/me с JWT token-based auth.
+- **Auth integration:** token storage в localStorage, Authorization header, protected routes.
 - Базовая i18n-инфраструктура с `ru` и `en` locale files.
 - Docker Compose для локальной инфраструктуры: PostgreSQL, Redis, optional MinIO и Ollama profiles.
 - Документированный frontend-backend contract.
+- GlobalExceptionHandler и unified error response format.
 
 ## Что в разработке
 
-- Доведение backend endpoints до контрактов, которые ожидает frontend.
+- **Vacancies vertical slice:** backend endpoints (GET/POST/PUT/DELETE /api/vacancies) и frontend интеграция.
+- Remaining vertical slices: Companies, Applications, Analytics, AI, Notifications.
 - Замена mock-only зон dashboard/settings на backend-backed services.
 - Полная интеграция AI endpoints с provider abstraction.
 - Расширение test coverage и CI через GitHub Actions.
+- Forgot/reset password endpoints для auth.
 - Документация по deployment и production hardening.
 
 ## Почему проект интересен для review
