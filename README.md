@@ -64,14 +64,6 @@ CareerPilot AI - full-stack portfolio project для управления пои
 - Forgot/reset password endpoints для auth.
 - Документация по deployment и production hardening.
 
-## Почему проект интересен для review
-
-- Показывает full-stack мышление: frontend UX, backend API, database, infrastructure и AI layer.
-- Использует contract-first подход между frontend и backend.
-- Демонстрирует modular monolith вместо хаотичного CRUD.
-- Имеет честный roadmap и явно отмеченные ограничения.
-- Подходит для обсуждения архитектурных trade-off на техническом интервью.
-
 ## Стек технологий
 
 ### Бэкенд
