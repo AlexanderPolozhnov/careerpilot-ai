@@ -14,18 +14,21 @@ import com.alexanderpolozhnov.careerpilot.vacancy.entity.VacancyTagEntity;
 import com.alexanderpolozhnov.careerpilot.vacancy.mapper.VacancyMapper;
 import com.alexanderpolozhnov.careerpilot.vacancy.repository.VacancyRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.JoinType;
 import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class VacancyServiceImpl implements VacancyService {
 
@@ -57,6 +60,7 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PagedResponse<VacancyDto> list(
             int page,
             int size,
@@ -84,10 +88,13 @@ public class VacancyServiceImpl implements VacancyService {
 
         Page<VacancyDto> mappedPage = vacancyRepository.findAll(specification, pageable)
                 .map(vacancyMapper::toDto);
+        log.info("vacancies.list userId={} page={} size={} total={} filters(status={}, remote={}, companyId={})",
+                userId, page, size, mappedPage.getTotalElements(), status, remote, companyId);
         return PagedResponse.fromPage(mappedPage);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public VacancyDto getById(UUID id) {
         return vacancyMapper.toDto(findOwnedVacancy(id));
     }
@@ -154,13 +161,14 @@ public class VacancyServiceImpl implements VacancyService {
         if (companyId == null || companyId.isBlank()) {
             return null;
         }
+        UUID parsed;
         try {
-            UUID parsed = UUID.fromString(companyId);
-            return companyRepository.findByIdAndUserId(parsed, userId)
-                    .orElseThrow(() -> new IllegalArgumentException("Company not found"));
+            parsed = UUID.fromString(companyId);
         } catch (IllegalArgumentException exception) {
             throw new IllegalArgumentException("Invalid companyId");
         }
+        return companyRepository.findByIdAndUserId(parsed, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Company not found"));
     }
 
     private void replaceTags(VacancyEntity entity, java.util.List<String> tagIds) {

@@ -1,8 +1,8 @@
 import { api, buildQuery } from '@/lib/api-client'
-import type { Company, PagedResponse } from '@/types'
+import type { Company, CompanySize, PagedResponse } from '@/types'
 import { mockCompanies } from '@/mock/data'
 
-const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'true') === 'true'
+const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'false') === 'true'
 
 function toPaged<T>(items: T[], page = 0, size = 20): PagedResponse<T> {
   const start = page * size
@@ -30,7 +30,7 @@ export interface CreateCompanyDto {
   name: string
   website?: string
   industry?: string
-  size?: string
+  size?: CompanySize
   location?: string
   description?: string
   linkedinUrl?: string
@@ -69,7 +69,7 @@ export const companyService = {
           name: data.name,
           website: data.website,
           industry: data.industry,
-          size: data.size as Company['size'],
+          size: data.size,
           location: data.location,
           description: data.description,
           linkedinUrl: data.linkedinUrl,
@@ -84,7 +84,7 @@ export const companyService = {
       ? companyService.getById(id).then((c) => ({
           ...c,
           ...data,
-          size: (data.size as Company['size']) ?? c.size,
+          size: data.size ?? c.size,
           updatedAt: new Date().toISOString(),
         }))
       : api.put<Company>(`/companies/${id}`, data),

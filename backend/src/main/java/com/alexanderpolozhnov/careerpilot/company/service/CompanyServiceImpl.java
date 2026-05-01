@@ -1,19 +1,26 @@
 package com.alexanderpolozhnov.careerpilot.company.service;
 
+import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
+import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
 import com.alexanderpolozhnov.careerpilot.company.entity.CompanyEntity;
 import com.alexanderpolozhnov.careerpilot.company.request.CompanyRequest;
 import com.alexanderpolozhnov.careerpilot.company.response.CompanyResponse;
 import com.alexanderpolozhnov.careerpilot.company.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CompanyServiceImpl implements CompanyService {
 
@@ -22,27 +29,30 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public CompanyResponse create(CompanyRequest request) {
+        AuthEntity currentUser = currentUserResolver.resolveRequired();
+        if (request.name() == null || request.name().isBlank()) {
+            throw new IllegalArgumentException("Company name is required");
+        }
         CompanyEntity entity = new CompanyEntity();
-        entity.setUser(currentUserResolver.resolveOrCreate());
-        entity.setName(normalizePayload(request.payload()));
-        entity.setDescription(request.payload());
+        entity.setUser(currentUser);
+        applyRequest(entity, request, false);
         return toResponse(companyRepository.save(entity));
     }
 
     @Override
-    public List<CompanyResponse> list(int page, int size, String sortBy, String direction, String q) {
-        UUID userId = currentUserResolver.resolveOrCreate().getId();
-        Comparator<CompanyEntity> comparator = buildComparator(sortBy);
-        if ("desc".equalsIgnoreCase(direction)) {
-            comparator = comparator.reversed();
-        }
-        final String query = q == null ? "" : q.trim().toLowerCase(Locale.ROOT);
-
-        List<CompanyEntity> filtered = companyRepository.findAllByUserId(userId).stream()
-                .filter(entity -> query.isBlank() || asSearchableText(entity).contains(query))
-                .sorted(comparator)
-                .toList();
-        return paginate(filtered, page, size).stream().map(this::toResponse).toList();
+    public PagedResponse<CompanyResponse> list(int page, int size, String sortBy, String direction, String search) {
+        UUID userId = currentUserResolver.resolveRequired().getId();
+        Pageable pageable = PageRequest.of(
+                Math.max(page, 0),
+                Math.max(size, 1),
+                Sort.by(parseDirection(direction), mapSortField(sortBy))
+        );
+        Specification<CompanyEntity> specification = byUser(userId).and(bySearch(search));
+        Page<CompanyResponse> mappedPage = companyRepository.findAll(specification, pageable)
+                .map(this::toResponse);
+        log.info("companies.list userId={} page={} size={} total={}",
+                userId, page, size, mappedPage.getTotalElements());
+        return PagedResponse.fromPage(mappedPage);
     }
 
     @Override
@@ -53,8 +63,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyResponse update(UUID id, CompanyRequest request) {
         CompanyEntity entity = findOwnedCompany(id);
-        entity.setName(normalizePayload(request.payload()));
-        entity.setDescription(request.payload());
+        applyRequest(entity, request, true);
         return toResponse(companyRepository.save(entity));
     }
 
@@ -64,46 +73,91 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     private CompanyEntity findOwnedCompany(UUID id) {
-        UUID userId = currentUserResolver.resolveOrCreate().getId();
-        CompanyEntity entity = companyRepository.findById(id)
+        UUID userId = currentUserResolver.resolveRequired().getId();
+        return companyRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Company not found"));
-        if (!entity.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("Company does not belong to current user");
-        }
-        return entity;
     }
 
     private CompanyResponse toResponse(CompanyEntity entity) {
-        String payload = entity.getDescription() == null ? entity.getName() : entity.getDescription();
-        return new CompanyResponse(entity.getId(), payload);
+        return new CompanyResponse(
+                entity.getId(),
+                entity.getName(),
+                entity.getWebsite(),
+                entity.getIndustry(),
+                entity.getSize(),
+                entity.getLocation(),
+                entity.getDescription(),
+                entity.getLinkedinUrl(),
+                entity.getLogoUrl(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
     }
 
-    private String normalizePayload(String payload) {
-        String trimmed = payload.trim();
-        return trimmed.length() > 255 ? trimmed.substring(0, 255) : trimmed;
+    private void applyRequest(CompanyEntity entity, CompanyRequest request, boolean partialUpdate) {
+        if (request.name() != null && !request.name().isBlank()) {
+            entity.setName(request.name().trim());
+        }
+        if (!partialUpdate || request.website() != null) {
+            entity.setWebsite(trimOrNull(request.website()));
+        }
+        if (!partialUpdate || request.industry() != null) {
+            entity.setIndustry(trimOrNull(request.industry()));
+        }
+        if (!partialUpdate || request.size() != null) {
+            entity.setSize(request.size());
+        }
+        if (!partialUpdate || request.location() != null) {
+            entity.setLocation(trimOrNull(request.location()));
+        }
+        if (!partialUpdate || request.description() != null) {
+            entity.setDescription(trimOrNull(request.description()));
+        }
+        if (!partialUpdate || request.linkedinUrl() != null) {
+            entity.setLinkedinUrl(trimOrNull(request.linkedinUrl()));
+        }
+        if (!partialUpdate || request.logoUrl() != null) {
+            entity.setLogoUrl(trimOrNull(request.logoUrl()));
+        }
     }
 
-    private Comparator<CompanyEntity> buildComparator(String sortBy) {
+    private Sort.Direction parseDirection(String direction) {
+        return "ASC".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+    }
+
+    private String mapSortField(String sortBy) {
         if ("updatedAt".equalsIgnoreCase(sortBy)) {
-            return Comparator.comparing(CompanyEntity::getUpdatedAt);
+            return "updatedAt";
         }
-        return Comparator.comparing(CompanyEntity::getCreatedAt);
+        if ("name".equalsIgnoreCase(sortBy)) {
+            return "name";
+        }
+        return "createdAt";
     }
 
-    private String asSearchableText(CompanyEntity entity) {
-        String name = entity.getName() == null ? "" : entity.getName();
-        String description = entity.getDescription() == null ? "" : entity.getDescription();
-        return (name + " " + description).toLowerCase(Locale.ROOT);
+    private Specification<CompanyEntity> byUser(UUID userId) {
+        return (root, query, cb) -> cb.equal(root.get("user").get("id"), userId);
     }
 
-    private List<CompanyEntity> paginate(List<CompanyEntity> source, int page, int size) {
-        int safePage = Math.max(page, 0);
-        int safeSize = Math.max(size, 1);
-        int fromIndex = safePage * safeSize;
-        if (fromIndex >= source.size()) {
-            return List.of();
+    private Specification<CompanyEntity> bySearch(String search) {
+        if (search == null || search.isBlank()) {
+            return null;
         }
-        int toIndex = Math.min(fromIndex + safeSize, source.size());
-        return source.subList(fromIndex, toIndex);
+        String likeValue = "%" + search.trim().toLowerCase(Locale.ROOT) + "%";
+        return (root, query, cb) -> cb.or(
+                cb.like(cb.lower(root.get("name")), likeValue),
+                cb.like(cb.lower(cb.coalesce(root.get("industry"), "")), likeValue),
+                cb.like(cb.lower(cb.coalesce(root.get("location"), "")), likeValue),
+                cb.like(cb.lower(cb.coalesce(root.get("website"), "")), likeValue),
+                cb.like(cb.lower(cb.coalesce(root.get("description"), "")), likeValue)
+        );
+    }
+
+    private String trimOrNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

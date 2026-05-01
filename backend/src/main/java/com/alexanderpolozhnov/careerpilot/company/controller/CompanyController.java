@@ -1,5 +1,6 @@
 package com.alexanderpolozhnov.careerpilot.company.controller;
 
+import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.company.request.CompanyRequest;
 import com.alexanderpolozhnov.careerpilot.company.response.CompanyResponse;
 import com.alexanderpolozhnov.careerpilot.company.service.CompanyService;
@@ -7,7 +8,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -22,14 +22,14 @@ public class CompanyController {
     }
 
     @GetMapping
-    public List<CompanyResponse> list(
+    public PagedResponse<CompanyResponse> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction,
-            @RequestParam(defaultValue = "") String q
+            @RequestParam(defaultValue = "createdAt") String sort,
+            @RequestParam(defaultValue = "DESC") String direction,
+            @RequestParam(required = false) String search
     ) {
-        return service.list(page, size, sortBy, direction, q);
+        return service.list(page, size, sort, direction, search);
     }
 
     @GetMapping("/{id}")

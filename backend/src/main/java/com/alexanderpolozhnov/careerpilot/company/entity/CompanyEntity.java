@@ -32,4 +32,17 @@ public class CompanyEntity extends BaseAuditableEntity {
 
     @Column(length = 255)
     private String industry;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "company_size", length = 50)
+    private CompanySize size;
+
+    @Column(length = 255)
+    private String location;
+
+    @Column(name = "linkedin_url", columnDefinition = "TEXT")
+    private String linkedinUrl;
+
+    @Column(name = "logo_url", columnDefinition = "TEXT")
+    private String logoUrl;
 }
