@@ -2,9 +2,11 @@ package com.alexanderpolozhnov.careerpilot.analytics.controller;
 
 import com.alexanderpolozhnov.careerpilot.analytics.request.AnalyticsRequest;
 import com.alexanderpolozhnov.careerpilot.analytics.response.AnalyticsResponse;
+import com.alexanderpolozhnov.careerpilot.analytics.response.AnalyticsSummaryResponse;
 import com.alexanderpolozhnov.careerpilot.analytics.service.AnalyticsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,5 +21,10 @@ public class AnalyticsController {
     @PostMapping
     public AnalyticsResponse create(@Valid @RequestBody AnalyticsRequest request) {
         return service.create(request);
+    }
+
+    @GetMapping("/summary")
+    public AnalyticsSummaryResponse summary() {
+        return service.summary();
     }
 }

@@ -1,6 +1,7 @@
 package com.alexanderpolozhnov.careerpilot.application.controller;
 
 import com.alexanderpolozhnov.careerpilot.application.request.ApplicationRequest;
+import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardItemResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationResponse;
 import com.alexanderpolozhnov.careerpilot.application.service.ApplicationService;
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -30,6 +32,11 @@ public class ApplicationController {
             @RequestParam(defaultValue = "") String q
     ) {
         return service.list(page, size, sortBy, direction, q);
+    }
+
+    @GetMapping("/board")
+    public Map<String, List<ApplicationBoardItemResponse>> board() {
+        return service.board();
     }
 
     @GetMapping("/{id}")

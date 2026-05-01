@@ -2,20 +2,28 @@ package com.alexanderpolozhnov.careerpilot.application.service;
 
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationEntity;
 import com.alexanderpolozhnov.careerpilot.application.request.ApplicationRequest;
+import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardCompanyResponse;
+import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardItemResponse;
+import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardVacancyResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationResponse;
 import com.alexanderpolozhnov.careerpilot.application.repository.ApplicationRepository;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
 import com.alexanderpolozhnov.careerpilot.vacancy.entity.VacancyEntity;
 import com.alexanderpolozhnov.careerpilot.vacancy.repository.VacancyRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ApplicationServiceImpl implements ApplicationService {
 
@@ -51,7 +59,52 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .filter(entity -> query.isBlank() || asSearchableText(entity).contains(query))
                 .sorted(comparator)
                 .toList();
+        log.info("applications.list userId={} page={} size={} total={}",
+                userId, page, size, filtered.size());
         return paginate(filtered, page, size).stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, List<ApplicationBoardItemResponse>> board() {
+        UUID userId = currentUserResolver.resolveRequired().getId();
+        Map<String, List<ApplicationBoardItemResponse>> result = new LinkedHashMap<>();
+        result.put("NEW", new java.util.ArrayList<>());
+        result.put("SAVED", new java.util.ArrayList<>());
+        result.put("APPLIED", new java.util.ArrayList<>());
+        result.put("HR_SCREEN", new java.util.ArrayList<>());
+        result.put("TECH_INTERVIEW", new java.util.ArrayList<>());
+        result.put("FINAL_ROUND", new java.util.ArrayList<>());
+        result.put("OFFER", new java.util.ArrayList<>());
+        result.put("REJECTED", new java.util.ArrayList<>());
+
+        for (ApplicationEntity entity : applicationRepository.findAllByUserId(userId)) {
+            String status = mapStatusForFrontend(entity);
+            ApplicationBoardCompanyResponse company = entity.getVacancy().getCompany() == null
+                    ? null
+                    : new ApplicationBoardCompanyResponse(
+                    entity.getVacancy().getCompany().getId().toString(),
+                    entity.getVacancy().getCompany().getName()
+            );
+            ApplicationBoardVacancyResponse vacancy = new ApplicationBoardVacancyResponse(
+                    entity.getVacancy().getId().toString(),
+                    entity.getVacancy().getTitle(),
+                    entity.getVacancy().getLocation(),
+                    company
+            );
+            ApplicationBoardItemResponse item = new ApplicationBoardItemResponse(
+                    entity.getId(),
+                    entity.getVacancy().getId().toString(),
+                    vacancy,
+                    status,
+                    entity.getAppliedAt(),
+                    entity.getNotes(),
+                    entity.getCreatedAt(),
+                    entity.getUpdatedAt()
+            );
+            result.computeIfAbsent(status, key -> new java.util.ArrayList<>()).add(item);
+        }
+        return result;
     }
 
     @Override
@@ -107,5 +160,18 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         int toIndex = Math.min(fromIndex + safeSize, source.size());
         return source.subList(fromIndex, toIndex);
+    }
+
+    private String mapStatusForFrontend(ApplicationEntity entity) {
+        if (entity.getStatus() == null) {
+            return "NEW";
+        }
+        if (entity.getStatus().name().equals("FINAL")) {
+            return "FINAL_ROUND";
+        }
+        if (entity.getStatus().name().equals("ARCHIVED")) {
+            return "REJECTED";
+        }
+        return entity.getStatus().name();
     }
 }

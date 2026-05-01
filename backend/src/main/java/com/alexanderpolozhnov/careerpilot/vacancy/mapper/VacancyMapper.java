@@ -6,6 +6,7 @@ import com.alexanderpolozhnov.careerpilot.vacancy.dto.VacancyDto;
 import com.alexanderpolozhnov.careerpilot.vacancy.dto.VacancyTagDto;
 import com.alexanderpolozhnov.careerpilot.vacancy.entity.VacancyEntity;
 import com.alexanderpolozhnov.careerpilot.vacancy.entity.VacancyTagEntity;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -39,6 +40,9 @@ public class VacancyMapper {
     private VacancyCompanyDto toCompanyDto(CompanyEntity company) {
         if (company == null) {
             return null;
+        }
+        if (!Hibernate.isInitialized(company)) {
+            return new VacancyCompanyDto(company.getId(), null);
         }
         return new VacancyCompanyDto(company.getId(), company.getName());
     }
