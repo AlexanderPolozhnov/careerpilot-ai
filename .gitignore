@@ -18,15 +18,15 @@ backend/target/
 .junie
 
 # Node / Vite
-node_modules/
 frontend/node_modules/
 dist/
 frontend/dist/
-frontend/.vite/
+.vite/
 
 # IDEs
 .idea/
-.vscode/
+.vscode/*
+!.vscode/tasks.json
 *.iml
 *.iws
 *.ipr

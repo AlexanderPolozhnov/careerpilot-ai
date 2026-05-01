@@ -2,7 +2,7 @@ import { api } from '@/lib/api-client'
 import type { AiResult, AiResultType } from '@/types'
 import { mockAiResults, mockUser } from '@/mock/data'
 
-const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'true') === 'true'
+const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'false') === 'true'
 
 function mkResult(type: AiResultType, prompt: string, result: string, vacancyId?: string): AiResult {
   return {

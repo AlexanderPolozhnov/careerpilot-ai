@@ -1,6 +1,8 @@
 spring:
   application:
     name: careerpilot-ai
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
   datasource:
     url: jdbc:postgresql://localhost:5432/${DB_NAME}
@@ -20,6 +22,8 @@ spring:
     enabled: true
     default-schema: careerpilot
     schemas: careerpilot
+    locations:
+      - classpath:db/migration
 
 security:
   jwt:

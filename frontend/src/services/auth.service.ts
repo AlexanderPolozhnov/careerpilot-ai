@@ -2,7 +2,7 @@ import { api, setToken, clearToken } from '@/lib/api-client'
 import type { User } from '@/types'
 import { mockUser } from '@/mock/data'
 
-const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'true') === 'true'
+const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'false') === 'true'
 
 export interface LoginRequest {
   email: string

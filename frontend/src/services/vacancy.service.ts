@@ -2,7 +2,7 @@ import { api, buildQuery } from '@/lib/api-client'
 import type { Vacancy, PagedResponse, VacancyStatus } from '@/types'
 import { mockVacancies } from '@/mock/data'
 
-const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'true') === 'true'
+const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'false') === 'true'
 
 function toPaged<T>(items: T[], page = 0, size = 20): PagedResponse<T> {
   const start = page * size
