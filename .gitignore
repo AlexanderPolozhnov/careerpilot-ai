@@ -15,6 +15,7 @@ backend/target/
 *.class
 *.jar
 *.war
+.junie
 
 # Node / Vite
 node_modules/
