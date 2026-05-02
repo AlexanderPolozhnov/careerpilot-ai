@@ -74,8 +74,8 @@ export default function LandingPage() {
           <div className="relative">
             <div className="absolute -inset-6 bg-gradient-to-br from-accent/18 via-transparent to-accent-2/14 blur-2xl" />
             <div className="relative card p-5 md:p-6">
-              <div className="text-xs text-ink-dim">Preview</div>
-              <div className="mt-2 text-sm font-semibold text-ink">Dashboard — Today</div>
+              <div className="text-xs text-ink-dim">{t('landing.previewLabel')}</div>
+              <div className="mt-2 text-sm font-semibold text-ink">{t('landing.dashboardPreviewTitle')}</div>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 <div className="card p-4 bg-surface-1/40">
                   <div className="text-xs text-ink-dim">{t('dashboard.activeApplications')}</div>
@@ -86,14 +86,14 @@ export default function LandingPage() {
                   <div className="text-2xl font-semibold text-ink mt-1">2</div>
                 </div>
                 <div className="card p-4 bg-surface-1/40 md:col-span-2">
-                  <div className="text-xs text-ink-dim">Latest AI insight</div>
+                  <div className="text-xs text-ink-dim">{t('landing.latestAiInsight')}</div>
                   <div className="mt-2 text-sm text-ink-muted leading-relaxed">
-                    Strong fit — tailor bullets to measurable UI impact and highlight design-system work.
+                    {t('landing.latestAiInsightDescription')}
                   </div>
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between">
-                <span className="text-xs text-ink-dim">Mock mode</span>
+                <span className="text-xs text-ink-dim">{t('landing.mockMode')}</span>
                 <span className="pill">VITE_USE_MOCKS=true</span>
               </div>
             </div>
@@ -104,9 +104,7 @@ export default function LandingPage() {
       <footer className="border-t border-border">
         <div className="mx-auto max-w-6xl px-5 md:px-8 py-8 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
           <div className="text-xs text-ink-dim">© {new Date().getFullYear()} CareerPilot AI</div>
-          <div className="text-xs text-ink-dim">
-            Built for Spring Boot REST integration · Typed domain models · RHF + Zod-ready
-          </div>
+          <div className="text-xs text-ink-dim">{t('landing.footerDetails')}</div>
         </div>
       </footer>
     </div>

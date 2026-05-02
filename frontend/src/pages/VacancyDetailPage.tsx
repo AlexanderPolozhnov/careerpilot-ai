@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { EmptyState } from '@/components/EmptyState'
 import { MatchScoreBadge, RemoteBadge, StatusBadge } from '@/components/StatusBadge'
 import { AiInsightCard } from '@/components/AiInsightCard'
@@ -13,6 +14,7 @@ import { formatSalary } from '@/lib/utils'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export default function VacancyDetailPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -55,18 +57,18 @@ export default function VacancyDetailPage() {
   return (
     <section className="space-y-4">
       <Link to="/app/vacancies" className="text-sm text-ink-muted hover:text-ink transition-colors">
-        ← Back to vacancies
+        {t('vacancies.backToVacancies')}
       </Link>
 
       {vacancyQuery.isLoading ? (
-        <LoadingState message="Loading vacancy…" />
+        <LoadingState message={t('vacancies.loadingDetail')} />
       ) : vacancyQuery.error ? (
         <ErrorState
-          title="Unable to load vacancy"
-          message={vacancyQuery.error instanceof Error ? vacancyQuery.error.message : 'Failed to load vacancy'}
+          title={t('vacancies.loadError')}
+          message={vacancyQuery.error instanceof Error ? vacancyQuery.error.message : t('vacancies.loadErrorMessage')}
         />
       ) : !vacancy ? (
-        <EmptyState title="Vacancy not found" description={`No vacancy exists for id: ${id ?? '—'}`} />
+        <EmptyState title={t('vacancies.notFoundTitle')} description={t('vacancies.notFoundDescription', { id: id ?? '—' })} />
       ) : (
         <div className="grid gap-4 lg:grid-cols-5">
           <div className="lg:col-span-3 space-y-3">
@@ -75,7 +77,7 @@ export default function VacancyDetailPage() {
                 <div className="min-w-0">
                   <div className="text-lg font-semibold text-ink">{vacancy.title}</div>
                   <div className="text-sm text-ink-dim mt-1">
-                    {company?.name ?? 'Company'} · {vacancy.location ?? '—'}
+                    {company?.name ?? t('vacancies.companyLabel')} · {vacancy.location ?? '—'}
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <StatusBadge status={vacancy.status} kind="vacancy" />
@@ -95,20 +97,20 @@ export default function VacancyDetailPage() {
                     rel="noreferrer"
                     className="btn-secondary text-sm"
                   >
-                    Open posting
+                    {t('vacancies.openPosting')}
                   </a>
                 )}
               </div>
 
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <div className="card p-4 bg-surface-1/40">
-                  <div className="text-xs text-ink-dim">Salary</div>
+                  <div className="text-xs text-ink-dim">{t('vacancies.salary')}</div>
                   <div className="text-sm text-ink mt-1">
                     {formatSalary(vacancy.salaryMin, vacancy.salaryMax, vacancy.salaryCurrency ?? 'USD')}
                   </div>
                 </div>
                 <div className="card p-4 bg-surface-1/40">
-                  <div className="text-xs text-ink-dim">Contract</div>
+                  <div className="text-xs text-ink-dim">{t('vacancies.contract')}</div>
                   <div className="text-sm text-ink mt-1">{vacancy.contractType ?? '—'}</div>
                 </div>
               </div>
@@ -119,7 +121,7 @@ export default function VacancyDetailPage() {
 
               {company && (
                 <div className="mt-5 border-t border-border pt-4">
-                  <div className="text-sm font-semibold text-ink">Company</div>
+                  <div className="text-sm font-semibold text-ink">{t('vacancies.companyLabel')}</div>
                   <div className="mt-2 text-sm text-ink-muted leading-relaxed">
                     {company.description ?? '—'}
                   </div>
@@ -129,7 +131,7 @@ export default function VacancyDetailPage() {
                     {company.size && <span className="pill">{company.size}</span>}
                     {company.website && (
                       <a className="pill hover:border-border-strong transition-colors" href={company.website} target="_blank" rel="noreferrer">
-                        Website
+                        {t('vacancies.website')}
                       </a>
                     )}
                   </div>
@@ -148,56 +150,56 @@ export default function VacancyDetailPage() {
                   className="btn-secondary text-sm"
                   disabled={updateMutation.isPending}
                   onClick={async () => {
-                    const nextTitle = window.prompt('Новое название вакансии', vacancy.title)
+                    const nextTitle = window.prompt(t('vacancies.newTitlePrompt'), vacancy.title)
                     if (!nextTitle || !nextTitle.trim() || !id) {
                       return
                     }
                     try {
                       await updateMutation.mutateAsync({ vacancyId: id, title: nextTitle.trim() })
-                      setActionNote('Вакансия обновлена.')
+                      setActionNote(t('vacancies.vacancyUpdated'))
                     } catch (error) {
-                      setActionNote(error instanceof Error ? error.message : 'Не удалось обновить вакансию')
+                      setActionNote(error instanceof Error ? error.message : t('vacancies.vacancyUpdateFailed'))
                     }
                   }}
                 >
-                  Edit title
+                  {t('vacancies.editTitle')}
                 </button>
                 <button
                   type="button"
                   className="btn-secondary text-sm"
                   disabled={deleteMutation.isPending}
                   onClick={async () => {
-                    if (!id || !window.confirm('Удалить вакансию?')) {
+                    if (!id || !window.confirm(t('vacancies.deleteConfirmation'))) {
                       return
                     }
                     try {
                       await deleteMutation.mutateAsync(id)
                     } catch (error) {
-                      setActionNote(error instanceof Error ? error.message : 'Не удалось удалить вакансию')
+                      setActionNote(error instanceof Error ? error.message : t('vacancies.vacancyDeleteFailed'))
                     }
                   }}
                 >
-                  Delete
+                  {t('vacancies.delete')}
                 </button>
                 <button
                   type="button"
                   className="btn-secondary text-sm"
                   onClick={async () => {
                     await applicationService.create({ vacancyId: vacancy.id, status: 'SAVED' })
-                    setActionNote('Saved to applications (mock).')
+                    setActionNote(t('vacancies.savedToApplications'))
                   }}
                 >
-                  Save
+                  {t('vacancies.save')}
                 </button>
                 <button
                   type="button"
                   className="inline-flex items-center justify-center rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent-dim transition-colors"
                   onClick={async () => {
                     await applicationService.create({ vacancyId: vacancy.id, status: 'APPLIED', appliedAt: new Date().toISOString() })
-                    setActionNote('Marked as applied (mock).')
+                    setActionNote(t('vacancies.markedAsApplied'))
                   }}
                 >
-                  Apply
+                  {t('vacancies.apply')}
                 </button>
                 <button
                   type="button"
@@ -205,10 +207,10 @@ export default function VacancyDetailPage() {
                   onClick={async () => {
                     const res = await aiService.analyzeVacancy({ vacancyId: vacancy.id })
                     setInsight(res.result)
-                    setActionNote('AI analysis generated (mock).')
+                    setActionNote(t('vacancies.aiAnalysisGenerated'))
                   }}
                 >
-                  Generate AI analysis
+                  {t('vacancies.generateAnalysis')}
                 </button>
               </div>
             </div>
@@ -216,17 +218,17 @@ export default function VacancyDetailPage() {
 
           <div className="lg:col-span-2 space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-ink">AI insight</h2>
+              <h2 className="text-sm font-semibold text-ink">{t('vacancies.aiInsight')}</h2>
               <button type="button" className="btn-secondary text-sm">
-                Generate
+                {t('vacancies.generate')}
               </button>
             </div>
             {aiInsight ? (
               <AiInsightCard result={aiInsight} compact />
             ) : (
               <EmptyState
-                title="No AI insight yet"
-                description="Generate a vacancy analysis to get tailored recommendations."
+                title={t('vacancies.noAiInsightTitle')}
+                description={t('vacancies.noAiInsightDescription')}
               />
             )}
           </div>

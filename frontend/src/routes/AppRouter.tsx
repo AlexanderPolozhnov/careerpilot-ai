@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactElement } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AppLayout } from '../components/AppLayout'
 import { useAuth } from '../context/useAuth'
 import LandingPage from '../pages/LandingPage'
@@ -15,10 +16,11 @@ import SettingsPage from '../pages/SettingsPage'
 import { LoadingState } from '@/components/LoadingState'
 
 function ProtectedRoute({ children }: { children: ReactElement }) {
+  const { t } = useTranslation()
   const { isAuthenticated, isLoading } = useAuth()
 
   if (isLoading) {
-    return <LoadingState message="Preparing workspace…" className="py-24" />
+    return <LoadingState message={t('common.preparingWorkspace')} className="py-24" />
   }
 
   if (!isAuthenticated) {
