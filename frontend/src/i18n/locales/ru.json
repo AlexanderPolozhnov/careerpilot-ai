@@ -11,7 +11,8 @@
         "success": "Успешно",
         "logout": "Выход",
         "account": "Аккаунт",
-        "preparingWorkspace": "Подготавливаем рабочую область…"
+        "preparingWorkspace": "Подготавливаем рабочую область…",
+        "new": "новое"
     },
     "navigation": {
         "workspace": "Рабочая область",
@@ -86,7 +87,9 @@
         "priority": "Приоритет",
         "status": "Статус",
         "open": "Открыть",
-        "noUpcomingInterviews": "Нет предстоящих интервью"
+        "noUpcomingInterviews": "Нет предстоящих интервью",
+        "notifications": "Уведомления",
+        "new": "новое"
     },
     "vacancies": {
         "title": "Вакансии",
@@ -97,6 +100,7 @@
         "loading": "Загрузка вакансий...",
         "error": "Не удалось загрузить вакансии",
         "noVacancies": "Вакансии не найдены",
+        "noVacanciesDescription": "Попробуйте другой поисковый запрос или добавьте новую вакансию.",
         "description": "Начните с поиска и сохранения вакансий.",
         "salary": "Зарплата",
         "location": "Местоположение",
@@ -128,7 +132,16 @@
         "vacancyDeleteFailed": "Не удалось удалить вакансию",
         "savedToApplications": "Сохранено в заявки (макет).",
         "markedAsApplied": "Отмечено как откликнутое (макет).",
-        "aiAnalysisGenerated": "Анализ AI сгенерирован (макет)."
+        "aiAnalysisGenerated": "Анализ AI сгенерирован (макет).",
+        "addVacancy": "Добавить вакансию",
+        "allStatuses": "Все статусы",
+        "allModes": "Все режимы",
+        "tableView": "Таблица",
+        "listView": "Список",
+        "tableRole": "Должность",
+        "tableCompany": "Компания",
+        "tableStatus": "Статус",
+        "tableMatch": "Совпадение"
     },
     "applications": {
         "title": "Заявки",
@@ -246,10 +259,16 @@
         "aiProviderLocal": "Локальный",
         "aiProviderCloud": "Облако",
         "aiProviderCustom": "Свой ключ",
+        "aiProviderDescription": "Режимы для интеграции с бэкендом.",
+        "aiProviderTodo": "Бэкенд TODO: сохранить в предпочтениях пользователя и применить к AI.",
+        "recentNotifications": "Последние уведомления",
+        "mockFeed": "Макет ленты.",
         "saveSettings": "Сохранить настройки",
         "saved": "Сохранено (макет).",
         "language": "Язык интерфейса",
-        "selectLanguage": "Выберите язык"
+        "selectLanguage": "Выберите язык",
+        "languageRU": "🇷🇺 Русский",
+        "languageEN": "🇬🇧 English"
     },
     "forms": {
         "validation": {

@@ -48,7 +48,7 @@ export default function VacanciesPage() {
               value={status}
               onChange={(e) => setStatus(e.target.value as VacancyStatus | 'ALL')}
             >
-              <option value="ALL">All statuses</option>
+              <option value="ALL">{t('vacancies.allStatuses')}</option>
               <option value="ACTIVE">Active</option>
               <option value="ARCHIVED">Archived</option>
               <option value="EXPIRED">Expired</option>
@@ -58,7 +58,7 @@ export default function VacanciesPage() {
               value={remote}
               onChange={(e) => setRemote(e.target.value as RemoteType | 'ALL')}
             >
-              <option value="ALL">All modes</option>
+              <option value="ALL">{t('vacancies.allModes')}</option>
               <option value="REMOTE">Remote</option>
               <option value="HYBRID">Hybrid</option>
               <option value="ON_SITE">On-site</option>
@@ -68,7 +68,7 @@ export default function VacanciesPage() {
               className="btn-secondary text-sm"
               onClick={() => setView((v) => (v === 'list' ? 'table' : 'list'))}
             >
-              {view === 'list' ? 'Table' : 'List'}
+              {view === 'list' ? t('vacancies.tableView') : t('vacancies.listView')}
             </button>
             <span className="pill">{visibleItems.length} {t('vacancies.results')}</span>
             <button
@@ -91,7 +91,7 @@ export default function VacanciesPage() {
               }}
               disabled={createMutation.isPending}
             >
-              Add vacancy
+              {t('vacancies.addVacancy')}
             </button>
           </>
         }
@@ -106,8 +106,8 @@ export default function VacanciesPage() {
         />
       ) : visibleItems.length === 0 ? (
         <EmptyState
-          title="No vacancies found"
-          description="Try a different search query or add a new vacancy."
+          title={t('vacancies.noVacancies')}
+          description={t('vacancies.noVacanciesDescription')}
         />
       ) : (
         <>
@@ -145,10 +145,10 @@ export default function VacanciesPage() {
           ) : (
             <div className="card overflow-hidden">
               <div className="grid grid-cols-12 gap-3 px-4 py-3 text-xs text-ink-dim border-b border-border">
-                <div className="col-span-5">Role</div>
-                <div className="col-span-3">Company</div>
-                <div className="col-span-2">Status</div>
-                <div className="col-span-2 text-right">Match</div>
+                <div className="col-span-5">{t('vacancies.tableRole')}</div>
+                <div className="col-span-3">{t('vacancies.tableCompany')}</div>
+                <div className="col-span-2">{t('vacancies.tableStatus')}</div>
+                <div className="col-span-2 text-right">{t('vacancies.tableMatch')}</div>
               </div>
               <div className="divide-y divide-border">
                 {visibleItems.map((v) => (

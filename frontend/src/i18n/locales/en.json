@@ -11,7 +11,8 @@
         "success": "Success",
         "logout": "Logout",
         "account": "Account",
-        "preparingWorkspace": "Preparing workspace…"
+        "preparingWorkspace": "Preparing workspace…",
+        "new": "new"
     },
     "navigation": {
         "workspace": "Workspace",
@@ -86,7 +87,9 @@
         "priority": "Priority",
         "status": "Status",
         "open": "Open",
-        "noUpcomingInterviews": "No upcoming interviews"
+        "noUpcomingInterviews": "No upcoming interviews",
+        "notifications": "Notifications",
+        "new": "new"
     },
     "vacancies": {
         "title": "Vacancies",
@@ -97,6 +100,7 @@
         "loading": "Loading vacancies…",
         "error": "Unable to load vacancies",
         "noVacancies": "No vacancies found",
+        "noVacanciesDescription": "Try a different search query or add a new vacancy.",
         "description": "Start by saving or applying to a vacancy.",
         "salary": "Salary",
         "location": "Location",
@@ -128,7 +132,16 @@
         "vacancyDeleteFailed": "Failed to delete vacancy",
         "savedToApplications": "Saved to applications (mock).",
         "markedAsApplied": "Marked as applied (mock).",
-        "aiAnalysisGenerated": "AI analysis generated (mock)."
+        "aiAnalysisGenerated": "AI analysis generated (mock).",
+        "addVacancy": "Add vacancy",
+        "allStatuses": "All statuses",
+        "allModes": "All modes",
+        "tableView": "Table",
+        "listView": "List",
+        "tableRole": "Role",
+        "tableCompany": "Company",
+        "tableStatus": "Status",
+        "tableMatch": "Match"
     },
     "applications": {
         "title": "Applications",
@@ -246,10 +259,16 @@
         "aiProviderLocal": "Local",
         "aiProviderCloud": "Cloud",
         "aiProviderCustom": "Bring your own key",
+        "aiProviderDescription": "Mode placeholders for backend integration.",
+        "aiProviderTodo": "Backend TODO: store this in user preferences and apply to AI endpoints.",
+        "recentNotifications": "Recent notifications",
+        "mockFeed": "Mock feed.",
         "saveSettings": "Save settings",
         "saved": "Saved (mock).",
         "language": "Interface Language",
-        "selectLanguage": "Select language"
+        "selectLanguage": "Select language",
+        "languageRU": "🇷🇺 Русский",
+        "languageEN": "🇬🇧 English"
     },
     "forms": {
         "validation": {

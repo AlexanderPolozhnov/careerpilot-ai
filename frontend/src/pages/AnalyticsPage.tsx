@@ -13,6 +13,17 @@ function pct(n: number) {
   return `${Math.round(n * 100)}%`
 }
 
+const statusKeyMap: Record<string, string> = {
+  'NEW': 'applications.new',
+  'SAVED': 'applications.saved',
+  'APPLIED': 'applications.applied',
+  'HR_SCREEN': 'applications.hrScreen',
+  'TECH_INTERVIEW': 'applications.techInterview',
+  'FINAL_ROUND': 'applications.finalRound',
+  'OFFER': 'applications.offer',
+  'REJECTED': 'applications.rejected',
+}
+
 export default function AnalyticsPage() {
   const { t } = useTranslation()
   const summaryQuery = useQuery({
@@ -25,6 +36,10 @@ export default function AnalyticsPage() {
     const f = data?.funnel ?? []
     return f.reduce((m, x) => Math.max(m, x.count), 1)
   }, [data])
+
+  const getStatusLabel = (status: string): string => {
+    return t(statusKeyMap[status] || `applications.${status.toLowerCase()}`)
+  }
 
   if (summaryQuery.isLoading) return <LoadingState message={t('analytics.overview')} />
   if (summaryQuery.error)
@@ -59,7 +74,7 @@ export default function AnalyticsPage() {
             {data.funnel.map((f: ApplicationFunnel) => (
               <div key={f.status} className="grid grid-cols-12 items-center gap-3">
                 <div className="col-span-4 text-xs text-ink-dim uppercase tracking-wider">
-                  {f.status.replace('_', ' ')}
+                  {getStatusLabel(f.status)}
                 </div>
                 <div className="col-span-6">
                   <div className="h-2 rounded-full bg-surface-3 overflow-hidden border border-border">
@@ -81,8 +96,8 @@ export default function AnalyticsPage() {
           <div className="card p-5">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-semibold text-ink">Skill gaps</div>
-                <p className="text-sm text-ink-muted mt-1">Most frequent missing requirements.</p>
+                <div className="text-sm font-semibold text-ink">{t('analytics.skillGapsTitle')}</div>
+                <p className="text-sm text-ink-muted mt-1">{t('analytics.skillGapsDescription')}</p>
               </div>
               <span className="pill">{data.topSkillGaps.length}</span>
             </div>
