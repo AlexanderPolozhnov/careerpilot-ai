@@ -50,6 +50,11 @@ export interface UpdateApplicationStatusDto {
   status: ApplicationStatus
 }
 
+export interface ApplicationStatusUpdateResponse {
+  id: string
+  payload?: string
+}
+
 export const applicationService = {
   list: (filters: ApplicationFilters = {}): Promise<PagedResponse<Application>> => {
     if (USE_MOCKS) {
@@ -86,14 +91,13 @@ export const applicationService = {
         })
       : api.post<Application>('/applications', data),
 
-  updateStatus: (id: string, data: UpdateApplicationStatusDto): Promise<Application> =>
+  updateStatus: (id: string, data: UpdateApplicationStatusDto): Promise<ApplicationStatusUpdateResponse> =>
     USE_MOCKS
       ? applicationService.getById(id).then((a) => ({
-          ...a,
-          status: data.status,
-          updatedAt: new Date().toISOString(),
+          id: a.id,
+          payload: a.notes,
         }))
-      : api.patch<Application>(`/applications/${id}/status`, data),
+      : api.patch<ApplicationStatusUpdateResponse>(`/applications/${id}/status`, data),
 
   update: (id: string, data: Partial<CreateApplicationDto>): Promise<Application> =>
     USE_MOCKS

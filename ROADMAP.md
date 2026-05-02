@@ -31,6 +31,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Auth screens: login, register, forgot password.
 - [x] Vacancy pages: list и detail view.
 - [x] Application board UI.
+- [x] Applications Kanban DnD UX polish (`DragOverlay`, cleaner horizontal columns, compact cards).
 - [x] Company pages.
 - [x] AI assistant pages.
 - [x] Analytics UI.
@@ -114,7 +115,8 @@ Roadmap отражает текущее состояние перед первы
 - [x] `GET /api/vacancies`
 - [x] `GET /api/vacancies/{id}`
 - [ ] `POST /api/applications`
-- [ ] `GET /api/applications/board`
+- [x] `GET /api/applications/board`
+- [x] `PATCH /api/applications/{id}/status`
 - [ ] `GET /api/companies`
 - [ ] `GET /api/ai/history`
 - [ ] `POST /api/ai/analyze-vacancy`
