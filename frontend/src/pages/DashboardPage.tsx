@@ -106,8 +106,8 @@ export default function DashboardPage() {
 
             <div className="card p-4">
               <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold text-ink">Notifications</div>
-                <span className="pill">{mockNotifications.filter((n) => !n.read).length} new</span>
+                <div className="text-sm font-semibold text-ink">{t('dashboard.notifications')}</div>
+                <span className="pill">{mockNotifications.filter((n) => !n.read).length} {t('common.new')}</span>
               </div>
               <div className="mt-3 grid gap-2">
                 {mockNotifications.slice(0, 3).map((n) => (

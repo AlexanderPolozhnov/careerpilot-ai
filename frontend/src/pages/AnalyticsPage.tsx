@@ -13,6 +13,17 @@ function pct(n: number) {
   return `${Math.round(n * 100)}%`
 }
 
+const statusKeyMap: Record<string, string> = {
+  'NEW': 'applications.new',
+  'SAVED': 'applications.saved',
+  'APPLIED': 'applications.applied',
+  'HR_SCREEN': 'applications.hrScreen',
+  'TECH_INTERVIEW': 'applications.techInterview',
+  'FINAL_ROUND': 'applications.finalRound',
+  'OFFER': 'applications.offer',
+  'REJECTED': 'applications.rejected',
+}
+
 export default function AnalyticsPage() {
   const { t } = useTranslation()
   const summaryQuery = useQuery({
@@ -25,6 +36,10 @@ export default function AnalyticsPage() {
     const f = data?.funnel ?? []
     return f.reduce((m, x) => Math.max(m, x.count), 1)
   }, [data])
+
+  const getStatusLabel = (status: string): string => {
+    return t(statusKeyMap[status] || `applications.${status.toLowerCase()}`)
+  }
 
   if (summaryQuery.isLoading) return <LoadingState message={t('analytics.overview')} />
   if (summaryQuery.error)
@@ -39,27 +54,27 @@ export default function AnalyticsPage() {
   return (
     <section className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Response rate" value={pct(data.responseRate)} icon={MessageCircle} accent />
-        <StatCard label="Interview rate" value={pct(data.interviewRate)} icon={Target} />
-        <StatCard label="Offer rate" value={pct(data.offerRate)} icon={BarChart3} />
-        <StatCard label="Avg days to interview" value={data.avgTimeToInterview} icon={Clock} />
+        <StatCard label={t('analytics.responseRate')} value={pct(data.responseRate)} icon={MessageCircle} accent />
+        <StatCard label={t('analytics.interviewRate')} value={pct(data.interviewRate)} icon={Target} />
+        <StatCard label={t('analytics.offerRate')} value={pct(data.offerRate)} icon={BarChart3} />
+        <StatCard label={t('analytics.avgDaysToInterview')} value={data.avgTimeToInterview} icon={Clock} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-7">
         <div className="lg:col-span-4 card p-5">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm font-semibold text-ink">Funnel</div>
-              <p className="text-sm text-ink-muted mt-1">Distribution by application status.</p>
+              <div className="text-sm font-semibold text-ink">{t('analytics.funnelTitle')}</div>
+              <p className="text-sm text-ink-muted mt-1">{t('analytics.funnelDescription')}</p>
             </div>
-            <span className="pill">{data.totalApplications} total</span>
+            <span className="pill">{t('analytics.totalApplications', { count: data.totalApplications })}</span>
           </div>
 
           <div className="mt-5 space-y-3">
             {data.funnel.map((f: ApplicationFunnel) => (
               <div key={f.status} className="grid grid-cols-12 items-center gap-3">
                 <div className="col-span-4 text-xs text-ink-dim uppercase tracking-wider">
-                  {f.status.replace('_', ' ')}
+                  {getStatusLabel(f.status)}
                 </div>
                 <div className="col-span-6">
                   <div className="h-2 rounded-full bg-surface-3 overflow-hidden border border-border">
@@ -81,8 +96,8 @@ export default function AnalyticsPage() {
           <div className="card p-5">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-semibold text-ink">Skill gaps</div>
-                <p className="text-sm text-ink-muted mt-1">Most frequent missing requirements.</p>
+                <div className="text-sm font-semibold text-ink">{t('analytics.skillGapsTitle')}</div>
+                <p className="text-sm text-ink-muted mt-1">{t('analytics.skillGapsDescription')}</p>
               </div>
               <span className="pill">{data.topSkillGaps.length}</span>
             </div>
@@ -91,7 +106,7 @@ export default function AnalyticsPage() {
                 <div key={g.skill} className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="text-sm text-ink truncate">{g.skill}</div>
-                    <div className="text-xs text-ink-dim mt-1">{g.frequency} mentions</div>
+                    <div className="text-xs text-ink-dim mt-1">{g.frequency} {t('analytics.mentions')}</div>
                   </div>
                   <span
                     className={cn(
@@ -99,7 +114,7 @@ export default function AnalyticsPage() {
                       g.hasSkill ? 'border-success/30 bg-success/10 text-ink' : 'border-warning/30 bg-warning/10 text-ink',
                     )}
                   >
-                    {g.hasSkill ? 'You have it' : 'Gap'}
+                    {g.hasSkill ? t('analytics.youHaveIt') : t('analytics.gap')}
                   </span>
                 </div>
               ))}
@@ -107,16 +122,16 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="card p-5">
-            <div className="text-sm font-semibold text-ink">Weekly activity</div>
-            <p className="text-sm text-ink-muted mt-1">Applied / Interviews / Offers.</p>
+            <div className="text-sm font-semibold text-ink">{t('analytics.weeklyActivityTitle')}</div>
+            <p className="text-sm text-ink-muted mt-1">{t('analytics.weeklyActivityDescription')}</p>
             <div className="mt-5 space-y-3">
               {data.weeklyActivity.map((w) => (
                 <div key={w.week} className="flex items-center justify-between gap-3">
                   <div className="text-sm text-ink">{w.week}</div>
                   <div className="flex items-center gap-2">
-                    <span className="pill">Applied {w.applied}</span>
-                    <span className="pill">Interviews {w.interviews}</span>
-                    <span className="pill">Offers {w.offers}</span>
+                    <span className="pill">{t('analytics.appliedCount', { count: w.applied })}</span>
+                    <span className="pill">{t('analytics.interviewsCount', { count: w.interviews })}</span>
+                    <span className="pill">{t('analytics.offersCount', { count: w.offers })}</span>
                   </div>
                 </div>
               ))}

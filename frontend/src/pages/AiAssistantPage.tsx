@@ -90,27 +90,27 @@ export default function AiAssistantPage() {
         left={
           <div className="flex flex-wrap gap-2">
             <button type="button" className={cn('btn-secondary text-sm', tool === 'analyze' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('analyze')}>
-              {t('aiAssistant.title')}
+              {t('aiAssistant.tools.analyze')}
             </button>
             <button type="button" className={cn('btn-secondary text-sm', tool === 'match' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('match')}>
-              Resume vs vacancy
+              {t('aiAssistant.tools.match')}
             </button>
             <button type="button" className={cn('btn-secondary text-sm', tool === 'cover' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('cover')}>
-              Cover letter
+              {t('aiAssistant.tools.cover')}
             </button>
             <button type="button" className={cn('btn-secondary text-sm', tool === 'interview' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('interview')}>
-              Interview questions
+              {t('aiAssistant.tools.interview')}
             </button>
           </div>
         }
-        right={<span className="pill">Mock AI</span>}
+        right={<span className="pill">{t('aiAssistant.mockMode')}</span>}
       />
 
       <div className="grid gap-4 lg:grid-cols-7">
         <div className="lg:col-span-4 card p-5">
-          <div className="text-sm font-semibold text-ink">Request</div>
+          <div className="text-sm font-semibold text-ink">{t('aiAssistant.requestTitle')}</div>
           <p className="text-sm text-ink-muted mt-2">
-            This UI is wired like production: forms validate via RHF+Zod and call the AI service (mock now).
+            {t('aiAssistant.requestDescription')}
           </p>
 
           <form
@@ -157,55 +157,57 @@ export default function AiAssistantPage() {
           >
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-xs text-ink-dim">Vacancy ID (optional)</label>
-                <input className="input mt-1" {...form.register('vacancyId')} placeholder="v1" />
-              </div>
-              {tool === 'interview' && (
+              <label className="text-xs text-ink-dim">{t('aiAssistant.vacancyIdOptional')}</label>
+              <input className="input mt-1" {...form.register('vacancyId')} placeholder="v1" />
+            </div>
+            {tool === 'interview' && (
                 <div>
-                  <label className="text-xs text-ink-dim">Question count</label>
+                  <label className="text-xs text-ink-dim">{t('aiAssistant.questionCount')}</label>
                   <input className="input mt-1" type="number" {...form.register('count')} />
                 </div>
               )}
               {tool === 'interview' && (
                 <div className="sm:col-span-2">
-                  <label className="text-xs text-ink-dim">Focus area (optional)</label>
-                  <input className="input mt-1" {...form.register('focusArea')} placeholder="React performance, system design, leadership…" />
+                  <label className="text-xs text-ink-dim">{t('aiAssistant.focusAreaOptional')}</label>
+                  <input className="input mt-1" {...form.register('focusArea')} placeholder={t('aiAssistant.focusAreaPlaceholder')} />
                 </div>
               )}
               {tool === 'cover' && (
                 <div className="sm:col-span-2">
-                  <label className="text-xs text-ink-dim">Tone</label>
+                  <label className="text-xs text-ink-dim">{t('aiAssistant.tone')}</label>
                   <select className="input mt-1" {...form.register('tone')}>
-                    <option value="PROFESSIONAL">Professional</option>
-                    <option value="FRIENDLY">Friendly</option>
-                    <option value="ENTHUSIASTIC">Enthusiastic</option>
+                    <option value="PROFESSIONAL">{t('aiAssistant.toneProfessional')}</option>
+                    <option value="FRIENDLY">{t('aiAssistant.toneFriendly')}</option>
+                    <option value="ENTHUSIASTIC">{t('aiAssistant.toneEnthusiastic')}</option>
                   </select>
                 </div>
               )}
             </div>
 
             <div>
-              <label className="text-xs text-ink-dim">Vacancy text (optional if ID is provided)</label>
-              <textarea className="input mt-1 h-28 py-2" {...form.register('vacancyText')} placeholder="Paste job description…" />
+              <label className="text-xs text-ink-dim">{t('aiAssistant.vacancyTextOptional')}</label>
+              <textarea className="input mt-1 h-28 py-2" {...form.register('vacancyText')} placeholder={t('aiAssistant.vacancyTextPlaceholder')} />
             </div>
 
             {(tool === 'match' || tool === 'cover') && (
               <div>
-                <label className="text-xs text-ink-dim">{tool === 'match' ? 'Resume text' : 'Resume text (optional)'}</label>
-                <textarea className="input mt-1 h-28 py-2" {...form.register('resumeText')} placeholder="Paste resume content…" />
+                <label className="text-xs text-ink-dim">
+                  {tool === 'match' ? t('aiAssistant.resumeText') : t('aiAssistant.resumeTextOptional')}
+                </label>
+                <textarea className="input mt-1 h-28 py-2" {...form.register('resumeText')} placeholder={t('aiAssistant.resumeTextPlaceholder')} />
               </div>
             )}
 
             {tool === 'cover' && (
               <div>
-                <label className="text-xs text-ink-dim">Additional context (optional)</label>
-                <textarea className="input mt-1 h-20 py-2" {...form.register('additionalContext')} placeholder="What to emphasize, constraints, etc." />
+                <label className="text-xs text-ink-dim">{t('aiAssistant.additionalContextOptional')}</label>
+                <textarea className="input mt-1 h-20 py-2" {...form.register('additionalContext')} placeholder={t('aiAssistant.additionalContextPlaceholder')} />
               </div>
             )}
 
             {Object.keys(form.formState.errors).length > 0 && (
               <div className="rounded-xl border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-ink">
-                Please fix the highlighted fields.
+                {t('aiAssistant.fixFields')}
               </div>
             )}
 
@@ -217,20 +219,20 @@ export default function AiAssistantPage() {
                 form.formState.isSubmitting ? 'opacity-70' : 'hover:bg-accent-dim',
               )}
             >
-              {form.formState.isSubmitting ? 'Generating…' : 'Generate'}
+              {form.formState.isSubmitting ? t('aiAssistant.generating') : t('aiAssistant.generate')}
             </button>
           </form>
         </div>
 
         <div className="lg:col-span-3 space-y-3">
           <div className="card p-5">
-            <div className="text-sm font-semibold text-ink">Result</div>
-            <p className="text-sm text-ink-muted mt-2">Latest response from the AI endpoint.</p>
+            <div className="text-sm font-semibold text-ink">{t('aiAssistant.resultTitle')}</div>
+            <p className="text-sm text-ink-muted mt-2">{t('aiAssistant.resultDescription')}</p>
             <div className="mt-4">
               {result ? (
                 <AiInsightCard result={result} />
               ) : (
-                <EmptyState title="No result yet" description="Submit a form to generate a result." />
+                <EmptyState title={t('aiAssistant.noResultTitle')} description={t('aiAssistant.noResultDescription')} />
               )}
             </div>
           </div>
@@ -238,16 +240,16 @@ export default function AiAssistantPage() {
           <div className="card p-5">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-semibold text-ink">History</div>
-                <p className="text-sm text-ink-muted mt-1">Recent AI outputs.</p>
+                <div className="text-sm font-semibold text-ink">{t('aiAssistant.historyTitle')}</div>
+                <p className="text-sm text-ink-muted mt-1">{t('aiAssistant.historyDescription')}</p>
               </div>
               <span className="pill">{history.length}</span>
             </div>
             <div className="mt-4 grid gap-3">
               {isLoadingHistory ? (
-                <LoadingState message="Loading history…" className="py-8" />
+                <LoadingState message={t('aiAssistant.loadingHistory')} className="py-8" />
               ) : history.length === 0 ? (
-                <EmptyState title="No history" description="Generated outputs will appear here." />
+                <EmptyState title={t('aiAssistant.noHistoryTitle')} description={t('aiAssistant.noHistoryDescription')} />
               ) : (
                 history.slice(0, 3).map((r) => <AiInsightCard key={r.id} result={r} compact />)
               )}

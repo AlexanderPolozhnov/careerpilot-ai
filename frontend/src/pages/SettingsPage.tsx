@@ -140,7 +140,7 @@ export default function SettingsPage() {
                     : 'border-border hover:bg-surface-2/60 text-ink-muted'
                 )}
               >
-                🇷🇺 Русский
+                {t('settings.languageRU')}
               </button>
               <button
                 type="button"
@@ -152,7 +152,7 @@ export default function SettingsPage() {
                     : 'border-border hover:bg-surface-2/60 text-ink-muted'
                 )}
               >
-                🇬🇧 English
+                {t('settings.languageEN')}
               </button>
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function SettingsPage() {
         <div className="lg:col-span-3 space-y-4">
           <div className="card p-5">
             <div className="text-sm font-semibold text-ink">{t('settings.aiProvider')}</div>
-            <p className="text-sm text-ink-muted mt-1">Mode placeholders for backend integration.</p>
+            <p className="text-sm text-ink-muted mt-1">{t('settings.aiProviderDescription')}</p>
             <div className="mt-4">
               <label className="text-xs text-ink-dim">{t('settings.aiProviderMode')}</label>
               <select className="input mt-1" {...form.register('aiProviderMode')}>
@@ -170,7 +170,7 @@ export default function SettingsPage() {
                 <option value="BRING_YOUR_OWN_KEY">{t('settings.aiProviderCustom')}</option>
               </select>
               <div className="mt-3 text-xs text-ink-dim">
-                Backend TODO: store this in user preferences and apply to AI endpoints.
+                {t('settings.aiProviderTodo')}
               </div>
             </div>
           </div>
@@ -178,10 +178,10 @@ export default function SettingsPage() {
           <div className="card p-5">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-semibold text-ink">Recent notifications</div>
-                <p className="text-sm text-ink-muted mt-1">Mock feed.</p>
+                <div className="text-sm font-semibold text-ink">{t('settings.recentNotifications')}</div>
+                <p className="text-sm text-ink-muted mt-1">{t('settings.mockFeed')}</p>
               </div>
-              <span className="pill">{mockNotifications.filter((n) => !n.read).length} new</span>
+              <span className="pill">{mockNotifications.filter((n) => !n.read).length} {t('common.new')}</span>
             </div>
             <div className="mt-4 space-y-2">
               {mockNotifications.slice(0, 5).map((n) => (

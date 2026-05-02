@@ -53,8 +53,8 @@ export function Sidebar() {
 
       <div className="mt-auto pt-5">
         <div className="card p-3">
-          <div className="text-xs text-ink-dim">Tip</div>
-          <div className="text-sm text-ink mt-0.5">Use filters to stay focused.</div>
+          <div className="text-xs text-ink-dim">{t('navigation.tipTitle')}</div>
+          <div className="text-sm text-ink mt-0.5">{t('navigation.tipDescription')}</div>
         </div>
       </div>
     </aside>

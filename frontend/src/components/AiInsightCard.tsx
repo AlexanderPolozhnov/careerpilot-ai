@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Sparkles, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { AiResult } from '@/types'
@@ -10,6 +11,7 @@ interface AiInsightCardProps {
 }
 
 export function AiInsightCard({ result, compact, className }: AiInsightCardProps) {
+  const { t } = useTranslation()
   const preview = result.result.slice(0, compact ? 120 : 300)
 
   return (
@@ -39,7 +41,7 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
           </p>
           {!compact && (
             <button className="mt-3 flex items-center gap-1 text-xs text-accent hover:text-accent-dim transition-colors">
-              View full analysis <ChevronRight className="w-3 h-3" />
+              {t('aiAssistant.viewFullAnalysis')} <ChevronRight className="w-3 h-3" />
             </button>
           )}
         </div>
