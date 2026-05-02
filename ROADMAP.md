@@ -31,6 +31,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Auth screens: login, register, forgot password.
 - [x] Vacancy pages: list и detail view.
 - [x] Application board UI.
+- [x] Applications Kanban DnD UX polish (`DragOverlay`, cleaner horizontal columns, compact cards).
 - [x] Company pages.
 - [x] AI assistant pages.
 - [x] Analytics UI.

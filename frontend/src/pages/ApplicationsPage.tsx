@@ -11,7 +11,17 @@ import type { Application, ApplicationStatus } from '@/types'
 import { cn } from '@/lib/utils'
 import { ApiError } from '@/services/api-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { DndContext, PointerSensor, closestCenter, useDroppable, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  closestCenter,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from '@dnd-kit/core'
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -84,6 +94,23 @@ function moveToDifferentStatus(
   }
 }
 
+function ApplicationCardBody({ application }: { application: Application }) {
+  return (
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-sm text-ink truncate">{application.vacancy?.title ?? 'Vacancy'}</div>
+          <div className="text-xs text-ink-dim mt-1 truncate">
+            {application.vacancy?.company?.name ?? 'Company'} · {application.vacancy?.location ?? '—'}
+          </div>
+        </div>
+        <StatusBadge status={application.status} kind="application" size="sm" />
+      </div>
+      {application.notes && <div className="text-xs text-ink-muted mt-2 line-clamp-2">{application.notes}</div>}
+    </>
+  )
+}
+
 function SortableApplicationCard({ application }: { application: Application }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: application.id,
@@ -97,40 +124,34 @@ function SortableApplicationCard({ application }: { application: Application }) 
         transition,
       }}
       className={cn(
-        'card p-3 hover:border-border-strong transition-colors touch-none',
-        isDragging && 'opacity-70 shadow-lg border-border-strong',
+        'card p-3 hover:border-border-strong transition-all duration-200 touch-none cursor-grab active:cursor-grabbing',
+        isDragging && 'opacity-35',
       )}
       {...attributes}
       {...listeners}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-sm text-ink truncate">{application.vacancy?.title ?? 'Vacancy'}</div>
-          <div className="text-xs text-ink-dim mt-1 truncate">
-            {application.vacancy?.company?.name ?? 'Company'} · {application.vacancy?.location ?? '—'}
-          </div>
-        </div>
-        <StatusBadge status={application.status} kind="application" size="sm" />
-      </div>
-      {application.notes && <div className="text-xs text-ink-muted mt-2 line-clamp-3">{application.notes}</div>}
+      <ApplicationCardBody application={application} />
     </div>
   )
 }
 
 function ApplicationColumn({ status, items, label }: { status: ApplicationStatus; items: Application[]; label: string }) {
-  const { setNodeRef } = useDroppable({ id: status })
+  const { setNodeRef, isOver } = useDroppable({ id: status })
 
   return (
-    <div
-      key={status}
-      className={cn('lg:col-span-1 xl:col-span-1', status === 'TECH_INTERVIEW' || status === 'FINAL_ROUND' ? 'xl:col-span-2' : '')}
-    >
+    <div key={status} className="w-[280px] shrink-0 snap-start">
       <div className="flex items-center justify-between mb-2">
         <div className="text-xs font-semibold text-ink uppercase tracking-wider">{label}</div>
         <span className="pill">{items.length}</span>
       </div>
       <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
-        <div ref={setNodeRef} className="space-y-2 min-h-20 rounded-lg">
+        <div
+          ref={setNodeRef}
+          className={cn(
+            'space-y-2 min-h-24 rounded-xl border border-transparent bg-surface-1/30 p-2 transition-all duration-150',
+            isOver && 'border-accent/45 bg-accent/5',
+          )}
+        >
           {items.map((application) => (
             <SortableApplicationCard key={application.id} application={application} />
           ))}
@@ -144,6 +165,7 @@ export default function ApplicationsPage() {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const [dragError, setDragError] = useState<string | null>(null)
+  const [activeApplicationId, setActiveApplicationId] = useState<string | null>(null)
   const queryClient = useQueryClient()
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
   const boardQuery = useQuery({
@@ -213,9 +235,24 @@ export default function ApplicationsPage() {
     }, {} as Record<ApplicationStatus, Application[]>)
   }, [board, filteredFlat])
 
+  const activeApplication = useMemo(() => {
+    if (!activeApplicationId || !board) return null
+    for (const status of STATUS_ORDER) {
+      const match = (board[status] ?? []).find((item) => item.id === activeApplicationId)
+      if (match) return match
+    }
+    return null
+  }, [activeApplicationId, board])
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setDragError(null)
+    setActiveApplicationId(String(event.active.id))
+  }
+
   const handleDragEnd = (event: DragEndEvent) => {
     const activeId = String(event.active.id)
     const overId = event.over ? String(event.over.id) : null
+    setActiveApplicationId(null)
     if (!board || !overId || activeId === overId) {
       return
     }
@@ -247,6 +284,10 @@ export default function ApplicationsPage() {
     statusMutation.mutate({ id: activeId, status: targetStatus })
   }
 
+  const handleDragCancel = () => {
+    setActiveApplicationId(null)
+  }
+
   return (
     <section className="space-y-4">
       <FilterBar
@@ -270,8 +311,14 @@ export default function ApplicationsPage() {
               {dragError}
             </div>
           )}
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <div className="grid gap-3 lg:grid-cols-4 xl:grid-cols-8">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
+          >
+            <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory">
               {STATUS_ORDER.map((s) => {
                 const col = filteredBoard?.[s] ?? []
                 return (
@@ -279,6 +326,13 @@ export default function ApplicationsPage() {
                 )
               })}
             </div>
+            <DragOverlay dropAnimation={{ duration: 180, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' }}>
+              {activeApplication ? (
+                <div className="card p-3 w-[280px] shadow-2xl border-accent/50 cp-drag-overlay">
+                  <ApplicationCardBody application={activeApplication} />
+                </div>
+              ) : null}
+            </DragOverlay>
           </DndContext>
         </>
       )}
