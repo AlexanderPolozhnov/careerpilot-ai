@@ -1,13 +1,15 @@
 # CareerPilot AI
 
-CareerPilot AI - full-stack portfolio project для управления поиском работы как структурированным workflow: от вакансий и откликов до AI-assisted анализа, напоминаний и аналитики.
+CareerPilot AI - full-stack portfolio project для управления поиском работы как структурированным workflow: от вакансий
+и откликов до AI-assisted анализа, напоминаний и аналитики.
 
 > Статус: **В активной разработке**.  
 > Это portfolio project с production-like architecture, но проект еще не является завершенным продуктом.
 
 ## Какую проблему решает проект
 
-Поиск работы быстро превращается в набор разрозненных вкладок, таблиц, заметок, писем и напоминаний. CareerPilot AI собирает этот процесс в один понятный workflow:
+Поиск работы быстро превращается в набор разрозненных вкладок, таблиц, заметок, писем и напоминаний. CareerPilot AI
+собирает этот процесс в один понятный workflow:
 
 - хранение вакансий и компаний;
 - отслеживание этапов отклика;
@@ -21,22 +23,26 @@ CareerPilot AI - full-stack portfolio project для управления пои
 
 - Vacancy management: список, детали, фильтры, статусы и архивирование.
 - Company tracking: карточки компаний и связь с вакансиями.
-- Application pipeline: отклики и Kanban-представление по `ApplicationStatus` с drag-and-drop, `DragOverlay` preview, оптимистичным обновлением статуса без refresh.
+- Application pipeline: отклики и Kanban-представление по `ApplicationStatus` с drag-and-drop, `DragOverlay` preview,
+  оптимистичным обновлением статуса без refresh.
 - AI assistant: анализ вакансии, resume match, cover letter, interview questions.
 - Analytics dashboard: funnel, weekly activity, response/interview/offer rates.
 - Auth flow: login/register и token-based frontend session.
 - i18n: интерфейс на русском и английском через `i18next`.
 
-Часть frontend пока использует mock data. Это осознанный этап интеграции: frontend-backend integration выполняется по документированному контракту.
+Часть frontend пока использует mock data. Это осознанный этап интеграции: frontend-backend integration выполняется по
+документированному контракту.
 
 ## Текущий статус
 
 - Статус проекта: **В активной разработке**.
 - Архитектурный подход: modular monolith с vertical slices подходом.
 - Backend и frontend находятся в одном monorepo.
-- Основная текущая задача: реализация backend endpoints для каждого vertical slice.
-- **Реализовано:** Auth vertical slice (`POST /auth/register`, `POST /auth/login`, `GET /auth/me`) полностью интегрирован и вручную проверен.
-- **Следующий шаг:** Vacancies vertical slice.
+- Основная текущая задача: завершение Applications vertical slice и реализация AI endpoints.
+- **Реализовано:** Auth, Vacancies, Companies, Applications board + Kanban, Analytics — полностью интегрированы и
+  вручную проверены.
+- **В процессе:** Applications CRUD (POST/GET/PUT/DELETE /api/applications).
+- **Следующий шаг:** AI vertical slice.
 - `DashboardPage` и `SettingsPage` пока частично используют mock/local state.
 - Backend tests требуют доступный Docker runtime из-за Testcontainers.
 
@@ -44,24 +50,30 @@ CareerPilot AI - full-stack portfolio project для управления пои
 
 - Monorepo-структура `backend/`, `frontend/`, `docs/`.
 - Backend foundation на `Java 21`, `Spring Boot 3`, `PostgreSQL`, `Flyway`, `Spring Security`, JWT.
-- Domain-oriented backend modules: auth (полностью), vacancy, application, company, AI, analytics и смежные модули.
+- Domain-oriented backend modules: auth, vacancy, application, company, AI, analytics и смежные модули.
 - Frontend foundation на `React`, `TypeScript`, `Vite`, `Tailwind CSS`.
 - Typed frontend service layer для REST API.
-- **Auth vertical slice:** endpoints register/login/me с JWT token-based auth.
-- **Auth integration:** token storage в localStorage, Authorization header, protected routes.
 - Базовая i18n-инфраструктура с `ru` и `en` locale files.
 - Docker Compose для локальной инфраструктуры: PostgreSQL, Redis, optional MinIO и Ollama profiles.
 - Документированный frontend-backend contract.
 - GlobalExceptionHandler и unified error response format.
+- Seed data: реалистичные тестовые данные и рабочие demo-пользователи.
+- **Auth vertical slice:** endpoints register/login/me с JWT token-based auth, полностью интегрирован.
+- **Vacancies vertical slice:** CRUD endpoints, user ownership, pagination, frontend интеграция.
+- **Companies vertical slice:** CRUD endpoints, user ownership, PagedResponse, frontend интеграция.
+- **Applications vertical slice:** board endpoint, PATCH status, Kanban с drag-and-drop, DragOverlay preview, optimistic
+  update.
+- **Analytics vertical slice:** GET /api/analytics/summary, frontend интеграция.
 
 ## Что в разработке
 
-- **Vacancies vertical slice:** backend endpoints (GET/POST/PUT/DELETE /api/vacancies) и frontend интеграция.
-- Remaining vertical slices: Companies, Applications, Analytics, AI, Notifications.
+- **Applications vertical slice:** создание отклика (POST /applications), детали и редактирование (GET/PUT/DELETE
+  /applications/{id}).
+- **AI vertical slice:** analyze-vacancy, resume-match, cover-letter, interview-questions, history endpoints.
 - Замена mock-only зон dashboard/settings на backend-backed services.
 - Полная интеграция AI endpoints с provider abstraction.
-- Расширение test coverage и CI через GitHub Actions.
 - Forgot/reset password endpoints для auth.
+- Расширение test coverage и CI через GitHub Actions.
 - Документация по deployment и production hardening.
 
 ## Стек технологий

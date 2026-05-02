@@ -2,7 +2,8 @@
 
 ## Статус проекта
 
-CareerPilot AI находится в активной разработке. Это full-stack portfolio project с production-like architecture для управления поиском работы, AI-assisted анализа вакансий и отслеживания откликов.
+CareerPilot AI находится в активной разработке. Это full-stack portfolio project с production-like architecture для
+управления поиском работы, AI-assisted анализа вакансий и отслеживания откликов.
 
 Roadmap отражает текущее состояние перед первым публичным GitHub commit. Planned items не считаются реализованными.
 
@@ -50,22 +51,23 @@ Roadmap отражает текущее состояние перед первы
 - [x] Test stack dependencies: JUnit 5, Mockito, Testcontainers.
 - [x] Authentication API (register/login/me endpoints with JWT).
 - [x] GlobalExceptionHandler и unified error response format.
-- [~] Vacancy API (list/detail/create/update/delete aligned for Authenticated user).
-- [ ] Company API.
-- [ ] Application API.
+- [x] Vacancy API (list/detail/create/update/delete, user ownership, pagination).
+- [x] Company API (list/detail/create/update/delete, user ownership, pagination).
+- [x] Application API (board, PATCH status).
+- [x] Analytics API (GET /api/analytics/summary).
+- [ ] Application API (POST /applications, GET/PUT/DELETE /applications/{id}).
 - [ ] AI provider abstraction и Ollama-oriented layer.
 - [ ] Notification API alignment with frontend contract.
-- [ ] Analytics API alignment with frontend contract.
 - [ ] Unified validation coverage across public endpoints.
 
 ## Phase 4 — Frontend/Backend Integration
 
 - [x] Auth integration (JWT-based, token storage, protected routes, manual verification complete).
-- [~] Vacancies integration (backend endpoints ready, frontend integration in progress).
-- [ ] Companies integration.
-- [ ] Applications integration.
+- [x] Vacancies integration (CRUD, pagination, ownership, frontend verified).
+- [x] Companies integration (CRUD, pagination, ownership, frontend verified).
+- [x] Analytics integration (summary endpoint, frontend verified).
+- [~] Applications integration (board + status change working, POST/GET/PUT/DELETE pending).
 - [ ] AI assistant integration.
-- [ ] Analytics integration.
 - [ ] Dashboard integration (replacing mock data with backend services).
 - [ ] Settings/preferences integration.
 - [ ] Notifications integration.
@@ -98,32 +100,73 @@ Roadmap отражает текущее состояние перед первы
 
 ## Current Development Focus
 
-- [x] Auth vertical slice реализован и проверен (register/login/me endpoints, JWT token flow).
-- [~] Vacancies vertical slice in progress (backend endpoints implementation, frontend integration testing).
-- [ ] Приоритет: реализация vertical slices в порядке: Auth → Vacancies → Companies → Applications → Analytics → AI → Notifications.
+- [x] Auth vertical slice реализован и проверен.
+- [x] Vacancies vertical slice реализован и проверен.
+- [x] Companies vertical slice реализован и проверен.
+- [x] Analytics vertical slice реализован и проверен.
+- [~] Applications vertical slice в процессе (board + status ready, CRUD pending).
+- [ ] Приоритет: Applications CRUD → AI → Dashboard/Settings.
 - [ ] Каждый slice должен соответствовать контракту из `docs/FRONTEND_BACKEND_CONTRACT.md`.
-- [ ] Устранение расхождений между frontend calls, DTO shapes, enum values, pagination и error response по контракту.
 - [ ] Замена mock-only зон реальными backend-backed сервисами.
 
 ## Backend endpoints first
+
+### Auth
 
 - [x] `POST /api/auth/login`
 - [x] `POST /api/auth/register`
 - [x] `GET /api/auth/me`
 - [ ] `POST /api/auth/forgot-password`
 - [ ] `POST /api/auth/reset-password`
+
+### Vacancies
+
 - [x] `GET /api/vacancies`
 - [x] `GET /api/vacancies/{id}`
-- [ ] `POST /api/applications`
+- [x] `POST /api/vacancies`
+- [x] `PUT /api/vacancies/{id}`
+- [x] `DELETE /api/vacancies/{id}`
+
+### Companies
+
+- [x] `GET /api/companies`
+- [x] `GET /api/companies/{id}`
+- [x] `POST /api/companies`
+- [x] `PUT /api/companies/{id}`
+- [x] `DELETE /api/companies/{id}`
+
+### Applications
+
 - [x] `GET /api/applications/board`
 - [x] `PATCH /api/applications/{id}/status`
-- [ ] `GET /api/companies`
+- [ ] `POST /api/applications`
+- [ ] `GET /api/applications`
+- [ ] `GET /api/applications/{id}`
+- [ ] `PUT /api/applications/{id}`
+- [ ] `DELETE /api/applications/{id}`
+
+### Analytics
+
+- [x] `GET /api/analytics/summary`
+
+### AI
+
 - [ ] `GET /api/ai/history`
 - [ ] `POST /api/ai/analyze-vacancy`
 - [ ] `POST /api/ai/resume-match`
 - [ ] `POST /api/ai/cover-letter`
 - [ ] `POST /api/ai/interview-questions`
-- [ ] `GET /api/analytics/summary`
+
+### Dashboard
+
+- [ ] `GET /api/dashboard/summary`
+
+### Settings & Preferences
+
+- [ ] `GET /api/preferences`
+- [ ] `PUT /api/preferences`
+- [ ] `GET /api/notifications`
+- [ ] `PATCH /api/notifications/{id}/read`
 
 ## Known limitations
 
@@ -131,6 +174,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] `DashboardPage` напрямую использует mock data и пока не вызывает backend.
 - [x] `SettingsPage` использует mock/local-only поведение и пока не сохраняет настройки через backend.
 - [x] `authService.me()` не mock-aware: при сохраненном token может вызвать `GET /auth/me` даже в mock mode.
-- [~] Некоторые backend controllers уже существуют, но еще не полностью совпадают с frontend contract (Auth login/register/me уже выровнен).
+- [~] Некоторые backend controllers уже существуют, но еще не полностью совпадают с frontend contract (Auth
+  login/register/me уже выровнен).
 - [x] Backend tests зависят от Testcontainers и требуют доступный Docker runtime.
 - [x] GitHub Actions пока запланирован, но не настроен.
