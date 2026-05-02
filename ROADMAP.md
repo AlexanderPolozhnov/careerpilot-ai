@@ -114,7 +114,8 @@ Roadmap отражает текущее состояние перед первы
 - [x] `GET /api/vacancies`
 - [x] `GET /api/vacancies/{id}`
 - [ ] `POST /api/applications`
-- [ ] `GET /api/applications/board`
+- [x] `GET /api/applications/board`
+- [x] `PATCH /api/applications/{id}/status`
 - [ ] `GET /api/companies`
 - [ ] `GET /api/ai/history`
 - [ ] `POST /api/ai/analyze-vacancy`

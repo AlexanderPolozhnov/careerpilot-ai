@@ -21,7 +21,7 @@ CareerPilot AI - full-stack portfolio project для управления пои
 
 - Vacancy management: список, детали, фильтры, статусы и архивирование.
 - Company tracking: карточки компаний и связь с вакансиями.
-- Application pipeline: отклики и Kanban-представление по `ApplicationStatus`.
+- Application pipeline: отклики и Kanban-представление по `ApplicationStatus` с drag-and-drop (оптимистичное обновление статуса без refresh).
 - AI assistant: анализ вакансии, resume match, cover letter, interview questions.
 - Analytics dashboard: funnel, weekly activity, response/interview/offer rates.
 - Auth flow: login/register и token-based frontend session.

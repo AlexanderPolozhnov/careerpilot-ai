@@ -1,7 +1,9 @@
 package com.alexanderpolozhnov.careerpilot.application.service;
 
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationEntity;
+import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationStatus;
 import com.alexanderpolozhnov.careerpilot.application.request.ApplicationRequest;
+import com.alexanderpolozhnov.careerpilot.application.request.UpdateApplicationStatusRequest;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardCompanyResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardItemResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardVacancyResponse;
@@ -120,6 +122,13 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
+    public ApplicationResponse updateStatus(UUID id, UpdateApplicationStatusRequest request) {
+        ApplicationEntity entity = findOwnedApplication(id);
+        entity.setStatus(mapStatusFromFrontend(request.status()));
+        return toResponse(applicationRepository.save(entity));
+    }
+
+    @Override
     public void delete(UUID id) {
         applicationRepository.delete(findOwnedApplication(id));
     }
@@ -173,5 +182,20 @@ public class ApplicationServiceImpl implements ApplicationService {
             return "REJECTED";
         }
         return entity.getStatus().name();
+    }
+
+    private ApplicationStatus mapStatusFromFrontend(String frontendStatus) {
+        String normalized = frontendStatus == null ? "" : frontendStatus.trim().toUpperCase(Locale.ROOT);
+        if (normalized.isBlank()) {
+            throw new IllegalArgumentException("Status is required");
+        }
+        if ("FINAL_ROUND".equals(normalized)) {
+            return ApplicationStatus.FINAL;
+        }
+        try {
+            return ApplicationStatus.valueOf(normalized);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Unsupported status: " + frontendStatus);
+        }
     }
 }

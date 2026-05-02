@@ -1,6 +1,7 @@
 package com.alexanderpolozhnov.careerpilot.application.controller;
 
 import com.alexanderpolozhnov.careerpilot.application.request.ApplicationRequest;
+import com.alexanderpolozhnov.careerpilot.application.request.UpdateApplicationStatusRequest;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardItemResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationResponse;
 import com.alexanderpolozhnov.careerpilot.application.service.ApplicationService;
@@ -47,6 +48,11 @@ public class ApplicationController {
     @PutMapping("/{id}")
     public ApplicationResponse update(@PathVariable UUID id, @Valid @RequestBody ApplicationRequest request) {
         return service.update(id, request);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ApplicationResponse updateStatus(@PathVariable UUID id, @Valid @RequestBody UpdateApplicationStatusRequest request) {
+        return service.updateStatus(id, request);
     }
 
     @DeleteMapping("/{id}")
