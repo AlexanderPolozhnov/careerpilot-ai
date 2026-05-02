@@ -11,14 +11,13 @@ frontend/.env.*
 
 # Java / Maven
 target/
-backend/target/
 *.class
 *.jar
 *.war
 .junie
 
 # Node / Vite
-frontend/node_modules/
+node_modules/
 dist/
 frontend/dist/
 .vite/
@@ -59,4 +58,6 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 
+# AI assistant local rules
+**/.aiassistant/
 private-notes/
