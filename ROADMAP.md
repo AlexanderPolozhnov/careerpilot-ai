@@ -178,3 +178,29 @@ Roadmap отражает текущее состояние перед первы
   login/register/me уже выровнен).
 - [x] Backend tests зависят от Testcontainers и требуют доступный Docker runtime.
 - [x] GitHub Actions пока запланирован, но не настроен.
+
+## Releases
+
+### v0.1.0-alpha — первый публичный релиз
+
+**Условие выпуска:** все основные vertical slices закрыты и вручную проверены.
+
+Что должно быть готово:
+
+- [x] Auth vertical slice
+- [x] Vacancies vertical slice
+- [x] Companies vertical slice
+- [x] Applications vertical slice (включая CRUD)
+- [x] Analytics vertical slice
+- [ ] AI vertical slice (analyze-vacancy, resume-match, cover-letter, interview-questions)
+
+Что войдёт в описание релиза:
+
+- Краткое описание продукта
+- Список реализованных vertical slices
+- Как запустить локально (ссылка на README)
+- Known limitations (Dashboard и Settings на mock data)
+- Стек технологий
+
+**Тег:** `v0.1.0-alpha`
+**Ветка:** `main`
