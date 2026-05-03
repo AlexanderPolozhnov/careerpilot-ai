@@ -37,7 +37,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] AI assistant pages.
 - [x] Analytics UI.
 - [x] i18n foundation: `ru` и `en` locale files, `LanguageSwitcher`, persistence в `localStorage`.
-- [~] `DashboardPage`: заменить direct mock imports на backend-backed service.
+- [x] `DashboardPage`: заменить direct mock imports на backend-backed service.
 - [~] `SettingsPage`: заменить mock/local-only поведение на backend-backed settings/preferences service.
 - [ ] Frontend test runner и базовые component/service tests.
 
@@ -68,7 +68,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Analytics integration (summary endpoint, frontend verified).
 - [x] Applications integration (board + status change working, POST/GET/PUT/DELETE реализованы).
 - [x] AI assistant integration.
-- [ ] Dashboard integration (replacing mock data with backend services).
+- [x] Dashboard integration (replacing mock data with backend services).
 - [ ] Settings/preferences integration.
 - [ ] Notifications integration.
 - [ ] Manual API smoke scenarios documented and verified.
@@ -161,7 +161,7 @@ Roadmap отражает текущее состояние перед первы
 
 ### Dashboard
 
-- [ ] `GET /api/dashboard/summary`
+- [x] `GET /api/dashboard/summary`
 
 ### Settings & Preferences
 
@@ -173,7 +173,7 @@ Roadmap отражает текущее состояние перед первы
 ## Known limitations
 
 - [x] Часть frontend работает через `VITE_USE_MOCKS=true` и mock data.
-- [x] `DashboardPage` напрямую использует mock data и пока не вызывает backend.
+- [x] `DashboardPage` подключён к `GET /api/dashboard/summary` через React Query.
 - [x] `SettingsPage` использует mock/local-only поведение и пока не сохраняет настройки через backend.
 - [x] `authService.me()` не mock-aware: при сохраненном token может вызвать `GET /auth/me` даже в mock mode.
 - [~] Некоторые backend controllers уже существуют, но еще не полностью совпадают с frontend contract (Auth
