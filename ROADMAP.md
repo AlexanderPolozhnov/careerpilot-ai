@@ -91,7 +91,7 @@ Roadmap отражает текущее состояние перед первы
 - [ ] OpenAPI documentation reviewed against the frontend contract.
 - [ ] Backend validation/error handling finalized.
 - [ ] Testcontainers integration tests stable in local Docker environment.
-- [ ] Frontend error boundaries.
+- [x] Frontend error boundaries.
 - [ ] Frontend tests.
 - [x] CI pipeline with GitHub Actions.
 - [ ] Full-stack Docker Compose setup.
