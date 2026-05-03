@@ -1,5 +1,6 @@
 package com.alexanderpolozhnov.careerpilot.common.api.error;
 
+import com.alexanderpolozhnov.careerpilot.ai.exception.AiNotFoundException;
 import com.alexanderpolozhnov.careerpilot.application.exception.ApplicationNotFoundException;
 import com.alexanderpolozhnov.careerpilot.auth.exception.DuplicateEmailException;
 import com.alexanderpolozhnov.careerpilot.auth.exception.InvalidCredentialsException;
@@ -73,6 +74,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ApplicationNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleApplicationNotFound(
         ApplicationNotFoundException exception,
+        HttpServletRequest request
+    ) {
+        return build(HttpStatus.NOT_FOUND, exception.getMessage(), "NOT_FOUND", request, Map.of());
+    }
+
+    @ExceptionHandler(AiNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleAiNotFound(
+        AiNotFoundException exception,
         HttpServletRequest request
     ) {
         return build(HttpStatus.NOT_FOUND, exception.getMessage(), "NOT_FOUND", request, Map.of());
