@@ -55,7 +55,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Company API (list/detail/create/update/delete, user ownership, pagination).
 - [x] Application API (board, PATCH status).
 - [x] Analytics API (GET /api/analytics/summary).
-- [ ] Application API (POST /applications, GET/PUT/DELETE /applications/{id}).
+- [x] Application API (POST /applications, GET/PUT/DELETE /applications/{id}).
 - [ ] AI provider abstraction и Ollama-oriented layer.
 - [ ] Notification API alignment with frontend contract.
 - [ ] Unified validation coverage across public endpoints.
@@ -66,7 +66,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Vacancies integration (CRUD, pagination, ownership, frontend verified).
 - [x] Companies integration (CRUD, pagination, ownership, frontend verified).
 - [x] Analytics integration (summary endpoint, frontend verified).
-- [~] Applications integration (board + status change working, POST/GET/PUT/DELETE pending).
+- [x] Applications integration (board + status change working, POST/GET/PUT/DELETE реализованы).
 - [ ] AI assistant integration.
 - [ ] Dashboard integration (replacing mock data with backend services).
 - [ ] Settings/preferences integration.
@@ -104,7 +104,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Vacancies vertical slice реализован и проверен.
 - [x] Companies vertical slice реализован и проверен.
 - [x] Analytics vertical slice реализован и проверен.
-- [~] Applications vertical slice в процессе (board + status ready, CRUD pending).
+- [x] Applications vertical slice реализован (board + status + CRUD).
 - [ ] Приоритет: Applications CRUD → AI → Dashboard/Settings.
 - [ ] Каждый slice должен соответствовать контракту из `docs/FRONTEND_BACKEND_CONTRACT.md`.
 - [ ] Замена mock-only зон реальными backend-backed сервисами.
@@ -139,11 +139,11 @@ Roadmap отражает текущее состояние перед первы
 
 - [x] `GET /api/applications/board`
 - [x] `PATCH /api/applications/{id}/status`
-- [ ] `POST /api/applications`
-- [ ] `GET /api/applications`
-- [ ] `GET /api/applications/{id}`
-- [ ] `PUT /api/applications/{id}`
-- [ ] `DELETE /api/applications/{id}`
+- [x] `POST /api/applications`
+- [x] `GET /api/applications`
+- [x] `GET /api/applications/{id}`
+- [x] `PUT /api/applications/{id}`
+- [x] `DELETE /api/applications/{id}`
 
 ### Analytics
 
