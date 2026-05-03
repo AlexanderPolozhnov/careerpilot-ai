@@ -57,7 +57,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Analytics API (GET /api/analytics/summary).
 - [x] Application API (POST /applications, GET/PUT/DELETE /applications/{id}).
 - [x] AI provider abstraction и Ollama-oriented layer (с fallback-заглушкой).
-- [ ] Notification API alignment with frontend contract.
+- [x] Notification API alignment with frontend contract.
 - [ ] Unified validation coverage across public endpoints.
 
 ## Phase 4 — Frontend/Backend Integration
@@ -70,7 +70,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] AI assistant integration.
 - [x] Dashboard integration (replacing mock data with backend services).
 - [x] Settings/preferences integration.
-- [ ] Notifications integration.
+- [x] Notifications integration.
 - [ ] Manual API smoke scenarios documented and verified.
 
 ## Phase 5 — AI Features
@@ -169,8 +169,8 @@ Roadmap отражает текущее состояние перед первы
 - [x] `PUT /api/users/me`
 - [x] `GET /api/preferences`
 - [x] `PUT /api/preferences`
-- [ ] `GET /api/notifications`
-- [ ] `PATCH /api/notifications/{id}/read`
+- [x] `GET /api/notifications`
+- [x] `PATCH /api/notifications/{id}/read`
 
 ## Known limitations
 

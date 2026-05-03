@@ -12,9 +12,10 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "notifications", schema = "careerpilot", indexes = {
-        @Index(name = "idx_notifications_user_id", columnList = "user_id"),
-        @Index(name = "idx_notifications_status", columnList = "status"),
-        @Index(name = "idx_notifications_created_at", columnList = "created_at")
+    @Index(name = "idx_notifications_user_id", columnList = "user_id"),
+    @Index(name = "idx_notifications_status", columnList = "status"),
+    @Index(name = "idx_notifications_created_at", columnList = "created_at"),
+    @Index(name = "idx_notifications_read", columnList = "read")
 })
 public class NotificationEntity extends BaseCreatedAtEntity {
 
@@ -26,6 +27,10 @@ public class NotificationEntity extends BaseCreatedAtEntity {
     @Column(nullable = false, length = 50)
     private NotificationChannel channel;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50)
+    private NotificationType type;
+
     @Column(nullable = false, length = 255)
     private String title;
 
@@ -35,6 +40,9 @@ public class NotificationEntity extends BaseCreatedAtEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private NotificationStatus status = NotificationStatus.PENDING;
+
+    @Column(nullable = false)
+    private boolean read = false;
 
     @Column(name = "sent_at")
     private Instant sentAt;

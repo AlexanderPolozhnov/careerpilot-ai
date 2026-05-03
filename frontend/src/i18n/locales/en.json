@@ -12,7 +12,8 @@
     "logout": "Logout",
     "account": "Account",
     "preparingWorkspace": "Preparing workspace…",
-    "new": "new"
+    "new": "new",
+    "markRead": "Mark read"
   },
   "navigation": {
     "workspace": "Workspace",

@@ -7,7 +7,7 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import type {PreferencesRequest, UserUpdateRequest} from '@/services/settings.service'
 import {settingsService} from '@/services/settings.service'
 import {cn, formatRelative} from '@/lib/utils'
-import {mockNotifications} from '@/mock/data'
+import {notificationService} from '@/services/notification.service'
 
 const profileSchema = z.object({
     name: z.string().min(2),
@@ -28,6 +28,20 @@ type PreferencesValues = z.infer<typeof preferencesSchema>
 export default function SettingsPage() {
     const {t, i18n} = useTranslation()
     const queryClient = useQueryClient()
+
+    const {data: notificationsData} = useQuery({
+        queryKey: ['notifications'],
+        queryFn: () => notificationService.list({page: 0, size: 5}),
+    })
+
+    const markAsReadMutation = useMutation({
+        mutationFn: (id: string) => notificationService.markAsRead(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['notifications']})
+        },
+    })
+
+    const notifications = notificationsData?.content ?? []
 
     const {data: userData} = useQuery({
         queryKey: ['users', 'me'],
@@ -282,18 +296,29 @@ export default function SettingsPage() {
                                 <p className="text-sm text-ink-muted mt-1">{t('settings.mockFeed')}</p>
                             </div>
                             <span
-                                className="pill">{mockNotifications.filter((n) => !n.read).length} {t('common.new')}</span>
+                                className="pill">{notifications.filter((n) => !n.read).length} {t('common.new')}</span>
                         </div>
                         <div className="mt-4 space-y-2">
-                            {mockNotifications.slice(0, 5).map((n) => (
-                                <div key={n.id} className="rounded-xl border border-border bg-surface-1/30 px-3 py-2.5">
+                            {notifications.map((n) => (
+                                <div key={n.id}
+                                     className={cn('rounded-xl border border-border px-3 py-2.5', n.read ? 'bg-surface-1/20' : 'bg-surface-1/50')}>
                                     <div className="flex items-start justify-between gap-3">
-                                        <div className="min-w-0">
+                                        <div className="min-w-0 flex-1">
                                             <div className="text-sm text-ink truncate">{n.title}</div>
                                             <div className="text-xs text-ink-dim mt-1 truncate">{n.body}</div>
                                         </div>
-                                        <div
-                                            className="text-xs text-ink-dim shrink-0">{formatRelative(n.createdAt)}</div>
+                                        <div className="flex items-center gap-2 shrink-0">
+                                            <div className="text-xs text-ink-dim">{formatRelative(n.createdAt)}</div>
+                                            {!n.read && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => markAsReadMutation.mutate(n.id)}
+                                                    className="text-xs text-accent hover:underline"
+                                                >
+                                                    {t('common.markRead')}
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}
