@@ -117,8 +117,8 @@ Roadmap отражает текущее состояние перед первы
 - [x] `POST /api/auth/login`
 - [x] `POST /api/auth/register`
 - [x] `GET /api/auth/me`
-- [ ] `POST /api/auth/forgot-password`
-- [ ] `POST /api/auth/reset-password`
+- [x] `POST /api/auth/forgot-password`
+- [x] `POST /api/auth/reset-password`
 
 ### Vacancies
 
