@@ -10,6 +10,9 @@ import { ErrorState } from '@/components/ErrorState'
 import { vacancyService } from '@/services/vacancy.service'
 import type { Vacancy, VacancyStatus, RemoteType } from '@/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { VacancyForm, type VacancyFormValues } from '@/components/VacancyForm'
+import { toast } from '@/lib/toast'
+import { X } from 'lucide-react'
 
 export default function VacanciesPage() {
   const { t } = useTranslation()
@@ -18,6 +21,8 @@ export default function VacanciesPage() {
   const [status, setStatus] = useState<VacancyStatus | 'ALL'>('ALL')
   const [remote, setRemote] = useState<RemoteType | 'ALL'>('ALL')
   const [view, setView] = useState<'list' | 'table'>('list')
+  const [isFormOpen, setIsFormOpen] = useState(false)
+
   const listQuery = useQuery({
     queryKey: ['vacancies', { query, status, remote }],
     queryFn: () =>
@@ -31,14 +36,41 @@ export default function VacanciesPage() {
   })
 
   const createMutation = useMutation({
-    mutationFn: vacancyService.create,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['vacancies'] }),
+    mutationFn: (values: VacancyFormValues) => vacancyService.create(values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vacancies'] })
+      toast.success(t('vacancies.vacancyCreated'))
+      setIsFormOpen(false)
+    },
+    onError: (_error) => {
+      toast.error(t('vacancies.vacancyCreateFailed'))
+    },
   })
 
   const visibleItems = useMemo<Vacancy[]>(() => listQuery.data?.content ?? [], [listQuery.data])
 
   return (
     <section className="space-y-4">
+      {isFormOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-surface-2 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
+             <button onClick={() => setIsFormOpen(false)} className="absolute top-4 right-4 text-ink-dim hover:text-ink transition-colors">
+               <X size={20} />
+             </button>
+            <h3 className="text-lg font-semibold text-ink">{t('vacancies.addVacancy')}</h3>
+            <div className="mt-4">
+              <VacancyForm
+                onSubmit={async (values) => {
+                  await createMutation.mutateAsync(values)
+                }}
+                onCancel={() => setIsFormOpen(false)}
+                isSubmitting={createMutation.isPending}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       <FilterBar
         left={<SearchBar value={query} onValueChange={setQuery} placeholder={t('vacancies.searchPlaceholder')} />}
         right={
@@ -73,22 +105,8 @@ export default function VacanciesPage() {
             <span className="pill">{visibleItems.length} {t('vacancies.results')}</span>
             <button
               type="button"
-              className="btn-secondary text-sm"
-              onClick={async () => {
-                const title = window.prompt('Введите название вакансии')
-                if (!title || !title.trim()) {
-                  return
-                }
-                try {
-                  await createMutation.mutateAsync({
-                    title: title.trim(),
-                    companyId: '',
-                    remote: 'REMOTE',
-                  })
-                } catch (error) {
-                  window.alert(error instanceof Error ? error.message : 'Не удалось создать вакансию')
-                }
-              }}
+              className="btn-primary text-sm"
+              onClick={() => setIsFormOpen(true)}
               disabled={createMutation.isPending}
             >
               {t('vacancies.addVacancy')}

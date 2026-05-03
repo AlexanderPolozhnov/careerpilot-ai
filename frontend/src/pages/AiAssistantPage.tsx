@@ -13,32 +13,6 @@ import { EmptyState } from '@/components/EmptyState'
 import { useQuery } from '@tanstack/react-query'
 import type { Resolver } from 'react-hook-form'
 
-const analyzeSchema = z.object({
-  vacancyId: z.string().optional(),
-  vacancyText: z.string().min(30, 'Paste at least 30 characters').optional(),
-})
-
-const matchSchema = z.object({
-  vacancyId: z.string().optional(),
-  vacancyText: z.string().min(30, 'Paste at least 30 characters').optional(),
-  resumeText: z.string().min(80, 'Paste at least 80 characters'),
-})
-
-const coverLetterSchema = z.object({
-  vacancyId: z.string().optional(),
-  vacancyText: z.string().min(30, 'Paste at least 30 characters').optional(),
-  resumeText: z.string().min(80, 'Paste at least 80 characters').optional(),
-  tone: z.enum(['PROFESSIONAL', 'FRIENDLY', 'ENTHUSIASTIC']).default('PROFESSIONAL'),
-  additionalContext: z.string().optional(),
-})
-
-const interviewSchema = z.object({
-  vacancyId: z.string().optional(),
-  vacancyText: z.string().min(30, 'Paste at least 30 characters').optional(),
-  focusArea: z.string().optional(),
-  count: z.coerce.number().int().min(3).max(15).default(5),
-})
-
 type ToolKey = 'analyze' | 'match' | 'cover' | 'interview'
 
 type AiFormValues = {
@@ -56,12 +30,39 @@ export default function AiAssistantPage() {
   const [tool, setTool] = useState<ToolKey>('analyze')
   const [result, setResult] = useState<AiResult | null>(null)
 
+  const schemas = useMemo(() => {
+    return {
+      analyzeSchema: z.object({
+        vacancyId: z.string().optional(),
+        vacancyText: z.string().min(30, t('forms.validation.minLength', { length: 30 })).optional(),
+      }),
+      matchSchema: z.object({
+        vacancyId: z.string().optional(),
+        vacancyText: z.string().min(30, t('forms.validation.minLength', { length: 30 })).optional(),
+        resumeText: z.string().min(80, t('forms.validation.minLength', { length: 80 })),
+      }),
+      coverLetterSchema: z.object({
+        vacancyId: z.string().optional(),
+        vacancyText: z.string().min(30, t('forms.validation.minLength', { length: 30 })).optional(),
+        resumeText: z.string().min(80, t('forms.validation.minLength', { length: 80 })).optional(),
+        tone: z.enum(['PROFESSIONAL', 'FRIENDLY', 'ENTHUSIASTIC']).default('PROFESSIONAL'),
+        additionalContext: z.string().optional(),
+      }),
+      interviewSchema: z.object({
+        vacancyId: z.string().optional(),
+        vacancyText: z.string().min(30, t('forms.validation.minLength', { length: 30 })).optional(),
+        focusArea: z.string().optional(),
+        count: z.coerce.number().int().min(3).max(15).default(5),
+      }),
+    }
+  }, [t])
+
   const schema = useMemo(() => {
-    if (tool === 'analyze') return analyzeSchema
-    if (tool === 'match') return matchSchema
-    if (tool === 'cover') return coverLetterSchema
-    return interviewSchema
-  }, [tool])
+    if (tool === 'analyze') return schemas.analyzeSchema
+    if (tool === 'match') return schemas.matchSchema
+    if (tool === 'cover') return schemas.coverLetterSchema
+    return schemas.interviewSchema
+  }, [tool, schemas])
 
   const form = useForm<AiFormValues>({
     resolver: zodResolver(schema) as unknown as Resolver<AiFormValues>,
@@ -118,13 +119,13 @@ export default function AiAssistantPage() {
             onSubmit={form.handleSubmit(async (values) => {
               setResult(null)
               if (tool === 'analyze') {
-                const v = values as z.infer<typeof analyzeSchema>
+                const v = values as z.infer<typeof schemas.analyzeSchema>
                 const res = await aiService.analyzeVacancy({ vacancyId: v.vacancyId || undefined, vacancyText: v.vacancyText || undefined })
                 setResult(res.result)
                 return
               }
               if (tool === 'match') {
-                const v = values as z.infer<typeof matchSchema>
+                const v = values as z.infer<typeof schemas.matchSchema>
                 const res = await aiService.resumeMatch({
                   vacancyId: v.vacancyId || undefined,
                   vacancyText: v.vacancyText || undefined,
@@ -134,7 +135,7 @@ export default function AiAssistantPage() {
                 return
               }
               if (tool === 'cover') {
-                const v = values as z.infer<typeof coverLetterSchema>
+                const v = values as z.infer<typeof schemas.coverLetterSchema>
                 const res = await aiService.generateCoverLetter({
                   vacancyId: v.vacancyId || undefined,
                   vacancyText: v.vacancyText || undefined,
@@ -145,7 +146,7 @@ export default function AiAssistantPage() {
                 setResult(res.result)
                 return
               }
-              const v = values as z.infer<typeof interviewSchema>
+              const v = values as z.infer<typeof schemas.interviewSchema>
               const res = await aiService.generateInterviewQuestions({
                 vacancyId: v.vacancyId || undefined,
                 vacancyText: v.vacancyText || undefined,
@@ -187,6 +188,9 @@ export default function AiAssistantPage() {
             <div>
               <label className="text-xs text-ink-dim">{t('aiAssistant.vacancyTextOptional')}</label>
               <textarea className="input mt-1 h-28 py-2" {...form.register('vacancyText')} placeholder={t('aiAssistant.vacancyTextPlaceholder')} />
+              {form.formState.errors.vacancyText && (
+                <p className="text-xs text-danger mt-1">{form.formState.errors.vacancyText.message}</p>
+              )}
             </div>
 
             {(tool === 'match' || tool === 'cover') && (
@@ -195,6 +199,9 @@ export default function AiAssistantPage() {
                   {tool === 'match' ? t('aiAssistant.resumeText') : t('aiAssistant.resumeTextOptional')}
                 </label>
                 <textarea className="input mt-1 h-28 py-2" {...form.register('resumeText')} placeholder={t('aiAssistant.resumeTextPlaceholder')} />
+                {form.formState.errors.resumeText && (
+                  <p className="text-xs text-danger mt-1">{form.formState.errors.resumeText.message}</p>
+                )}
               </div>
             )}
 
@@ -202,12 +209,6 @@ export default function AiAssistantPage() {
               <div>
                 <label className="text-xs text-ink-dim">{t('aiAssistant.additionalContextOptional')}</label>
                 <textarea className="input mt-1 h-20 py-2" {...form.register('additionalContext')} placeholder={t('aiAssistant.additionalContextPlaceholder')} />
-              </div>
-            )}
-
-            {Object.keys(form.formState.errors).length > 0 && (
-              <div className="rounded-xl border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-ink">
-                {t('aiAssistant.fixFields')}
               </div>
             )}
 
@@ -260,3 +261,4 @@ export default function AiAssistantPage() {
     </section>
   )
 }
+

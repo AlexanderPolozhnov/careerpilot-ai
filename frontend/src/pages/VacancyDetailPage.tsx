@@ -12,6 +12,9 @@ import { applicationService } from '@/services/application.service'
 import type { AiResult, Vacancy } from '@/types'
 import { formatSalary } from '@/lib/utils'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { VacancyForm, type VacancyFormValues } from '@/components/VacancyForm'
+import { toast } from '@/lib/toast'
+import { X } from 'lucide-react'
 
 export default function VacancyDetailPage() {
   const { t } = useTranslation()
@@ -19,7 +22,7 @@ export default function VacancyDetailPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [insight, setInsight] = useState<AiResult | null>(null)
-  const [actionNote, setActionNote] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
 
   const vacancyQuery = useQuery({
     queryKey: ['vacancies', 'detail', { id }],
@@ -41,21 +44,70 @@ export default function VacancyDetailPage() {
   const company = useMemo(() => vacancy?.company, [vacancy])
 
   const updateMutation = useMutation({
-    mutationFn: ({ vacancyId, title }: { vacancyId: string; title: string }) =>
-      vacancyService.update(vacancyId, { title }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['vacancies'] }),
+    mutationFn: (values: VacancyFormValues) =>
+      vacancyService.update(id as string, values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vacancies', 'detail', { id }] })
+      toast.success(t('vacancies.vacancyUpdated'))
+      setIsEditing(false)
+    },
+    onError: () => {
+      toast.error(t('vacancies.vacancyUpdateFailed'))
+    },
   })
 
   const deleteMutation = useMutation({
     mutationFn: (vacancyId: string) => vacancyService.delete(vacancyId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['vacancies'] })
+      toast.success(t('vacancies.vacancyDeleted')) // Assuming this key exists or will be added
       navigate('/app/vacancies')
     },
+    onError: () => {
+      toast.error(t('vacancies.vacancyDeleteFailed'))
+    }
   })
+
+  const initialFormValues = useMemo((): Partial<VacancyFormValues> | undefined => {
+    if (!vacancy) return undefined
+    return {
+      title: vacancy.title,
+      companyId: vacancy.companyId,
+      url: vacancy.url,
+      description: vacancy.description,
+      location: vacancy.location,
+      remote: vacancy.remote,
+      contractType: vacancy.contractType,
+      salaryMin: vacancy.salaryMin,
+      salaryMax: vacancy.salaryMax,
+      salaryCurrency: vacancy.salaryCurrency,
+      deadline: vacancy.deadline ? vacancy.deadline.split('T')[0] : undefined,
+    }
+  }, [vacancy])
 
   return (
     <section className="space-y-4">
+       {isEditing && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-surface-2 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
+             <button onClick={() => setIsEditing(false)} className="absolute top-4 right-4 text-ink-dim hover:text-ink transition-colors">
+               <X size={20} />
+             </button>
+            <h3 className="text-lg font-semibold text-ink">{t('vacancies.edit')}</h3>
+            <div className="mt-4">
+              <VacancyForm
+                onSubmit={async (values) => {
+                  await updateMutation.mutateAsync(values)
+                }}
+                onCancel={() => setIsEditing(false)}
+                isSubmitting={updateMutation.isPending}
+                initialValues={initialFormValues}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       <Link to="/app/vacancies" className="text-sm text-ink-muted hover:text-ink transition-colors">
         {t('vacancies.backToVacancies')}
       </Link>
@@ -138,31 +190,14 @@ export default function VacancyDetailPage() {
                 </div>
               )}
 
-              {actionNote && (
-                <div className="mt-4 rounded-xl border border-success/30 bg-success/10 px-3 py-2 text-sm text-ink">
-                  {actionNote}
-                </div>
-              )}
-
               <div className="mt-4 flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
                   className="btn-secondary text-sm"
                   disabled={updateMutation.isPending}
-                  onClick={async () => {
-                    const nextTitle = window.prompt(t('vacancies.newTitlePrompt'), vacancy.title)
-                    if (!nextTitle || !nextTitle.trim() || !id) {
-                      return
-                    }
-                    try {
-                      await updateMutation.mutateAsync({ vacancyId: id, title: nextTitle.trim() })
-                      setActionNote(t('vacancies.vacancyUpdated'))
-                    } catch (error) {
-                      setActionNote(error instanceof Error ? error.message : t('vacancies.vacancyUpdateFailed'))
-                    }
-                  }}
+                  onClick={() => setIsEditing(true)}
                 >
-                  {t('vacancies.editTitle')}
+                  {t('vacancies.edit')}
                 </button>
                 <button
                   type="button"
@@ -172,11 +207,7 @@ export default function VacancyDetailPage() {
                     if (!id || !window.confirm(t('vacancies.deleteConfirmation'))) {
                       return
                     }
-                    try {
-                      await deleteMutation.mutateAsync(id)
-                    } catch (error) {
-                      setActionNote(error instanceof Error ? error.message : t('vacancies.vacancyDeleteFailed'))
-                    }
+                    await deleteMutation.mutateAsync(id)
                   }}
                 >
                   {t('vacancies.delete')}
@@ -186,7 +217,7 @@ export default function VacancyDetailPage() {
                   className="btn-secondary text-sm"
                   onClick={async () => {
                     await applicationService.create({ vacancyId: vacancy.id, status: 'SAVED' })
-                    setActionNote(t('vacancies.savedToApplications'))
+                    toast.info(t('vacancies.savedToApplications'))
                   }}
                 >
                   {t('vacancies.save')}
@@ -196,7 +227,7 @@ export default function VacancyDetailPage() {
                   className="inline-flex items-center justify-center rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent-dim transition-colors"
                   onClick={async () => {
                     await applicationService.create({ vacancyId: vacancy.id, status: 'APPLIED', appliedAt: new Date().toISOString() })
-                    setActionNote(t('vacancies.markedAsApplied'))
+                    toast.info(t('vacancies.markedAsApplied'))
                   }}
                 >
                   {t('vacancies.apply')}
@@ -207,7 +238,7 @@ export default function VacancyDetailPage() {
                   onClick={async () => {
                     const res = await aiService.analyzeVacancy({ vacancyId: vacancy.id })
                     setInsight(res.result)
-                    setActionNote(t('vacancies.aiAnalysisGenerated'))
+                    toast.info(t('vacancies.aiAnalysisGenerated'))
                   }}
                 >
                   {t('vacancies.generateAnalysis')}
