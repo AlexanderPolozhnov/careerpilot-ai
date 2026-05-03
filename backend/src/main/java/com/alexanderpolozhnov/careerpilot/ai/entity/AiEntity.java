@@ -7,15 +7,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "ai_results", schema = "careerpilot", indexes = {
-        @Index(name = "idx_ai_results_user_id", columnList = "user_id"),
-        @Index(name = "idx_ai_results_type", columnList = "type"),
-        @Index(name = "idx_ai_results_input_hash", columnList = "input_hash"),
-        @Index(name = "idx_ai_results_created_at", columnList = "created_at")
+    @Index(name = "idx_ai_results_user_id", columnList = "user_id"),
+    @Index(name = "idx_ai_results_type", columnList = "type"),
+    @Index(name = "idx_ai_results_input_hash", columnList = "input_hash"),
+    @Index(name = "idx_ai_results_created_at", columnList = "created_at")
 })
 public class AiEntity extends BaseCreatedAtEntity {
 
@@ -37,4 +38,17 @@ public class AiEntity extends BaseCreatedAtEntity {
 
     @Column(name = "expires_at")
     private Instant expiresAt;
+
+    // Contract-required fields
+    @Column(columnDefinition = "TEXT")
+    private String prompt;
+
+    @Column(columnDefinition = "TEXT")
+    private String result;
+
+    @Column(name = "vacancy_id")
+    private UUID vacancyId;
+
+    @Column(name = "tokens_used")
+    private Integer tokensUsed;
 }

@@ -56,7 +56,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Application API (board, PATCH status).
 - [x] Analytics API (GET /api/analytics/summary).
 - [x] Application API (POST /applications, GET/PUT/DELETE /applications/{id}).
-- [ ] AI provider abstraction и Ollama-oriented layer.
+- [x] AI provider abstraction и Ollama-oriented layer (с fallback-заглушкой).
 - [ ] Notification API alignment with frontend contract.
 - [ ] Unified validation coverage across public endpoints.
 
@@ -67,7 +67,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Companies integration (CRUD, pagination, ownership, frontend verified).
 - [x] Analytics integration (summary endpoint, frontend verified).
 - [x] Applications integration (board + status change working, POST/GET/PUT/DELETE реализованы).
-- [ ] AI assistant integration.
+- [x] AI assistant integration.
 - [ ] Dashboard integration (replacing mock data with backend services).
 - [ ] Settings/preferences integration.
 - [ ] Notifications integration.
@@ -75,15 +75,15 @@ Roadmap отражает текущее состояние перед первы
 
 ## Phase 5 — AI Features
 
-- [~] Provider abstraction.
-- [~] Ollama as default local provider.
+- [x] Provider abstraction (LlmProvider interface + OllamaLlmProvider with fallback).
+- [x] Ollama as default local provider.
 - [~] AI response caching.
-- [~] Prompt templates.
-- [ ] `POST /ai/analyze-vacancy` aligned with frontend contract.
-- [ ] `POST /ai/resume-match` aligned with frontend contract.
-- [ ] `POST /ai/cover-letter` aligned with frontend contract.
-- [ ] `POST /ai/interview-questions` aligned with frontend contract.
-- [ ] AI history endpoints.
+- [x] Prompt templates.
+- [x] `POST /ai/analyze-vacancy` aligned with frontend contract.
+- [x] `POST /ai/resume-match` aligned with frontend contract.
+- [x] `POST /ai/cover-letter` aligned with frontend contract.
+- [x] `POST /ai/interview-questions` aligned with frontend contract.
+- [x] AI history endpoints (`GET /ai/history`, `GET /ai/history/{id}`).
 - [ ] Cost/latency/error metrics for AI calls.
 
 ## Phase 6 — Production Readiness
@@ -105,7 +105,8 @@ Roadmap отражает текущее состояние перед первы
 - [x] Companies vertical slice реализован и проверен.
 - [x] Analytics vertical slice реализован и проверен.
 - [x] Applications vertical slice реализован (board + status + CRUD).
-- [ ] Приоритет: Applications CRUD → AI → Dashboard/Settings.
+- [x] AI assistant vertical slice реализован (все 6 endpoints, OllamaLlmProvider + fallback, тесты).
+- [ ] Приоритет: Dashboard/Settings.
 - [ ] Каждый slice должен соответствовать контракту из `docs/FRONTEND_BACKEND_CONTRACT.md`.
 - [ ] Замена mock-only зон реальными backend-backed сервисами.
 
@@ -151,11 +152,12 @@ Roadmap отражает текущее состояние перед первы
 
 ### AI
 
-- [ ] `GET /api/ai/history`
-- [ ] `POST /api/ai/analyze-vacancy`
-- [ ] `POST /api/ai/resume-match`
-- [ ] `POST /api/ai/cover-letter`
-- [ ] `POST /api/ai/interview-questions`
+- [x] `GET /api/ai/history`
+- [x] `GET /api/ai/history/{id}`
+- [x] `POST /api/ai/analyze-vacancy`
+- [x] `POST /api/ai/resume-match`
+- [x] `POST /api/ai/cover-letter`
+- [x] `POST /api/ai/interview-questions`
 
 ### Dashboard
 
@@ -192,7 +194,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Companies vertical slice
 - [x] Applications vertical slice (включая CRUD)
 - [x] Analytics vertical slice
-- [ ] AI vertical slice (analyze-vacancy, resume-match, cover-letter, interview-questions)
+- [x] AI vertical slice (analyze-vacancy, resume-match, cover-letter, interview-questions)
 
 Что войдёт в описание релиза:
 
