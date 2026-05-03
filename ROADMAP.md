@@ -93,7 +93,7 @@ Roadmap отражает текущее состояние перед первы
 - [ ] Testcontainers integration tests stable in local Docker environment.
 - [ ] Frontend error boundaries.
 - [ ] Frontend tests.
-- [ ] CI pipeline with GitHub Actions.
+- [x] CI pipeline with GitHub Actions.
 - [ ] Full-stack Docker Compose setup.
 - [ ] Deployment notes.
 - [ ] Security hardening: refresh/revocation strategy, rate limits for AI endpoints, audit trail.
