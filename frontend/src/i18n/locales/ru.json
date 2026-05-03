@@ -12,7 +12,8 @@
     "logout": "Выход",
     "account": "Аккаунт",
     "preparingWorkspace": "Подготавливаем рабочую область…",
-    "new": "новое"
+    "new": "новое",
+    "markRead": "Прочитано"
   },
   "navigation": {
     "workspace": "Рабочая область",

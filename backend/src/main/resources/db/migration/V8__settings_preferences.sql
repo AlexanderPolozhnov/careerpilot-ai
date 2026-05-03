@@ -1,3 +1,5 @@
+SET search_path TO careerpilot;
+
 ALTER TABLE careerpilot.users
     ADD COLUMN IF NOT EXISTS location VARCHAR(255);
 

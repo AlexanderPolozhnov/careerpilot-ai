@@ -4,6 +4,7 @@ import com.alexanderpolozhnov.careerpilot.ai.exception.AiNotFoundException;
 import com.alexanderpolozhnov.careerpilot.application.exception.ApplicationNotFoundException;
 import com.alexanderpolozhnov.careerpilot.auth.exception.DuplicateEmailException;
 import com.alexanderpolozhnov.careerpilot.auth.exception.InvalidCredentialsException;
+import com.alexanderpolozhnov.careerpilot.notification.exception.NotificationException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,6 +75,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ApplicationNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleApplicationNotFound(
         ApplicationNotFoundException exception,
+        HttpServletRequest request
+    ) {
+        return build(HttpStatus.NOT_FOUND, exception.getMessage(), "NOT_FOUND", request, Map.of());
+    }
+
+    @ExceptionHandler(NotificationException.class)
+    public ResponseEntity<ApiErrorResponse> handleNotificationException(
+        NotificationException exception,
         HttpServletRequest request
     ) {
         return build(HttpStatus.NOT_FOUND, exception.getMessage(), "NOT_FOUND", request, Map.of());
