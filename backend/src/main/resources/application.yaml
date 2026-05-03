@@ -25,6 +25,16 @@ spring:
     locations:
       - classpath:db/migration
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  cache:
+    type: redis
+    redis:
+      time-to-live: 24h
+      cache-null-values: false
+
 security:
   jwt:
     secret: ${JWT_SECRET:Q2FyZWVyUGlsb3RBdXRoU2VjcmV0S2V5Rm9yRGV2RW52aXJvbm1lbnQxMjM0NTY3ODkwMTIzNDU2Nzg5MA==}

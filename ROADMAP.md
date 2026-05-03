@@ -77,7 +77,7 @@ Roadmap отражает текущее состояние перед первы
 
 - [x] Provider abstraction (LlmProvider interface + OllamaLlmProvider with fallback).
 - [x] Ollama as default local provider.
-- [~] AI response caching.
+- [x] AI response caching.
 - [x] Prompt templates.
 - [x] `POST /ai/analyze-vacancy` aligned with frontend contract.
 - [x] `POST /ai/resume-match` aligned with frontend contract.

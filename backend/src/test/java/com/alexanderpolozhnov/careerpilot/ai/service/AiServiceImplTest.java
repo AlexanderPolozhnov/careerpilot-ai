@@ -5,6 +5,7 @@ import com.alexanderpolozhnov.careerpilot.ai.exception.AiNotFoundException;
 import com.alexanderpolozhnov.careerpilot.ai.mapper.AiMapper;
 import com.alexanderpolozhnov.careerpilot.ai.repository.AiRepository;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiAnalyzeVacancyRequest;
+import com.alexanderpolozhnov.careerpilot.ai.request.AiCoverLetterRequest;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiInterviewQuestionsRequest;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResponse;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResultDto;
@@ -39,6 +40,8 @@ class AiServiceImplTest {
     private AiMapper aiMapper;
     @Mock
     private CurrentUserResolver currentUserResolver;
+    @Mock
+    private AiResultCacheService aiResultCacheService;
     @InjectMocks
     private AiServiceImpl aiService;
 
@@ -60,6 +63,8 @@ class AiServiceImplTest {
     void analyzeVacancySavesResultForCurrentUser() {
         UUID vacancyId = UUID.randomUUID();
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
+        when(aiResultCacheService.getCachedResult(any(), any(), any(), any()))
+            .thenAnswer(invocation -> ((java.util.function.Supplier<String>) invocation.getArgument(3)).get());
         when(llmProvider.generate(any())).thenReturn("## Analysis result");
         AiEntity saved = makeEntity(currentUser, "VACANCY_ANALYSIS", vacancyId);
         when(aiRepository.save(any(AiEntity.class))).thenReturn(saved);
@@ -146,6 +151,23 @@ class AiServiceImplTest {
         AiResponse response = aiService.interviewQuestions(request);
 
         assertThat(response.result().type()).isEqualTo("INTERVIEW_QUESTIONS");
+        verify(aiResultCacheService, org.mockito.Mockito.never()).getCachedResult(any(), any(), any(), any());
+    }
+
+    @Test
+    void coverLetterDoesNotUseCache() {
+        when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
+        when(llmProvider.generate(any())).thenReturn("## Cover Letter");
+        AiEntity saved = makeEntity(currentUser, "COVER_LETTER", null);
+        when(aiRepository.save(any(AiEntity.class))).thenReturn(saved);
+        AiResultDto dto = makeDto(saved);
+        when(aiMapper.toDto(saved)).thenReturn(dto);
+
+        AiCoverLetterRequest request = new AiCoverLetterRequest(null, "job", null, "me", "prof", "more");
+        AiResponse response = aiService.coverLetter(request);
+
+        assertThat(response.result().type()).isEqualTo("COVER_LETTER");
+        verify(aiResultCacheService, org.mockito.Mockito.never()).getCachedResult(any(), any(), any(), any());
     }
 
     private AiEntity makeEntity(AuthEntity user, String type, UUID vacancyId) {
