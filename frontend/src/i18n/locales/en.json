@@ -72,7 +72,7 @@
     "passwordMinLength": "Password must be at least 8 characters",
     "loginMinLength": "Password must be at least 6 characters",
     "nameMinLength": "Name must be at least 2 characters",
-    "loginHint": "\uD83D\uDD12 Data is protected",
+    "loginHint": "🔒 Data is protected",
     "skip": "Skip"
   },
   "dashboard": {
@@ -121,9 +121,9 @@
     "contract": "Contract",
     "website": "Website",
     "editTitle": "Edit title",
+    "edit": "Edit",
     "delete": "Delete",
     "save": "Save",
-    "apply": "Apply",
     "generateAnalysis": "Generate AI analysis",
     "aiInsight": "AI insight",
     "generate": "Generate",
@@ -134,6 +134,9 @@
     "vacancyUpdated": "Vacancy updated.",
     "vacancyUpdateFailed": "Failed to update vacancy",
     "vacancyDeleteFailed": "Failed to delete vacancy",
+    "vacancyDeleted": "Vacancy deleted.",
+    "vacancyCreated": "Vacancy created successfully.",
+    "vacancyCreateFailed": "Failed to create vacancy.",
     "savedToApplications": "Saved to applications (mock).",
     "markedAsApplied": "Marked as applied (mock).",
     "aiAnalysisGenerated": "AI analysis generated (mock).",
@@ -145,7 +148,27 @@
     "tableRole": "Role",
     "tableCompany": "Company",
     "tableStatus": "Status",
-    "tableMatch": "Match"
+    "tableMatch": "Match",
+    "form": {
+      "title": "Vacancy Title",
+      "company": "Company",
+      "selectCompany": "Select a company",
+      "url": "URL",
+      "description": "Description",
+      "location": "Location",
+      "remote": "Remote Type",
+      "contractType": "Contract Type",
+      "salary": "Salary",
+      "salaryMin": "Min",
+      "salaryMax": "Max",
+      "salaryCurrency": "Currency",
+      "deadline": "Application Deadline",
+      "tags": "Tags (comma-separated)",
+      "errors": {
+        "companyRequired": "Company is required",
+        "invalidUrl": "Invalid URL"
+      }
+    }
   },
   "applications": {
     "title": "Applications",

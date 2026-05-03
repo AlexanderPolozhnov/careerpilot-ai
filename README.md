@@ -19,106 +19,33 @@ CareerPilot AI - full-stack portfolio project для управления пои
 - генерация cover letter и interview questions;
 - аналитика прогресса поиска работы.
 
-## Ключевые возможности
-
-- Vacancy management: список, детали, фильтры, статусы и архивирование.
-- Company tracking: карточки компаний и связь с вакансиями.
-- Application pipeline: отклики и Kanban-представление по `ApplicationStatus` с drag-and-drop, `DragOverlay` preview,
-  оптимистичным обновлением статуса без refresh.
-- AI assistant: анализ вакансии, resume match, cover letter, interview questions.
-- Analytics dashboard: funnel, weekly activity, response/interview/offer rates.
-- Auth flow: login/register и token-based frontend session.
-- i18n: интерфейс на русском и английском через `i18next`.
-
-Часть frontend пока использует mock data. Это осознанный этап интеграции: frontend-backend integration выполняется по
-документированному контракту.
-
-## Текущий статус
-
-- Статус проекта: **В активной разработке**.
-- Архитектурный подход: modular monolith с vertical slices подходом.
-- Backend и frontend находятся в одном monorepo.
-- Основная текущая задача: завершение Applications vertical slice и реализация AI endpoints.
-- **Реализовано:** Auth, Vacancies, Companies, Applications board + Kanban, Analytics — полностью интегрированы и
-  вручную проверены.
-- **В процессе:** Applications CRUD (POST/GET/PUT/DELETE /api/applications).
-- **Следующий шаг:** AI vertical slice.
-- `DashboardPage` и `SettingsPage` пока частично используют mock/local state.
-- Backend tests требуют доступный Docker runtime из-за Testcontainers.
-
 ## Что уже реализовано
 
-- Monorepo-структура `backend/`, `frontend/`, `docs/`.
-- Backend foundation на `Java 21`, `Spring Boot 3`, `PostgreSQL`, `Flyway`, `Spring Security`, JWT.
-- Domain-oriented backend modules: auth, vacancy, application, company, AI, analytics и смежные модули.
-- Frontend foundation на `React`, `TypeScript`, `Vite`, `Tailwind CSS`.
-- Typed frontend service layer для REST API.
-- Базовая i18n-инфраструктура с `ru` и `en` locale files.
-- Docker Compose для локальной инфраструктуры: PostgreSQL, Redis, optional MinIO и Ollama profiles.
-- Документированный frontend-backend contract.
-- GlobalExceptionHandler и unified error response format.
-- Seed data: реалистичные тестовые данные и рабочие demo-пользователи.
-- **Auth vertical slice:** endpoints register/login/me с JWT token-based auth, полностью интегрирован.
-- **Vacancies vertical slice:** CRUD endpoints, user ownership, pagination, frontend интеграция.
-- **Companies vertical slice:** CRUD endpoints, user ownership, PagedResponse, frontend интеграция.
+- **Monorepo-структура** `backend/`, `frontend/`, `docs/`.
+- **Backend foundation** на `Java 21`, `Spring Boot 3`, `PostgreSQL`, `Flyway`, `Spring Security`, JWT.
+- **Frontend foundation** на `React`, `TypeScript`, `Vite`, `Tailwind CSS`.
+- **Docker Compose** для локальной инфраструктуры: PostgreSQL, Redis, optional MinIO и Ollama profiles.
+- **i18n**: интерфейс на русском и английском.
+- **Auth vertical slice:** endpoints register/login/me с JWT token-based auth.
+- **Vacancies vertical slice:** полный CRUD, включая формы создания и редактирования, pagination, user ownership.
+- **Companies vertical slice:** CRUD endpoints, user ownership, PagedResponse.
 - **Applications vertical slice:** board endpoint, PATCH status, Kanban с drag-and-drop, DragOverlay preview, optimistic
   update.
-- **Analytics vertical slice:** GET /api/analytics/summary, frontend интеграция.
+- **Analytics vertical slice:** GET /api/analytics/summary, включая `topSkillGaps`.
+- **AI Assistant slice:** инструменты для анализа, улучшения резюме и подготовки к интервью, с улучшенной валидацией форм.
 
-## 📸 Скриншоты / демо интерфейса
+## Известные ограничения и следующие шаги (v0.1.0-alpha)
 
-Ниже представлены скриншоты текущей демо-версии CareerPilot AI.  
-Проект находится в активной разработке, поэтому отдельные элементы интерфейса могут изменяться в будущих версиях.
+На данный момент проект готовится к первому alpha-релизу. Некоторые функции запланированы к реализации после него:
 
-Эти изображения показывают текущее состояние продукта и реализованный функционал (UI может быть не финально отполирован).
-
----
-
-### 🏠 Главная страница
-Общий обзор платформы, описание возможностей и точка входа в систему.
-
-![Главная страница CareerPilot AI](./docs/assets/Dashboard.png)
-
----
-
-### 📊 Доска откликов (Kanban)
-Доска управления откликами с drag-and-drop изменением статусов, оптимистичным обновлением UI и плавным интерфейсом без перезагрузки страницы.
-
-![Доска откликов с Kanban](./docs/assets/Applications.png)
-
----
-
-### 💼 Вакансии
-Экран списка вакансий с фильтрацией, поиском и структурированным отображением данных.
-
-![Список вакансий](./docs/assets/Vacancies.png)
-
----
-
-### 📈 Аналитика
-Панель аналитики с воронкой откликов, метриками эффективности и анализом прогресса поиска работы.
-
-![Панель аналитики](./docs/assets/Analytics.png)
-
----
-
-### 🤖 AI-ассистент
-Интерфейс AI-инструментов для анализа вакансий, улучшения резюме и подготовки к собеседованиям.
-
-![Интерфейс AI-инструментов](./docs/assets/AI.png)
-
----
-
-## Что в разработке
-
-- **Applications vertical slice:** создание отклика (POST /applications), детали и редактирование (GET/PUT/DELETE
-  /applications/{id}).
-- **AI vertical slice:** analyze-vacancy, resume-match, cover-letter, interview-questions, history endpoints.
-- Замена mock-only зон dashboard/settings на backend-backed services.
-- Полная интеграция AI endpoints с provider abstraction.
-- Forgot/reset password endpoints для auth.
-- Расширение test coverage и CI через GitHub Actions.
-- Документация по deployment и production hardening.
+- **Создание компаний:** В интерфейсе пока нет возможности создать компанию (хотя API для этого существует).
+- **История анализов AI:** Повторный анализ вакансии перезаписывает предыдущий результат.
+- **Мелкие UX-проблемы:**
+    - Отсутствует dropdown меню у аватара пользователя в шапке.
+    - Названия кнопок "Сохранить"/"Применить" на странице вакансии можно сделать более интуитивными.
+    - Статичный блок "Совет" в боковой панели.
+    - Глобальный поиск в шапке пока неактивен.
+    - В еженедельной аналитике не переведены метки недель.
 
 ## Стек технологий
 

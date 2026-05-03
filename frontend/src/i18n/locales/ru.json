@@ -72,7 +72,7 @@
     "passwordMinLength": "Пароль должен содержать минимум 8 символов",
     "loginMinLength": "Пароль должен содержать минимум 6 символов",
     "nameMinLength": "Имя должно содержать минимум 2 символа",
-    "loginHint": "\uD83D\uDD12 Данные под защитой",
+    "loginHint": "🔒 Данные под защитой",
     "skip": "Пропустить"
   },
   "dashboard": {
@@ -121,9 +121,10 @@
     "contract": "Контракт",
     "website": "Веб-сайт",
     "editTitle": "Редактировать название",
+    "edit": "Редактировать",
+
     "delete": "Удалить",
     "save": "Сохранить",
-    "apply": "Применить",
     "generateAnalysis": "Сгенерировать анализ AI",
     "aiInsight": "AI-аналитика",
     "generate": "Сгенерировать",
@@ -134,6 +135,9 @@
     "vacancyUpdated": "Вакансия обновлена.",
     "vacancyUpdateFailed": "Не удалось обновить вакансию",
     "vacancyDeleteFailed": "Не удалось удалить вакансию",
+    "vacancyDeleted": "Вакансия удалена.",
+    "vacancyCreated": "Вакансия успешно создана.",
+    "vacancyCreateFailed": "Не удалось создать вакансию.",
     "savedToApplications": "Сохранено в заявки (макет).",
     "markedAsApplied": "Отмечено как откликнутое (макет).",
     "aiAnalysisGenerated": "Анализ AI сгенерирован (макет).",
@@ -145,7 +149,27 @@
     "tableRole": "Должность",
     "tableCompany": "Компания",
     "tableStatus": "Статус",
-    "tableMatch": "Совпадение"
+    "tableMatch": "Совпадение",
+    "form": {
+      "title": "Название вакансии",
+      "company": "Компания",
+      "selectCompany": "Выберите компанию",
+      "url": "URL",
+      "description": "Описание",
+      "location": "Местоположение",
+      "remote": "Тип удаленности",
+      "contractType": "Тип занятости",
+      "salary": "Зарплата",
+      "salaryMin": "Мин",
+      "salaryMax": "Макс",
+      "salaryCurrency": "Валюта",
+      "deadline": "Срок подачи",
+      "tags": "Теги (через запятую)",
+      "errors": {
+        "companyRequired": "Компания обязательна",
+        "invalidUrl": "Некорректный URL"
+      }
+    }
   },
   "applications": {
     "title": "Заявки",

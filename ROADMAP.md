@@ -30,12 +30,12 @@ Roadmap отражает текущее состояние перед первы
 - [x] Application layout и защищенный app shell.
 - [x] Routing через React Router.
 - [x] Auth screens: login, register, forgot password.
-- [x] Vacancy pages: list и detail view.
+- [x] Vacancy pages: list и detail view, включая полные формы создания/редактирования.
 - [x] Application board UI.
 - [x] Applications Kanban DnD UX polish (`DragOverlay`, cleaner horizontal columns, compact cards).
 - [x] Company pages.
-- [x] AI assistant pages.
-- [x] Analytics UI.
+- [x] AI assistant pages (с улучшенной валидацией).
+- [x] Analytics UI (с интеграцией API для skill gaps).
 - [x] i18n foundation: `ru` и `en` locale files, `LanguageSwitcher`, persistence в `localStorage`.
 - [x] `DashboardPage`: заменить direct mock imports на backend-backed service.
 - [x] `SettingsPage`: заменить mock/local-only поведение на backend-backed settings/preferences service.
@@ -63,11 +63,11 @@ Roadmap отражает текущее состояние перед первы
 ## Phase 4 — Frontend/Backend Integration
 
 - [x] Auth integration (JWT-based, token storage, protected routes, manual verification complete).
-- [x] Vacancies integration (CRUD, pagination, ownership, frontend verified).
+- [x] Vacancies integration (CRUD, pagination, ownership, frontend verified, включая формы).
 - [x] Companies integration (CRUD, pagination, ownership, frontend verified).
-- [x] Analytics integration (summary endpoint, frontend verified).
+- [x] Analytics integration (summary endpoint, frontend verified, включая skill gaps).
 - [x] Applications integration (board + status change working, POST/GET/PUT/DELETE реализованы).
-- [x] AI assistant integration.
+- [x] AI assistant integration (с улучшенной валидацией).
 - [x] Dashboard integration (replacing mock data with backend services).
 - [x] Settings/preferences integration.
 - [x] Notifications integration.
@@ -100,94 +100,27 @@ Roadmap отражает текущее состояние перед первы
 
 ## Current Development Focus
 
-- [x] Auth vertical slice реализован и проверен.
-- [x] Vacancies vertical slice реализован и проверен.
-- [x] Companies vertical slice реализован и проверен.
-- [x] Analytics vertical slice реализован и проверен.
-- [x] Applications vertical slice реализован (board + status + CRUD).
-- [x] AI assistant vertical slice реализован (все 6 endpoints, OllamaLlmProvider + fallback, тесты).
-- [x] Приоритет: Dashboard/Settings.
-- [ ] Каждый slice должен соответствовать контракту из `docs/FRONTEND_BACKEND_CONTRACT.md`.
-- [ ] Замена mock-only зон реальными backend-backed сервисами.
+- [x] Все основные vertical slices реализованы и базово проверены.
+- [ ] Замена оставшихся mock-only зон реальными backend-backed сервисами.
+- [ ] Устранение известных проблем (Known UX/Technical Issues).
 
-## Backend endpoints first
+## Known UX/Technical Issues (Post-release v0.1.0-alpha)
 
-### Auth
-
-- [x] `POST /api/auth/login`
-- [x] `POST /api/auth/register`
-- [x] `GET /api/auth/me`
-- [x] `POST /api/auth/forgot-password`
-- [x] `POST /api/auth/reset-password`
-
-### Vacancies
-
-- [x] `GET /api/vacancies`
-- [x] `GET /api/vacancies/{id}`
-- [x] `POST /api/vacancies`
-- [x] `PUT /api/vacancies/{id}`
-- [x] `DELETE /api/vacancies/{id}`
-
-### Companies
-
-- [x] `GET /api/companies`
-- [x] `GET /api/companies/{id}`
-- [x] `POST /api/companies`
-- [x] `PUT /api/companies/{id}`
-- [x] `DELETE /api/companies/{id}`
-
-### Applications
-
-- [x] `GET /api/applications/board`
-- [x] `PATCH /api/applications/{id}/status`
-- [x] `POST /api/applications`
-- [x] `GET /api/applications`
-- [x] `GET /api/applications/{id}`
-- [x] `PUT /api/applications/{id}`
-- [x] `DELETE /api/applications/{id}`
-
-### Analytics
-
-- [x] `GET /api/analytics/summary`
-
-### AI
-
-- [x] `GET /api/ai/history`
-- [x] `GET /api/ai/history/{id}`
-- [x] `POST /api/ai/analyze-vacancy`
-- [x] `POST /api/ai/resume-match`
-- [x] `POST /api/ai/cover-letter`
-- [x] `POST /api/ai/interview-questions`
-
-### Dashboard
-
-- [x] `GET /api/dashboard/summary`
-
-### Settings & Preferences
-
-- [x] `GET /api/users/me`
-- [x] `PUT /api/users/me`
-- [x] `GET /api/preferences`
-- [x] `PUT /api/preferences`
-- [x] `GET /api/notifications`
-- [x] `PATCH /api/notifications/{id}/read`
-
-## Known limitations
-
-- [x] Часть frontend работает через `VITE_USE_MOCKS=true` и mock data.
-- [x] `DashboardPage` подключён к `GET /api/dashboard/summary` через React Query.
-- [x] `SettingsPage` подключён к `GET/PUT /api/users/me` и `GET/PUT /api/preferences` через React Query.
-- [x] `authService.me()` не mock-aware: при сохраненном token может вызвать `GET /auth/me` даже в mock mode.
-- [~] Некоторые backend controllers уже существуют, но еще не полностью совпадают с frontend contract (Auth
-  login/register/me уже выровнен).
-- [x] Backend tests зависят от Testcontainers и требуют доступный Docker runtime.
-- [x] GitHub Actions пока запланирован, но не настроен.
+- [ ] **Analytics:** Нет перевода "Week" в блоке "Активность за неделю".
+- [ ] **Analytics:** Отклик может отображаться в неправильной неделе.
+- [ ] **Dashboard:** Неактивный dropdown аккаунта в header.
+- [ ] **Global Search:** Непонятное назначение глобального поиска в header (рекомендуется убрать до реализации).
+- [ ] **Sidebar:** Блок "Совет" показывает статичный текст.
+- [ ] **Vacancies:** Неверные названия кнопок действий ("Сохранить" -> "В избранное").
+- [ ] **Companies:** Нет UI для создания компании (хотя backend endpoint существует).
+- [ ] **AI Assistant:** Новый анализ перезаписывает предыдущий, нет истории.
+- [ ] **AI Assistant:** Лишняя кнопка "Сгенерировать" в панели AI на странице вакансии.
 
 ## Releases
 
 ### v0.1.0-alpha — первый публичный релиз
 
-**Условие выпуска:** все основные vertical slices закрыты и вручную проверены.
+**Условие выпуска:** все основные vertical slices закрыты и вручную проверены. P1-блокеры устранены.
 
 Что должно быть готово:
 
@@ -197,13 +130,14 @@ Roadmap отражает текущее состояние перед первы
 - [x] Applications vertical slice (включая CRUD)
 - [x] Analytics vertical slice
 - [x] AI vertical slice (analyze-vacancy, resume-match, cover-letter, interview-questions)
+- [x] Устранены P1-баги из `PRE_RELEASE_FIXES.md`.
 
 Что войдёт в описание релиза:
 
 - Краткое описание продукта
 - Список реализованных vertical slices
 - Как запустить локально (ссылка на README)
-- Known limitations (Dashboard интегрирован, Settings интегрирован)
+- Known limitations (со ссылкой на ROADMAP.md)
 - Стек технологий
 
 **Тег:** `v0.1.0-alpha`
