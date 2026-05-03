@@ -1,12 +1,7 @@
 package com.alexanderpolozhnov.careerpilot.auth.entity;
 
 import com.alexanderpolozhnov.careerpilot.common.entity.BaseAuditableEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,10 +26,11 @@ public class AuthEntity extends BaseAuditableEntity {
     @Column(name = "last_name", length = 120)
     private String lastName;
 
+    @Column(length = 255)
+    private String location;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private UserRole role = UserRole.USER;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private UserStatus status = UserStatus.ACTIVE;

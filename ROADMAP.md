@@ -38,7 +38,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Analytics UI.
 - [x] i18n foundation: `ru` и `en` locale files, `LanguageSwitcher`, persistence в `localStorage`.
 - [x] `DashboardPage`: заменить direct mock imports на backend-backed service.
-- [~] `SettingsPage`: заменить mock/local-only поведение на backend-backed settings/preferences service.
+- [x] `SettingsPage`: заменить mock/local-only поведение на backend-backed settings/preferences service.
 - [ ] Frontend test runner и базовые component/service tests.
 
 ## Phase 3 — Backend Foundation
@@ -69,7 +69,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Applications integration (board + status change working, POST/GET/PUT/DELETE реализованы).
 - [x] AI assistant integration.
 - [x] Dashboard integration (replacing mock data with backend services).
-- [ ] Settings/preferences integration.
+- [x] Settings/preferences integration.
 - [ ] Notifications integration.
 - [ ] Manual API smoke scenarios documented and verified.
 
@@ -106,7 +106,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Analytics vertical slice реализован и проверен.
 - [x] Applications vertical slice реализован (board + status + CRUD).
 - [x] AI assistant vertical slice реализован (все 6 endpoints, OllamaLlmProvider + fallback, тесты).
-- [ ] Приоритет: Dashboard/Settings.
+- [x] Приоритет: Dashboard/Settings.
 - [ ] Каждый slice должен соответствовать контракту из `docs/FRONTEND_BACKEND_CONTRACT.md`.
 - [ ] Замена mock-only зон реальными backend-backed сервисами.
 
@@ -165,8 +165,10 @@ Roadmap отражает текущее состояние перед первы
 
 ### Settings & Preferences
 
-- [ ] `GET /api/preferences`
-- [ ] `PUT /api/preferences`
+- [x] `GET /api/users/me`
+- [x] `PUT /api/users/me`
+- [x] `GET /api/preferences`
+- [x] `PUT /api/preferences`
 - [ ] `GET /api/notifications`
 - [ ] `PATCH /api/notifications/{id}/read`
 
@@ -174,7 +176,7 @@ Roadmap отражает текущее состояние перед первы
 
 - [x] Часть frontend работает через `VITE_USE_MOCKS=true` и mock data.
 - [x] `DashboardPage` подключён к `GET /api/dashboard/summary` через React Query.
-- [x] `SettingsPage` использует mock/local-only поведение и пока не сохраняет настройки через backend.
+- [x] `SettingsPage` подключён к `GET/PUT /api/users/me` и `GET/PUT /api/preferences` через React Query.
 - [x] `authService.me()` не mock-aware: при сохраненном token может вызвать `GET /auth/me` даже в mock mode.
 - [~] Некоторые backend controllers уже существуют, но еще не полностью совпадают с frontend contract (Auth
   login/register/me уже выровнен).
@@ -201,7 +203,7 @@ Roadmap отражает текущее состояние перед первы
 - Краткое описание продукта
 - Список реализованных vertical slices
 - Как запустить локально (ссылка на README)
-- Known limitations (Dashboard и Settings на mock data)
+- Known limitations (Dashboard интегрирован, Settings интегрирован)
 - Стек технологий
 
 **Тег:** `v0.1.0-alpha`
