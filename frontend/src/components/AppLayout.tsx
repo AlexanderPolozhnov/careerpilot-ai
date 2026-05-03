@@ -19,11 +19,11 @@ export function AppLayout() {
     const title = t(routeTitles[location.pathname] ?? 'navigation.workspace')
 
     return (
-        <div className="min-h-dvh bg-bg text-ink flex">
+        <div className="h-dvh bg-bg text-ink flex overflow-hidden">
             <Sidebar/>
             <div className="flex-1 min-w-0 flex flex-col">
                 <Topbar title={title}/>
-                <main className="flex-1 px-5 py-5 md:px-8 md:py-7">
+                <main className="content-area flex-1 min-h-0 overflow-y-auto px-5 py-5 md:px-8 md:py-7">
                     <Outlet/>
                 </main>
             </div>
