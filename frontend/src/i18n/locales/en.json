@@ -290,5 +290,15 @@
     "searchApplicationsDescription": "Start by saving or applying to a vacancy.",
     "successMessage": "Success",
     "errorMessage": "An error occurred"
+  },
+  "errors": {
+    "accessDenied": "Access denied",
+    "notFound": "Resource not found",
+    "serverError": "Server error. Please try again later.",
+    "networkError": "Network error. Check your connection.",
+    "unexpected": "An unexpected error occurred.",
+    "boundaryTitle": "Application Error",
+    "boundaryMessage": "Something went wrong in the application interface.",
+    "reload": "Reload page"
   }
 }
