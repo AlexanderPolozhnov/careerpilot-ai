@@ -1,5 +1,5 @@
 import {useEffect} from 'react'
-import {useForm} from 'react-hook-form'
+import {useForm, useWatch} from 'react-hook-form'
 import {useTranslation} from 'react-i18next'
 import {z} from 'zod'
 import {zodResolver} from '@hookform/resolvers/zod'
@@ -128,6 +128,10 @@ export default function SettingsPage() {
     const profileError = updateUserMutation.isError
     const prefsSuccess = updatePrefsMutation.isSuccess
     const prefsError = updatePrefsMutation.isError
+    const aiProviderMode = useWatch({
+        control: prefsForm.control,
+        name: "aiProviderMode",
+    })
 
     return (
         <section className="space-y-6">
@@ -273,7 +277,7 @@ export default function SettingsPage() {
                             <label className="text-xs text-ink-dim">{t('settings.aiProviderMode')}</label>
                             <select
                                 className="input mt-1"
-                                value={prefsForm.watch('aiProviderMode')}
+                                value={aiProviderMode}
                                 onChange={(e) => {
                                     const val = e.target.value as 'LOCAL' | 'CLOUD' | 'BRING_YOUR_OWN_KEY'
                                     prefsForm.setValue('aiProviderMode', val)
