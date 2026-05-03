@@ -3,3 +3,4 @@ spring:
     locations:
       - classpath:db/migration
       - classpath:db/seeds
+    out-of-order: true
