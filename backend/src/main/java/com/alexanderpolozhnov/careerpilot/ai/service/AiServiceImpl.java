@@ -26,12 +26,21 @@ public class AiServiceImpl implements AiService {
     private final AiRepository aiRepository;
     private final AiMapper aiMapper;
     private final CurrentUserResolver currentUserResolver;
+    private final AiResultCacheService aiResultCacheService;
 
     @Override
     public AiResponse analyzeVacancy(AiAnalyzeVacancyRequest request) {
         AuthEntity user = currentUserResolver.resolveRequired();
         String prompt = buildVacancyAnalysisPrompt(request);
-        String resultText = llmProvider.generate("VACANCY_ANALYSIS\n" + prompt);
+        String textHash = Integer.toHexString(prompt.hashCode());
+
+        String resultText = aiResultCacheService.getCachedResult(
+            "VACANCY_ANALYSIS",
+            request.vacancyId(),
+            textHash,
+            () -> llmProvider.generate("VACANCY_ANALYSIS\n" + prompt)
+        );
+
         AiEntity entity = createAndSave(user, "VACANCY_ANALYSIS", prompt, resultText, request.vacancyId());
         return new AiResponse(aiMapper.toDto(entity));
     }
@@ -40,7 +49,15 @@ public class AiServiceImpl implements AiService {
     public AiResponse resumeMatch(AiResumeMatchRequest request) {
         AuthEntity user = currentUserResolver.resolveRequired();
         String prompt = buildResumeMatchPrompt(request);
-        String resultText = llmProvider.generate("RESUME_MATCH\n" + prompt);
+        String textHash = Integer.toHexString(prompt.hashCode());
+
+        String resultText = aiResultCacheService.getCachedResult(
+            "RESUME_MATCH",
+            request.vacancyId(),
+            textHash,
+            () -> llmProvider.generate("RESUME_MATCH\n" + prompt)
+        );
+
         AiEntity entity = createAndSave(user, "RESUME_MATCH", prompt, resultText, request.vacancyId());
         return new AiResponse(aiMapper.toDto(entity));
     }
