@@ -34,4 +34,10 @@ public class AuthEntity extends BaseAuditableEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private UserStatus status = UserStatus.ACTIVE;
+
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Column(name = "reset_password_expires_at")
+    private java.time.OffsetDateTime resetPasswordExpiresAt;
 }
