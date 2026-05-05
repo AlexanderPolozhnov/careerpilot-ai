@@ -31,52 +31,81 @@ function useScrollAnimation(threshold = 0.15) {
 export default function LandingPage() {
     const {t} = useTranslation();
 
-    const featureCards = ['vacancies', 'kanban', 'ai', 'analytics'];
-    const howItWorksSteps = ['1', '2', '3'];
-
-    // Scroll animation refs for each section
+    const heroSection = useScrollAnimation();
     const featuresSection = useScrollAnimation();
     const howItWorksSection = useScrollAnimation();
     const ctaSection = useScrollAnimation();
 
     return (
-        <div className="min-h-dvh bg-[#08080a] text-[#e8eaed] overflow-x-hidden">
-            {/* Header */}
-            <header
-                className="fixed top-0 left-0 right-0 z-50 border-b border-[rgba(255,255,255,0.06)] bg-[rgba(8,8,10,0.8)] backdrop-blur-xl">
-                <div className="mx-auto max-w-6xl px-5 md:px-8 h-16 flex items-center justify-between">
-                    <Link to="/" className="flex items-center gap-2.5 group">
+        <div className="min-h-dvh bg-[#08080a]">
+            <LanguageSwitcher/>
+            <main>
+                {/* Hero Section */}
+                <section className="relative min-h-[100vh] flex items-center justify-center px-5 py-12">
+                    {/* Background elements */}
+                    <div className="absolute inset-0 overflow-hidden">
+                        {/* Animated gradient orbs */}
                         <div
-                            className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/30 transition-shadow">
-                            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                 strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                        </div>
-                        <span
-                            className="text-[15px] font-semibold text-[#e8eaed] tracking-tight"
-                            style={{fontFamily: 'Onest, system-ui, sans-serif'}}
-                        >
-              CareerPilot
-            </span>
-                    </Link>
-                    <nav className="flex items-center gap-1.5">
-                        <LanguageSwitcher/>
+                            className="absolute w-[500px] h-[500px] bg-violet-500/20 rounded-full blur-[120px] -top-40 -right-40 animate-pulse"
+                            style={{animationDuration: '6s'}}/>
+                        <div
+                            className="absolute w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] -bottom-40 -left-40 animate-pulse"
+                            style={{animationDuration: '8s'}}/>
+                        <div
+                            className="absolute w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[150px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"
+                            style={{animationDuration: '10s'}}/>
+
+                        {/* Animated lines */}
+                        <div
+                            className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/20 to-transparent"
+                            style={{animationDuration: '3s', animation: 'slideIn 3s ease-in-out infinite'}}/>
+                        <div
+                            className="absolute top-1/3 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/10 to-transparent"
+                            style={{animationDuration: '4s'}}/>
+                        <div
+                            className="absolute bottom-1/3 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/10 to-transparent"
+                            style={{animationDuration: '2s'}}/>
+
+                        {/* Grid pattern */}
+                        <div
+                            className="absolute inset-0 opacity-[0.03]"
+                            style={{
+                                backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+                                backgroundSize: '80px 80px'
+                            }}
+                        />
+
+                        {/* Radial gradient overlay */}
+                        <div
+                            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,#08080a_70%)]"/>
+                    </div>
+
+                    <header className="relative max-w-4xl mx-auto flex items-center justify-between px-5 py-6">
+                        {/* Logo */}
                         <Link
-                            to="/auth/login"
-                            className="px-4 py-2 text-[13px] font-medium text-[#8b8fa3] hover:text-[#e8eaed] transition-colors"
+                            to="/"
+                            className="inline-flex items-center gap-2 px-4 py-2 hover:bg-[rgba(255,255,255,0.03)] rounded-lg transition-colors"
                         >
-                            {t('landing.login')}
+                            <span className="text-[13px] font-semibold text-[#e8eaed]">CareerPilot</span>
                         </Link>
-                        <Link
-                            to="/auth/register"
-                            className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-lg hover:from-violet-500 hover:to-violet-400 transition-all shadow-lg shadow-violet-500/25 hover:shadow-violet-500/35"
-                        >
-                            {t('landing.hero.cta_primary')}
-                        </Link>
-                    </nav>
-                </div>
-            </header>
+
+                        <nav className="flex items-center gap-1.5">
+                            <LanguageSwitcher/>
+                            <Link
+                                to="/auth/login"
+                                className="px-4 py-2 text-[13px] font-medium text-[#8b8fa3] hover:text-[#e8eaed] transition-colors"
+                            >
+                                {t('landing.login')}
+                            </Link>
+                            <Link
+                                to="/auth/register"
+                                className="px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-lg hover:from-violet-500 hover:to-violet-400 transition-all shadow-lg shadow-violet-500/25 hover:shadow-violet-500/35"
+                            >
+                                {t('landing.hero.cta_primary')}
+                            </Link>
+                        </nav>
+                    </header>
+                </section>
 
             <main>
                 {/* Hero Section */}
@@ -108,11 +137,17 @@ export default function LandingPage() {
                             className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,#08080a_70%)]"/>
                     </div>
 
-                    <div className="relative max-w-4xl mx-auto text-center pt-12">
+                    <div 
+                        ref={heroSection.ref as React.RefObject<HTMLElement>}
+                        className="relative max-w-4xl mx-auto text-center pt-12"
+                    >
                         {/* Badge */}
                         <div
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(139,92,246,0.1)] border border-violet-500/25 rounded-full ds-anim-rise"
-                            style={{animationDelay: '0ms'}}
+                            className={`inline-flex items-center gap-2 px-4 py-2 bg-[rgba(139,92,246,0.1)] border border-violet-500/25 rounded-full transition-all ease-out ${heroSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                            style={{
+                                transitionDuration: heroSection.isVisible ? '700ms' : '400ms',
+                                transitionDelay: heroSection.isVisible ? '0ms' : '0ms'
+                            }}
                         >
               <span className="relative flex h-2 w-2">
                 <span
@@ -124,8 +159,12 @@ export default function LandingPage() {
 
                         {/* Headline */}
                         <h1
-                            className="mt-8 text-5xl md:text-7xl lg:text-[80px] font-semibold tracking-[-0.03em] leading-[1.05] ds-anim-rise"
-                            style={{fontFamily: 'Onest, system-ui, sans-serif', animationDelay: '80ms'}}
+                            className={`mt-8 text-5xl md:text-7xl lg:text-[80px] font-semibold tracking-[-0.03em] leading-[1.05] transition-all ease-out ${heroSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                            style={{
+                                fontFamily: 'Onest, system-ui, sans-serif',
+                                transitionDuration: heroSection.isVisible ? '700ms' : '400ms',
+                                transitionDelay: heroSection.isVisible ? '100ms' : '0ms'
+                            }}
                         >
                             <span className="text-[#e8eaed]">{t('landing.hero.title')}</span>{' '}
                             <span
@@ -134,16 +173,22 @@ export default function LandingPage() {
 
                         {/* Subheadline */}
                         <p
-                            className="mt-6 text-lg md:text-xl text-[#8b8fa3] leading-relaxed max-w-2xl mx-auto ds-anim-rise"
-                            style={{animationDelay: '160ms'}}
+                            className={`mt-6 text-lg md:text-xl text-[#8b8fa3] leading-relaxed max-w-2xl mx-auto transition-all ease-out ${heroSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                            style={{
+                                transitionDuration: heroSection.isVisible ? '700ms' : '400ms',
+                                transitionDelay: heroSection.isVisible ? '200ms' : '0ms'
+                            }}
                         >
                             {t('landing.hero.subtitle')}
                         </p>
 
                         {/* CTAs */}
                         <div
-                            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 ds-anim-rise"
-                            style={{animationDelay: '240ms'}}
+                            className={`mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 transition-all ease-out ${heroSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                            style={{
+                                transitionDuration: heroSection.isVisible ? '700ms' : '400ms',
+                                transitionDelay: heroSection.isVisible ? '300ms' : '0ms'
+                            }}
                         >
                             <Link
                                 to="/auth/register"
@@ -166,8 +211,11 @@ export default function LandingPage() {
 
                         {/* Stats/Facts */}
                         <div
-                            className="mt-16 flex flex-wrap justify-center gap-3 ds-anim-rise"
-                            style={{animationDelay: '320ms'}}
+                            className={`mt-16 flex flex-wrap justify-center gap-3 transition-all ease-out ${heroSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                            style={{
+                                transitionDuration: heroSection.isVisible ? '700ms' : '400ms',
+                                transitionDelay: heroSection.isVisible ? '400ms' : '0ms'
+                            }}
                         >
                             <div
                                 className="flex items-center gap-2 px-4 py-2.5 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] rounded-xl">
@@ -200,8 +248,11 @@ export default function LandingPage() {
 
                         {/* Abstract UI Preview */}
                         <div
-                            className="mt-20 relative ds-anim-rise"
-                            style={{animationDelay: '400ms'}}
+                            className={`mt-20 relative transition-all ease-out ${heroSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                            style={{
+                                transitionDuration: heroSection.isVisible ? '700ms' : '400ms',
+                                transitionDelay: heroSection.isVisible ? '500ms' : '0ms'
+                            }}
                         >
                             <div className="relative mx-auto max-w-3xl">
                                 {/* Glow effect */}
