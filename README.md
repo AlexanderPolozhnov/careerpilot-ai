@@ -1,12 +1,19 @@
 # CareerPilot AI
 
-**Live demo:** https://careerpilot-ai-sigma.vercel.app
-
 CareerPilot AI - full-stack portfolio project для управления поиском работы как структурированным workflow: от вакансий
 и откликов до AI-assisted анализа, напоминаний и аналитики.
 
 > Статус: **В активной разработке**.  
 > Это portfolio project с production-like architecture, но проект еще не является завершенным продуктом.
+
+## Live Demo
+
+🚀 [careerpilot-ai-sigma.vercel.app](https://careerpilot-ai-sigma.vercel.app)
+
+> Demo работает в режиме mock data. Backend не подключён к Vercel-деплою.  
+> Для полного функционала — локальный запуск (см. ниже).
+
+**Demo аккаунт:** `sofia.horak@demo.dev` / `Demo123!@#`
 
 ## Какую проблему решает проект
 
