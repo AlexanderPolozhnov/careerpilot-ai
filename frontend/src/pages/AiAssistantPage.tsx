@@ -90,16 +90,44 @@ export default function AiAssistantPage() {
       <FilterBar
         left={
           <div className="flex flex-wrap gap-2">
-            <button type="button" className={cn('ds-btn ds-btn-ghost text-sm', tool === 'analyze' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('analyze')}>
+            <button
+              type="button"
+              className={cn(
+                'ds-btn ds-btn-ghost text-sm transition-all duration-200',
+                tool === 'analyze' && 'border-accent/60 bg-accent/12 text-ink'
+              )}
+              onClick={() => setTool('analyze')}
+            >
               {t('aiAssistant.tools.analyze')}
             </button>
-            <button type="button" className={cn('ds-btn ds-btn-ghost text-sm', tool === 'match' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('match')}>
+            <button
+              type="button"
+              className={cn(
+                'ds-btn ds-btn-ghost text-sm transition-all duration-200',
+                tool === 'match' && 'border-accent/60 bg-accent/12 text-ink'
+              )}
+              onClick={() => setTool('match')}
+            >
               {t('aiAssistant.tools.match')}
             </button>
-            <button type="button" className={cn('ds-btn ds-btn-ghost text-sm', tool === 'cover' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('cover')}>
+            <button
+              type="button"
+              className={cn(
+                'ds-btn ds-btn-ghost text-sm transition-all duration-200',
+                tool === 'cover' && 'border-accent/60 bg-accent/12 text-ink'
+              )}
+              onClick={() => setTool('cover')}
+            >
               {t('aiAssistant.tools.cover')}
             </button>
-            <button type="button" className={cn('ds-btn ds-btn-ghost text-sm', tool === 'interview' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('interview')}>
+            <button
+              type="button"
+              className={cn(
+                'ds-btn ds-btn-ghost text-sm transition-all duration-200',
+                tool === 'interview' && 'border-accent/60 bg-accent/12 text-ink'
+              )}
+              onClick={() => setTool('interview')}
+            >
               {t('aiAssistant.tools.interview')}
             </button>
           </div>

@@ -30,6 +30,7 @@
     "tipDescription": "Use filters to stay focused."
   },
   "landing": {
+    "badge": "Premium job-search dashboard",
     "back": "← Back",
     "login": "Login",
     "register": "Register",
