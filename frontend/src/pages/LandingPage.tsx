@@ -1,33 +1,79 @@
 /* eslint-disable react-hooks/refs */
 import {Link} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef, useState, useCallback} from 'react';
 import {LanguageSwitcher} from '@/components/LanguageSwitcher';
 
-// Custom hook for scroll-triggered animations
-function useScrollAnimation(threshold = 0.15) {
+// Custom hook for bidirectional scroll-position-driven animations
+function useScrollAnimation() {
     const ref = useRef<HTMLElement>(null);
-    const [isVisible, setIsVisible] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const lastScrollY = useRef(0);
+    const scrollDirection = useRef<'down' | 'up'>('down');
+
+    const calculateProgress = useCallback(() => {
+        const element = ref.current;
+        if (!element) return;
+
+        const rect = element.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        
+        // Determine scroll direction
+        const currentScrollY = window.scrollY;
+        scrollDirection.current = currentScrollY > lastScrollY.current ? 'down' : 'up';
+        lastScrollY.current = currentScrollY;
+
+        // Calculate how far the element is through the viewport
+        // When element top enters bottom of viewport: progress starts
+        // When element is fully in center of viewport: progress = 1
+        const startPoint = windowHeight; // Element top at bottom of viewport
+        const endPoint = windowHeight * 0.3; // Element top at 30% from top
+        
+        // Element top position relative to viewport
+        const elementTop = rect.top;
+        
+        if (elementTop >= startPoint) {
+            // Element is below viewport - not visible yet
+            setProgress(0);
+        } else if (elementTop <= endPoint) {
+            // Element is well into viewport - fully visible
+            setProgress(1);
+        } else {
+            // Element is transitioning - calculate progress
+            const range = startPoint - endPoint;
+            const currentPosition = startPoint - elementTop;
+            const newProgress = Math.min(1, Math.max(0, currentPosition / range));
+            setProgress(newProgress);
+        }
+    }, []);
 
     useEffect(() => {
         const element = ref.current;
         if (!element) return;
 
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setIsVisible(true);
-                    observer.unobserve(element);
-                }
-            },
-            {threshold, rootMargin: '0px 0px -50px 0px'}
-        );
+        // Initial calculation
+        calculateProgress();
 
-        observer.observe(element);
-        return () => observer.disconnect();
-    }, [threshold]);
+        // Use passive scroll listener for performance
+        const handleScroll = () => {
+            requestAnimationFrame(calculateProgress);
+        };
 
-    return {ref, isVisible};
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('resize', handleScroll, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('resize', handleScroll);
+        };
+    }, [calculateProgress]);
+
+    // Convert progress to visibility state and transform values
+    const isVisible = progress > 0.1;
+    const opacity = Math.min(1, progress * 1.5); // Fade in slightly faster
+    const translateY = (1 - progress) * 32; // 32px = 8 in tailwind (translate-y-8)
+
+    return { ref, isVisible, progress, opacity, translateY };
 }
 
 export default function LandingPage() {
@@ -283,7 +329,12 @@ export default function LandingPage() {
 
                     <div className="relative mx-auto max-w-6xl">
                         <div
-                            className={`text-center max-w-2xl mx-auto transition-all duration-700 ${featuresSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                            className="text-center max-w-2xl mx-auto"
+                            style={{
+                                opacity: featuresSection.opacity,
+                                transform: `translateY(${featuresSection.translateY}px)`,
+                                transition: 'opacity 0.1s ease-out, transform 0.1s ease-out'
+                            }}>
               <span
                   className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold">
                 {t('features.label')}
@@ -298,11 +349,22 @@ export default function LandingPage() {
 
                         {/* Feature cards - Bento Grid */}
                         <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {featureCards.map((feature, index) => (
+                            {featureCards.map((feature, index) => {
+                                // Stagger the progress for each card
+                                const staggerOffset = index * 0.15;
+                                const cardProgress = Math.max(0, Math.min(1, (featuresSection.progress - staggerOffset) / (1 - staggerOffset)));
+                                const cardOpacity = Math.min(1, cardProgress * 1.5);
+                                const cardTranslateY = (1 - cardProgress) * 32;
+                                
+                                return (
                                 <div
                                     key={feature}
-                                    className={`group relative flex flex-col p-6 min-h-[240px] bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-[rgba(255,255,255,0.01)] border border-[rgba(255,255,255,0.06)] rounded-2xl transition-all duration-500 hover:border-violet-500/40 hover:shadow-[0_0_40px_-10px_rgba(139,92,246,0.3)] ${featuresSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-                                    style={{transitionDelay: featuresSection.isVisible ? `${200 + index * 100}ms` : '0ms'}}
+                                    className="group relative flex flex-col p-6 min-h-[240px] bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-[rgba(255,255,255,0.01)] border border-[rgba(255,255,255,0.06)] rounded-2xl hover:border-violet-500/40 hover:shadow-[0_0_40px_-10px_rgba(139,92,246,0.3)]"
+                                    style={{
+                                        opacity: cardOpacity,
+                                        transform: `translateY(${cardTranslateY}px)`,
+                                        transition: 'opacity 0.1s ease-out, transform 0.1s ease-out, border-color 0.5s, box-shadow 0.5s'
+                                    }}
                                 >
                                     {/* Top accent line */}
                                     <div
@@ -361,7 +423,8 @@ export default function LandingPage() {
                                         </svg>
                                     </div>
                                 </div>
-                            ))}
+                            );
+                            })}
                         </div>
                     </div>
                 </section>
@@ -377,7 +440,12 @@ export default function LandingPage() {
 
                     <div className="relative mx-auto max-w-6xl">
                         <div
-                            className={`text-center max-w-2xl mx-auto transition-all duration-700 ${howItWorksSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                            className="text-center max-w-2xl mx-auto"
+                            style={{
+                                opacity: howItWorksSection.opacity,
+                                transform: `translateY(${howItWorksSection.translateY}px)`,
+                                transition: 'opacity 0.1s ease-out, transform 0.1s ease-out'
+                            }}>
               <span
                   className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold">
                 {t('howItWorks.label')}
@@ -394,15 +462,30 @@ export default function LandingPage() {
                         <div className="mt-20 relative">
                             {/* Connection line */}
                             <div
-                                className={`hidden md:block absolute top-16 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent transition-all duration-1000 ${howItWorksSection.isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'}`}
-                                style={{transitionDelay: '300ms'}}/>
+                                className="hidden md:block absolute top-16 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent"
+                                style={{
+                                    opacity: howItWorksSection.opacity,
+                                    transform: `translateX(-50%) scaleX(${howItWorksSection.progress})`,
+                                    transition: 'opacity 0.1s ease-out, transform 0.1s ease-out'
+                                }}/>
 
                             <div className="grid md:grid-cols-3 gap-12 md:gap-8">
-                                {howItWorksSteps.map((step, index) => (
+                                {howItWorksSteps.map((step, index) => {
+                                    // Stagger the progress for each step
+                                    const staggerOffset = index * 0.2;
+                                    const stepProgress = Math.max(0, Math.min(1, (howItWorksSection.progress - staggerOffset) / (1 - staggerOffset)));
+                                    const stepOpacity = Math.min(1, stepProgress * 1.5);
+                                    const stepTranslateY = (1 - stepProgress) * 32;
+                                    
+                                    return (
                                     <div
                                         key={step}
-                                        className={`relative text-center transition-all duration-700 ${howItWorksSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-                                        style={{transitionDelay: howItWorksSection.isVisible ? `${200 + index * 150}ms` : '0ms'}}
+                                        className="relative text-center"
+                                        style={{
+                                            opacity: stepOpacity,
+                                            transform: `translateY(${stepTranslateY}px)`,
+                                            transition: 'opacity 0.1s ease-out, transform 0.1s ease-out'
+                                        }}
                                     >
                                         {/* Step number */}
                                         <div className="relative inline-flex">
@@ -427,7 +510,8 @@ export default function LandingPage() {
                                             {t(`howItWorks.steps.${step}.description`)}
                                         </p>
                                     </div>
-                                ))}
+                                );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -441,11 +525,20 @@ export default function LandingPage() {
                     <div className="relative max-w-4xl mx-auto">
                         {/* Background glow */}
                         <div
-                            className={`absolute inset-0 bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-violet-500/10 rounded-3xl blur-3xl transition-opacity duration-1000 ${ctaSection.isVisible ? 'opacity-100' : 'opacity-0'}`}/>
+                            className="absolute inset-0 bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-violet-500/10 rounded-3xl blur-3xl"
+                            style={{
+                                opacity: ctaSection.opacity,
+                                transition: 'opacity 0.1s ease-out'
+                            }}/>
 
                         {/* CTA Card */}
                         <div
-                            className={`relative overflow-hidden rounded-3xl bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-transparent border border-[rgba(255,255,255,0.08)] p-12 md:p-16 transition-all duration-700 ${ctaSection.isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-[0.98]'}`}>
+                            className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-transparent border border-[rgba(255,255,255,0.08)] p-12 md:p-16"
+                            style={{
+                                opacity: ctaSection.opacity,
+                                transform: `translateY(${ctaSection.translateY}px) scale(${0.98 + ctaSection.progress * 0.02})`,
+                                transition: 'opacity 0.1s ease-out, transform 0.1s ease-out'
+                            }}>
                             {/* Top accent */}
                             <div
                                 className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent"/>
@@ -457,34 +550,68 @@ export default function LandingPage() {
                                 className="absolute bottom-0 left-0 w-60 h-60 bg-purple-500/10 rounded-full blur-[80px]"/>
 
                             <div className="relative text-center">
-                <span
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold transition-all duration-500 ${ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-                    style={{transitionDelay: '200ms'}}>
-                  {t('cta.label')}
-                </span>
+                                {(() => {
+                                    const labelProgress = Math.max(0, Math.min(1, (ctaSection.progress - 0.1) / 0.9));
+                                    const labelOpacity = Math.min(1, labelProgress * 1.5);
+                                    const labelTranslateY = (1 - labelProgress) * 16;
+                                    return (
+                                        <span
+                                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold"
+                                            style={{
+                                                opacity: labelOpacity,
+                                                transform: `translateY(${labelTranslateY}px)`,
+                                                transition: 'opacity 0.1s ease-out, transform 0.1s ease-out'
+                                            }}>
+                                            {t('cta.label')}
+                                        </span>
+                                    );
+                                })()}
 
-                                <h2
-                                    className={`mt-6 text-4xl md:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-[#e8eaed] transition-all duration-700 ${ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-                                    style={{fontFamily: 'Onest, system-ui, sans-serif', transitionDelay: '300ms'}}
-                                >
-                                    {t('cta.title')}
-                                </h2>
+                                {(() => {
+                                    const titleProgress = Math.max(0, Math.min(1, (ctaSection.progress - 0.2) / 0.8));
+                                    const titleOpacity = Math.min(1, titleProgress * 1.5);
+                                    const titleTranslateY = (1 - titleProgress) * 24;
+                                    return (
+                                        <h2
+                                            className="mt-6 text-4xl md:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-[#e8eaed]"
+                                            style={{
+                                                fontFamily: 'Onest, system-ui, sans-serif',
+                                                opacity: titleOpacity,
+                                                transform: `translateY(${titleTranslateY}px)`,
+                                                transition: 'opacity 0.1s ease-out, transform 0.1s ease-out'
+                                            }}
+                                        >
+                                            {t('cta.title')}
+                                        </h2>
+                                    );
+                                })()}
 
-                                <div
-                                    className={`mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 ${ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-                                    style={{transitionDelay: '400ms'}}>
-                                    <Link
-                                        to="/auth/register"
-                                        className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-[15px] font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-xl hover:from-violet-500 hover:to-violet-400 transition-all shadow-xl shadow-violet-500/30 hover:shadow-violet-500/40 hover:-translate-y-0.5"
-                                    >
-                                        {t('cta.button')}
-                                        <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5"
-                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round"
-                                                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
-                                        </svg>
-                                    </Link>
-                                </div>
+                                {(() => {
+                                    const btnProgress = Math.max(0, Math.min(1, (ctaSection.progress - 0.3) / 0.7));
+                                    const btnOpacity = Math.min(1, btnProgress * 1.5);
+                                    const btnTranslateY = (1 - btnProgress) * 24;
+                                    return (
+                                        <div
+                                            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
+                                            style={{
+                                                opacity: btnOpacity,
+                                                transform: `translateY(${btnTranslateY}px)`,
+                                                transition: 'opacity 0.1s ease-out, transform 0.1s ease-out'
+                                            }}>
+                                            <Link
+                                                to="/auth/register"
+                                                className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-[15px] font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-xl hover:from-violet-500 hover:to-violet-400 transition-all shadow-xl shadow-violet-500/30 hover:shadow-violet-500/40 hover:-translate-y-0.5"
+                                            >
+                                                {t('cta.button')}
+                                                <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                                          d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                                                </svg>
+                                            </Link>
+                                        </div>
+                                    );
+                                })()}
 
                                 {/* Trust indicators */}
                                 <div className="mt-10 flex items-center justify-center gap-6 text-sm text-[#6b7590]">
