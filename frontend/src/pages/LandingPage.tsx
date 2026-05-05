@@ -4,7 +4,7 @@ import {useTranslation} from 'react-i18next';
 import {useEffect, useRef, useState} from 'react';
 import {LanguageSwitcher} from '@/components/LanguageSwitcher';
 
-// Custom hook for scroll-triggered animations
+// Custom hook for bidirectional scroll-triggered animations with CSS transitions
 function useScrollAnimation(threshold = 0.15) {
     const ref = useRef<HTMLElement>(null);
     const [isVisible, setIsVisible] = useState(false);
@@ -15,19 +15,17 @@ function useScrollAnimation(threshold = 0.15) {
 
         const observer = new IntersectionObserver(
             ([entry]) => {
-                if (entry.isIntersecting) {
-                    setIsVisible(true);
-                    observer.unobserve(element);
-                }
+                // Bidirectional: update visibility based on intersection state
+                setIsVisible(entry.isIntersecting);
             },
-            {threshold, rootMargin: '0px 0px -50px 0px'}
+            { threshold, rootMargin: '0px 0px -80px 0px' }
         );
 
         observer.observe(element);
         return () => observer.disconnect();
     }, [threshold]);
 
-    return {ref, isVisible};
+    return { ref, isVisible };
 }
 
 export default function LandingPage() {
@@ -283,7 +281,7 @@ export default function LandingPage() {
 
                     <div className="relative mx-auto max-w-6xl">
                         <div
-                            className={`text-center max-w-2xl mx-auto transition-all duration-700 ${featuresSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                            className={`text-center max-w-2xl mx-auto transition-all duration-700 ease-out ${featuresSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <span
                   className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold">
                 {t('features.label')}
@@ -301,8 +299,11 @@ export default function LandingPage() {
                             {featureCards.map((feature, index) => (
                                 <div
                                     key={feature}
-                                    className={`group relative flex flex-col p-6 min-h-[240px] bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-[rgba(255,255,255,0.01)] border border-[rgba(255,255,255,0.06)] rounded-2xl transition-all duration-500 hover:border-violet-500/40 hover:shadow-[0_0_40px_-10px_rgba(139,92,246,0.3)] ${featuresSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-                                    style={{transitionDelay: featuresSection.isVisible ? `${200 + index * 100}ms` : '0ms'}}
+                                    className={`group relative flex flex-col p-6 min-h-[240px] bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-[rgba(255,255,255,0.01)] border border-[rgba(255,255,255,0.06)] rounded-2xl hover:border-violet-500/40 hover:shadow-[0_0_40px_-10px_rgba(139,92,246,0.3)] transition-all ease-out ${featuresSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                                    style={{
+                                        transitionDuration: featuresSection.isVisible ? '700ms' : '400ms',
+                                        transitionDelay: featuresSection.isVisible ? `${index * 120}ms` : '0ms'
+                                    }}
                                 >
                                     {/* Top accent line */}
                                     <div
@@ -377,7 +378,7 @@ export default function LandingPage() {
 
                     <div className="relative mx-auto max-w-6xl">
                         <div
-                            className={`text-center max-w-2xl mx-auto transition-all duration-700 ${howItWorksSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                            className={`text-center max-w-2xl mx-auto transition-all duration-700 ease-out ${howItWorksSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <span
                   className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold">
                 {t('howItWorks.label')}
@@ -394,15 +395,18 @@ export default function LandingPage() {
                         <div className="mt-20 relative">
                             {/* Connection line */}
                             <div
-                                className={`hidden md:block absolute top-16 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent transition-all duration-1000 ${howItWorksSection.isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'}`}
-                                style={{transitionDelay: '300ms'}}/>
+                                className={`hidden md:block absolute top-16 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent transition-all duration-1000 ease-out ${howItWorksSection.isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'}`}
+                                style={{ transitionDelay: howItWorksSection.isVisible ? '200ms' : '0ms' }}/>
 
                             <div className="grid md:grid-cols-3 gap-12 md:gap-8">
                                 {howItWorksSteps.map((step, index) => (
                                     <div
                                         key={step}
-                                        className={`relative text-center transition-all duration-700 ${howItWorksSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-                                        style={{transitionDelay: howItWorksSection.isVisible ? `${200 + index * 150}ms` : '0ms'}}
+                                        className={`relative text-center transition-all ease-out ${howItWorksSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                                        style={{
+                                            transitionDuration: howItWorksSection.isVisible ? '700ms' : '400ms',
+                                            transitionDelay: howItWorksSection.isVisible ? `${150 + index * 150}ms` : '0ms'
+                                        }}
                                     >
                                         {/* Step number */}
                                         <div className="relative inline-flex">
@@ -441,11 +445,12 @@ export default function LandingPage() {
                     <div className="relative max-w-4xl mx-auto">
                         {/* Background glow */}
                         <div
-                            className={`absolute inset-0 bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-violet-500/10 rounded-3xl blur-3xl transition-opacity duration-1000 ${ctaSection.isVisible ? 'opacity-100' : 'opacity-0'}`}/>
+                            className={`absolute inset-0 bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-violet-500/10 rounded-3xl blur-3xl transition-opacity duration-1000 ease-out ${ctaSection.isVisible ? 'opacity-100' : 'opacity-0'}`}/>
 
                         {/* CTA Card */}
                         <div
-                            className={`relative overflow-hidden rounded-3xl bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-transparent border border-[rgba(255,255,255,0.08)] p-12 md:p-16 transition-all duration-700 ${ctaSection.isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-[0.98]'}`}>
+                            className={`relative overflow-hidden rounded-3xl bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-transparent border border-[rgba(255,255,255,0.08)] p-12 md:p-16 transition-all ease-out ${ctaSection.isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-[0.98]'}`}
+                            style={{ transitionDuration: ctaSection.isVisible ? '800ms' : '400ms' }}>
                             {/* Top accent */}
                             <div
                                 className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent"/>
@@ -457,22 +462,32 @@ export default function LandingPage() {
                                 className="absolute bottom-0 left-0 w-60 h-60 bg-purple-500/10 rounded-full blur-[80px]"/>
 
                             <div className="relative text-center">
-                <span
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold transition-all duration-500 ${ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-                    style={{transitionDelay: '200ms'}}>
-                  {t('cta.label')}
-                </span>
+                                <span
+                                    className={`inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold transition-all ease-out ${ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+                                    style={{
+                                        transitionDuration: ctaSection.isVisible ? '600ms' : '400ms',
+                                        transitionDelay: ctaSection.isVisible ? '100ms' : '0ms'
+                                    }}>
+                                    {t('cta.label')}
+                                </span>
 
                                 <h2
-                                    className={`mt-6 text-4xl md:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-[#e8eaed] transition-all duration-700 ${ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-                                    style={{fontFamily: 'Onest, system-ui, sans-serif', transitionDelay: '300ms'}}
+                                    className={`mt-6 text-4xl md:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-[#e8eaed] transition-all ease-out ${ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                                    style={{
+                                        fontFamily: 'Onest, system-ui, sans-serif',
+                                        transitionDuration: ctaSection.isVisible ? '700ms' : '400ms',
+                                        transitionDelay: ctaSection.isVisible ? '200ms' : '0ms'
+                                    }}
                                 >
                                     {t('cta.title')}
                                 </h2>
 
                                 <div
-                                    className={`mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 ${ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-                                    style={{transitionDelay: '400ms'}}>
+                                    className={`mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 transition-all ease-out ${ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                                    style={{
+                                        transitionDuration: ctaSection.isVisible ? '700ms' : '400ms',
+                                        transitionDelay: ctaSection.isVisible ? '350ms' : '0ms'
+                                    }}>
                                     <Link
                                         to="/auth/register"
                                         className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-[15px] font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-xl hover:from-violet-500 hover:to-violet-400 transition-all shadow-xl shadow-violet-500/30 hover:shadow-violet-500/40 hover:-translate-y-0.5"
