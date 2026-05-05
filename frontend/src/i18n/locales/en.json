@@ -332,8 +332,8 @@
     "saveError": "Failed to save settings. Please try again.",
     "language": "Interface Language",
     "selectLanguage": "Select language",
-    "languageRU": "🇷🇺 Русский",
-    "languageEN": "🇬🇧 English"
+    "languageRU": "RU Русский",
+    "languageEN": "EN English"
   },
   "forms": {
     "validation": {

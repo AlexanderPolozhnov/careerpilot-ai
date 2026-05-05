@@ -368,7 +368,6 @@ export default function SettingsPage() {
                                         : 'border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.02] text-white/60'
                                 )}
                             >
-                                <span className="text-xl">🇬🇧</span>
                                 <div>
                                     <p className="text-sm font-medium">{t('settings.languageEN')}</p>
                                 </div>
@@ -389,7 +388,6 @@ export default function SettingsPage() {
                                         : 'border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.02] text-white/60'
                                 )}
                             >
-                                <span className="text-xl">🇷🇺</span>
                                 <div>
                                     <p className="text-sm font-medium">{t('settings.languageRU')}</p>
                                 </div>

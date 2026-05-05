@@ -332,8 +332,8 @@
     "saveError": "Не удалось сохранить настройки. Попробуйте ещё раз.",
     "language": "Язык интерфейса",
     "selectLanguage": "Выберите язык",
-    "languageRU": "🇷🇺 Русский",
-    "languageEN": "🇬🇧 English"
+    "languageRU": "RU Русский",
+    "languageEN": "EN English"
   },
   "forms": {
     "validation": {

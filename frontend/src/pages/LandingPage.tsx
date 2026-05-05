@@ -18,14 +18,14 @@ function useScrollAnimation(threshold = 0.15) {
                 // Bidirectional: update visibility based on intersection state
                 setIsVisible(entry.isIntersecting);
             },
-            { threshold, rootMargin: '0px 0px -80px 0px' }
+            {threshold, rootMargin: '0px 0px -80px 0px'}
         );
 
         observer.observe(element);
         return () => observer.disconnect();
     }, [threshold]);
 
-    return { ref, isVisible };
+    return {ref, isVisible};
 }
 
 export default function LandingPage() {
@@ -57,7 +57,7 @@ export default function LandingPage() {
                             className="text-[15px] font-semibold text-[#e8eaed] tracking-tight"
                             style={{fontFamily: 'Onest, system-ui, sans-serif'}}
                         >
-              CareerPilot
+              CareerPilot AI
             </span>
                     </Link>
                     <nav className="flex items-center gap-1.5">
@@ -396,7 +396,7 @@ export default function LandingPage() {
                             {/* Connection line */}
                             <div
                                 className={`hidden md:block absolute top-16 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent transition-all duration-1000 ease-out ${howItWorksSection.isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'}`}
-                                style={{ transitionDelay: howItWorksSection.isVisible ? '200ms' : '0ms' }}/>
+                                style={{transitionDelay: howItWorksSection.isVisible ? '200ms' : '0ms'}}/>
 
                             <div className="grid md:grid-cols-3 gap-12 md:gap-8">
                                 {howItWorksSteps.map((step, index) => (
@@ -450,7 +450,7 @@ export default function LandingPage() {
                         {/* CTA Card */}
                         <div
                             className={`relative overflow-hidden rounded-3xl bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-transparent border border-[rgba(255,255,255,0.08)] p-12 md:p-16 transition-all ease-out ${ctaSection.isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-[0.98]'}`}
-                            style={{ transitionDuration: ctaSection.isVisible ? '800ms' : '400ms' }}>
+                            style={{transitionDuration: ctaSection.isVisible ? '800ms' : '400ms'}}>
                             {/* Top accent */}
                             <div
                                 className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent"/>
