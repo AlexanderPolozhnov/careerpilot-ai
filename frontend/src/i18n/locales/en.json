@@ -133,6 +133,7 @@
   },
   "vacancies": {
     "title": "Vacancies",
+    "subtitle": "Manage your vacancies and track their status",
     "searchPlaceholder": "Search across vacancies, companies…",
     "results": "results",
     "filter": "Filter",
@@ -306,8 +307,9 @@
     "interviewsCount": "Interviews {{count}}",
     "offersCount": "Offers {{count}}"
   },
-  "settings": {
+    "settings": {
     "title": "Settings",
+    "subtitle": "Manage your account preferences and settings",
     "profile": "Profile",
     "profileDescription": "These fields will map to `/users/me`.",
     "notifications": "Notifications",
@@ -317,23 +319,35 @@
     "location": "Location",
     "locationPlaceholder": "Berlin, Remote, etc.",
     "weeklyDigest": "Weekly digest",
+    "weeklyDigestDescription": "Receive a weekly summary of your job search",
     "interviewReminders": "Interview reminders",
+    "interviewRemindersDescription": "Get reminded before scheduled interviews",
     "aiProvider": "AI Provider",
     "aiProviderMode": "Provider mode",
     "aiProviderLocal": "Local",
+    "aiProviderLocalDescription": "Privacy-first local processing",
     "aiProviderCloud": "Cloud",
+    "aiProviderCloudDescription": "Fast, reliable cloud inference",
     "aiProviderCustom": "Bring your own key",
+    "aiProviderCustomDescription": "Use your own API key",
     "aiProviderDescription": "Mode placeholders for backend integration.",
     "aiProviderTodo": "Backend TODO: store this in user preferences and apply to AI endpoints.",
     "recentNotifications": "Recent notifications",
     "mockFeed": "Mock feed.",
     "saveSettings": "Save settings",
+    "saving": "Saving...",
     "saved": "Settings saved successfully.",
     "saveError": "Failed to save settings. Please try again.",
     "language": "Interface Language",
     "selectLanguage": "Select language",
     "languageRU": "RU Русский",
-    "languageEN": "EN English"
+    "languageEN": "EN English",
+    "dangerZone": "Danger Zone",
+    "dangerZoneDescription": "Irreversible and destructive actions",
+    "deleteAccount": "Delete account",
+    "deleteAccountDescription": "Permanently remove your account and all data",
+    "delete": "Delete",
+    "confirmDelete": "Confirm Delete"
   },
   "forms": {
     "validation": {

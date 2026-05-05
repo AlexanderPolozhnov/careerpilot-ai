@@ -569,8 +569,8 @@ export default function SettingsPage() {
                                 <Shield className="w-5 h-5 text-red-400"/>
                             </div>
                             <div>
-                                <h2 className="text-base font-semibold text-white">Danger Zone</h2>
-                                <p className="text-sm text-white/40 mt-0.5">Irreversible and destructive actions</p>
+                                <h2 className="text-base font-semibold text-white">{t('settings.dangerZone')}</h2>
+                                <p className="text-sm text-white/40 mt-0.5">{t('settings.dangerZoneDescription')}</p>
                             </div>
                         </div>
 
@@ -581,9 +581,8 @@ export default function SettingsPage() {
                                     <Trash2 className="w-5 h-5 text-red-400"/>
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-white">Delete account</p>
-                                    <p className="text-xs text-white/40 mt-0.5">Permanently remove your account and all
-                                        data</p>
+                                    <p className="text-sm font-medium text-white">{t('settings.deleteAccount')}</p>
+                                    <p className="text-xs text-white/40 mt-0.5">{t('settings.deleteAccountDescription')}</p>
                                 </div>
                             </div>
                             {!deleteConfirm ? (
@@ -592,7 +591,7 @@ export default function SettingsPage() {
                                     onClick={() => setDeleteConfirm(true)}
                                     className="px-4 py-2 rounded-lg border border-red-500/30 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
                                 >
-                                    Delete
+                                    {t('settings.delete')}
                                 </button>
                             ) : (
                                 <div className="flex items-center gap-2">
@@ -601,13 +600,13 @@ export default function SettingsPage() {
                                         onClick={() => setDeleteConfirm(false)}
                                         className="px-3 py-1.5 rounded-lg text-sm text-white/60 hover:text-white transition-colors"
                                     >
-                                        Cancel
+                                        {t('common.cancel')}
                                     </button>
                                     <button
                                         type="button"
                                         className="px-4 py-2 rounded-lg bg-red-500 text-sm font-medium text-white hover:bg-red-600 transition-colors"
                                     >
-                                        Confirm Delete
+                                        {t('settings.confirmDelete')}
                                     </button>
                                 </div>
                             )}

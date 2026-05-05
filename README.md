@@ -1,122 +1,185 @@
 # CareerPilot AI
 
-CareerPilot AI - full-stack portfolio project для управления поиском работы как структурированным workflow: от вакансий
-и откликов до AI-assisted анализа, напоминаний и аналитики.
+<div align="center">
 
-> Статус: **В активной разработке**.  
-> Это portfolio project с production-like architecture, но проект еще не является завершенным продуктом.
+**Управление поиском работы как структурированным workflow — с AI-ассистентом, Kanban-бордом и аналитикой.**
 
-## Live Demo
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-careerpilot--ai-violet?style=for-the-badge&logo=vercel)](https://careerpilot-ai-sigma.vercel.app)
+[![Release](https://img.shields.io/badge/Release-v0.2.0--alpha-orange?style=for-the-badge)](https://github.com/AlexanderPolozhnov/careerpilot-ai/releases)
+[![Java](https://img.shields.io/badge/Java-21-red?style=for-the-badge&logo=openjdk)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-green?style=for-the-badge&logo=springboot)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-TypeScript-blue?style=for-the-badge&logo=react)](https://react.dev/)
 
-🚀 [careerpilot-ai-sigma.vercel.app](https://careerpilot-ai-sigma.vercel.app)
+> **Статус:** В активной разработке · Portfolio project с production-like архитектурой · Не production-ready
 
-> Demo работает в режиме mock data. Backend не подключён к Vercel-деплою.  
-> Для полного функционала — локальный запуск (см. ниже).
+</div>
 
-**Demo аккаунт:** `sofia.horak@demo.dev` / `Demo123!@#`
+---
 
-## Какую проблему решает проект
+## 🖼️ Скриншоты
 
-Поиск работы быстро превращается в набор разрозненных вкладок, таблиц, заметок, писем и напоминаний. CareerPilot AI
-собирает этот процесс в один понятный workflow:
+### Лендинг
+
+![Landing Page](./docs/assets/screenshot-landing.png)
+
+---
+
+### Авторизация
+
+![Auth Page](./docs/assets/screenshot-auth.png)
+
+---
+
+### Dashboard
+
+![Dashboard](./docs/assets/screenshot-dashboard.png)
+
+---
+
+### Вакансии — детальная страница
+
+![Vacancy Detail](./docs/assets/screenshot-vacancy-detail.png)
+
+---
+
+### Отклики — Kanban-борд
+
+![Applications Kanban](./docs/assets/screenshot-kanban.png)
+
+---
+
+### AI-ассистент
+
+![AI Assistant](./docs/assets/screenshot-ai.png)
+
+---
+
+### Аналитика
+
+![Analytics](./docs/assets/screenshot-analytics.png)
+
+---
+
+## 🚀 Live Demo
+
+**[careerpilot-ai-sigma.vercel.app](https://careerpilot-ai-sigma.vercel.app)**
+
+Demo-аккаунт для входа:
+
+| Поле   | Значение               |
+|--------|------------------------|
+| Email  | `sofia.horak@demo.dev` |
+| Пароль | `Demo123!@#`           |
+
+> ⚠️ Live demo работает в режиме **mock data** — backend не подключён к Vercel-деплою.
+> Данные сбрасываются при перезагрузке страницы, изменения не сохраняются.
+> Для полного функционала с PostgreSQL — локальный запуск (см. ниже).
+
+---
+
+## О проекте
+
+Поиск работы быстро превращается в набор разрозненных вкладок, таблиц, заметок и напоминаний.
+CareerPilot AI собирает этот процесс в один понятный workflow:
 
 - хранение вакансий и компаний;
-- отслеживание этапов отклика;
-- подготовка к интервью;
-- AI-assisted vacancy analysis;
-- сравнение резюме с вакансией;
-- генерация cover letter и interview questions;
-- аналитика прогресса поиска работы.
+- отслеживание этапов откликов через Kanban-борд с drag-and-drop;
+- AI-анализ вакансий, сравнение резюме, генерация cover letter и вопросов к интервью;
+- аналитика прогресса поиска работы;
+- интерфейс на русском и английском.
 
-## Что уже реализовано
+---
 
-- **Monorepo-структура** `backend/`, `frontend/`, `docs/`.
-- **Backend foundation** на `Java 21`, `Spring Boot 3`, `PostgreSQL`, `Flyway`, `Spring Security`, JWT.
-- **Frontend foundation** на `React`, `TypeScript`, `Vite`, `Tailwind CSS`.
-- **Docker Compose** для локальной инфраструктуры: PostgreSQL, Redis, optional MinIO и Ollama profiles.
-- **i18n**: интерфейс на русском и английском.
-- **Auth vertical slice:** endpoints register/login/me с JWT token-based auth.
-- **Vacancies vertical slice:** полный CRUD, включая формы создания и редактирования, pagination, user ownership.
-- **Companies vertical slice:** CRUD endpoints, user ownership, PagedResponse.
-- **Applications vertical slice:** board endpoint, PATCH status, Kanban с drag-and-drop, DragOverlay preview, optimistic
-  update.
-- **Analytics vertical slice:** GET /api/analytics/summary, включая `topSkillGaps`.
-- **AI Assistant slice:** инструменты для анализа, улучшения резюме и подготовки к интервью, с улучшенной валидацией форм.
+## ✅ Что реализовано
 
-## Известные ограничения и следующие шаги (v0.1.0-alpha)
+### Backend (REST API)
 
-На данный момент проект готовится к первому alpha-релизу. Некоторые функции запланированы к реализации после него:
+| Slice         | Эндпоинты                                                                 | Статус |
+|---------------|---------------------------------------------------------------------------|--------|
+| Auth          | `POST /auth/register`, `POST /auth/login`, `GET /auth/me`                 | ✅      |
+| Vacancies     | Полный CRUD, pagination, user ownership                                   | ✅      |
+| Companies     | Полный CRUD, pagination, user ownership                                   | ✅      |
+| Applications  | Board, PATCH status, полный CRUD                                          | ✅      |
+| Analytics     | `GET /analytics/summary` с funnel, weeklyActivity, topSkillGaps           | ✅      |
+| AI Assistant  | analyze-vacancy, resume-match, cover-letter, interview-questions, history | ✅      |
+| Dashboard     | `GET /dashboard/summary` (KPI, upcoming interviews, AI insights)          | ✅      |
+| Settings      | `GET/PUT /users/me`, `GET/PUT /preferences`                               | ✅      |
+| Notifications | `GET /notifications` (pagination, read filter), `PATCH /{id}/read`        | ✅      |
 
-- **Создание компаний:** В интерфейсе пока нет возможности создать компанию (хотя API для этого существует).
-- **История анализов AI:** Повторный анализ вакансии перезаписывает предыдущий результат.
-- **Мелкие UX-проблемы:**
-    - Отсутствует dropdown меню у аватара пользователя в шапке.
-    - Названия кнопок "Сохранить"/"Применить" на странице вакансии можно сделать более интуитивными.
-    - Статичный блок "Совет" в боковой панели.
-    - Глобальный поиск в шапке пока неактивен.
-    - В еженедельной аналитике не переведены метки недель.
+### Frontend
 
-## Стек технологий
+- World-class UI redesign в стиле **Linear / Vercel / Clerk** — тёмная тема, glassmorphism, violet-акценты
+- **Kanban-борд** с drag-and-drop (dnd-kit), DragOverlay-preview, optimistic update
+- **AI-ассистент** — 4 инструмента с динамическими формами и историей запросов
+- **Analytics** — KPI-карточки, funnel, mini bar chart, skill gaps
+- **Dashboard** — подключён к backend через React Query, skeleton-loading
+- **Settings** — профиль и preferences с backend persistence
+- React Query (TanStack Query) для кэширования и инвалидации
+- Error boundaries + unified Toast-система с перехватом HTTP-ошибок
+- i18n: `ru` + `en`, переключатель языка, persistence в localStorage
+
+### Инфраструктура
+
+- Docker Compose: PostgreSQL, Redis, optional MinIO и Ollama
+- AI: Ollama как local provider с автоматическим fallback на mock-ответы
+- Redis: кэширование AI-результатов (TTL 24ч, fallback при недоступности)
+- CI: GitHub Actions — frontend lint/build + backend unit tests при push в main
+
+---
+
+## 🔧 Стек технологий
 
 ### Бэкенд
 
-- Java 21
-- Spring Boot 3
-- Spring Security
-- Spring Data JPA
-- PostgreSQL
-- Flyway
-- MapStruct
-- Bean Validation
-- OpenAPI / Swagger
-- JUnit 5
-- Mockito
-- Testcontainers
+`Java 21` · `Spring Boot 3` · `Spring Security` · `JWT` · `Spring Data JPA` · `PostgreSQL` · `Flyway` · `MapStruct` ·
+`Bean Validation` · `OpenAPI / Swagger` · `JUnit 5` · `Mockito` · `Testcontainers` · `Redis`
 
 ### Фронтенд
 
-- React
-- TypeScript
-- Vite
-- Tailwind CSS
-- React Router
-- TanStack Query
-- React Hook Form
-- Zod
-- i18next
-
-### AI-слой
-
-- Ollama как default local provider
-- provider abstraction
-- AI response caching
-- prompt templates
+`React` · `TypeScript` · `Vite` · `Tailwind CSS` · `React Router` · `TanStack Query` · `React Hook Form` · `Zod` ·
+`dnd-kit` · `i18next` · `lucide-react` · `date-fns`
 
 ### Инфраструктура
 
-- Docker
-- Docker Compose
-- PostgreSQL
-- Redis
-- GitHub Actions — запланировано
+`Docker` · `Docker Compose` · `PostgreSQL` · `Redis` · `GitHub Actions`
 
-## Структура репозитория
+---
+
+## ⚠️ Известные ограничения
+
+Актуально для `v0.2.0-alpha`:
+
+- **Companies:** в интерфейсе нет формы создания компании (backend endpoint `POST /api/companies` существует, UI — нет).
+- **AI-история:** повторный анализ вакансии перезаписывает предыдущий результат в панели.
+- **Auth:** forgot-password и reset-password пока не реализованы.
+- **Header:** dropdown-меню у аватара пользователя неактивно (переход в Settings и Logout).
+- **Analytics:** метки недель не переведены на русский; отклик может попасть в неправильную неделю.
+- **Frontend:** тесты не настроены.
+- **Backend:** Testcontainers-тесты требуют работающего Docker-окружения.
+
+Полный список: [ROADMAP.md → Known UX/Technical Issues](./ROADMAP.md).
+
+---
+
+## 🗂️ Структура репозитория
 
 ```text
 careerpilot-ai/
-|-- backend/
-|-- frontend/
-|-- docs/
-|-- docker-compose.yml
-|-- README.md
-|-- ROADMAP.md
-|-- LICENSE
-`-- .gitignore
+├── backend/          Spring Boot backend
+├── frontend/         React + TypeScript frontend
+├── docs/             Документация и API-контракт
+│   └── assets/       Скриншоты для README
+├── docker-compose.yml
+├── README.md
+├── ROADMAP.md
+└── LICENSE
 ```
 
-## Локальный запуск
+---
 
-### Инфраструктура
+## 🖥️ Локальный запуск
+
+### 1. Инфраструктура
 
 ```bash
 docker compose up -d postgres redis
@@ -125,36 +188,31 @@ docker compose up -d postgres redis
 Опциональные профили:
 
 ```bash
-docker compose --profile storage up -d minio
-docker compose --profile ai up -d ollama
+docker compose --profile ai up -d ollama      # локальный LLM
+docker compose --profile storage up -d minio  # файловое хранилище
 ```
 
-### Бэкенд
+### 2. Backend
 
-Windows:
+**Windows:**
 
 ```powershell
 cd backend
 .\mvnw.cmd spring-boot:run
 ```
 
-Unix-like:
+**Unix-like:**
 
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
 
-Тесты:
+Backend запускается на `http://localhost:8080`. Swagger UI: `http://localhost:8080/swagger-ui.html`.
 
-```powershell
-cd backend
-.\mvnw.cmd test
-```
+Переменные окружения — см. `backend/.env.example`. Реальный `.env` не коммитится.
 
-Backend использует `.env.example` как пример локальных переменных. Реальные `.env` файлы не коммитятся.
-
-### Фронтенд
+### 3. Frontend
 
 ```bash
 cd frontend
@@ -162,25 +220,39 @@ npm install
 npm run dev
 ```
 
-Проверки:
+Frontend запускается на `http://localhost:5173`.
+
+Основные переменные окружения:
+
+| Переменная          | Описание                 | Default                     |
+|---------------------|--------------------------|-----------------------------|
+| `VITE_API_BASE_URL` | Base URL для REST API    | `http://localhost:8080/api` |
+| `VITE_USE_MOCKS`    | Mock-режим (без backend) | `false`                     |
+
+### 4. Проверки
 
 ```bash
-npm run lint
-npm run build
+# Frontend
+cd frontend && npm run lint && npm run build
+
+# Backend
+cd backend && ./mvnw test
 ```
 
-Основные переменные окружения фронтенда:
+---
 
-- `VITE_API_BASE_URL`
-- `VITE_USE_MOCKS`
+## 📚 Документация
 
-## Документация
+| Документ                                                                 | Содержание                     |
+|--------------------------------------------------------------------------|--------------------------------|
+| [ROADMAP.md](./ROADMAP.md)                                               | Фазы разработки и статусы      |
+| [docs/README.DEV.md](./docs/README.DEV.md)                               | Руководство разработчика       |
+| [docs/FRONTEND_BACKEND_CONTRACT.md](./docs/FRONTEND_BACKEND_CONTRACT.md) | API-контракт (source of truth) |
+| [docs/I18N_IMPLEMENTATION.md](./docs/I18N_IMPLEMENTATION.md)             | Реализация i18n                |
 
-- [Roadmap проекта](./ROADMAP.md)
-- [Руководство разработчика](./docs/README.DEV.md)
-- [Контракт Frontend/Backend](./docs/FRONTEND_BACKEND_CONTRACT.md)
-- [Реализация i18n](./docs/I18N_IMPLEMENTATION.md)
+---
 
-## Примечание о публичном репозитории
+## 📝 Примечание
 
-Секреты, local env files, build artifacts, IDE configs и dependency folders исключены через `.gitignore`.
+Секреты, `.env`-файлы, build artifacts, IDE configs и dependency folders исключены через `.gitignore`.
+Для публичного репозитория коммитится только `.env.example`.
