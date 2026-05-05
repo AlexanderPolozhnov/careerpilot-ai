@@ -24,10 +24,9 @@ function useScrollAnimation() {
         lastScrollY.current = currentScrollY;
 
         // Calculate how far the element is through the viewport
-        // When element top enters bottom of viewport: progress starts
-        // When element is fully in center of viewport: progress = 1
-        const startPoint = windowHeight; // Element top at bottom of viewport
-        const endPoint = windowHeight * 0.3; // Element top at 30% from top
+        // Wider trigger zone: start earlier (below viewport) and complete later (well inside)
+        const startPoint = windowHeight + 100; // Element top 100px below viewport bottom
+        const endPoint = windowHeight * 0.35; // Element top at 35% from top (more scroll needed)
         
         // Element top position relative to viewport
         const elementTop = rect.top;
@@ -39,11 +38,13 @@ function useScrollAnimation() {
             // Element is well into viewport - fully visible
             setProgress(1);
         } else {
-            // Element is transitioning - calculate progress
+            // Element is transitioning - calculate progress with easing
             const range = startPoint - endPoint;
             const currentPosition = startPoint - elementTop;
-            const newProgress = Math.min(1, Math.max(0, currentPosition / range));
-            setProgress(newProgress);
+            const linearProgress = Math.min(1, Math.max(0, currentPosition / range));
+            // Apply ease-out curve for smoother animation
+            const easedProgress = 1 - Math.pow(1 - linearProgress, 2);
+            setProgress(easedProgress);
         }
     }, []);
 
@@ -69,9 +70,9 @@ function useScrollAnimation() {
     }, [calculateProgress]);
 
     // Convert progress to visibility state and transform values
-    const isVisible = progress > 0.1;
-    const opacity = Math.min(1, progress * 1.5); // Fade in slightly faster
-    const translateY = (1 - progress) * 32; // 32px = 8 in tailwind (translate-y-8)
+    const isVisible = progress > 0.05;
+    const opacity = progress; // Linear opacity from 0 to 1
+    const translateY = (1 - progress) * 40; // 40px travel distance
 
     return { ref, isVisible, progress, opacity, translateY };
 }
@@ -350,11 +351,11 @@ export default function LandingPage() {
                         {/* Feature cards - Bento Grid */}
                         <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {featureCards.map((feature, index) => {
-                                // Stagger the progress for each card
-                                const staggerOffset = index * 0.15;
-                                const cardProgress = Math.max(0, Math.min(1, (featuresSection.progress - staggerOffset) / (1 - staggerOffset)));
-                                const cardOpacity = Math.min(1, cardProgress * 1.5);
-                                const cardTranslateY = (1 - cardProgress) * 32;
+                                // Stagger the progress for each card (0.2 units apart for visible delay)
+                                const staggerOffset = index * 0.2;
+                                const cardProgress = Math.max(0, Math.min(1, (featuresSection.progress - staggerOffset) / (1 - staggerOffset * 0.5)));
+                                const cardOpacity = cardProgress; // Linear opacity 0 to 1
+                                const cardTranslateY = (1 - cardProgress) * 40;
                                 
                                 return (
                                 <div
@@ -471,11 +472,11 @@ export default function LandingPage() {
 
                             <div className="grid md:grid-cols-3 gap-12 md:gap-8">
                                 {howItWorksSteps.map((step, index) => {
-                                    // Stagger the progress for each step
-                                    const staggerOffset = index * 0.2;
-                                    const stepProgress = Math.max(0, Math.min(1, (howItWorksSection.progress - staggerOffset) / (1 - staggerOffset)));
-                                    const stepOpacity = Math.min(1, stepProgress * 1.5);
-                                    const stepTranslateY = (1 - stepProgress) * 32;
+                                    // Stagger the progress for each step (0.25 units apart for visible delay)
+                                    const staggerOffset = index * 0.25;
+                                    const stepProgress = Math.max(0, Math.min(1, (howItWorksSection.progress - staggerOffset) / (1 - staggerOffset * 0.5)));
+                                    const stepOpacity = stepProgress; // Linear opacity 0 to 1
+                                    const stepTranslateY = (1 - stepProgress) * 40;
                                     
                                     return (
                                     <div
@@ -551,9 +552,9 @@ export default function LandingPage() {
 
                             <div className="relative text-center">
                                 {(() => {
-                                    const labelProgress = Math.max(0, Math.min(1, (ctaSection.progress - 0.1) / 0.9));
-                                    const labelOpacity = Math.min(1, labelProgress * 1.5);
-                                    const labelTranslateY = (1 - labelProgress) * 16;
+                                    const labelProgress = Math.max(0, Math.min(1, (ctaSection.progress - 0.1) / 0.7));
+                                    const labelOpacity = labelProgress;
+                                    const labelTranslateY = (1 - labelProgress) * 32;
                                     return (
                                         <span
                                             className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold"
@@ -568,9 +569,9 @@ export default function LandingPage() {
                                 })()}
 
                                 {(() => {
-                                    const titleProgress = Math.max(0, Math.min(1, (ctaSection.progress - 0.2) / 0.8));
-                                    const titleOpacity = Math.min(1, titleProgress * 1.5);
-                                    const titleTranslateY = (1 - titleProgress) * 24;
+                                    const titleProgress = Math.max(0, Math.min(1, (ctaSection.progress - 0.3) / 0.6));
+                                    const titleOpacity = titleProgress;
+                                    const titleTranslateY = (1 - titleProgress) * 40;
                                     return (
                                         <h2
                                             className="mt-6 text-4xl md:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-[#e8eaed]"
@@ -587,9 +588,9 @@ export default function LandingPage() {
                                 })()}
 
                                 {(() => {
-                                    const btnProgress = Math.max(0, Math.min(1, (ctaSection.progress - 0.3) / 0.7));
-                                    const btnOpacity = Math.min(1, btnProgress * 1.5);
-                                    const btnTranslateY = (1 - btnProgress) * 24;
+                                    const btnProgress = Math.max(0, Math.min(1, (ctaSection.progress - 0.5) / 0.5));
+                                    const btnOpacity = btnProgress;
+                                    const btnTranslateY = (1 - btnProgress) * 40;
                                     return (
                                         <div
                                             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
