@@ -1,9 +1,8 @@
+/* eslint-disable react-hooks/refs */
 import {Link} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
 import {useEffect, useRef, useState} from 'react';
 import {LanguageSwitcher} from '@/components/LanguageSwitcher';
-
-// eslint-disable-next-line -- react-hooks/refs is a false positive for useState-based scroll animations
 
 // Custom hook for scroll-triggered animations
 function useScrollAnimation(threshold = 0.15) {
