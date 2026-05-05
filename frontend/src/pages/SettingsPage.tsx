@@ -1,28 +1,27 @@
-import { useEffect, useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { PreferencesRequest, UserUpdateRequest } from '@/services/settings.service'
-import { settingsService } from '@/services/settings.service'
-import { cn, formatRelative } from '@/lib/utils'
-import { notificationService } from '@/services/notification.service'
+import {useEffect, useState} from 'react'
+import {useForm, useWatch} from 'react-hook-form'
+import {useTranslation} from 'react-i18next'
+import {z} from 'zod'
+import {zodResolver} from '@hookform/resolvers/zod'
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import type {PreferencesRequest, UserUpdateRequest} from '@/services/settings.service'
+import {settingsService} from '@/services/settings.service'
+import {cn, formatRelative} from '@/lib/utils'
+import {notificationService} from '@/services/notification.service'
 import {
-    User,
+    AlertTriangle,
+    Bell,
+    Check,
+    Cloud,
+    Cpu,
+    Globe,
+    Key,
     Mail,
     MapPin,
-    Bell,
-    Globe,
-    Cpu,
-    Cloud,
-    Key,
-    AlertTriangle,
-    Check,
-    ChevronRight,
-    Sparkles,
     Shield,
+    Sparkles,
     Trash2,
+    User,
 } from 'lucide-react'
 
 const profileSchema = z.object({
@@ -42,7 +41,11 @@ type ProfileValues = z.infer<typeof profileSchema>
 type PreferencesValues = z.infer<typeof preferencesSchema>
 
 // Toggle Switch Component
-function Toggle({ checked, onChange, disabled = false }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+function Toggle({checked, onChange, disabled = false}: {
+    checked: boolean;
+    onChange: (v: boolean) => void;
+    disabled?: boolean
+}) {
     return (
         <button
             type="button"
@@ -67,11 +70,12 @@ function Toggle({ checked, onChange, disabled = false }: { checked: boolean; onC
 }
 
 // Section Header Component
-function SectionHeader({ icon: Icon, title, description }: { icon: typeof User; title: string; description: string }) {
+function SectionHeader({icon: Icon, title, description}: { icon: typeof User; title: string; description: string }) {
     return (
         <div className="flex items-start gap-4 mb-6">
-            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20 flex items-center justify-center">
-                <Icon className="w-5 h-5 text-violet-400" />
+            <div
+                className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20 flex items-center justify-center">
+                <Icon className="w-5 h-5 text-violet-400"/>
             </div>
             <div>
                 <h2 className="text-base font-semibold text-white">{title}</h2>
@@ -82,7 +86,7 @@ function SectionHeader({ icon: Icon, title, description }: { icon: typeof User; 
 }
 
 // Status Toast
-function StatusToast({ type, message }: { type: 'success' | 'error'; message: string }) {
+function StatusToast({type, message}: { type: 'success' | 'error'; message: string }) {
     return (
         <div
             className={cn(
@@ -93,10 +97,10 @@ function StatusToast({ type, message }: { type: 'success' | 'error'; message: st
         >
             {type === 'success' ? (
                 <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                    <Check className="w-3 h-3" />
+                    <Check className="w-3 h-3"/>
                 </div>
             ) : (
-                <AlertTriangle className="w-4 h-4" />
+                <AlertTriangle className="w-4 h-4"/>
             )}
             {message}
         </div>
@@ -104,37 +108,37 @@ function StatusToast({ type, message }: { type: 'success' | 'error'; message: st
 }
 
 export default function SettingsPage() {
-    const { t, i18n } = useTranslation()
+    const {t, i18n} = useTranslation()
     const queryClient = useQueryClient()
     const [deleteConfirm, setDeleteConfirm] = useState(false)
 
-    const { data: notificationsData } = useQuery({
+    const {data: notificationsData} = useQuery({
         queryKey: ['notifications'],
-        queryFn: () => notificationService.list({ page: 0, size: 5 }),
+        queryFn: () => notificationService.list({page: 0, size: 5}),
     })
 
     const markAsReadMutation = useMutation({
         mutationFn: (id: string) => notificationService.markAsRead(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['notifications'] })
+            queryClient.invalidateQueries({queryKey: ['notifications']})
         },
     })
 
     const notifications = notificationsData?.content ?? []
 
-    const { data: userData } = useQuery({
+    const {data: userData} = useQuery({
         queryKey: ['users', 'me'],
         queryFn: () => settingsService.getMe(),
     })
 
-    const { data: prefsData } = useQuery({
+    const {data: prefsData} = useQuery({
         queryKey: ['preferences'],
         queryFn: () => settingsService.getPreferences(),
     })
 
     const profileForm = useForm<ProfileValues>({
         resolver: zodResolver(profileSchema),
-        defaultValues: { name: '', email: '', location: '' },
+        defaultValues: {name: '', email: '', location: ''},
     })
 
     const prefsForm = useForm<PreferencesValues>({
@@ -172,14 +176,14 @@ export default function SettingsPage() {
     const updateUserMutation = useMutation({
         mutationFn: (data: UserUpdateRequest) => settingsService.updateMe(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['users', 'me'] })
+            queryClient.invalidateQueries({queryKey: ['users', 'me']})
         },
     })
 
     const updatePrefsMutation = useMutation({
         mutationFn: (data: PreferencesRequest) => settingsService.updatePreferences(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['preferences'] })
+            queryClient.invalidateQueries({queryKey: ['preferences']})
         },
     })
 
@@ -200,7 +204,7 @@ export default function SettingsPage() {
         i18n.changeLanguage(newLanguage)
         prefsForm.setValue('language', newLanguage)
         const current = prefsForm.getValues()
-        updatePrefsMutation.mutate({ ...current, language: newLanguage })
+        updatePrefsMutation.mutate({...current, language: newLanguage})
     }
 
     const profileSuccess = updateUserMutation.isSuccess
@@ -213,9 +217,24 @@ export default function SettingsPage() {
     })
 
     const aiProviderOptions = [
-        { value: 'CLOUD', label: t('settings.aiProviderCloud'), icon: Cloud, description: 'Fast, reliable cloud inference' },
-        { value: 'LOCAL', label: t('settings.aiProviderLocal'), icon: Cpu, description: 'Privacy-first local processing' },
-        { value: 'BRING_YOUR_OWN_KEY', label: t('settings.aiProviderCustom'), icon: Key, description: 'Use your own API key' },
+        {
+            value: 'CLOUD',
+            label: t('settings.aiProviderCloud'),
+            icon: Cloud,
+            description: 'Fast, reliable cloud inference'
+        },
+        {
+            value: 'LOCAL',
+            label: t('settings.aiProviderLocal'),
+            icon: Cpu,
+            description: 'Privacy-first local processing'
+        },
+        {
+            value: 'BRING_YOUR_OWN_KEY',
+            label: t('settings.aiProviderCustom'),
+            icon: Key,
+            description: 'Use your own API key'
+        },
     ]
 
     return (
@@ -223,8 +242,9 @@ export default function SettingsPage() {
             {/* Header */}
             <header className="mb-10 animate-slide-up">
                 <div className="flex items-center gap-3 mb-2">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20 flex items-center justify-center">
-                        <Sparkles className="w-4 h-4 text-violet-400" />
+                    <div
+                        className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20 flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-violet-400"/>
                     </div>
                     <h1 className="text-2xl font-semibold text-white tracking-tight">{t('settings.title')}</h1>
                 </div>
@@ -241,13 +261,16 @@ export default function SettingsPage() {
                             description={t('settings.profileDescription')}
                         />
 
-                        {profileSuccess && <div className="mb-5"><StatusToast type="success" message={t('settings.saved')} /></div>}
-                        {profileError && <div className="mb-5"><StatusToast type="error" message={t('settings.saveError')} /></div>}
+                        {profileSuccess &&
+                            <div className="mb-5"><StatusToast type="success" message={t('settings.saved')}/></div>}
+                        {profileError &&
+                            <div className="mb-5"><StatusToast type="error" message={t('settings.saveError')}/></div>}
 
                         <form onSubmit={handleProfileSubmit} className="space-y-5">
                             {/* Avatar placeholder */}
                             <div className="flex items-center gap-5 pb-5 border-b border-white/[0.06]">
-                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-violet-500 flex items-center justify-center text-2xl font-semibold text-white shadow-lg shadow-violet-500/20">
+                                <div
+                                    className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-violet-500 flex items-center justify-center text-2xl font-semibold text-white shadow-lg shadow-violet-500/20">
                                     {userData?.name?.charAt(0)?.toUpperCase() || 'U'}
                                 </div>
                                 <div>
@@ -258,8 +281,9 @@ export default function SettingsPage() {
 
                             <div className="grid gap-5 sm:grid-cols-2">
                                 <div className="space-y-2">
-                                    <label className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
-                                        <User className="w-3.5 h-3.5" />
+                                    <label
+                                        className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                        <User className="w-3.5 h-3.5"/>
                                         {t('settings.name')}
                                     </label>
                                     <input
@@ -271,8 +295,9 @@ export default function SettingsPage() {
                                     )}
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
-                                        <Mail className="w-3.5 h-3.5" />
+                                    <label
+                                        className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                        <Mail className="w-3.5 h-3.5"/>
                                         {t('settings.email')}
                                     </label>
                                     <input
@@ -286,8 +311,9 @@ export default function SettingsPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
-                                    <MapPin className="w-3.5 h-3.5" />
+                                <label
+                                    className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                    <MapPin className="w-3.5 h-3.5"/>
                                     {t('settings.location')}
                                 </label>
                                 <input
@@ -308,7 +334,8 @@ export default function SettingsPage() {
                                 >
                                     {profileForm.formState.isSubmitting ? (
                                         <span className="flex items-center gap-2">
-                                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            <span
+                                                className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
                                             Saving...
                                         </span>
                                     ) : (
@@ -343,8 +370,9 @@ export default function SettingsPage() {
                                     <p className="text-sm font-medium">{t('settings.languageEN')}</p>
                                 </div>
                                 {i18n.language === 'en' && (
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center">
-                                        <Check className="w-3 h-3 text-white" />
+                                    <div
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center">
+                                        <Check className="w-3 h-3 text-white"/>
                                     </div>
                                 )}
                             </button>
@@ -363,8 +391,9 @@ export default function SettingsPage() {
                                     <p className="text-sm font-medium">{t('settings.languageRU')}</p>
                                 </div>
                                 {i18n.language === 'ru' && (
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center">
-                                        <Check className="w-3 h-3 text-white" />
+                                    <div
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center">
+                                        <Check className="w-3 h-3 text-white"/>
                                     </div>
                                 )}
                             </button>
@@ -391,7 +420,7 @@ export default function SettingsPage() {
                                             const val = option.value as 'LOCAL' | 'CLOUD' | 'BRING_YOUR_OWN_KEY'
                                             prefsForm.setValue('aiProviderMode', val)
                                             const current = prefsForm.getValues()
-                                            updatePrefsMutation.mutate({ ...current, aiProviderMode: val })
+                                            updatePrefsMutation.mutate({...current, aiProviderMode: val})
                                         }}
                                         className={cn(
                                             'w-full flex items-center gap-4 rounded-xl border px-4 py-4 text-left transition-all duration-200',
@@ -404,7 +433,8 @@ export default function SettingsPage() {
                                             'w-10 h-10 rounded-xl flex items-center justify-center transition-colors',
                                             isActive ? 'bg-violet-500/20' : 'bg-white/[0.04]'
                                         )}>
-                                            <Icon className={cn('w-5 h-5', isActive ? 'text-violet-400' : 'text-white/40')} />
+                                            <Icon
+                                                className={cn('w-5 h-5', isActive ? 'text-violet-400' : 'text-white/40')}/>
                                         </div>
                                         <div className="flex-1">
                                             <p className={cn('text-sm font-medium', isActive ? 'text-white' : 'text-white/70')}>
@@ -416,7 +446,7 @@ export default function SettingsPage() {
                                             'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all',
                                             isActive ? 'border-violet-500 bg-violet-500' : 'border-white/20'
                                         )}>
-                                            {isActive && <Check className="w-3 h-3 text-white" />}
+                                            {isActive && <Check className="w-3 h-3 text-white"/>}
                                         </div>
                                     </button>
                                 )
@@ -432,18 +462,23 @@ export default function SettingsPage() {
                             description={t('settings.notificationsDescription')}
                         />
 
-                        {prefsSuccess && <div className="mb-5"><StatusToast type="success" message={t('settings.saved')} /></div>}
-                        {prefsError && <div className="mb-5"><StatusToast type="error" message={t('settings.saveError')} /></div>}
+                        {prefsSuccess &&
+                            <div className="mb-5"><StatusToast type="success" message={t('settings.saved')}/></div>}
+                        {prefsError &&
+                            <div className="mb-5"><StatusToast type="error" message={t('settings.saveError')}/></div>}
 
                         <form onSubmit={handlePrefsSubmit} className="space-y-3">
-                            <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4">
+                            <div
+                                className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                                        <Mail className="w-5 h-5 text-blue-400" />
+                                    <div
+                                        className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                        <Mail className="w-5 h-5 text-blue-400"/>
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-white">{t('settings.weeklyDigest')}</p>
-                                        <p className="text-xs text-white/40 mt-0.5">Receive a weekly summary of your job search</p>
+                                        <p className="text-xs text-white/40 mt-0.5">Receive a weekly summary of your job
+                                            search</p>
                                     </div>
                                 </div>
                                 <Toggle
@@ -451,19 +486,22 @@ export default function SettingsPage() {
                                     onChange={(v) => {
                                         prefsForm.setValue('weeklyDigest', v)
                                         const current = prefsForm.getValues()
-                                        updatePrefsMutation.mutate({ ...current, weeklyDigest: v })
+                                        updatePrefsMutation.mutate({...current, weeklyDigest: v})
                                     }}
                                 />
                             </div>
 
-                            <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4">
+                            <div
+                                className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                                        <Bell className="w-5 h-5 text-amber-400" />
+                                    <div
+                                        className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                                        <Bell className="w-5 h-5 text-amber-400"/>
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-white">{t('settings.interviewReminders')}</p>
-                                        <p className="text-xs text-white/40 mt-0.5">Get reminded before scheduled interviews</p>
+                                        <p className="text-xs text-white/40 mt-0.5">Get reminded before scheduled
+                                            interviews</p>
                                     </div>
                                 </div>
                                 <Toggle
@@ -471,7 +509,7 @@ export default function SettingsPage() {
                                     onChange={(v) => {
                                         prefsForm.setValue('interviewReminders', v)
                                         const current = prefsForm.getValues()
-                                        updatePrefsMutation.mutate({ ...current, interviewReminders: v })
+                                        updatePrefsMutation.mutate({...current, interviewReminders: v})
                                     }}
                                 />
                             </div>
@@ -482,7 +520,8 @@ export default function SettingsPage() {
                             <div className="mt-6 pt-6 border-t border-white/[0.06]">
                                 <div className="flex items-center justify-between mb-4">
                                     <p className="text-sm font-medium text-white">{t('settings.recentNotifications')}</p>
-                                    <span className="px-2 py-0.5 rounded-full bg-violet-500/10 text-xs font-medium text-violet-400">
+                                    <span
+                                        className="px-2 py-0.5 rounded-full bg-violet-500/10 text-xs font-medium text-violet-400">
                                         {notifications.filter((n) => !n.read).length} {t('common.new')}
                                     </span>
                                 </div>
@@ -502,7 +541,8 @@ export default function SettingsPage() {
                                                 <p className="text-xs text-white/40 mt-0.5 truncate">{n.body}</p>
                                             </div>
                                             <div className="flex items-center gap-3 shrink-0">
-                                                <span className="text-xs text-white/30">{formatRelative(n.createdAt)}</span>
+                                                <span
+                                                    className="text-xs text-white/30">{formatRelative(n.createdAt)}</span>
                                                 {!n.read && (
                                                     <button
                                                         type="button"
@@ -523,8 +563,9 @@ export default function SettingsPage() {
                     {/* Danger Zone */}
                     <section className="rounded-2xl border border-red-500/20 bg-red-500/[0.02] p-6">
                         <div className="flex items-start gap-4 mb-6">
-                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-                                <Shield className="w-5 h-5 text-red-400" />
+                            <div
+                                className="flex-shrink-0 w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                                <Shield className="w-5 h-5 text-red-400"/>
                             </div>
                             <div>
                                 <h2 className="text-base font-semibold text-white">Danger Zone</h2>
@@ -532,14 +573,16 @@ export default function SettingsPage() {
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between rounded-xl border border-red-500/10 bg-red-500/[0.03] px-4 py-4">
+                        <div
+                            className="flex items-center justify-between rounded-xl border border-red-500/10 bg-red-500/[0.03] px-4 py-4">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                                    <Trash2 className="w-5 h-5 text-red-400" />
+                                    <Trash2 className="w-5 h-5 text-red-400"/>
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-white">Delete account</p>
-                                    <p className="text-xs text-white/40 mt-0.5">Permanently remove your account and all data</p>
+                                    <p className="text-xs text-white/40 mt-0.5">Permanently remove your account and all
+                                        data</p>
                                 </div>
                             </div>
                             {!deleteConfirm ? (
