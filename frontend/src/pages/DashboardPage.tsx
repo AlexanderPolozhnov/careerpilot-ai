@@ -40,45 +40,59 @@ export default function DashboardPage() {
 
     return (
         <section className="space-y-6 w-full min-w-0">
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <StatCard
-                    label={t('dashboard.activeVacancies')}
-                    value={kpis?.activeVacancies ?? '—'}
-                    icon={Briefcase}
-                    accent
-                />
-                <StatCard
-                    label={t('dashboard.activeApplications')}
-                    value={kpis?.activeApplications ?? '—'}
-                    icon={FileText}
-                />
-                <StatCard
-                    label={t('dashboard.interviewsScheduled')}
-                    value={kpis?.interviewsScheduled ?? '—'}
-                    icon={CalendarDays}
-                />
-                <StatCard
-                    label={t('dashboard.aiInsights')}
-                    value={kpis?.aiInsightsThisWeek ?? '—'}
-                    icon={Sparkles}
-                />
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 ds-stagger">
+                <div className="ds-anim-rise">
+                    <StatCard
+                        label={t('dashboard.activeVacancies')}
+                        value={kpis?.activeVacancies ?? '—'}
+                        icon={Briefcase}
+                        accent
+                    />
+                </div>
+                <div className="ds-anim-rise">
+                    <StatCard
+                        label={t('dashboard.activeApplications')}
+                        value={kpis?.activeApplications ?? '—'}
+                        icon={FileText}
+                    />
+                </div>
+                <div className="ds-anim-rise">
+                    <StatCard
+                        label={t('dashboard.interviewsScheduled')}
+                        value={kpis?.interviewsScheduled ?? '—'}
+                        icon={CalendarDays}
+                    />
+                </div>
+                <div className="ds-anim-rise">
+                    <StatCard
+                        label={t('dashboard.aiInsights')}
+                        value={kpis?.aiInsightsThisWeek ?? '—'}
+                        icon={Sparkles}
+                    />
+                </div>
             </div>
             <div className="space-y-3">
                 <div className="flex items-center justify-between">
                     <h2 className="text-sm font-semibold text-ink">{t('dashboard.latestInsights')}</h2>
                     <button
                         type="button"
-                        className="btn-secondary text-sm"
+                        className="ds-btn ds-btn-ghost text-sm"
                         onClick={() => navigate('/ai-assistant')}
                     >
                         {t('dashboard.viewAll')}
                     </button>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ds-stagger">
                     {isLoading
-                        ? Array.from({length: 3}).map((_, i) => <AiInsightCardSkeleton key={i}/>)
+                        ? Array.from({length: 3}).map((_, i) => (
+                            <div key={i} className="ds-anim-rise">
+                                <AiInsightCardSkeleton />
+                            </div>
+                        ))
                         : aiInsights.slice(0, 3).map((r) => (
-                            <AiInsightCard key={r.id} result={toAiResult(r)}/>
+                            <div key={r.id} className="ds-anim-rise">
+                                <AiInsightCard result={toAiResult(r)}/>
+                            </div>
                         ))}
                 </div>
             </div>
@@ -86,12 +100,12 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                     <h2 className="text-sm font-semibold text-ink">{t('dashboard.today')}</h2>
                     {/* TODO: quickAdd requires a dedicated endpoint — not yet implemented */}
-                    <button type="button" className="btn-secondary text-sm">
+                    <button type="button" className="ds-btn ds-btn-ghost text-sm">
                         {t('dashboard.quickAdd')}
                     </button>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    <div className="card p-4">
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ds-stagger">
+                    <div className="ds-card p-4 ds-anim-rise">
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-semibold text-ink">{t('dashboard.upcomingInterviews')}</div>
                             <span className="pill">{upcomingInterviews.length}</span>
@@ -115,7 +129,7 @@ export default function DashboardPage() {
                             ))}
                         </div>
                     </div>
-                    <div className="card p-4">
+                    <div className="ds-card p-4 ds-anim-rise">
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-semibold text-ink">{t('dashboard.tasks')}</div>
                             <span className="pill">{tasks.length}</span>
@@ -136,14 +150,14 @@ export default function DashboardPage() {
                                         </div>
                                     </div>
                                     {/* TODO: open task detail requires a dedicated tasks page — not yet implemented */}
-                                    <button type="button" className="btn-secondary text-xs px-2.5 py-1.5">
+                                    <button type="button" className="ds-btn ds-btn-ghost text-xs px-2.5 py-1.5">
                                         {t('dashboard.open')}
                                     </button>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <div className="card p-4">
+                    <div className="ds-card p-4 ds-anim-rise">
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-semibold text-ink">{t('dashboard.notifications')}</div>
                             <span className="pill">

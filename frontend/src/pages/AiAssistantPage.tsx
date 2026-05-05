@@ -90,25 +90,25 @@ export default function AiAssistantPage() {
       <FilterBar
         left={
           <div className="flex flex-wrap gap-2">
-            <button type="button" className={cn('btn-secondary text-sm', tool === 'analyze' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('analyze')}>
+            <button type="button" className={cn('ds-btn ds-btn-ghost text-sm', tool === 'analyze' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('analyze')}>
               {t('aiAssistant.tools.analyze')}
             </button>
-            <button type="button" className={cn('btn-secondary text-sm', tool === 'match' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('match')}>
+            <button type="button" className={cn('ds-btn ds-btn-ghost text-sm', tool === 'match' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('match')}>
               {t('aiAssistant.tools.match')}
             </button>
-            <button type="button" className={cn('btn-secondary text-sm', tool === 'cover' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('cover')}>
+            <button type="button" className={cn('ds-btn ds-btn-ghost text-sm', tool === 'cover' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('cover')}>
               {t('aiAssistant.tools.cover')}
             </button>
-            <button type="button" className={cn('btn-secondary text-sm', tool === 'interview' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('interview')}>
+            <button type="button" className={cn('ds-btn ds-btn-ghost text-sm', tool === 'interview' && 'border-accent/25 bg-accent/12')} onClick={() => setTool('interview')}>
               {t('aiAssistant.tools.interview')}
             </button>
           </div>
         }
-        right={<span className="pill">{t('aiAssistant.mockMode')}</span>}
+        right={<span className="ds-badge ds-badge-neutral">{t('aiAssistant.mockMode')}</span>}
       />
 
-      <div className="grid gap-4 lg:grid-cols-7">
-        <div className="lg:col-span-4 card p-5">
+      <div className="grid gap-4 lg:grid-cols-7 ds-stagger">
+        <div className="lg:col-span-4 ds-card p-5 ds-anim-rise">
           <div className="text-sm font-semibold text-ink">{t('aiAssistant.requestTitle')}</div>
           <p className="text-sm text-ink-muted mt-2">
             {t('aiAssistant.requestDescription')}
@@ -216,8 +216,8 @@ export default function AiAssistantPage() {
               type="submit"
               disabled={form.formState.isSubmitting}
               className={cn(
-                'w-full inline-flex items-center justify-center rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors',
-                form.formState.isSubmitting ? 'opacity-70' : 'hover:bg-accent-dim',
+                'w-full ds-btn ds-btn-primary',
+                form.formState.isSubmitting && 'opacity-70',
               )}
             >
               {form.formState.isSubmitting ? t('aiAssistant.generating') : t('aiAssistant.generate')}
@@ -225,8 +225,8 @@ export default function AiAssistantPage() {
           </form>
         </div>
 
-        <div className="lg:col-span-3 space-y-3">
-          <div className="card p-5">
+        <div className="lg:col-span-3 space-y-3 ds-anim-rise">
+          <div className="ds-card p-5">
             <div className="text-sm font-semibold text-ink">{t('aiAssistant.resultTitle')}</div>
             <p className="text-sm text-ink-muted mt-2">{t('aiAssistant.resultDescription')}</p>
             <div className="mt-4">
@@ -238,7 +238,7 @@ export default function AiAssistantPage() {
             </div>
           </div>
 
-          <div className="card p-5">
+          <div className="ds-card p-5">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm font-semibold text-ink">{t('aiAssistant.historyTitle')}</div>
@@ -246,13 +246,17 @@ export default function AiAssistantPage() {
               </div>
               <span className="pill">{history.length}</span>
             </div>
-            <div className="mt-4 grid gap-3">
+            <div className="mt-4 grid gap-3 ds-stagger">
               {isLoadingHistory ? (
                 <LoadingState message={t('aiAssistant.loadingHistory')} className="py-8" />
               ) : history.length === 0 ? (
                 <EmptyState title={t('aiAssistant.noHistoryTitle')} description={t('aiAssistant.noHistoryDescription')} />
               ) : (
-                history.slice(0, 3).map((r) => <AiInsightCard key={r.id} result={r} compact />)
+                history.slice(0, 3).map((r) => (
+                    <div key={r.id} className="ds-anim-rise">
+                        <AiInsightCard result={r} compact />
+                    </div>
+                ))
               )}
             </div>
           </div>

@@ -135,9 +135,9 @@ export default function SettingsPage() {
 
     return (
         <section className="space-y-6">
-            <div className="grid gap-4 lg:grid-cols-7">
-                <div className="lg:col-span-4 space-y-4">
-                    <div className="card p-5">
+            <div className="grid gap-4 lg:grid-cols-7 ds-stagger">
+                <div className="lg:col-span-4 space-y-4 ds-anim-rise">
+                    <div className="ds-card p-5">
                         <div className="text-sm font-semibold text-ink">{t('settings.profile')}</div>
                         <p className="text-sm text-ink-muted mt-1">{t('settings.profileDescription')}</p>
 
@@ -180,7 +180,7 @@ export default function SettingsPage() {
                             <button
                                 type="submit"
                                 className={cn(
-                                    'inline-flex items-center justify-center rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent-dim transition-colors',
+                                    'ds-btn ds-btn-primary',
                                     profileForm.formState.isSubmitting && 'opacity-70',
                                 )}
                             >
@@ -189,7 +189,7 @@ export default function SettingsPage() {
                         </form>
                     </div>
 
-                    <div className="card p-5">
+                    <div className="ds-card p-5">
                         <div className="text-sm font-semibold text-ink">{t('settings.notifications')}</div>
                         <p className="text-sm text-ink-muted mt-1">{t('settings.notificationsDescription')}</p>
 
@@ -228,7 +228,7 @@ export default function SettingsPage() {
                             <button
                                 type="submit"
                                 className={cn(
-                                    'inline-flex items-center justify-center rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent-dim transition-colors',
+                                    'ds-btn ds-btn-primary',
                                     prefsForm.formState.isSubmitting && 'opacity-70',
                                 )}
                             >
@@ -237,7 +237,7 @@ export default function SettingsPage() {
                         </form>
                     </div>
 
-                    <div className="card p-5">
+                    <div className="ds-card p-5">
                         <div className="text-sm font-semibold text-ink">{t('settings.language')}</div>
                         <p className="text-sm text-ink-muted mt-1">{t('settings.selectLanguage')}</p>
                         <div className="mt-4 space-y-2">
@@ -269,8 +269,8 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                <div className="lg:col-span-3 space-y-4">
-                    <div className="card p-5">
+                <div className="lg:col-span-3 space-y-4 ds-anim-rise">
+                    <div className="ds-card p-5">
                         <div className="text-sm font-semibold text-ink">{t('settings.aiProvider')}</div>
                         <p className="text-sm text-ink-muted mt-1">{t('settings.aiProviderDescription')}</p>
                         <div className="mt-3">
@@ -292,7 +292,7 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    <div className="card p-5">
+                    <div className="ds-card p-5">
                         <div className="flex items-center justify-between">
                             <div>
                                 <div
@@ -302,10 +302,10 @@ export default function SettingsPage() {
                             <span
                                 className="pill">{notifications.filter((n) => !n.read).length} {t('common.new')}</span>
                         </div>
-                        <div className="mt-4 space-y-2">
+                        <div className="mt-4 space-y-2 ds-stagger">
                             {notifications.map((n) => (
                                 <div key={n.id}
-                                     className={cn('rounded-xl border border-border px-3 py-2.5', n.read ? 'bg-surface-1/20' : 'bg-surface-1/50')}>
+                                     className={cn('ds-anim-rise rounded-xl border border-border px-3 py-2.5', n.read ? 'bg-surface-1/20' : 'bg-surface-1/50')}>
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0 flex-1">
                                             <div className="text-sm text-ink truncate">{n.title}</div>

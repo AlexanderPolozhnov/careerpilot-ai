@@ -53,15 +53,23 @@ export default function AnalyticsPage() {
 
   return (
     <section className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label={t('analytics.responseRate')} value={pct(data.responseRate)} icon={MessageCircle} accent />
-        <StatCard label={t('analytics.interviewRate')} value={pct(data.interviewRate)} icon={Target} />
-        <StatCard label={t('analytics.offerRate')} value={pct(data.offerRate)} icon={BarChart3} />
-        <StatCard label={t('analytics.avgDaysToInterview')} value={data.avgTimeToInterview} icon={Clock} />
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 ds-stagger">
+        <div className="ds-anim-rise">
+            <StatCard label={t('analytics.responseRate')} value={pct(data.responseRate)} icon={MessageCircle} accent />
+        </div>
+        <div className="ds-anim-rise">
+            <StatCard label={t('analytics.interviewRate')} value={pct(data.interviewRate)} icon={Target} />
+        </div>
+        <div className="ds-anim-rise">
+            <StatCard label={t('analytics.offerRate')} value={pct(data.offerRate)} icon={BarChart3} />
+        </div>
+        <div className="ds-anim-rise">
+            <StatCard label={t('analytics.avgDaysToInterview')} value={data.avgTimeToInterview} icon={Clock} />
+        </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-7">
-        <div className="lg:col-span-4 card p-5">
+      <div className="grid gap-4 lg:grid-cols-7 ds-stagger">
+        <div className="lg:col-span-4 ds-card p-5 ds-anim-rise">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm font-semibold text-ink">{t('analytics.funnelTitle')}</div>
@@ -70,9 +78,9 @@ export default function AnalyticsPage() {
             <span className="pill">{t('analytics.totalApplications', { count: data.totalApplications })}</span>
           </div>
 
-          <div className="mt-5 space-y-3">
+          <div className="mt-5 space-y-3 ds-stagger">
             {data.funnel.map((f: ApplicationFunnel) => (
-              <div key={f.status} className="grid grid-cols-12 items-center gap-3">
+              <div key={f.status} className="grid grid-cols-12 items-center gap-3 ds-anim-rise">
                 <div className="col-span-4 text-xs text-ink-dim uppercase tracking-wider">
                   {getStatusLabel(f.status)}
                 </div>
@@ -92,8 +100,8 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="lg:col-span-3 space-y-4">
-          <div className="card p-5">
+        <div className="lg:col-span-3 space-y-4 ds-anim-rise">
+          <div className="ds-card p-5">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm font-semibold text-ink">{t('analytics.skillGapsTitle')}</div>
@@ -101,9 +109,9 @@ export default function AnalyticsPage() {
               </div>
               <span className="pill">{data.topSkillGaps.length}</span>
             </div>
-            <div className="mt-5 space-y-3">
+            <div className="mt-5 space-y-3 ds-stagger">
               {data.topSkillGaps.map((g) => (
-                <div key={g.skill} className="flex items-center justify-between gap-3">
+                <div key={g.skill} className="flex items-center justify-between gap-3 ds-anim-rise">
                   <div className="min-w-0">
                     <div className="text-sm text-ink truncate">{g.skill}</div>
                     <div className="text-xs text-ink-dim mt-1">{g.frequency} {t('analytics.mentions')}</div>
@@ -121,12 +129,12 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          <div className="card p-5">
+          <div className="ds-card p-5">
             <div className="text-sm font-semibold text-ink">{t('analytics.weeklyActivityTitle')}</div>
             <p className="text-sm text-ink-muted mt-1">{t('analytics.weeklyActivityDescription')}</p>
-            <div className="mt-5 space-y-3">
+            <div className="mt-5 space-y-3 ds-stagger">
               {data.weeklyActivity.map((w) => (
-                <div key={w.week} className="flex items-center justify-between gap-3">
+                <div key={w.week} className="flex items-center justify-between gap-3 ds-anim-rise">
                   <div className="text-sm text-ink">{w.week}</div>
                   <div className="flex items-center gap-2">
                     <span className="pill">{t('analytics.appliedCount', { count: w.applied })}</span>
