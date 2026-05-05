@@ -133,12 +133,12 @@ export default function VacanciesPage() {
             ) : (
                 <>
                     {view === 'list' ? (
-                        <div className="grid gap-3">
+                        <div className="grid gap-3 ds-stagger">
                             {visibleItems.map((v) => (
                                 <Link
                                     key={v.id}
                                     to={`/app/vacancies/${v.id}`}
-                                    className="card card-hover p-4 block no-underline"
+                                    className="card card-hover p-4 block no-underline ds-card ds-anim-rise"
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">

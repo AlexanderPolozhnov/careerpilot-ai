@@ -1,0 +1,242 @@
+/* CareerPilot AI — Design System
+   Анимации и компонентные классы в стиле современных SaaS */
+
+/* ── Шрифт ── */
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap');
+
+:root {
+  --ds-font: 'Onest', system-ui, sans-serif;
+  --ds-radius: 12px;
+  --ds-radius-sm: 8px;
+  --ds-radius-pill: 999px;
+  /* Цвета, адаптированные под CareerPilot */
+  --ds-primary: var(--color-accent, #8b5cf6);
+  --ds-primary-dark: #7c4dff; /* Затемненный #8b5cf6 */
+  --ds-primary-light: rgba(139, 92, 246, 0.1);
+  --ds-text: var(--color-ink, #e7eaf1);
+  --ds-muted: var(--color-ink-muted, #b1bbcf);
+}
+
+/* ══ КНОПКИ ══ */
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--ds-font);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 0.65rem 1.4rem;
+  border-radius: var(--ds-radius-sm);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.18s cubic-bezier(.34, 1.56, .64, 1),
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.ds-btn-primary {
+  background: var(--ds-primary);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+.ds-btn-primary:hover {
+  background: var(--ds-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+.ds-btn-primary:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Shimmer при hover */
+.ds-btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 60%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+.ds-btn-primary:hover::after {
+  transform: translateX(100%);
+}
+
+.ds-btn-outline {
+  background: transparent;
+  color: var(--ds-primary);
+  border: 1.5px solid var(--ds-primary);
+}
+.ds-btn-outline:hover {
+  background: var(--ds-primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+.ds-btn-outline:active { transform: scale(0.97); }
+
+.ds-btn-ghost {
+  background: transparent;
+  color: var(--ds-muted);
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+}
+.ds-btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--ds-text);
+  border-color: rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.ds-btn-pill {
+  border-radius: var(--ds-radius-pill);
+  background: var(--ds-primary);
+  color: #fff;
+  padding: 0.55rem 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+.ds-btn-pill:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  background: var(--ds-primary-dark);
+}
+
+/* ══ КАРТОЧКИ ══ */
+
+.ds-card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: var(--ds-radius);
+  transition:
+    transform 0.22s cubic-bezier(.34, 1.56, .64, 1),
+    box-shadow 0.22s ease,
+    border-color 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.ds-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--ds-primary-light), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.ds-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+.ds-card:hover::before { opacity: 1; }
+
+.ds-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--ds-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(.34, 1.56, .64, 1);
+}
+.ds-card:hover .ds-card-icon {
+  transform: scale(1.15) rotate(-5deg);
+}
+
+/* ══ БЕЙДЖИ ══ */
+
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--ds-font);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--ds-radius-pill);
+  transition: transform 0.15s ease;
+}
+.ds-badge:hover { transform: scale(1.06); }
+
+.ds-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ds-badge-pulse .ds-badge-dot {
+  animation: ds-pulse 1.5s infinite;
+}
+@keyframes ds-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Цвета бейджей — адаптированы под CareerPilot */
+.ds-badge-primary { background: var(--ds-primary-light); color: var(--ds-primary); }
+.ds-badge-success { background: rgba(52, 211, 153, 0.15); color: var(--color-success, #34d399); }
+.ds-badge-warning { background: rgba(251, 191, 36, 0.15); color: var(--color-warning, #fbbf24); }
+.ds-badge-danger  { background: rgba(251, 113, 133, 0.15); color: var(--color-danger, #fb7185); }
+.ds-badge-neutral { background: rgba(148, 163, 184, 0.1); color: var(--ds-muted); }
+
+
+/* ══ АНИМАЦИИ ПОЯВЛЕНИЯ ══ */
+
+@keyframes ds-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes ds-rise-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes ds-pop-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes ds-slide-in {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.ds-anim-fade  { animation: ds-fade-in  0.5s ease both; }
+.ds-anim-rise  { animation: ds-rise-up  0.6s cubic-bezier(.34,1.56,.64,1) both; }
+.ds-anim-pop   { animation: ds-pop-in   0.5s cubic-bezier(.34,1.56,.64,1) both; }
+.ds-anim-slide { animation: ds-slide-in 0.5s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* Stagger-задержки для списков */
+.ds-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.ds-stagger > *:nth-child(2) { animation-delay: 80ms; }
+.ds-stagger > *:nth-child(3) { animation-delay: 160ms; }
+.ds-stagger > *:nth-child(4) { animation-delay: 240ms; }
+.ds-stagger > *:nth-child(5) { animation-delay: 320ms; }
+.ds-stagger > *:nth-child(6) { animation-delay: 400ms; }
+
+/* ══ ИНПУТЫ ══ */
+
+.ds-input {
+  font-family: var(--ds-font);
+  font-size: 14px;
+  padding: 0.65rem 1rem;
+  border: 1.5px solid rgba(148, 163, 184, 0.16); /* --color-border */
+  border-radius: var(--ds-radius-sm);
+  outline: none;
+  background: var(--color-surface-1, #0b1020);
+  width: 100%;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  color: var(--ds-text);
+}
+.ds-input:focus {
+  border-color: var(--ds-primary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+}

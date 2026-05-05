@@ -148,7 +148,7 @@ function ApplicationColumn({ status, items, label }: { status: ApplicationStatus
         <div
           ref={setNodeRef}
           className={cn(
-            'space-y-2 min-h-24 rounded-xl border border-transparent bg-surface-1/30 p-2 transition-all duration-150',
+            'space-y-2 min-h-24 rounded-xl border border-transparent bg-surface-1/30 p-2 transition-all duration-150 ds-stagger',
             isOver && 'border-accent/45 bg-accent/5',
           )}
         >

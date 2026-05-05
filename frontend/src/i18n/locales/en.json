@@ -34,24 +34,59 @@
     "login": "Login",
     "register": "Register",
     "createAccount": "Create account",
-    "heading": "Land your next offer with calm, focused execution.",
-    "description": "CareerPilot AI brings your entire job search into one place: vacancies, applications, interview prep, and smart AI-powered insights — so you stay focused on results, not chaos.",
-    "startFree": "Start free",
-    "openDashboard": "Open dashboard",
-    "badge": "Free during beta · No credit card required",
-    "feature1": "Vacancies & Companies",
-    "feature1Desc": "Save, filter, and track every opportunity in one place",
-    "feature2": "Application Board",
-    "feature2Desc": "Follow every step of your journey — from first look to final offer",
-    "feature3": "AI Assistant",
-    "feature3Desc": "Analyze job postings, match your resume, write cover letters, and prepare for interviews",
-    "previewLabel": "Preview",
-    "dashboardPreviewTitle": "Dashboard — Today",
-    "latestAiInsight": "Latest insight",
-    "latestAiInsightDescription": "Strong candidate — highlight measurable impact on product quality and your experience building consistent user interfaces.",
-    "mockMode": "Demo mode",
-    "footerDetails": "Secure · Your data only · Powered by local AI",
-    "freeTrial": "TRIAL SUBSCRIPTION · 3 DAYS"
+    "hero": {
+      "title": "Land your next offer. Calmly and with",
+      "titleAccent": "confidence.",
+      "subtitle": "CareerPilot AI brings your entire job search into one place: vacancies, applications, interview prep, and AI-powered insights, so you stay focused on results, not chaos.",
+      "cta_primary": "Get started for free",
+      "cta_secondary": "View demo",
+      "fact1": "24+ vacancies tracked",
+      "fact2": "AI analysis in seconds",
+      "fact3": "Free forever"
+    },
+    "features": {
+      "title": "What CareerPilot AI can do",
+      "cards": {
+        "vacancies": {
+          "title": "Vacancy Collection",
+          "description": "Collect and filter all interesting vacancies from any source in one place."
+        },
+        "kanban": {
+          "title": "Kanban Board",
+          "description": "Visually track the status of your applications so nothing falls through the cracks."
+        },
+        "ai": {
+          "title": "AI Analysis",
+          "description": "Get insights on job descriptions, resume comparisons, and interview questions."
+        },
+        "analytics": {
+          "title": "Analytics",
+          "description": "Understand your funnel and the most in-demand skills based on your data."
+        }
+      }
+    },
+    "howItWorks": {
+      "title": "How it works",
+      "steps": {
+        "1": {
+          "title": "Add a vacancy",
+          "description": "Just paste a link or describe the job to get it into the system."
+        },
+        "2": {
+          "title": "Track applications",
+          "description": "Move cards across the board from 'New' to 'Offer'."
+        },
+        "3": {
+          "title": "Get AI insights",
+          "description": "Use the AI assistant to analyze and prepare for each stage."
+        }
+      }
+    },
+    "cta": {
+      "title": "Start managing your job search today",
+      "button": "Register for free"
+    },
+    "footerDetails": "Secure · Your data only · Powered by local AI"
   },
   "auth": {
     "login": "Login",
@@ -323,5 +358,50 @@
     "boundaryTitle": "Application Error",
     "boundaryMessage": "Something went wrong in the application interface.",
     "reload": "Reload page"
+  },
+  "features": {
+    "label": "FEATURES",
+    "title": "Everything you need for a focused job search",
+    "cards": {
+      "vacancies": {
+        "title": "Vacancy tracking",
+        "description": "Save, filter and organize job postings in one place."
+      },
+      "kanban": {
+        "title": "Application board",
+        "description": "Track every application through your hiring pipeline."
+      },
+      "ai": {
+        "title": "AI assistant",
+        "description": "Analyze vacancies, match your resume and generate cover letters."
+      },
+      "analytics": {
+        "title": "Analytics",
+        "description": "See your response rate, interview funnel and weekly activity."
+      }
+    }
+  },
+  "howItWorks": {
+    "label": "PROCESS",
+    "title": "How it works",
+    "steps": {
+      "1": {
+        "title": "Save vacancies",
+        "description": "Collect job postings from any source into your personal board."
+      },
+      "2": {
+        "title": "Track applications",
+        "description": "Move cards through statuses as you progress through interviews."
+      },
+      "3": {
+        "title": "Get AI insights",
+        "description": "Let the AI analyze the vacancy and prepare you for the interview."
+      }
+    }
+  },
+  "cta": {
+    "label": "GET STARTED",
+    "title": "Ready to take control of your job search?",
+    "button": "Get started for free"
   }
 }

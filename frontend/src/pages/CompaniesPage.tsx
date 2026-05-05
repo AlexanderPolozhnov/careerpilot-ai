@@ -57,9 +57,9 @@ export default function CompaniesPage() {
       ) : companies.length === 0 ? (
         <EmptyState title={t('companies.noCompanies')} description={t('companies.description')} />
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 ds-stagger">
           {companies.map((c) => (
-            <div key={c.id} className="card card-hover p-4">
+            <div key={c.id} className="card card-hover p-4 ds-card ds-anim-rise">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="text-sm font-semibold text-ink truncate">{c.name}</div>
