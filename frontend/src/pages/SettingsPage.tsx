@@ -151,6 +151,9 @@ export default function SettingsPage() {
         },
     })
 
+    const weeklyDigest = useWatch({control: prefsForm.control, name: 'weeklyDigest'})
+    const interviewReminders = useWatch({control: prefsForm.control, name: 'interviewReminders'})
+
     useEffect(() => {
         if (userData) {
             profileForm.reset({
@@ -482,7 +485,7 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                                 <Toggle
-                                    checked={prefsForm.watch('weeklyDigest')}
+                                    checked={weeklyDigest}
                                     onChange={(v) => {
                                         prefsForm.setValue('weeklyDigest', v)
                                         const current = prefsForm.getValues()
@@ -505,7 +508,7 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                                 <Toggle
-                                    checked={prefsForm.watch('interviewReminders')}
+                                    checked={interviewReminders}
                                     onChange={(v) => {
                                         prefsForm.setValue('interviewReminders', v)
                                         const current = prefsForm.getValues()
