@@ -67,7 +67,7 @@ export default function LandingPage() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,#08080a_70%)]" />
           </div>
           
-          <div className="relative max-w-4xl mx-auto text-center">
+          <div className="relative max-w-4xl mx-auto text-center pt-12">
             {/* Badge */}
             <div
               className="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(139,92,246,0.1)] border border-violet-500/25 rounded-full ds-anim-rise"
