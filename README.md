@@ -1,5 +1,7 @@
 # CareerPilot AI
 
+**Live demo:** https://careerpilot-ai-sigma.vercel.app
+
 CareerPilot AI - full-stack portfolio project для управления поиском работы как структурированным workflow: от вакансий
 и откликов до AI-assisted анализа, напоминаний и аналитики.
 
