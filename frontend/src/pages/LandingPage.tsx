@@ -1,12 +1,45 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useEffect, useRef, useState } from 'react';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+
+// Custom hook for scroll-triggered animations
+function useScrollAnimation(threshold = 0.15) {
+  const ref = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(element);
+        }
+      },
+      { threshold, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, isVisible };
+}
 
 export default function LandingPage() {
   const { t } = useTranslation();
 
   const featureCards = ['vacancies', 'kanban', 'ai', 'analytics'];
   const howItWorksSteps = ['1', '2', '3'];
+
+  // Scroll animation refs for each section
+  const featuresSection = useScrollAnimation();
+  const howItWorksSection = useScrollAnimation();
+  const ctaSection = useScrollAnimation();
+  const footerSection = useScrollAnimation(0.3);
 
   return (
     <div className="min-h-dvh bg-[#08080a] text-[#e8eaed] overflow-x-hidden">
@@ -207,12 +240,15 @@ export default function LandingPage() {
         </section>
 
         {/* Features Section */}
-        <section className="relative py-28 md:py-36 px-5">
+        <section 
+          ref={featuresSection.ref as React.RefObject<HTMLElement>}
+          className="relative py-28 md:py-36 px-5"
+        >
           {/* Background accent */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-500/5 rounded-full blur-[150px]" />
           
           <div className="relative mx-auto max-w-6xl">
-            <div className="text-center max-w-2xl mx-auto">
+            <div className={`text-center max-w-2xl mx-auto transition-all duration-700 ${featuresSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold">
                 {t('features.label')}
               </span>
@@ -225,12 +261,12 @@ export default function LandingPage() {
             </div>
             
             {/* Feature cards - Bento Grid */}
-            <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-4 gap-4 ds-stagger">
+            <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {featureCards.map((feature, index) => (
                 <div
                   key={feature}
-                  className="group relative flex flex-col p-6 min-h-[240px] ds-anim-rise bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-[rgba(255,255,255,0.01)] border border-[rgba(255,255,255,0.06)] rounded-2xl transition-all duration-500 hover:border-violet-500/40 hover:shadow-[0_0_40px_-10px_rgba(139,92,246,0.3)]"
-                  style={{ animationDelay: `${index * 80}ms`}}
+                  className={`group relative flex flex-col p-6 min-h-[240px] bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-[rgba(255,255,255,0.01)] border border-[rgba(255,255,255,0.06)] rounded-2xl transition-all duration-500 hover:border-violet-500/40 hover:shadow-[0_0_40px_-10px_rgba(139,92,246,0.3)] ${featuresSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                  style={{ transitionDelay: featuresSection.isVisible ? `${200 + index * 100}ms` : '0ms' }}
                 >
                   {/* Top accent line */}
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -281,12 +317,15 @@ export default function LandingPage() {
         </section>
         
         {/* How It Works Section */}
-        <section className="relative py-28 md:py-36 px-5 overflow-hidden">
+        <section 
+          ref={howItWorksSection.ref as React.RefObject<HTMLElement>}
+          className="relative py-28 md:py-36 px-5 overflow-hidden"
+        >
           {/* Background */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[rgba(139,92,246,0.03)] to-transparent" />
           
           <div className="relative mx-auto max-w-6xl">
-            <div className="text-center max-w-2xl mx-auto">
+            <div className={`text-center max-w-2xl mx-auto transition-all duration-700 ${howItWorksSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold">
                 {t('howItWorks.label')}
               </span>
@@ -301,14 +340,14 @@ export default function LandingPage() {
             {/* Steps */}
             <div className="mt-20 relative">
               {/* Connection line */}
-              <div className="hidden md:block absolute top-16 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+              <div className={`hidden md:block absolute top-16 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent transition-all duration-1000 ${howItWorksSection.isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'}`} style={{ transitionDelay: '300ms' }} />
               
               <div className="grid md:grid-cols-3 gap-12 md:gap-8">
                 {howItWorksSteps.map((step, index) => (
                   <div 
                     key={step} 
-                    className="relative text-center ds-anim-rise"
-                    style={{ animationDelay: `${index * 150}ms`}}
+                    className={`relative text-center transition-all duration-700 ${howItWorksSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                    style={{ transitionDelay: howItWorksSection.isVisible ? `${200 + index * 150}ms` : '0ms' }}
                   >
                     {/* Step number */}
                     <div className="relative inline-flex">
@@ -335,13 +374,16 @@ export default function LandingPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="relative py-28 md:py-36 px-5">
+        <section 
+          ref={ctaSection.ref as React.RefObject<HTMLElement>}
+          className="relative py-28 md:py-36 px-5"
+        >
           <div className="relative max-w-4xl mx-auto">
             {/* Background glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-violet-500/10 rounded-3xl blur-3xl" />
+            <div className={`absolute inset-0 bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-violet-500/10 rounded-3xl blur-3xl transition-opacity duration-1000 ${ctaSection.isVisible ? 'opacity-100' : 'opacity-0'}`} />
             
             {/* CTA Card */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-transparent border border-[rgba(255,255,255,0.08)] p-12 md:p-16">
+            <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-b from-[rgba(255,255,255,0.04)] to-transparent border border-[rgba(255,255,255,0.08)] p-12 md:p-16 transition-all duration-700 ${ctaSection.isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-[0.98]'}`}>
               {/* Top accent */}
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
               
@@ -350,18 +392,18 @@ export default function LandingPage() {
               <div className="absolute bottom-0 left-0 w-60 h-60 bg-purple-500/10 rounded-full blur-[80px]" />
               
               <div className="relative text-center">
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold">
+                <span className={`inline-flex items-center gap-2 px-3 py-1.5 bg-[rgba(139,92,246,0.1)] border border-violet-500/20 rounded-full text-violet-400 uppercase tracking-[0.12em] text-[11px] font-semibold transition-all duration-500 ${ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '200ms' }}>
                   {t('cta.label')}
                 </span>
                 
                 <h2 
-                  className="mt-6 text-4xl md:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-[#e8eaed] ds-anim-rise"
-                  style={{ fontFamily: 'Onest, system-ui, sans-serif' }}
+                  className={`mt-6 text-4xl md:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-[#e8eaed] transition-all duration-700 ${ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+                  style={{ fontFamily: 'Onest, system-ui, sans-serif', transitionDelay: '300ms' }}
                 >
                   {t('cta.title')}
                 </h2>
                 
-                <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 ds-anim-rise" style={{ animationDelay: '100ms' }}>
+                <div className={`mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 ${ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`} style={{ transitionDelay: '400ms' }}>
                   <Link
                     to="/auth/register"
                     className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-[15px] font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-xl hover:from-violet-500 hover:to-violet-400 transition-all shadow-xl shadow-violet-500/30 hover:shadow-violet-500/40 hover:-translate-y-0.5"
