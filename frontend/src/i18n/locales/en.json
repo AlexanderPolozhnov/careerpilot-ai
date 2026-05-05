@@ -237,7 +237,8 @@
   },
   "aiAssistant": {
     "title": "AI Assistant",
-    "subtitle": "Get personalized advice for your job search.",
+    "subtitle": "Powered by intelligent analysis",
+    "heroDescription": "Leverage AI to analyze job descriptions, match your resume, generate tailored cover letters, and prepare for interviews with confidence.",
     "inputPlaceholder": "Ask a question or describe a situation…",
     "send": "Send",
     "loading": "AI is thinking…",
