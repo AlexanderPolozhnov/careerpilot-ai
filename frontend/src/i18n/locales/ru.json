@@ -315,6 +315,13 @@
     "gap": "Недостаток",
     "weeklyActivityTitle": "Активность за неделю",
     "weeklyActivityDescription": "Отклики / Интервью / Офферы.",
+    "applied": "Отклики",
+    "offers": "Офферы",
+    "thisWeek": "На этой неделе",
+    "vsLastWeek": "{{value}}% к прошлой неделе",
+    "mentionsCount": "Упоминаний {{count}}",
+    "acquired": "Есть",
+    "skillsCount": "Навыков {{count}}",
     "appliedCount": "Откликов {{count}}",
     "interviewsCount": "Интервью {{count}}",
     "offersCount": "Офферов {{count}}"

@@ -1,24 +1,24 @@
-import {useMemo} from 'react'
-import {useTranslation} from 'react-i18next'
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
-  Activity,
-  BarChart3,
-  Check,
-  Clock,
-  Layers,
-  MessageCircle,
-  Target,
-  TrendingDown,
-  TrendingUp,
-  X,
-  Zap
+    Activity,
+    BarChart3,
+    Check,
+    Clock,
+    Layers,
+    MessageCircle,
+    Target,
+    TrendingDown,
+    TrendingUp,
+    X,
+    Zap
 } from 'lucide-react'
-import {LoadingState} from '@/components/LoadingState'
-import {ErrorState} from '@/components/ErrorState'
-import {analyticsService} from '@/services/analytics.service'
-import type {AnalyticsSummary, ApplicationFunnel} from '@/types'
-import {cn} from '@/lib/utils'
-import {useQuery} from '@tanstack/react-query'
+import { LoadingState } from '@/components/LoadingState'
+import { ErrorState } from '@/components/ErrorState'
+import { analyticsService } from '@/services/analytics.service'
+import type { AnalyticsSummary, ApplicationFunnel } from '@/types'
+import { cn } from '@/lib/utils'
+import { useQuery } from '@tanstack/react-query'
 
 function pct(n: number) {
     return `${Math.round(n * 100)}%`
@@ -36,25 +36,25 @@ const statusKeyMap: Record<string, string> = {
 }
 
 const statusColors: Record<string, { bar: string; bg: string; text: string }> = {
-    'NEW': {bar: 'bg-zinc-500', bg: 'bg-zinc-500/10', text: 'text-zinc-400'},
-    'SAVED': {bar: 'bg-blue-500', bg: 'bg-blue-500/10', text: 'text-blue-400'},
-    'APPLIED': {bar: 'bg-violet-500', bg: 'bg-violet-500/10', text: 'text-violet-400'},
-    'HR_SCREEN': {bar: 'bg-amber-500', bg: 'bg-amber-500/10', text: 'text-amber-400'},
-    'TECH_INTERVIEW': {bar: 'bg-cyan-500', bg: 'bg-cyan-500/10', text: 'text-cyan-400'},
-    'FINAL_ROUND': {bar: 'bg-emerald-500', bg: 'bg-emerald-500/10', text: 'text-emerald-400'},
-    'OFFER': {bar: 'bg-green-500', bg: 'bg-green-500/10', text: 'text-green-400'},
-    'REJECTED': {bar: 'bg-red-500', bg: 'bg-red-500/10', text: 'text-red-400'},
+    'NEW': { bar: 'bg-zinc-500', bg: 'bg-zinc-500/10', text: 'text-zinc-400' },
+    'SAVED': { bar: 'bg-blue-500', bg: 'bg-blue-500/10', text: 'text-blue-400' },
+    'APPLIED': { bar: 'bg-violet-500', bg: 'bg-violet-500/10', text: 'text-violet-400' },
+    'HR_SCREEN': { bar: 'bg-amber-500', bg: 'bg-amber-500/10', text: 'text-amber-400' },
+    'TECH_INTERVIEW': { bar: 'bg-cyan-500', bg: 'bg-cyan-500/10', text: 'text-cyan-400' },
+    'FINAL_ROUND': { bar: 'bg-emerald-500', bg: 'bg-emerald-500/10', text: 'text-emerald-400' },
+    'OFFER': { bar: 'bg-green-500', bg: 'bg-green-500/10', text: 'text-green-400' },
+    'REJECTED': { bar: 'bg-red-500', bg: 'bg-red-500/10', text: 'text-red-400' },
 }
 
 // KPI Card Component
 function KPICard({
-                     label,
-                     value,
-                     icon: Icon,
-                     color = 'violet',
-                     trend,
-                     delay = 0
-                 }: {
+    label,
+    value,
+    icon: Icon,
+    color = 'violet',
+    trend,
+    delay = 0
+}: {
     label: string
     value: string | number
     icon: React.ElementType
@@ -62,6 +62,7 @@ function KPICard({
     trend?: { value: number; positive: boolean }
     delay?: number
 }) {
+    const { t } = useTranslation()
     const colorStyles = {
         violet: {
             iconBg: 'bg-violet-500/10',
@@ -99,13 +100,13 @@ function KPICard({
                 styles.border,
                 'animate-slide-up'
             )}
-            style={{animationDelay: `${delay}ms`}}
+            style={{ animationDelay: `${delay}ms` }}
         >
             {/* Subtle glow on hover */}
             <div className={cn(
                 'absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500',
                 `shadow-2xl ${styles.glow}`
-            )}/>
+            )} />
 
             <div className="relative flex items-start justify-between">
                 <div className="flex-1 min-w-0">
@@ -118,16 +119,16 @@ function KPICard({
                     {trend && (
                         <div className="flex items-center gap-1.5 mt-3">
                             {trend.positive ? (
-                                <TrendingUp className="w-3.5 h-3.5 text-emerald-400"/>
+                                <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
                             ) : (
-                                <TrendingDown className="w-3.5 h-3.5 text-red-400"/>
+                                <TrendingDown className="w-3.5 h-3.5 text-red-400" />
                             )}
                             <span className={cn(
                                 'text-xs font-medium',
                                 trend.positive ? 'text-emerald-400' : 'text-red-400'
                             )}>
-                {trend.positive ? '+' : ''}{trend.value}% vs last week
-              </span>
+                                {t('analytics.vsLastWeek', { value: `${trend.positive ? '+' : ''}${trend.value}` })}
+                            </span>
                         </div>
                     )}
                 </div>
@@ -135,7 +136,7 @@ function KPICard({
                     'w-12 h-12 rounded-xl flex items-center justify-center',
                     styles.iconBg
                 )}>
-                    <Icon className={cn('w-6 h-6', styles.iconColor)}/>
+                    <Icon className={cn('w-6 h-6', styles.iconColor)} />
                 </div>
             </div>
         </div>
@@ -144,13 +145,13 @@ function KPICard({
 
 // Funnel Bar Component
 function FunnelBar({
-                       label,
-                       count,
-                       percentage,
-                       max,
-                       status,
-                       delay = 0
-                   }: {
+    label,
+    count,
+    percentage,
+    max,
+    status,
+    delay = 0
+}: {
     label: string
     count: number
     percentage: number
@@ -164,12 +165,12 @@ function FunnelBar({
     return (
         <div
             className="group flex items-center gap-4 animate-slide-up"
-            style={{animationDelay: `${delay}ms`}}
+            style={{ animationDelay: `${delay}ms` }}
         >
             <div className="w-32 shrink-0">
-        <span className="text-sm text-white/60 group-hover:text-white/80 transition-colors">
-          {label}
-        </span>
+                <span className="text-sm text-white/60 group-hover:text-white/80 transition-colors">
+                    {label}
+                </span>
             </div>
 
             <div className="flex-1 relative">
@@ -179,12 +180,12 @@ function FunnelBar({
                             'h-full rounded-lg transition-all duration-700 ease-out',
                             colors.bar
                         )}
-                        style={{width: `${width}%`}}
+                        style={{ width: `${width}%` }}
                     />
                 </div>
                 {/* Sparkline overlay effect */}
                 <div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"/>
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
             <div className="w-24 shrink-0 text-right">
@@ -197,20 +198,21 @@ function FunnelBar({
 
 // Skill Gap Item Component
 function SkillGapItem({
-                          skill,
-                          frequency,
-                          hasSkill,
-                          delay = 0
-                      }: {
+    skill,
+    frequency,
+    hasSkill,
+    delay = 0
+}: {
     skill: string
     frequency: number
     hasSkill: boolean
     delay?: number
 }) {
+    const { t } = useTranslation()
     return (
         <div
             className="group flex items-center justify-between py-3 border-b border-white/[0.04] last:border-0 animate-slide-up"
-            style={{animationDelay: `${delay}ms`}}
+            style={{ animationDelay: `${delay}ms` }}
         >
             <div className="flex items-center gap-3 min-w-0">
                 <div className={cn(
@@ -218,14 +220,14 @@ function SkillGapItem({
                     hasSkill ? 'bg-emerald-500/10' : 'bg-amber-500/10'
                 )}>
                     {hasSkill ? (
-                        <Check className="w-4 h-4 text-emerald-400"/>
+                        <Check className="w-4 h-4 text-emerald-400" />
                     ) : (
-                        <X className="w-4 h-4 text-amber-400"/>
+                        <X className="w-4 h-4 text-amber-400" />
                     )}
                 </div>
                 <div className="min-w-0">
                     <p className="text-sm text-white truncate">{skill}</p>
-                    <p className="text-xs text-white/30">{frequency} mentions</p>
+                    <p className="text-xs text-white/30">{t('analytics.mentionsCount', { count: frequency })}</p>
                 </div>
             </div>
 
@@ -235,18 +237,19 @@ function SkillGapItem({
                     ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                     : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
             )}>
-        {hasSkill ? 'Acquired' : 'Gap'}
-      </span>
+                {hasSkill ? t('analytics.acquired') : t('analytics.gap')}
+            </span>
         </div>
     )
 }
 
 // Weekly Activity Mini Chart
 function WeeklyActivityChart({
-                                 data
-                             }: {
+    data
+}: {
     data: Array<{ week: string; applied: number; interviews: number; offers: number }>
 }) {
+    const { t } = useTranslation()
     const maxValue = Math.max(...data.flatMap(w => [w.applied, w.interviews * 5, w.offers * 10]), 1)
 
     return (
@@ -254,16 +257,16 @@ function WeeklyActivityChart({
             {/* Legend */}
             <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-violet-500"/>
-                    <span className="text-xs text-white/40">Applied</span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-violet-500" />
+                    <span className="text-xs text-white/40">{t('analytics.applied')}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-cyan-500"/>
-                    <span className="text-xs text-white/40">Interviews</span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-cyan-500" />
+                    <span className="text-xs text-white/40">{t('analytics.interviews')}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"/>
-                    <span className="text-xs text-white/40">Offers</span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                    <span className="text-xs text-white/40">{t('analytics.offers')}</span>
                 </div>
             </div>
 
@@ -298,8 +301,8 @@ function WeeklyActivityChart({
                             />
                         </div>
                         <span className="text-[10px] text-white/30 truncate max-w-full">
-              {week.week.slice(0, 5)}
-            </span>
+                            {week.week.slice(0, 5)}
+                        </span>
                     </div>
                 ))}
             </div>
@@ -310,15 +313,15 @@ function WeeklyActivityChart({
                     <>
                         <div key={`applied-${w.week}`} className="text-center">
                             <p className="text-lg font-semibold text-violet-400">{w.applied}</p>
-                            <p className="text-[10px] text-white/30 uppercase">This week</p>
+                            <p className="text-[10px] text-white/30 uppercase">{t('analytics.thisWeek')}</p>
                         </div>
                         <div key={`interviews-${w.week}`} className="text-center">
                             <p className="text-lg font-semibold text-cyan-400">{w.interviews}</p>
-                            <p className="text-[10px] text-white/30 uppercase">Interviews</p>
+                            <p className="text-[10px] text-white/30 uppercase">{t('analytics.interviews')}</p>
                         </div>
                         <div key={`offers-${w.week}`} className="text-center">
                             <p className="text-lg font-semibold text-emerald-400">{w.offers}</p>
-                            <p className="text-[10px] text-white/30 uppercase">Offers</p>
+                            <p className="text-[10px] text-white/30 uppercase">{t('analytics.offers')}</p>
                         </div>
                     </>
                 ))}
@@ -328,7 +331,7 @@ function WeeklyActivityChart({
 }
 
 export default function AnalyticsPage() {
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const summaryQuery = useQuery({
         queryKey: ['analytics', 'summary'],
         queryFn: () => analyticsService.getSummary(),
@@ -344,7 +347,7 @@ export default function AnalyticsPage() {
         return t(statusKeyMap[status] || `applications.${status.toLowerCase()}`)
     }
 
-    if (summaryQuery.isLoading) return <LoadingState message={t('analytics.overview')}/>
+    if (summaryQuery.isLoading) return <LoadingState message={t('analytics.overview')} />
     if (summaryQuery.error)
         return (
             <ErrorState
@@ -391,7 +394,7 @@ export default function AnalyticsPage() {
                     value={pct(data.responseRate)}
                     icon={MessageCircle}
                     color="violet"
-                    trend={{value: 12, positive: true}}
+                    trend={{ value: 12, positive: true }}
                     delay={0}
                 />
                 <KPICard
@@ -399,7 +402,7 @@ export default function AnalyticsPage() {
                     value={pct(data.interviewRate)}
                     icon={Target}
                     color="blue"
-                    trend={{value: 8, positive: true}}
+                    trend={{ value: 8, positive: true }}
                     delay={50}
                 />
                 <KPICard
@@ -407,7 +410,7 @@ export default function AnalyticsPage() {
                     value={pct(data.offerRate)}
                     icon={BarChart3}
                     color="emerald"
-                    trend={{value: 3, positive: false}}
+                    trend={{ value: 3, positive: false }}
                     delay={100}
                 />
                 <KPICard
@@ -429,7 +432,7 @@ export default function AnalyticsPage() {
                             <div className="flex items-center gap-3">
                                 <div
                                     className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center">
-                                    <Layers className="w-5 h-5 text-violet-400"/>
+                                    <Layers className="w-5 h-5 text-violet-400" />
                                 </div>
                                 <div>
                                     <h2 className="text-base font-semibold text-white">
@@ -441,10 +444,10 @@ export default function AnalyticsPage() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                <span
-                    className="px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs font-medium text-violet-400">
-                  {t('analytics.totalApplications', {count: data.totalApplications})}
-                </span>
+                                <span
+                                    className="px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs font-medium text-violet-400">
+                                    {t('analytics.totalApplications', { count: data.totalApplications })}
+                                </span>
                             </div>
                         </div>
 
@@ -472,7 +475,7 @@ export default function AnalyticsPage() {
                         <div className="flex items-center gap-3 mb-6">
                             <div
                                 className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 flex items-center justify-center">
-                                <Activity className="w-5 h-5 text-cyan-400"/>
+                                <Activity className="w-5 h-5 text-cyan-400" />
                             </div>
                             <div>
                                 <h2 className="text-base font-semibold text-white">
@@ -484,7 +487,7 @@ export default function AnalyticsPage() {
                             </div>
                         </div>
 
-                        <WeeklyActivityChart data={data.weeklyActivity}/>
+                        <WeeklyActivityChart data={data.weeklyActivity} />
                     </div>
 
                     {/* Skill Gaps */}
@@ -493,7 +496,7 @@ export default function AnalyticsPage() {
                             <div className="flex items-center gap-3">
                                 <div
                                     className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center">
-                                    <Zap className="w-5 h-5 text-amber-400"/>
+                                    <Zap className="w-5 h-5 text-amber-400" />
                                 </div>
                                 <div>
                                     <h2 className="text-base font-semibold text-white">
@@ -506,8 +509,8 @@ export default function AnalyticsPage() {
                             </div>
                             <span
                                 className="px-2.5 py-1 rounded-full bg-white/[0.06] text-xs font-medium text-white/50">
-                {data.topSkillGaps.length} skills
-              </span>
+                                {t('analytics.skillsCount', { count: data.topSkillGaps.length })}
+                            </span>
                         </div>
 
                         <div className="max-h-64 overflow-y-auto scrollbar-hide">

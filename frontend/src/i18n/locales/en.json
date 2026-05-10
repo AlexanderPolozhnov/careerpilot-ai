@@ -315,11 +315,18 @@
     "gap": "Gap",
     "weeklyActivityTitle": "Weekly activity",
     "weeklyActivityDescription": "Applied / Interviews / Offers.",
+    "applied": "Applied",
+    "offers": "Offers",
+    "thisWeek": "This week",
+    "vsLastWeek": "{{value}}% vs last week",
+    "mentionsCount": "{{count}} mentions",
+    "acquired": "Acquired",
+    "skillsCount": "{{count}} skills",
     "appliedCount": "Applied {{count}}",
     "interviewsCount": "Interviews {{count}}",
     "offersCount": "Offers {{count}}"
   },
-    "settings": {
+  "settings": {
     "title": "Settings",
     "subtitle": "Manage your account preferences and settings",
     "profile": "Profile",
