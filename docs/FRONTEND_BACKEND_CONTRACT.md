@@ -468,17 +468,16 @@ Response `AnalyticsSummary`:
 }
 ```
 
-## Dashboard — TARGET/TODO
+## Dashboard — USED BY FRONTEND
 
-Текущее состояние:
+Frontend source:
 
-- `DashboardPage` импортирует `mockDashboard`, `mockAiResults`, `mockInterviews`, `mockNotifications` и `mockTasks` напрямую из `src/mock/data.ts`.
-- `dashboard.service.ts` сейчас отсутствует.
-- Endpoint ниже нужен для замены direct mock imports.
+- `frontend/src/pages/DashboardPage.tsx`
+- `frontend/src/services/dashboard.service.ts`
 
-### `GET /dashboard/summary` — TARGET/TODO
+### `GET /dashboard/summary` — USED BY FRONTEND
 
-Target response:
+Response:
 
 ```json
 {
@@ -495,20 +494,19 @@ Target response:
 }
 ```
 
-## Settings, preferences, notifications — TARGET/TODO
+## Settings, preferences, notifications — USED BY FRONTEND
 
-Текущее состояние:
+Frontend source:
 
-- `SettingsPage` использует `useAuth()` user data plus fallback `mockUser`.
-- Сохранение настроек local-only.
-- Recent notifications читаются из `mockNotifications`.
-- Endpoints ниже пока не вызываются `src/services/*.ts`.
+- `SettingsPage.tsx`
+- `settings.service.ts`
+- `notification.service.ts`
 
-### `GET /users/me` — TARGET/TODO
+### `GET /users/me` — USED BY FRONTEND
 
-Target response: `User` plus optional settings fields.
+Response: `User` plus optional settings fields.
 
-### `PUT /users/me` — TARGET/TODO
+### `PUT /users/me` — USED BY FRONTEND
 
 Target request:
 
@@ -520,9 +518,9 @@ Target request:
 }
 ```
 
-### `GET /preferences` — TARGET/TODO
+### `GET /preferences` — USED BY FRONTEND
 
-Target response:
+Response:
 
 ```json
 {
@@ -533,13 +531,13 @@ Target response:
 }
 ```
 
-### `PUT /preferences` — TARGET/TODO
+### `PUT /preferences` — USED BY FRONTEND
 
 Target request: same shape as `GET /preferences` response.
 
 Allowed `aiProviderMode`: `LOCAL`, `CLOUD`, `BRING_YOUR_OWN_KEY`.
 
-### `GET /notifications` — TARGET/TODO
+### `GET /notifications` — USED BY FRONTEND
 
 Query params:
 
@@ -549,7 +547,7 @@ Query params:
 
 Response: `PagedResponse<Notification>`.
 
-### `PATCH /notifications/{id}/read` — TARGET/TODO
+### `PATCH /notifications/{id}/read` — USED BY FRONTEND
 
 Response: `Notification`.
 

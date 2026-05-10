@@ -7,11 +7,32 @@ import { companyService } from '@/services/company.service'
 import { vacancyService } from '@/services/vacancy.service'
 import type { Company, Vacancy } from '@/types'
 import { Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from '@/lib/toast'
+import { CompanyForm, type CompanyFormValues } from '@/components/CompanyForm'
+
+function CloseIcon({className}: {className?: string}) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    )
+}
+
+function PlusIcon({className}: {className?: string}) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+    )
+}
 
 export default function CompaniesPage() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
+  const [isFormOpen, setIsFormOpen] = useState(false)
+
   const companiesQuery = useQuery({
     queryKey: ['companies', { query }],
     queryFn: () => companyService.list({ search: query || undefined, page: 0, size: 100 }),
@@ -19,6 +40,19 @@ export default function CompaniesPage() {
   const vacanciesQuery = useQuery({
     queryKey: ['vacancies', { scope: 'all' }],
     queryFn: () => vacancyService.list({ page: 0, size: 200 }),
+  })
+
+  const createMutation = useMutation({
+    mutationFn: (values: CompanyFormValues) => companyService.create(values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['companies']})
+      toast.success(t('common.success'))
+      setIsFormOpen(false)
+    },
+    onError: (error) => {
+      console.error(error)
+      toast.error(t('common.error'))
+    },
   })
 
   const companies: Company[] = companiesQuery.data?.content ?? []
@@ -43,6 +77,38 @@ export default function CompaniesPage() {
 
   return (
     <section className="space-y-6">
+      {/* Modal */}
+      {isFormOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setIsFormOpen(false)}
+          />
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0c0c0e] border border-[rgba(255,255,255,0.08)] rounded-2xl shadow-2xl shadow-black/50">
+            <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-[#0c0c0e]/95 backdrop-blur-sm border-b border-[rgba(255,255,255,0.06)]">
+              <h3 className="text-lg font-semibold text-[#e8eaed]" style={{ fontFamily: 'Onest, system-ui, sans-serif' }}>
+                {t('companies.addCompany')}
+              </h3>
+              <button 
+                onClick={() => setIsFormOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6b7590] hover:text-[#e8eaed] hover:bg-[rgba(255,255,255,0.06)] transition-all duration-200"
+              >
+                <CloseIcon className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <CompanyForm
+                onSubmit={async (values) => {
+                  await createMutation.mutateAsync(values)
+                }}
+                onCancel={() => setIsFormOpen(false)}
+                isSubmitting={createMutation.isPending}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
@@ -89,8 +155,17 @@ export default function CompaniesPage() {
           />
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <span className="text-xs text-[#6b7590]">{companies.length} {t('companies.results')}</span>
+          <button
+            type="button"
+            onClick={() => setIsFormOpen(true)}
+            disabled={createMutation.isPending}
+            className="h-10 px-4 flex items-center gap-2 bg-gradient-to-r from-violet-600 to-violet-500 text-white text-[13px] font-semibold rounded-lg shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 disabled:opacity-60"
+          >
+            <PlusIcon className="w-4 h-4" />
+            {t('companies.addCompany')}
+          </button>
         </div>
       </div>
 

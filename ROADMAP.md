@@ -118,27 +118,20 @@ Roadmap отражает текущее состояние перед первы
 
 ## Releases
 
-### v0.1.0-alpha — первый публичный релиз
+### v0.2.0-alpha — UI Redesign & Polish
 
-**Условие выпуска:** все основные vertical slices закрыты и вручную проверены. P1-блокеры устранены.
+**Статус:** Релиз v0.2.0-alpha. Полная переработка интерфейса вдохновлена Linear / Vercel / Clerk.
 
-Что должно быть готово:
+Что нового:
+- **Landing page:** hero section, bento features, CTA.
+- **Auth:** split-screen layout с branding panel.
+- **App Shell:** Sidebar, Topbar, Toast redesign.
+- **Vacancies:** list/detail cards, полная форма создания/редактирования.
+- **AI Assistant:** tool selector, dynamic form panel.
+- **Analytics:** KPI cards, funnel, weekly chart.
+- **Settings:** секции с gradient icons.
+- **Companies:** реализована форма создания/редактирования компании.
 
-- [x] Auth vertical slice
-- [x] Vacancies vertical slice
-- [x] Companies vertical slice
-- [x] Applications vertical slice (включая CRUD)
-- [x] Analytics vertical slice
-- [x] AI vertical slice (analyze-vacancy, resume-match, cover-letter, interview-questions)
-- [x] Устранены P1-баги из `PRE_RELEASE_FIXES.md`.
-
-Что войдёт в описание релиза:
-
-- Краткое описание продукта
-- Список реализованных vertical slices
-- Как запустить локально (ссылка на README)
-- Known limitations (со ссылкой на ROADMAP.md)
-- Стек технологий
-
-**Тег:** `v0.1.0-alpha`
+**Тег:** `v0.2.0-alpha`
 **Ветка:** `main`
+**Live demo:** https://careerpilot-ai-sigma.vercel.app

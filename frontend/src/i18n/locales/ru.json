@@ -232,9 +232,20 @@
     "error": "Не удалось загрузить компании",
     "noCompanies": "Компании не найдены",
     "description": "Начните с поиска и сохранения компаний.",
+    "addCompany": "Добавить компанию",
     "industry": "Индустрия",
     "size": "Размер",
-    "founded": "Основана"
+    "founded": "Основана",
+    "form": {
+      "name": "Название компании",
+      "website": "Веб-сайт",
+      "industry": "Индустрия",
+      "size": "Размер",
+      "selectSize": "Выберите размер",
+      "location": "Местоположение",
+      "description": "Описание",
+      "linkedinUrl": "LinkedIn URL"
+    }
   },
   "aiAssistant": {
     "title": "AI Помощник",

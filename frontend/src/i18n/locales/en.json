@@ -232,9 +232,20 @@
     "error": "Unable to load companies",
     "noCompanies": "No companies found",
     "description": "Start by saving companies.",
+    "addCompany": "Add Company",
     "industry": "Industry",
     "size": "Size",
-    "founded": "Founded"
+    "founded": "Founded",
+    "form": {
+      "name": "Company Name",
+      "website": "Website",
+      "industry": "Industry",
+      "size": "Size",
+      "selectSize": "Select Size",
+      "location": "Location",
+      "description": "Description",
+      "linkedinUrl": "LinkedIn URL"
+    }
   },
   "aiAssistant": {
     "title": "AI Assistant",

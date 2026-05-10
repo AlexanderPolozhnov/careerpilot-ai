@@ -111,28 +111,26 @@ frontend/src/
 ### Infrastructure
 - Docker, Docker Compose
 - PostgreSQL, Redis
-- GitHub Actions — запланирован, не настроен
+- [x] CI pipeline (GitHub Actions)
 
 ## Реализованные vertical slices
 
 Все проверены вручную:
-- Auth: register/login/me + JWT + cp_access_token
+- Auth: register/login/me + forgot-password + JWT + cp_access_token
 - Vacancies: полный CRUD + ownership + pagination
 - Companies: полный CRUD + ownership + pagination
 - Applications: Kanban board + drag-and-drop + CRUD +
   optimistic update + PATCH status
 - Analytics: GET /api/analytics/summary
-- AI: 6 endpoints + OllamaLlmProvider + fallback
+- AI: 6 endpoints + OllamaLlmProvider + Redis caching + fallback
 - Dashboard: GET /api/dashboard/summary + React Query
 - Settings: GET/PUT /api/users/me + GET/PUT /api/preferences
 - Notifications: GET /api/notifications + PATCH read
 
 ## Что НЕ реализовано (реальные gaps)
 
-- POST /api/auth/forgot-password и reset-password
-- AI response caching (AiResultCacheService — заглушка)
+- POST /api/auth/reset-password (backend готов, frontend reset screen в процессе)
 - Frontend test runner и тесты
-- CI pipeline (GitHub Actions)
 - OpenAPI review против контракта
 - Security hardening (refresh token, rate limits)
 - Full-stack Docker Compose (backend/frontend не в compose)
@@ -146,12 +144,12 @@ frontend/src/
 
 ### API контракт
 - docs/FRONTEND_BACKEND_CONTRACT.md — source of truth
-- Enum values в UPPER_SNAKE_CASE, совпадают с frontend
+- Enum values в UPPER_SNAKE_CASE, совпадают with frontend
 - Pagination: content, totalElements, totalPages, size, number, first, last
 - Error response: timestamp, status, error, message, path
 
 ### Flyway
-- Миграции применены: V1-V9
+- Миграции применены: V1-V13
 - Новая миграция только если нужны новые поля/таблицы
 - Не дублировать существующие таблицы
 
@@ -181,6 +179,18 @@ frontend/src/
 ```bash
 git status --short
 ```
+
+## Checkpointing
+
+Перед любой реализацией Gemini создаёт checkpoint автоматически.
+Если что-то пошло не так — используй /restore для отката файлов.
+Не undo внешних эффектов (БД миграции и т.п.) — только файлы.
+
+### Migration naming
+
+- V{n}__{описание_snake_case}.sql
+- Пример: V12__ai_cache_table.sql
+- Seeds отдельно: db/seeds/
 
 Убедиться что нет:
 
@@ -228,17 +238,6 @@ URLs:
 
 Рабочие пароли добавлены в migration V10.
 Основной demo user: alexander@careerpilot.ai
-
-## Формат промпта для новой задачи
-
-Когда я прошу реализовать что-то новое, жди такой структуры:
-
-Задача: [одна конкретная задача]
-Прочитай файлы: [список]
-Реализуй: [endpoints или компоненты]
-Требования: [специфические]
-Тесты: [что покрыть]
-Обновить: ROADMAP.md + CAREERPILOT_AI_CONTEXT_BACKUP.md
 
 ## Финальный отчёт
 
