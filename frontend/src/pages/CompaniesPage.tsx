@@ -11,20 +11,20 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from '@/lib/toast'
 import { CompanyForm, type CompanyFormValues } from '@/components/CompanyForm'
 
-function CloseIcon({className}: {className?: string}) {
-    return (
-        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-    )
+function CloseIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  )
 }
 
-function PlusIcon({className}: {className?: string}) {
-    return (
-        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-    )
+function PlusIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>
+  )
 }
 
 export default function CompaniesPage() {
@@ -45,7 +45,7 @@ export default function CompaniesPage() {
   const createMutation = useMutation({
     mutationFn: (values: CompanyFormValues) => companyService.create(values),
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['companies']})
+      queryClient.invalidateQueries({ queryKey: ['companies'] })
       toast.success(t('common.success'))
       setIsFormOpen(false)
     },
@@ -80,7 +80,7 @@ export default function CompaniesPage() {
       {/* Modal */}
       {isFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div 
+          <div
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={() => setIsFormOpen(false)}
           />
@@ -89,7 +89,7 @@ export default function CompaniesPage() {
               <h3 className="text-lg font-semibold text-[#e8eaed]" style={{ fontFamily: 'Onest, system-ui, sans-serif' }}>
                 {t('companies.addCompany')}
               </h3>
-              <button 
+              <button
                 onClick={() => setIsFormOpen(false)}
                 className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6b7590] hover:text-[#e8eaed] hover:bg-[rgba(255,255,255,0.06)] transition-all duration-200"
               >
@@ -124,15 +124,15 @@ export default function CompaniesPage() {
             <p className="text-sm text-[#6b7590] mt-0.5">{t('companies.description')}</p>
           </div>
         </div>
-        
+
         {/* Stats */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-            <span className="text-xs text-[#6b7590]">Companies</span>
+            <span className="text-xs text-[#6b7590]">{t('companies.title')}</span>
             <span className="text-sm font-medium text-[#e8eaed]">{companies.length}</span>
           </div>
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-            <span className="text-xs text-[#6b7590]">Vacancies</span>
+            <span className="text-xs text-[#6b7590]">{t('companies.vacancies')}</span>
             <span className="text-sm font-medium text-violet-400">{totalVacancies}</span>
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function CompaniesPage() {
             className="w-full h-10 pl-11 pr-4 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-lg text-[14px] text-[#e8eaed] placeholder:text-[#4a4e5a] focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
           />
         </div>
-        
+
         <div className="flex items-center gap-3">
           <span className="text-xs text-[#6b7590]">{companies.length} {t('companies.results')}</span>
           <button
@@ -186,14 +186,14 @@ export default function CompaniesPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {companies.map((c, index) => (
-            <div 
-              key={c.id} 
+            <div
+              key={c.id}
               className="group relative flex flex-col p-5 rounded-2xl bg-gradient-to-b from-[rgba(255,255,255,0.03)] to-[rgba(255,255,255,0.01)] border border-[rgba(255,255,255,0.06)] transition-all duration-300 hover:border-[rgba(139,92,246,0.4)] hover:shadow-[0_0_32px_-8px_rgba(139,92,246,0.25)]"
               style={{ animationDelay: `${index * 50}ms` }}
             >
               {/* Top accent line */}
               <div className="absolute inset-x-0 top-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-violet-600/0 via-violet-500/50 to-violet-600/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
+
               {/* Header */}
               <div className="flex items-start gap-4">
                 {/* Company Avatar */}
@@ -204,7 +204,7 @@ export default function CompaniesPage() {
                   {/* Subtle shine effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-                
+
                 {/* Company Info */}
                 <div className="flex-1 min-w-0">
                   <h3 className="text-[15px] font-semibold text-[#e8eaed] truncate group-hover:text-white transition-colors" style={{ fontFamily: 'Onest, system-ui, sans-serif' }}>
@@ -230,7 +230,7 @@ export default function CompaniesPage() {
                     )}
                   </div>
                 </div>
-                
+
                 {/* Website Link */}
                 {c.website && (
                   <a
@@ -238,7 +238,7 @@ export default function CompaniesPage() {
                     target="_blank"
                     rel="noreferrer"
                     className="w-8 h-8 flex items-center justify-center rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-[#6b7590] hover:text-violet-400 hover:border-violet-500/30 hover:bg-violet-500/10 transition-all duration-200"
-                    title="Visit website"
+                    title={t('companies.visitWebsite')}
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
@@ -246,26 +246,26 @@ export default function CompaniesPage() {
                   </a>
                 )}
               </div>
-              
+
               {/* Description */}
               {c.description && (
                 <p className="mt-4 text-[13px] text-[#8b8fa3] leading-relaxed line-clamp-2">
                   {c.description}
                 </p>
               )}
-              
+
               {/* Divider */}
               <div className="my-4 h-px bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.08)] to-transparent" />
-              
+
               {/* Vacancies Section */}
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-medium text-[#6b7590] uppercase tracking-wider">Open Positions</span>
+                  <span className="text-xs font-medium text-[#6b7590] uppercase tracking-wider">{t('companies.openPositions')}</span>
                   <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-violet-500/10 border border-violet-500/20 text-xs font-medium text-violet-400">
                     {(related.get(c.id) ?? []).length}
                   </span>
                 </div>
-                
+
                 {(related.get(c.id) ?? []).length > 0 ? (
                   <div className="space-y-2">
                     {(related.get(c.id) ?? []).slice(0, 2).map((v) => (
@@ -300,18 +300,18 @@ export default function CompaniesPage() {
                         </svg>
                       </Link>
                     ))}
-                    
+
                     {(related.get(c.id) ?? []).length > 2 && (
                       <div className="text-center pt-1">
                         <span className="text-xs text-[#6b7590]">
-                          +{(related.get(c.id) ?? []).length - 2} more positions
+                          {t('companies.morePositions', { count: (related.get(c.id) ?? []).length - 2 })}
                         </span>
                       </div>
                     )}
                   </div>
                 ) : (
                   <div className="flex items-center justify-center py-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-dashed border-[rgba(255,255,255,0.08)]">
-                    <span className="text-xs text-[#4a4e5a]">No open positions</span>
+                    <span className="text-xs text-[#4a4e5a]">{t('companies.noOpenPositions')}</span>
                   </div>
                 )}
               </div>

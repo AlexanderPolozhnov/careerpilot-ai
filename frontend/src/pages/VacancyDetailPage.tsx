@@ -150,12 +150,16 @@ export default function VacancyDetailPage() {
         enabled: !!id,
         queryFn: async () => {
             const items = await aiService.getHistory('VACANCY_ANALYSIS')
-            return items.find((r) => r.vacancyId === id) ?? null
+            return items.filter((r) => r.vacancyId === id)
         },
     })
 
     const vacancy: Vacancy | null = vacancyQuery.data ?? null
-    const aiInsight = insight ?? insightQuery.data ?? null
+    const aiInsights = useMemo(() => {
+        const items = insightQuery.data ?? []
+        if (!insight) return items
+        return [insight, ...items.filter((item) => item.id !== insight.id)]
+    }, [insight, insightQuery.data])
     const company = useMemo(() => vacancy?.company, [vacancy])
 
     const updateMutation = useMutation({
@@ -499,6 +503,7 @@ export default function VacancyDetailPage() {
                                         try {
                                             const res = await aiService.analyzeVacancy({ vacancyId: vacancy.id })
                                             setInsight(res.result)
+                                            await queryClient.invalidateQueries({ queryKey: ['ai', 'history', { type: 'VACANCY_ANALYSIS', vacancyId: id }] })
                                             toast.info(t('vacancies.aiAnalysisGenerated'))
                                         } finally {
                                             setIsAnalyzing(false)
@@ -532,11 +537,32 @@ export default function VacancyDetailPage() {
                             </div>
                         </div>
 
-                        {/* AI Insight result */}
-                        {aiInsight ? (
+                        {aiInsights.length > 0 ? (
                             <div
                                 className="p-5 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl">
-                                <AiInsightCard result={aiInsight} compact />
+                                <div className="flex items-center justify-between gap-3 mb-4">
+                                    <div>
+                                        <h3 className="text-[13px] font-semibold text-[#e8eaed]">
+                                            {t('vacancies.aiHistoryTitle')}
+                                        </h3>
+                                        <p className="text-[12px] text-[#6b7590]">
+                                            {t('vacancies.aiHistoryDescription')}
+                                        </p>
+                                    </div>
+                                    <span className="px-2.5 py-1 rounded-full bg-white/[0.06] text-xs font-medium text-white/50">
+                                        {aiInsights.length}
+                                    </span>
+                                </div>
+                                <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                                    {aiInsights.map((item) => (
+                                        <div
+                                            key={item.id}
+                                            className="rounded-xl border border-white/[0.04] bg-white/[0.02] p-4"
+                                        >
+                                            <AiInsightCard result={item} compact />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         ) : (
                             <div

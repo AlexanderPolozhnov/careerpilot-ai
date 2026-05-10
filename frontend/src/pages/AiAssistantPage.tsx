@@ -9,7 +9,7 @@ import type { AiResult } from '@/types'
 import { AiInsightCard } from '@/components/AiInsightCard'
 import { LoadingState } from '@/components/LoadingState'
 import { EmptyState } from '@/components/EmptyState'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Resolver } from 'react-hook-form'
 import {
   Sparkles,
@@ -62,6 +62,7 @@ const toolConfig: Record<
 
 export default function AiAssistantPage() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const [tool, setTool] = useState<ToolKey>('analyze')
   const [result, setResult] = useState<AiResult | null>(null)
 
@@ -226,45 +227,40 @@ export default function AiAssistantPage() {
                   className="space-y-5"
                   onSubmit={form.handleSubmit(async (values) => {
                     setResult(null)
+                    let response
                     if (tool === 'analyze') {
                       const v = values as z.infer<typeof schemas.analyzeSchema>
-                      const res = await aiService.analyzeVacancy({
+                      response = await aiService.analyzeVacancy({
                         vacancyId: v.vacancyId || undefined,
                         vacancyText: v.vacancyText || undefined,
                       })
-                      setResult(res.result)
-                      return
-                    }
-                    if (tool === 'match') {
+                    } else if (tool === 'match') {
                       const v = values as z.infer<typeof schemas.matchSchema>
-                      const res = await aiService.resumeMatch({
+                      response = await aiService.resumeMatch({
                         vacancyId: v.vacancyId || undefined,
                         vacancyText: v.vacancyText || undefined,
                         resumeText: v.resumeText,
                       })
-                      setResult(res.result)
-                      return
-                    }
-                    if (tool === 'cover') {
+                    } else if (tool === 'cover') {
                       const v = values as z.infer<typeof schemas.coverLetterSchema>
-                      const res = await aiService.generateCoverLetter({
+                      response = await aiService.generateCoverLetter({
                         vacancyId: v.vacancyId || undefined,
                         vacancyText: v.vacancyText || undefined,
                         resumeText: v.resumeText || undefined,
                         tone: v.tone,
                         additionalContext: v.additionalContext || undefined,
                       })
-                      setResult(res.result)
-                      return
+                    } else {
+                      const v = values as z.infer<typeof schemas.interviewSchema>
+                      response = await aiService.generateInterviewQuestions({
+                        vacancyId: v.vacancyId || undefined,
+                        vacancyText: v.vacancyText || undefined,
+                        focusArea: v.focusArea || undefined,
+                        count: v.count,
+                      })
                     }
-                    const v = values as z.infer<typeof schemas.interviewSchema>
-                    const res = await aiService.generateInterviewQuestions({
-                      vacancyId: v.vacancyId || undefined,
-                      vacancyText: v.vacancyText || undefined,
-                      focusArea: v.focusArea || undefined,
-                      count: v.count,
-                    })
-                    setResult(res.result)
+                    setResult(response.result)
+                    await queryClient.invalidateQueries({ queryKey: ['ai', 'history'] })
                   })}
                 >
                   <div className="grid gap-4 sm:grid-cols-2">
