@@ -8,6 +8,9 @@ import com.alexanderpolozhnov.careerpilot.application.response.ApplicationRespon
 import com.alexanderpolozhnov.careerpilot.application.service.ApplicationService;
 import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import org.springframework.validation.annotation.Validated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +21,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/applications")
+@Validated
 @RequiredArgsConstructor
 public class ApplicationController {
 
@@ -31,8 +35,8 @@ public class ApplicationController {
 
     @GetMapping
     public PagedResponse<ApplicationResponse> list(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "20") int size,
+        @Min(0) @RequestParam(defaultValue = "0") int page,
+        @Min(1) @Max(100) @RequestParam(defaultValue = "20") int size,
         @RequestParam(required = false) ApplicationStatus status,
         @RequestParam(required = false) UUID vacancyId
     ) {

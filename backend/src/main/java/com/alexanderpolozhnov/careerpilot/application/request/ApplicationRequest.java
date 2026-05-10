@@ -2,6 +2,7 @@ package com.alexanderpolozhnov.careerpilot.application.request;
 
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationStatus;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -15,10 +16,12 @@ public record ApplicationRequest(
 
     ApplicationStatus status,
 
+    @Size(max = 10_000)
     String notes,
 
     Instant appliedAt,
 
+    @Size(max = 255)
     String resumeId
 ) {
 }

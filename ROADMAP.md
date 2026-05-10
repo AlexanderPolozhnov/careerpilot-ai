@@ -88,8 +88,8 @@ Roadmap отражает текущее состояние перед первы
 
 ## Phase 6 — Production Readiness
 
-- [ ] OpenAPI documentation reviewed against the frontend contract.
-- [ ] Backend validation/error handling finalized.
+- [x] OpenAPI documentation reviewed against the frontend contract.
+- [x] Backend validation/error handling finalized.
 - [ ] Testcontainers integration tests stable in local Docker environment.
 - [x] Frontend error boundaries.
 - [ ] Frontend tests.

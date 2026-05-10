@@ -4,6 +4,9 @@ import com.alexanderpolozhnov.careerpilot.interview.request.InterviewRequest;
 import com.alexanderpolozhnov.careerpilot.interview.response.InterviewResponse;
 import com.alexanderpolozhnov.careerpilot.interview.service.InterviewService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import org.springframework.validation.annotation.Validated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/interviews")
+@Validated
 @RequiredArgsConstructor
 public class InterviewController {
     private final InterviewService service;
@@ -23,8 +27,8 @@ public class InterviewController {
 
     @GetMapping
     public List<InterviewResponse> list(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
+            @Min(0) @RequestParam(defaultValue = "0") int page,
+            @Min(1) @Max(100) @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction,
             @RequestParam(defaultValue = "") String q

@@ -5,6 +5,9 @@ import com.alexanderpolozhnov.careerpilot.company.request.CompanyRequest;
 import com.alexanderpolozhnov.careerpilot.company.response.CompanyResponse;
 import com.alexanderpolozhnov.careerpilot.company.service.CompanyService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import org.springframework.validation.annotation.Validated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/companies")
+@Validated
 @RequiredArgsConstructor
 public class CompanyController {
     private final CompanyService service;
@@ -23,8 +27,8 @@ public class CompanyController {
 
     @GetMapping
     public PagedResponse<CompanyResponse> list(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
+            @Min(0) @RequestParam(defaultValue = "0") int page,
+            @Min(1) @Max(100) @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sort,
             @RequestParam(defaultValue = "DESC") String direction,
             @RequestParam(required = false) String search

@@ -1,10 +1,11 @@
 package com.alexanderpolozhnov.careerpilot.company.request;
 
 import com.alexanderpolozhnov.careerpilot.company.entity.CompanySize;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record CompanyRequest(
-        @Size(max = 255) String name,
+        @NotBlank @Size(max = 255) String name,
         @Size(max = 2048) String website,
         @Size(max = 255) String industry,
         CompanySize size,

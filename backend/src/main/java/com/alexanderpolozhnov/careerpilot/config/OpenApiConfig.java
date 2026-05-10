@@ -2,6 +2,7 @@ package com.alexanderpolozhnov.careerpilot.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,10 @@ public class OpenApiConfig {
     public OpenAPI openAPI() {
         final String securitySchemeName = "bearerAuth";
         return new OpenAPI()
+            .info(new Info()
+                .title("CareerPilot AI API")
+                .version("0.1.0-alpha")
+                .description("REST API для CareerPilot AI. Base path: /api. Для защищённых endpoints используется JWT Bearer auth."))
             .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
             .components(new Components()
                 .addSecuritySchemes(securitySchemeName, new SecurityScheme()

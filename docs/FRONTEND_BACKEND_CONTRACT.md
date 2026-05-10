@@ -20,9 +20,10 @@
 - Access token хранится в `localStorage` под ключом `cp_access_token`.
 - Request/response format: JSON.
 - Date/time format: ISO-8601 string, например `2026-04-27T05:00:00Z`.
-- Pagination query params: `page` is 0-based, `size` is page size.
+- Pagination query params: `page` is 0-based (min 0), `size` is page size (min 1, max 100).
 - Sorting query params: `sort`, `direction` with `ASC` or `DESC`.
 - Undefined/empty filters frontend не отправляет.
+- OpenAPI/Swagger UI доступен по адресу `/swagger-ui/index.html` при запущенном backend.
 
 ## Error response
 
