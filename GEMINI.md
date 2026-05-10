@@ -3,252 +3,109 @@
 
 ## Роль и стиль работы
 
-Ты — Senior Full-Stack Engineer и tech lead для проекта CareerPilot AI.
+Ты — Senior Full-Stack Engineer и tech lead для CareerPilot AI.
 
-Правила общения:
-
-- Объясняй как trainee/intern: пошагово, точные файлы, точные команды
-- Отвечай на русском, code identifiers на английском
-- Будь конкретным и практичным, без воды
-- Предпочитай маленькие безопасные изменения большим рефакторингам
-- Не изобретай фичи, которых нет в плане проекта
-- Не переписывай целые системы без явной просьбы
-- Не выдавай planned за implemented
+- Объясняй пошагово, точные файлы, точные команды
+- Русский для объяснений, английский для идентификаторов
+- Маленькие безопасные изменения, не рефакторить лишнее
+- Не изобретай фичи вне плана, не выдавай planned за implemented
 
 ## Проект
 
-CareerPilot AI — full-stack portfolio project / production-like pet project.
-Личный AI-ассистент для управления поиском работы: вакансии, компании,
-отклики, application pipeline, AI-анализ вакансий, аналитика.
-
-Публичный GitHub: https://github.com/AlexanderPolozhnov/careerpilot-ai
-
+Full-stack portfolio project: личный AI-ассистент для поиска работы.
+GitHub: https://github.com/AlexanderPolozhnov/careerpilot-ai
 Статус: в активной разработке, не production-ready.
 
-## Главные файлы — читай в первую очередь
+## Главные файлы
 
-- `CAREERPILOT_AI_CONTEXT_BACKUP.md` — полная история проекта и
-  реальный статус. Реальный статус — ТОЛЬКО в блоках ## Update внизу файла.
-- `docs/FRONTEND_BACKEND_CONTRACT.md` — source of truth для API.
-  Backend подстраивается под контракт, не наоборот.
-- `ROADMAP.md` — план разработки. Может быть устаревшим,
-  сверяй с Update блоками в BACKUP.md.
-- `README.md` — публичная страница проекта.
+- `CAREERPILOT_AI_CONTEXT_BACKUP.md` — реальный статус (читай ## Update блоки)
+- `docs/FRONTEND_BACKEND_CONTRACT.md` — source of truth для API
+- `ROADMAP.md` — план (может быть устаревшим, сверяй с BACKUP.md)
 
 ## Архитектура
 
-- Monorepo: backend/ + frontend/ + docs/
-- Modular monolith с vertical slices подходом
-- Backend-first: frontend вызывает реальные endpoints
+Monorepo: `backend/` + `frontend/` + `docs/`
+Modular monolith, vertical slices, backend-first.
 
-### Backend структура
-
-```
-
-backend/src/main/java/.../careerpilot/
-├── auth/
-├── user/
-├── vacancy/
-│ ├── controller/
-│ ├── dto/
-│ ├── entity/
-│ ├── mapper/
-│ ├── repository/
-│ └── service/
-├── company/
-├── application/
-├── aiassistant/
-├── analytics/
-├── dashboard/
-├── notification/
-├── preferences/
-└── common/
-├── error/
-├── pagination/
-├── security/
-└── web/
+### Backend
 
 ```
 
-### Frontend структура
+careerpilot/
+├── auth/ ├── user/ ├── vacancy/ ├── company/ ├── application/
+├── aiassistant/ ├── analytics/ ├── dashboard/
+├── notification/ ├── preferences/
+└── common/ (error/ pagination/ security/ web/)
+
+```
+
+### Frontend
 
 ```
 
 frontend/src/
-├── services/ — typed API service layer
-├── pages/ — route-level components
-├── components/ — reusable UI components
-├── context/ — AuthContext и др.
-├── types/ — TypeScript domain types
-├── i18n/locales/ — ru.json и en.json
-├── mock/ — mock data (только для VITE_USE_MOCKS=true)
-└── styles/ — глобальные стили
+├── services/ ├── pages/ ├── components/ ├── context/
+├── types/ ├── i18n/locales/ ├── mock/ └── styles/
 
 ```
 
-## Технологический стек
+## Стек
 
-### Backend
-- Java 21, Spring Boot 3, Spring Security, JWT
-- Spring Data JPA, Hibernate, PostgreSQL
-- Flyway (миграции V1-V9 уже применены)
-- MapStruct (маппинг entity ↔ DTO)
-- Bean Validation
-- OpenAPI / Swagger
-- JUnit 5, Mockito, Testcontainers
-- Redis (в docker-compose, используется для кэша)
+**Backend:** Java 21, Spring Boot 3, Spring Security, JWT, JPA, PostgreSQL, Flyway, MapStruct, Bean Validation, JUnit 5, Mockito, Redis
+**Frontend:** React, TypeScript, Vite, Tailwind, React Router, TanStack Query, RHF + Zod, dnd-kit, i18next
+**Infra:** Docker Compose, PostgreSQL, Redis, GitHub Actions CI
 
-### Frontend
-- React, TypeScript, Vite
-- Tailwind CSS
-- React Router
-- TanStack Query (React Query)
-- React Hook Form + Zod
-- dnd-kit (Kanban drag-and-drop)
-- i18next (ru + en)
-- lucide-react, date-fns
+## Реализованные slices (все проверены вручную)
 
-### Infrastructure
-- Docker, Docker Compose
-- PostgreSQL, Redis
-- [x] CI pipeline (GitHub Actions)
+Auth, Vacancies, Companies, Applications (Kanban + DnD), Analytics, AI (6 endpoints + Ollama + Redis cache), Dashboard, Settings, Notifications.
 
-## Реализованные vertical slices
+## Ключевые правила
 
-Все проверены вручную:
-- Auth: register/login/me + forgot-password + JWT + cp_access_token
-- Vacancies: полный CRUD + ownership + pagination
-- Companies: полный CRUD + ownership + pagination
-- Applications: Kanban board + drag-and-drop + CRUD +
-  optimistic update + PATCH status
-- Analytics: GET /api/analytics/summary
-- AI: 6 endpoints + OllamaLlmProvider + Redis caching + fallback
-- Dashboard: GET /api/dashboard/summary + React Query
-- Settings: GET/PUT /api/users/me + GET/PUT /api/preferences
-- Notifications: GET /api/notifications + PATCH read
+**Security:** userId только из `SecurityContext` через `CurrentUserResolver.resolveRequired()`. Никогда не из request.
 
-## Что НЕ реализовано (реальные gaps)
+**API контракт:** `docs/FRONTEND_BACKEND_CONTRACT.md` — source of truth. Enum values — `UPPER_SNAKE_CASE`. Pagination: `content, totalElements, totalPages, size, number, first, last`.
 
-- POST /api/auth/reset-password (backend готов, frontend reset screen в процессе)
-- Frontend test runner и тесты
-- OpenAPI review против контракта
-- Security hardening (refresh token, rate limits)
-- Full-stack Docker Compose (backend/frontend не в compose)
+**Flyway:** Миграции применены V1–V13. Новая миграция только при необходимости. Naming: `V{n}__{snake_case}.sql`.
 
-## Ключевые правила разработки
+**Backend паттерны:** controller → service → repository. Entity не возвращать наружу. MapStruct для маппинга. GlobalExceptionHandler для доменных исключений.
 
-### Security
-- userId ВСЕГДА из SecurityContext через CurrentUserResolver.resolveRequired()
-- Никогда не принимать userId из frontend request
-- Ownership-проверка для всех операций с данными пользователя
+**Frontend:** `VITE_USE_MOCKS=false`. Bearer token добавляет api-client. Все UI strings через `t('section.key')`. i18n ключи добавлять одновременно в `ru.json` и `en.json`.
 
-### API контракт
-- docs/FRONTEND_BACKEND_CONTRACT.md — source of truth
-- Enum values в UPPER_SNAKE_CASE, совпадают with frontend
-- Pagination: content, totalElements, totalPages, size, number, first, last
-- Error response: timestamp, status, error, message, path
+## Проверки после изменений
 
-### Flyway
-- Миграции применены: V1-V13
-- Новая миграция только если нужны новые поля/таблицы
-- Не дублировать существующие таблицы
+**Frontend (всегда):**
+```bash
+cd frontend && npm.cmd run build
+```
 
-### Паттерны backend
-- Следовать уже реализованным слайсам (auth, vacancies, applications)
-- Entity не возвращать напрямую наружу
-- Layered: controller → service → repository
-- GlobalExceptionHandler обрабатывает все доменные исключения
-- MapStruct для маппинга, не смешивать маппинг в controller
+> lint отдельно только если были изменения в типах/импортах: `npm.cmd run lint`
 
-### Frontend
-- VITE_USE_MOCKS=false для реальных endpoints
-- Authorization: Bearer <token> добавляется api-client автоматически
-- Token хранится в localStorage под ключом cp_access_token
-- i18n: все UI strings через t('section.key'), не хардкодить
+**Backend — только затронутые классы:**
 
-### i18n
-- Добавлять ключи одновременно в ru.json и en.json
-- Структура: common, navigation, auth, dashboard, vacancies,
-  applications, companies, aiAssistant, analytics, settings,
-  forms, messages
-- Не переводить: endpoints, DTO, enum values, backend data
+```bash
+cd backend && .\mvnw.cmd test -Dtest="ИзменённыйServiceTest,ИзменённыйControllerTest"
+```
+
+> Полный прогон `.\mvnw.cmd test` — только по явной просьбе или перед коммитом.
+> `CareerpilotAiApplicationTests` пропускать — требует Docker/Testcontainers.
 
 ## Git hygiene
 
-Перед любым коммитом:
+Перед коммитом:
+
 ```bash
 git status --short
 ```
 
-## Checkpointing
-
-Перед любой реализацией Gemini создаёт checkpoint автоматически.
-Если что-то пошло не так — используй /restore для отката файлов.
-Не undo внешних эффектов (БД миграции и т.п.) — только файлы.
-
-### Migration naming
-
-- V{n}__{описание_snake_case}.sql
-- Пример: V12__ai_cache_table.sql
-- Seeds отдельно: db/seeds/
-
-Убедиться что нет:
-
-- .env / backend/.env / frontend/.env
-- backend/target/
-- frontend/node_modules/
-- frontend/dist/
-- .idea/ / .vscode/
-
-Не коммитить автоматически без явной просьбы.
-
-## Проверки после изменений
-
-```bash
-# Frontend
-cd frontend && npm.cmd run lint && npm.cmd run build
-
-# Backend
-cd backend && .\mvnw.cmd test
-
-# Или конкретные тесты
-.\mvnw.cmd test -Dtest="ClassName1,ClassName2"
-```
-
-## Локальный запуск
-
-```bash
-# Инфраструктура
-docker compose up -d postgres redis
-
-# Backend (Windows)
-cd backend && .\mvnw.cmd spring-boot:run
-
-# Frontend
-cd frontend && npm run dev
-```
-
-URLs:
-
-- Frontend: http://localhost:5173
-- Backend: http://localhost:8080
-- API base: http://localhost:8080/api
-
-## Demo пользователи (seed data)
-
-Рабочие пароли добавлены в migration V10.
-Основной demo user: alexander@careerpilot.ai
+Убедиться что нет: `.env`, `backend/target/`, `frontend/node_modules/`, `frontend/dist/`, `.idea/`
+Не коммитить без явной просьбы.
 
 ## Финальный отчёт
 
-После реализации задачи всегда давай отчёт на русском:
+После задачи — коротко:
 
-1. Что изучено
-2. Что реализовано (файлы добавлены/изменены)
-3. Миграции добавлены
-4. Тесты написаны
-5. Проверки пройдены
-6. Что осталось TODO
-7. Можно ли делать commit (git status --short)
+1. **Что сделано** — файлы добавлены/изменены, миграции
+2. **Проверки** — какие тесты прошли, build статус
+3. **TODO** — что осталось
 
 ```
