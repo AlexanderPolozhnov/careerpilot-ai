@@ -11,6 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +23,9 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AnalyticsServiceImpl implements AnalyticsService {
+
+    private static final int WEEKLY_ACTIVITY_WEEKS = 3;
+    private static final DateTimeFormatter WEEK_LABEL_FORMATTER = DateTimeFormatter.ofPattern("MM-dd");
 
     private final ApplicationRepository applicationRepository;
     private final CurrentUserResolver currentUserResolver;
@@ -71,11 +79,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 ))
                 .toList();
 
-        List<AnalyticsSummaryResponse.WeeklyActivityItem> weeklyActivity = List.of(
-                new AnalyticsSummaryResponse.WeeklyActivityItem("Week 1", Math.max(total - 2, 0), Math.max(interviews - 1, 0), Math.max(offers - 1, 0)),
-                new AnalyticsSummaryResponse.WeeklyActivityItem("Week 2", Math.max(total - 1, 0), Math.max(interviews, 0), Math.max(offers, 0)),
-                new AnalyticsSummaryResponse.WeeklyActivityItem("Week 3", total, interviews, offers)
-        );
+        List<AnalyticsSummaryResponse.WeeklyActivityItem> weeklyActivity = buildWeeklyActivity(applications);
 
         List<AnalyticsSummaryResponse.SkillGapItem> skillGaps = List.of(
                 new AnalyticsSummaryResponse.SkillGapItem("System Design", 3, false),
@@ -107,5 +111,62 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             return "REJECTED";
         }
         return status.name();
+    }
+
+    private List<AnalyticsSummaryResponse.WeeklyActivityItem> buildWeeklyActivity(List<ApplicationEntity> applications) {
+        ZoneId zone = ZoneId.systemDefault();
+        LocalDate currentWeekStart = weekStart(LocalDate.now(zone));
+        Map<LocalDate, WeeklyActivityCounters> countersByWeek = new LinkedHashMap<>();
+
+        for (int i = WEEKLY_ACTIVITY_WEEKS - 1; i >= 0; i--) {
+            countersByWeek.put(currentWeekStart.minusWeeks(i), new WeeklyActivityCounters());
+        }
+
+        for (ApplicationEntity application : applications) {
+            Instant activityAt = application.getAppliedAt() != null ? application.getAppliedAt() : application.getCreatedAt();
+            if (activityAt == null) {
+                continue;
+            }
+
+            LocalDate weekStart = weekStart(LocalDate.ofInstant(activityAt, zone));
+            WeeklyActivityCounters counters = countersByWeek.get(weekStart);
+            if (counters == null) {
+                continue;
+            }
+
+            counters.applied++;
+            if (isInterviewStatus(application.getStatus())) {
+                counters.interviews++;
+            }
+            if (application.getStatus() == ApplicationStatus.OFFER) {
+                counters.offers++;
+            }
+        }
+
+        return countersByWeek.entrySet().stream()
+                .map(entry -> new AnalyticsSummaryResponse.WeeklyActivityItem(
+                        WEEK_LABEL_FORMATTER.format(entry.getKey()),
+                        entry.getValue().applied,
+                        entry.getValue().interviews,
+                        entry.getValue().offers
+                ))
+                .toList();
+    }
+
+    private LocalDate weekStart(LocalDate date) {
+        return date.minusDays(date.getDayOfWeek().getValue() - DayOfWeek.MONDAY.getValue());
+    }
+
+    private boolean isInterviewStatus(ApplicationStatus status) {
+        return status == ApplicationStatus.HR_SCREEN
+                || status == ApplicationStatus.TECH_INTERVIEW
+                || status == ApplicationStatus.FINAL
+                || status == ApplicationStatus.OFFER;
+    }
+
+    private static class WeeklyActivityCounters {
+        private int applied;
+        private int interviews;
+        private int offers;
     }
 }
