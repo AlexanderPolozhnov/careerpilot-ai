@@ -1,10 +1,11 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { LayoutGrid, Briefcase, FileText, Building2, Sparkles, BarChart3, Settings, Lightbulb, Command } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
 export function Sidebar() {
   const { t } = useTranslation()
+  const { pathname } = useLocation()
 
   const navItems = [
     { label: t('navigation.dashboard'), to: '/app/dashboard', icon: LayoutGrid },
@@ -15,6 +16,47 @@ export function Sidebar() {
     { label: t('navigation.analytics'), to: '/app/analytics', icon: BarChart3 },
     { label: t('navigation.settings'), to: '/app/settings', icon: Settings },
   ]
+
+  const tipsByRoute: Record<string, string[]> = {
+    '/app/dashboard': [
+      'navigation.tips.dashboard.0',
+      'navigation.tips.dashboard.1',
+      'navigation.tips.dashboard.2',
+    ],
+    '/app/vacancies': [
+      'navigation.tips.vacancies.0',
+      'navigation.tips.vacancies.1',
+      'navigation.tips.vacancies.2',
+    ],
+    '/app/applications': [
+      'navigation.tips.applications.0',
+      'navigation.tips.applications.1',
+      'navigation.tips.applications.2',
+    ],
+    '/app/companies': [
+      'navigation.tips.companies.0',
+      'navigation.tips.companies.1',
+      'navigation.tips.companies.2',
+    ],
+    '/app/ai-assistant': [
+      'navigation.tips.aiAssistant.0',
+      'navigation.tips.aiAssistant.1',
+      'navigation.tips.aiAssistant.2',
+    ],
+    '/app/analytics': [
+      'navigation.tips.analytics.0',
+      'navigation.tips.analytics.1',
+      'navigation.tips.analytics.2',
+    ],
+    '/app/settings': [
+      'navigation.tips.settings.0',
+      'navigation.tips.settings.1',
+      'navigation.tips.settings.2',
+    ],
+  }
+
+  const currentTips = tipsByRoute[pathname] ?? tipsByRoute['/app/dashboard']
+  const currentTipKey = currentTips[pathname.length % currentTips.length]
 
   return (
     <aside className="w-[260px] shrink-0 border-r border-white/[0.06] bg-[#0a0a0b] hidden md:flex md:flex-col">
@@ -55,11 +97,11 @@ export function Sidebar() {
                   {isActive && (
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-full bg-violet-500" />
                   )}
-                  <Icon 
+                  <Icon
                     className={cn(
                       'w-[18px] h-[18px] transition-colors duration-150',
                       isActive ? 'text-white' : 'text-white/40 group-hover:text-white/60'
-                    )} 
+                    )}
                   />
                   <span className="truncate">{item.label}</span>
                   {item.icon === Sparkles && (
@@ -79,7 +121,7 @@ export function Sidebar() {
         <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-white/[0.04] to-white/[0.02] border border-white/[0.06] p-4">
           {/* Subtle glow */}
           <div className="absolute -top-6 -right-6 w-20 h-20 bg-violet-500/10 rounded-full blur-2xl" />
-          
+
           <div className="relative">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-6 h-6 rounded-md bg-amber-500/15 flex items-center justify-center">
@@ -90,20 +132,12 @@ export function Sidebar() {
               </span>
             </div>
             <p className="text-[13px] text-white/70 leading-relaxed">
-              {t('navigation.tipDescription')}
+              {t(currentTipKey)}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Footer - Keyboard shortcut hint */}
-      <div className="px-5 py-3 border-t border-white/[0.06]">
-        <div className="flex items-center gap-2 text-[11px] text-white/30">
-          <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] font-mono">⌘</kbd>
-          <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] font-mono">K</kbd>
-          <span className="ml-1">{t('navigation.search')}</span>
-        </div>
-      </div>
     </aside>
   )
 }

@@ -28,7 +28,44 @@
     "landing": "Landing",
     "search": "Search",
     "tipTitle": "Tip",
-    "tipDescription": "Use filters to stay focused."
+    "tipDescription": "Use filters to stay focused.",
+    "tips": {
+      "dashboard": [
+        "Start with the dashboard: it shows where your job search needs focus today.",
+        "Check upcoming interviews and tasks before browsing new vacancies.",
+        "If metrics are flat, update application statuses and add recent outreach."
+      ],
+      "vacancies": [
+        "Add only vacancies you are ready to revisit in the next few days.",
+        "Keep the vacancy description filled in so AI can evaluate the match more accurately.",
+        "Save the original posting link to get back to details quickly."
+      ],
+      "applications": [
+        "Move applications between statuses right after each company interaction.",
+        "Mark interviews separately so analytics stays useful.",
+        "Do not keep stale applications in active statuses if there has been no response."
+      ],
+      "companies": [
+        "Add company notes so you can compare context, not only vacancy titles.",
+        "Save company industry and location to filter opportunities more easily.",
+        "Before applying, check whether the company already has related vacancies."
+      ],
+      "aiAssistant": [
+        "Add more context before generation — AI output becomes noticeably more precise.",
+        "Use AI for a first draft, then adapt the final text to your own voice.",
+        "For interview prep, analyze the vacancy first and generate questions after that."
+      ],
+      "analytics": [
+        "Look at trends, not just totals: trends show progress more clearly.",
+        "If interviews are low, review vacancy quality and resume fit.",
+        "Skill gaps help you decide what to improve first."
+      ],
+      "settings": [
+        "Keep your profile up to date: these details support your workspace.",
+        "Check the interface language before presenting the project.",
+        "Notification settings help you avoid missing important search stages."
+      ]
+    }
   },
   "landing": {
     "badge": "Premium job-search dashboard",
