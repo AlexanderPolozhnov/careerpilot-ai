@@ -72,6 +72,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Settings/preferences integration.
 - [x] Notifications integration.
 - [x] Profile API integration.
+- [x] Resume Management (CRUD, default resume logic).
 - [x] Manual API smoke scenarios documented and verified (`docs/SMOKE_SCENARIOS.md`).
 
 ## Phase 5 — AI Features

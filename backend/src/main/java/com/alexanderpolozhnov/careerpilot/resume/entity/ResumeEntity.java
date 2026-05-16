@@ -1,4 +1,4 @@
-package com.alexanderpolozhnov.careerpilot.profile.entity;
+package com.alexanderpolozhnov.careerpilot.resume.entity;
 
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.entity.BaseAuditableEntity;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "resumes", schema = "careerpilot", indexes = {
         @Index(name = "idx_resumes_user_id", columnList = "user_id"),
-        @Index(name = "idx_resumes_active", columnList = "user_id,is_active")
+        @Index(name = "idx_resumes_default", columnList = "user_id,is_default")
 })
 public class ResumeEntity extends BaseAuditableEntity {
 
@@ -20,7 +20,7 @@ public class ResumeEntity extends BaseAuditableEntity {
     private AuthEntity user;
 
     @Column(nullable = false, length = 255)
-    private String title;
+    private String name;
 
     @Column(name = "file_url", columnDefinition = "TEXT")
     private String fileUrl;
@@ -28,6 +28,6 @@ public class ResumeEntity extends BaseAuditableEntity {
     @Column(name = "text_content", columnDefinition = "TEXT")
     private String textContent;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean active = false;
+    @Column(name = "is_default", nullable = false)
+    private Boolean isDefault = false;
 }

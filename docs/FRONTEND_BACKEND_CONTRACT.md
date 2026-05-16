@@ -552,13 +552,14 @@ Response: `PagedResponse<Notification>`.
 
 Response: `Notification`.
 
-## Profile and resume — FUTURE TODO
+## Profile and resume — PARTIALLY IMPLEMENTED
 
 Frontend state:
 
 - `Profile` и `Resume` types есть в `frontend/src/types/index.ts`.
-- Route-level pages и service calls для profile/resume сейчас отсутствуют.
-- Эти endpoints не должны блокировать текущий frontend-backend merge.
+- Resume service layer реализован в `frontend/src/services/resume.service.ts`.
+- Profile endpoints остаются FUTURE TODO.
+- Resume endpoints реализованы на бэкенде, но не имеют UI страниц.
 
 ### `GET /profile/me` — FUTURE TODO
 
@@ -568,19 +569,58 @@ Response: `Profile`.
 
 Request/response: `Profile`.
 
-### `GET /resumes` — FUTURE TODO
+### `GET /resumes` — USED BY FRONTEND SERVICE
+
+Frontend source: `frontend/src/services/resume.service.ts`.
 
 Response: `Resume[]`.
 
-### `POST /resumes` — FUTURE TODO
+### `GET /resumes/{id}` — USED BY FRONTEND SERVICE
 
-Request shape пока не финализирован во frontend.
-
-### `PATCH /resumes/{id}/default` — FUTURE TODO
+Frontend source: `frontend/src/services/resume.service.ts`.
 
 Response: `Resume`.
 
-### `DELETE /resumes/{id}` — FUTURE TODO
+### `POST /resumes` — USED BY FRONTEND SERVICE
+
+Frontend source: `frontend/src/services/resume.service.ts`.
+
+Request `ResumeRequest`:
+
+```json
+{
+  "name": "Software Engineer Resume",
+  "fileUrl": "https://example.com/resume.pdf",
+  "textContent": "Resume text content",
+  "isDefault": false
+}
+```
+
+Response: `Resume`.
+
+### `PUT /resumes/{id}` — USED BY FRONTEND SERVICE
+
+Frontend source: `frontend/src/services/resume.service.ts`.
+
+Request: partial `ResumeRequest`.
+
+Response: `Resume`.
+
+### `PATCH /resumes/{id}/default` — USED BY FRONTEND SERVICE
+
+Frontend source: `frontend/src/services/resume.service.ts`.
+
+Request:
+
+```json
+{}
+```
+
+Response: `Resume` with `isDefault: true`.
+
+### `DELETE /resumes/{id}` — USED BY FRONTEND SERVICE
+
+Frontend source: `frontend/src/services/resume.service.ts`.
 
 Response: `204 No Content`.
 
