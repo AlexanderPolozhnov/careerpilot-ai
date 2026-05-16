@@ -9,7 +9,9 @@ import com.alexanderpolozhnov.careerpilot.application.request.UpdateApplicationS
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardCompanyResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardItemResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardVacancyResponse;
+import com.alexanderpolozhnov.careerpilot.application.response.ApplicationCompanyResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationResponse;
+import com.alexanderpolozhnov.careerpilot.application.response.ApplicationVacancyResponse;
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
@@ -43,7 +45,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         // Проверяем, что вакансия принадлежит текущему пользователю
         VacancyEntity vacancy = vacancyRepository.findByIdAndUserId(request.vacancyId(), userId)
-            .orElseThrow(() -> new IllegalArgumentException("Vacancy not found: " + request.vacancyId()));
+                .orElseThrow(() -> new IllegalArgumentException("Vacancy not found: " + request.vacancyId()));
 
         ApplicationEntity entity = new ApplicationEntity();
         entity.setUser(currentUser);
@@ -63,15 +65,14 @@ public class ApplicationServiceImpl implements ApplicationService {
     public PagedResponse<ApplicationResponse> list(int page, int size, ApplicationStatus status, UUID vacancyId) {
         UUID userId = currentUserResolver.resolveRequired().getId();
         Pageable pageable = PageRequest.of(
-            Math.max(page, 0),
-            Math.max(size, 1),
-            Sort.by(Sort.Direction.DESC, "createdAt")
-        );
+                Math.max(page, 0),
+                Math.max(size, 1),
+                Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<ApplicationEntity> resultPage;
         if (status != null && vacancyId != null) {
             resultPage = applicationRepository.findAllByUserIdAndStatusAndVacancyId(userId, status, vacancyId,
-                pageable);
+                    pageable);
         } else if (status != null) {
             resultPage = applicationRepository.findAllByUserIdAndStatus(userId, status, pageable);
         } else if (vacancyId != null) {
@@ -81,7 +82,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         log.info("applications.list userId={} page={} size={} total={}", userId, page, size,
-            resultPage.getTotalElements());
+                resultPage.getTotalElements());
         return PagedResponse.fromPage(resultPage.map(this::toResponse));
     }
 
@@ -102,27 +103,24 @@ public class ApplicationServiceImpl implements ApplicationService {
         for (ApplicationEntity entity : applicationRepository.findAllByUserId(userId)) {
             String statusKey = mapStatusForFrontend(entity);
             ApplicationBoardCompanyResponse company = entity.getVacancy().getCompany() == null
-                ? null
-                : new ApplicationBoardCompanyResponse(
-                entity.getVacancy().getCompany().getId().toString(),
-                entity.getVacancy().getCompany().getName()
-            );
+                    ? null
+                    : new ApplicationBoardCompanyResponse(
+                            entity.getVacancy().getCompany().getId().toString(),
+                            entity.getVacancy().getCompany().getName());
             ApplicationBoardVacancyResponse vacancy = new ApplicationBoardVacancyResponse(
-                entity.getVacancy().getId().toString(),
-                entity.getVacancy().getTitle(),
-                entity.getVacancy().getLocation(),
-                company
-            );
+                    entity.getVacancy().getId().toString(),
+                    entity.getVacancy().getTitle(),
+                    entity.getVacancy().getLocation(),
+                    company);
             ApplicationBoardItemResponse item = new ApplicationBoardItemResponse(
-                entity.getId(),
-                entity.getVacancy().getId().toString(),
-                vacancy,
-                statusKey,
-                entity.getAppliedAt(),
-                entity.getNotes(),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt()
-            );
+                    entity.getId(),
+                    entity.getVacancy().getId().toString(),
+                    vacancy,
+                    statusKey,
+                    entity.getAppliedAt(),
+                    entity.getNotes(),
+                    entity.getCreatedAt(),
+                    entity.getUpdatedAt());
             result.computeIfAbsent(statusKey, key -> new ArrayList<>()).add(item);
         }
         return result;
@@ -143,7 +141,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         // Обновляем вакансию, если передана новая
         if (request.vacancyId() != null) {
             VacancyEntity vacancy = vacancyRepository.findByIdAndUserId(request.vacancyId(), currentUser.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Vacancy not found: " + request.vacancyId()));
+                    .orElseThrow(() -> new IllegalArgumentException("Vacancy not found: " + request.vacancyId()));
             entity.setVacancy(vacancy);
         }
         if (request.status() != null) {
@@ -177,12 +175,13 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     /**
-     * Находит заявку по id и проверяет ownership. Возвращает 404 если не найдена или чужая.
+     * Находит заявку по id и проверяет ownership. Возвращает 404 если не найдена
+     * или чужая.
      */
     private ApplicationEntity findOwnedApplication(UUID id) {
         UUID userId = currentUserResolver.resolveRequired().getId();
         ApplicationEntity entity = applicationRepository.findById(id)
-            .orElseThrow(() -> new ApplicationNotFoundException(id));
+                .orElseThrow(() -> new ApplicationNotFoundException(id));
         if (!entity.getUser().getId().equals(userId)) {
             // Возвращаем 404 вместо 403, чтобы не раскрывать существование чужих заявок
             throw new ApplicationNotFoundException(id);
@@ -191,16 +190,26 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private ApplicationResponse toResponse(ApplicationEntity entity) {
+        ApplicationCompanyResponse company = entity.getVacancy().getCompany() == null
+                ? null
+                : new ApplicationCompanyResponse(
+                        entity.getVacancy().getCompany().getId().toString(),
+                        entity.getVacancy().getCompany().getName());
+        ApplicationVacancyResponse vacancy = new ApplicationVacancyResponse(
+                entity.getVacancy().getId().toString(),
+                entity.getVacancy().getTitle(),
+                entity.getVacancy().getLocation(),
+                company);
         return new ApplicationResponse(
-            entity.getId(),
-            entity.getVacancy().getId(),
-            entity.getStatus(),
-            entity.getNotes(),
-            entity.getAppliedAt(),
-            entity.getResumeId(),
-            entity.getCreatedAt(),
-            entity.getUpdatedAt()
-        );
+                entity.getId(),
+                entity.getVacancy().getId(),
+                vacancy,
+                entity.getStatus(),
+                entity.getNotes(),
+                entity.getAppliedAt(),
+                entity.getResumeId(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt());
     }
 
     private String mapStatusForFrontend(ApplicationEntity entity) {

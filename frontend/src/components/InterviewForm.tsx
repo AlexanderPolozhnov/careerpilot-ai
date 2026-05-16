@@ -6,6 +6,7 @@ import type { TFunction } from 'i18next'
 import type { InterviewType, InterviewResult } from '@/types'
 import { applicationService } from '@/services/application.service'
 import { useQuery } from '@tanstack/react-query'
+import { useState, useMemo } from 'react'
 
 const interviewTypeValues: InterviewType[] = ['PHONE', 'HR', 'TECHNICAL', 'SYSTEM_DESIGN', 'CULTURE_FIT', 'FINAL', 'OTHER']
 const interviewResultValues: InterviewResult[] = ['PENDING', 'PASSED', 'FAILED', 'CANCELLED']
@@ -33,12 +34,35 @@ interface InterviewFormProps {
 export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting, applicationId }: InterviewFormProps) {
   const { t } = useTranslation()
   const interviewSchema = getInterviewSchema(t)
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('')
 
   // Fetch active applications for the dropdown
   const applicationsQuery = useQuery({
     queryKey: ['applications', 'active'],
     queryFn: () => applicationService.list({ page: 0, size: 100 }),
   })
+
+  // Extract unique companies from applications
+  const companies = useMemo(() => {
+    if (!applicationsQuery.data?.content) return []
+    const companyMap = new Map<string, { id: string; name: string }>()
+    applicationsQuery.data.content.forEach((app) => {
+      const company = (app as any).vacancy?.company
+      if (company?.id && company?.name) {
+        companyMap.set(company.id, { id: company.id, name: company.name })
+      }
+    })
+    return Array.from(companyMap.values()).sort((a, b) => a.name.localeCompare(b.name))
+  }, [applicationsQuery.data?.content])
+
+  // Filter vacancies by selected company
+  const filteredVacancies = useMemo(() => {
+    if (!applicationsQuery.data?.content || !selectedCompanyId) return []
+    return applicationsQuery.data.content.filter((app) => {
+      const company = (app as any).vacancy?.company
+      return company?.id === selectedCompanyId
+    })
+  }, [applicationsQuery.data?.content, selectedCompanyId])
 
   const form = useForm<InterviewFormValues>({
     resolver: zodResolver(interviewSchema) as unknown as Resolver<InterviewFormValues>,
@@ -50,40 +74,70 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
     },
   })
 
+  // Handle company selection - reset vacancy selection
+  const handleCompanyChange = (companyId: string) => {
+    setSelectedCompanyId(companyId)
+    form.setValue('applicationId', '')
+  }
+
+  // Handle vacancy selection - find and set applicationId
+  const handleVacancyChange = (applicationId: string) => {
+    form.setValue('applicationId', applicationId)
+  }
+
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <div>
-        <label htmlFor="applicationId" className="text-xs text-ink-dim">{t('interviews.form.application')}</label>
-        <select
-          id="applicationId"
-          {...form.register('applicationId')}
-          disabled={!!applicationId}
-          className="select mt-1"
-        >
-          <option value="" className="select-option">
-            {t('interviews.form.selectApplication')}
-          </option>
-          {applicationsQuery.data?.content.map((app) => {
-            // Check for both board-style and list-style data structures
-            const companyName = (app as any).vacancy?.company?.name || (app as any).companyName || t('common.unknown');
-            const vacancyTitle = (app as any).vacancy?.title || (app as any).vacancyTitle || t('common.unknown');
-            
-            return (
-              <option key={app.id} value={app.id} className="select-option">
-                {companyName} - {vacancyTitle}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="company" className="text-xs text-ink-dim">{t('interviews.form.company')}</label>
+          <select
+            id="company"
+            value={selectedCompanyId}
+            onChange={(e) => handleCompanyChange(e.target.value)}
+            disabled={!!applicationId}
+            className="select mt-1"
+          >
+            <option value="" className="select-option">
+              {t('interviews.form.selectCompany')}
+            </option>
+            {companies.map((company) => (
+              <option key={company.id} value={company.id} className="select-option">
+                {company.name}
               </option>
-            );
-          })}
-        </select>
-        {form.formState.errors.applicationId && <p className="text-xs text-danger mt-1">{form.formState.errors.applicationId.message}</p>}
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="vacancy" className="text-xs text-ink-dim">{t('interviews.form.vacancy')}</label>
+          <select
+            id="vacancy"
+            value={form.watch('applicationId')}
+            onChange={(e) => handleVacancyChange(e.target.value)}
+            disabled={!selectedCompanyId || !!applicationId}
+            className="select mt-1"
+          >
+            <option value="" className="select-option">
+              {selectedCompanyId ? t('interviews.form.selectVacancy') : t('interviews.form.selectCompanyFirst')}
+            </option>
+            {filteredVacancies.map((app) => {
+              const vacancyTitle = (app as any).vacancy?.title || t('common.unknown');
+              return (
+                <option key={app.id} value={app.id} className="select-option">
+                  {vacancyTitle}
+                </option>
+              );
+            })}
+          </select>
+          {form.formState.errors.applicationId && <p className="text-xs text-danger mt-1">{form.formState.errors.applicationId.message}</p>}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="type" className="text-xs text-ink-dim">{t('interviews.form.type')}</label>
-          <select 
-            id="type" 
-            {...form.register('type')} 
+          <select
+            id="type"
+            {...form.register('type')}
             className="select mt-1"
           >
             {interviewTypeValues.map(v => (
@@ -95,9 +149,9 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
         </div>
         <div>
           <label htmlFor="result" className="text-xs text-ink-dim">{t('interviews.form.result')}</label>
-          <select 
-            id="result" 
-            {...form.register('result')} 
+          <select
+            id="result"
+            {...form.register('result')}
             className="select mt-1"
           >
             {interviewResultValues.map(v => (

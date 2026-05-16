@@ -105,7 +105,7 @@ function moveToDifferentStatus(
 
 function ApplicationCardBody({ application, isDragging = false }: { application: Application; isDragging?: boolean }) {
   const statusColors = STATUS_COLORS[application.status]
-  
+
   return (
     <div className={cn('space-y-3', isDragging && 'opacity-90')}>
       {/* Header with company avatar and status */}
@@ -116,7 +116,7 @@ function ApplicationCardBody({ application, isDragging = false }: { application:
             {(application.vacancy?.company?.name ?? 'C').charAt(0).toUpperCase()}
           </span>
         </div>
-        
+
         <div className="min-w-0 flex-1">
           <h4 className="text-[13px] font-medium text-[#e8eaed] leading-snug line-clamp-2">
             {application.vacancy?.title ?? 'Vacancy'}
@@ -126,7 +126,7 @@ function ApplicationCardBody({ application, isDragging = false }: { application:
           </p>
         </div>
       </div>
-      
+
       {/* Meta info row */}
       <div className="flex items-center gap-2 flex-wrap">
         {application.vacancy?.location && (
@@ -144,7 +144,7 @@ function ApplicationCardBody({ application, isDragging = false }: { application:
           </span>
         )}
       </div>
-      
+
       {/* Notes snippet */}
       {application.notes && (
         <div className="pt-2 border-t border-[rgba(255,255,255,0.04)]">
@@ -153,7 +153,7 @@ function ApplicationCardBody({ application, isDragging = false }: { application:
           </p>
         </div>
       )}
-      
+
       {/* Status indicator */}
       <div className="flex items-center justify-between pt-1">
         <div className={cn(
@@ -163,7 +163,7 @@ function ApplicationCardBody({ application, isDragging = false }: { application:
           <span className={cn('w-1.5 h-1.5 rounded-full', statusColors.dot)} />
           {application.status.replace('_', ' ')}
         </div>
-        
+
         {/* Drag handle indicator */}
         <div className="opacity-0 group-hover:opacity-100 transition-opacity">
           <svg className="w-4 h-4 text-[#4a4e5a]" fill="currentColor" viewBox="0 0 20 20">
@@ -220,7 +220,7 @@ function ApplicationColumn({ status, items, label }: { status: ApplicationStatus
           {items.length}
         </span>
       </div>
-      
+
       {/* Column content */}
       <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
         <div
@@ -386,82 +386,75 @@ export default function ApplicationsPage() {
 
   return (
     <section className="space-y-6">
-      {/* Page header */}
-      <div className="space-y-6">
-        {/* Title and description */}
-        <div className="flex items-start justify-between gap-6">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 via-violet-500/10 to-purple-600/20 border border-violet-500/30 flex items-center justify-center">
-                <svg className="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold text-[#e8eaed] tracking-tight" style={{ fontFamily: 'Onest, system-ui, sans-serif' }}>
-                  {t('applications.title')}
-                </h1>
-                <p className="text-[13px] text-[#6b7590]">{t('applications.description')}</p>
-              </div>
-            </div>
+      {/* Page Header */}
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between mb-6">
+        <div className="flex items-start gap-4">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500/20 via-violet-500/10 to-purple-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 shrink-0">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
+            </svg>
           </div>
-          
-          {/* Quick stats */}
-          <div className="hidden md:flex items-center gap-4">
-            <div className="text-center px-4">
-              <div className="text-lg font-semibold text-[#e8eaed]">{stats.total}</div>
-              <div className="text-[11px] text-[#6b7590] uppercase tracking-wide">Total</div>
-            </div>
-            <div className="w-px h-8 bg-[rgba(255,255,255,0.06)]" />
-            <div className="text-center px-4">
-              <div className="text-lg font-semibold text-violet-400">{stats.active}</div>
-              <div className="text-[11px] text-[#6b7590] uppercase tracking-wide">Active</div>
-            </div>
-            <div className="w-px h-8 bg-[rgba(255,255,255,0.06)]" />
-            <div className="text-center px-4">
-              <div className="text-lg font-semibold text-emerald-400">{stats.offers}</div>
-              <div className="text-[11px] text-[#6b7590] uppercase tracking-wide">Offers</div>
-            </div>
+          <div>
+            <h1 className="text-xl font-semibold text-[#e8eaed] tracking-tight" style={{ fontFamily: 'Onest, system-ui, sans-serif' }}>
+              {t('applications.title')}
+            </h1>
+            <p className="text-sm text-[#6b7590] mt-0.5">{t('applications.description')}</p>
           </div>
         </div>
-        
-        {/* Search and filters bar */}
+
+        {/* Quick stats */}
         <div className="flex items-center gap-3">
-          {/* Search input */}
-          <div className="relative flex-1 max-w-md">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6b7590] pointer-events-none">
-              <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-            </div>
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t('applications.searchPlaceholder')}
-              className="w-full h-10 pl-11 pr-4 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-xl text-[13px] text-[#e8eaed] placeholder:text-[#4a4e5a] focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
-            />
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
+            <span className="text-xs text-[#6b7590]">Total</span>
+            <span className="text-sm font-medium text-[#e8eaed]">{stats.total}</span>
           </div>
-          
-          {/* Results count */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-            <span className="text-[13px] text-[#6b7590]">{filteredFlat.length}</span>
-            <span className="text-[13px] text-[#4a4e5a]">{t('applications.results')}</span>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
+            <span className="text-xs text-[#6b7590]">Active</span>
+            <span className="text-sm font-medium text-violet-400">{stats.active}</span>
           </div>
-          
-          {/* View options placeholder */}
-          <div className="hidden sm:flex items-center gap-1.5 p-1 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-            <button className="w-8 h-8 rounded-md bg-[rgba(255,255,255,0.06)] flex items-center justify-center text-[#e8eaed]">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
-              </svg>
-            </button>
-            <button className="w-8 h-8 rounded-md flex items-center justify-center text-[#6b7590] hover:text-[#8b8fa3] transition-colors">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-              </svg>
-            </button>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
+            <span className="text-xs text-[#6b7590]">Offers</span>
+            <span className="text-sm font-medium text-emerald-400">{stats.offers}</span>
           </div>
+        </div>
+      </div>
+
+      {/* Search and filters bar */}
+      <div className="flex items-center gap-3">
+        {/* Search input */}
+        <div className="relative flex-1 max-w-md">
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6b7590] pointer-events-none">
+            <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('applications.searchPlaceholder')}
+            className="w-full h-10 pl-11 pr-4 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-xl text-[13px] text-[#e8eaed] placeholder:text-[#4a4e5a] focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
+          />
+        </div>
+
+        {/* Results count */}
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
+          <span className="text-[13px] text-[#6b7590]">{filteredFlat.length}</span>
+          <span className="text-[13px] text-[#4a4e5a]">{t('applications.results')}</span>
+        </div>
+
+        {/* View options placeholder */}
+        <div className="hidden sm:flex items-center gap-1.5 p-1 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
+          <button className="w-8 h-8 rounded-md bg-[rgba(255,255,255,0.06)] flex items-center justify-center text-[#e8eaed]">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
+            </svg>
+          </button>
+          <button className="w-8 h-8 rounded-md flex items-center justify-center text-[#6b7590] hover:text-[#8b8fa3] transition-colors">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -498,7 +491,7 @@ export default function ApplicationsPage() {
             {/* Fade edges */}
             <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#0a0a0b] to-transparent z-10 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#0a0a0b] to-transparent z-10 pointer-events-none" />
-            
+
             {/* Scrollable columns */}
             <div className="flex gap-4 overflow-x-auto pb-4 px-1 snap-x snap-mandatory scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[rgba(255,255,255,0.1)] hover:scrollbar-thumb-[rgba(255,255,255,0.15)]">
               {STATUS_ORDER.map((s) => {
@@ -509,7 +502,7 @@ export default function ApplicationsPage() {
               })}
             </div>
           </div>
-          
+
           {/* Drag overlay */}
           <DragOverlay dropAnimation={{ duration: 180, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' }}>
             {activeApplication ? (

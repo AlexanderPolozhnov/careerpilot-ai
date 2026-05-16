@@ -359,15 +359,20 @@ export default function AnalyticsPage() {
 
     return (
         <div className="space-y-8">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold text-white tracking-tight">
-                        {t('analytics.title')}
-                    </h1>
-                    <p className="text-sm text-white/40 mt-1">
-                        {t('analytics.overview')}
-                    </p>
+            {/* Page Header */}
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between mb-6">
+                <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500/20 via-violet-500/10 to-purple-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 shrink-0">
+                        <BarChart3 className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-semibold text-[#e8eaed] tracking-tight" style={{ fontFamily: 'Onest, system-ui, sans-serif' }}>
+                            {t('analytics.title')}
+                        </h1>
+                        <p className="text-sm text-[#6b7590] mt-0.5">
+                            {t('analytics.overview')}
+                        </p>
+                    </div>
                 </div>
 
                 {/* Time range selector (visual only) */}

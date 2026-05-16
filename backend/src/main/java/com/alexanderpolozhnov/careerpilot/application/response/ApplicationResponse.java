@@ -9,13 +9,13 @@ import java.util.UUID;
  * Ответ с данными заявки. userId не возвращается наружу.
  */
 public record ApplicationResponse(
-    UUID id,
-    UUID vacancyId,
-    ApplicationStatus status,
-    String notes,
-    Instant appliedAt,
-    String resumeId,
-    Instant createdAt,
-    Instant updatedAt
-) {
+        UUID id,
+        UUID vacancyId,
+        ApplicationVacancyResponse vacancy,
+        ApplicationStatus status,
+        String notes,
+        Instant appliedAt,
+        String resumeId,
+        Instant createdAt,
+        Instant updatedAt) {
 }

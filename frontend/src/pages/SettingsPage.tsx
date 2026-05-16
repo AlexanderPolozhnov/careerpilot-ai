@@ -412,16 +412,19 @@ export default function SettingsPage() {
     return (
         <div className="min-h-full pb-20">
             {/* Header */}
-            <header className="mb-10 animate-slide-up">
-                <div className="flex items-center gap-3 mb-2">
-                    <div
-                        className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20 flex items-center justify-center">
-                        <Sparkles className="w-4 h-4 text-violet-400" />
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between mb-10 animate-slide-up">
+                <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500/20 via-violet-500/10 to-purple-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 shrink-0">
+                        <Sparkles className="w-5 h-5" />
                     </div>
-                    <h1 className="text-2xl font-semibold text-white tracking-tight">{t('settings.title')}</h1>
+                    <div>
+                        <h1 className="text-xl font-semibold text-[#e8eaed] tracking-tight" style={{ fontFamily: 'Onest, system-ui, sans-serif' }}>
+                            {t('settings.title')}
+                        </h1>
+                        <p className="text-sm text-[#6b7590] mt-0.5">{t('settings.subtitle')}</p>
+                    </div>
                 </div>
-                <p className="text-white/40 text-sm ml-11">Manage your account preferences and settings</p>
-            </header>
+            </div>
 
             <div className="max-w-4xl">
                 <div className="grid gap-8 stagger-children">
