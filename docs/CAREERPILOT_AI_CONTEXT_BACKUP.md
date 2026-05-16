@@ -1820,4 +1820,19 @@ ight-0 и mt-2 для правильного выравнивания и отс�
 
 **Проверки:** Бэкенд компилируется, фронтенд собирается, логика проверена в изоляции.
 
+## Update 2026-05-18 — Security Hardening: Audit Trail Implementation
+
+**Сделано:**
+Реализовано журналирование (Audit Trail) критичных действий пользователей. 
+
+**Backend:**
+- **Domain**: Интегрировано с уже существующей таблицей `audit_logs` и сущностью `AuditLogEntity`.
+- **Common**: 
+    - Создана кастомная аннотация `@Auditable` с параметрами `action` и `entityType`.
+    - Реализован `AuditAspect` (AOP), перехватывающий успешные выполнения методов (`@AfterReturning`). Аспект извлекает IP-адрес запроса и сериализует его в JSONB поле `metadata`, а также достает `userId` через `CurrentUserResolver` (или из `AuthResponse` при логине).
+    - Создан `AuditLogService` для сохранения записей (выполняется синхронно из-за конфликта `@EnableAsync` с Testcontainers в тестовом окружении).
+- **Controllers**: Аннотацией `@Auditable` покрыты критически важные эндпоинты в `AuthController`, `VacancyController`, и `AiController`.
+
+**Статус:** Готово. Все задачи из группы Security Hardening (Refresh tokens, Rate Limits, Audit Trail) завершены.
+
 
