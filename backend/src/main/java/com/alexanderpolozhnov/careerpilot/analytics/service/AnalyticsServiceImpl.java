@@ -38,7 +38,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     @Override
     @Transactional(readOnly = true)
     public AnalyticsSummaryResponse summary() {
-        List<ApplicationEntity> applications = applicationRepository.findAllByUserId(currentUserResolver.resolveRequired().getId());
+        List<ApplicationEntity> applications = applicationRepository
+                .findAllByUserId(currentUserResolver.resolveRequired().getId());
         int total = applications.size();
         int active = (int) applications.stream()
                 .filter(a -> a.getStatus() != ApplicationStatus.REJECTED && a.getStatus() != ApplicationStatus.ARCHIVED)
@@ -75,8 +76,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .map(entry -> new AnalyticsSummaryResponse.ApplicationFunnelItem(
                         entry.getKey(),
                         entry.getValue(),
-                        total == 0 ? 0.0 : (entry.getValue() * 100.0) / total
-                ))
+                        total == 0 ? 0.0 : (entry.getValue() * 100.0) / total))
                 .toList();
 
         List<AnalyticsSummaryResponse.WeeklyActivityItem> weeklyActivity = buildWeeklyActivity(applications);
@@ -84,8 +84,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         List<AnalyticsSummaryResponse.SkillGapItem> skillGaps = List.of(
                 new AnalyticsSummaryResponse.SkillGapItem("System Design", 3, false),
                 new AnalyticsSummaryResponse.SkillGapItem("Kubernetes", 2, false),
-                new AnalyticsSummaryResponse.SkillGapItem("PostgreSQL", 4, true)
-        );
+                new AnalyticsSummaryResponse.SkillGapItem("PostgreSQL", 4, true));
 
         return new AnalyticsSummaryResponse(
                 total,
@@ -96,8 +95,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 interviews == 0 ? 0.0 : 7.0,
                 funnel,
                 weeklyActivity,
-                skillGaps
-        );
+                skillGaps);
     }
 
     private String mapStatus(ApplicationStatus status) {
@@ -113,7 +111,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         return status.name();
     }
 
-    private List<AnalyticsSummaryResponse.WeeklyActivityItem> buildWeeklyActivity(List<ApplicationEntity> applications) {
+    private List<AnalyticsSummaryResponse.WeeklyActivityItem> buildWeeklyActivity(
+            List<ApplicationEntity> applications) {
         ZoneId zone = ZoneId.systemDefault();
         LocalDate currentWeekStart = weekStart(LocalDate.now(zone));
         Map<LocalDate, WeeklyActivityCounters> countersByWeek = new LinkedHashMap<>();
@@ -123,7 +122,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         }
 
         for (ApplicationEntity application : applications) {
-            Instant activityAt = application.getAppliedAt() != null ? application.getAppliedAt() : application.getCreatedAt();
+            Instant activityAt = application.getAppliedAt() != null ? application.getAppliedAt()
+                    : application.getCreatedAt();
             if (activityAt == null) {
                 continue;
             }
@@ -148,8 +148,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                         WEEK_LABEL_FORMATTER.format(entry.getKey()),
                         entry.getValue().applied,
                         entry.getValue().interviews,
-                        entry.getValue().offers
-                ))
+                        entry.getValue().offers))
                 .toList();
     }
 

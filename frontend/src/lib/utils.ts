@@ -82,23 +82,23 @@ export const APPLICATION_STATUS_META: Record<
 }
 
 export const VACANCY_STATUS_META: Record<VacancyStatus, { label: string; color: string; bg: string }> =
-  {
-    ACTIVE: {
-      label: 'Active',
-      color: 'text-emerald-300',
-      bg: 'bg-emerald-500/10',
-    },
-    ARCHIVED: {
-      label: 'Archived',
-      color: 'text-slate-300',
-      bg: 'bg-slate-500/10',
-    },
-    EXPIRED: {
-      label: 'Expired',
-      color: 'text-rose-300',
-      bg: 'bg-rose-500/10',
-    },
-  }
+{
+  ACTIVE: {
+    label: 'Active',
+    color: 'text-emerald-300',
+    bg: 'bg-emerald-500/10',
+  },
+  ARCHIVED: {
+    label: 'Archived',
+    color: 'text-slate-300',
+    bg: 'bg-slate-500/10',
+  },
+  EXPIRED: {
+    label: 'Expired',
+    color: 'text-rose-300',
+    bg: 'bg-rose-500/10',
+  },
+}
 
 export function getStatusMeta(
   status: ApplicationStatus | VacancyStatus,

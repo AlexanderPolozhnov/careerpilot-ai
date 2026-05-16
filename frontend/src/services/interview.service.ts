@@ -49,6 +49,8 @@ export interface UpdateInterviewDto {
   result?: InterviewResult
 }
 
+export type InterviewFormValues = CreateInterviewDto
+
 export const interviewService = {
   list: (filters: InterviewFilters = {}): Promise<PagedResponse<Interview>> => {
     if (USE_MOCKS) {
@@ -63,18 +65,18 @@ export const interviewService = {
   getById: (id: string): Promise<Interview> =>
     USE_MOCKS
       ? (() => {
-          const found = mockInterviews.find((i) => i.id === id)
-          if (!found) return Promise.reject(new Error('Interview not found'))
-          return Promise.resolve(found)
-        })()
+        const found = mockInterviews.find((i) => i.id === id)
+        if (!found) return Promise.reject(new Error('Interview not found'))
+        return Promise.resolve(found)
+      })()
       : api.get<Interview>(`/interviews/${id}`),
 
   create: (data: CreateInterviewDto): Promise<Interview> =>
     USE_MOCKS
       ? Promise.resolve({
-          id: `i_mock_${Date.now()}`,
-          ...data,
-        })
+        id: `i_mock_${Date.now()}`,
+        ...data,
+      })
       : api.post<Interview>('/interviews', data),
 
   update: (id: string, data: UpdateInterviewDto): Promise<Interview> =>

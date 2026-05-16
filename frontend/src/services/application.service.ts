@@ -71,32 +71,32 @@ export const applicationService = {
   getById: (id: string): Promise<Application> =>
     USE_MOCKS
       ? (() => {
-          const found = mockApplications.find((a) => a.id === id)
-          if (!found) return Promise.reject(new Error('Application not found'))
-          return Promise.resolve(found)
-        })()
+        const found = mockApplications.find((a) => a.id === id)
+        if (!found) return Promise.reject(new Error('Application not found'))
+        return Promise.resolve(found)
+      })()
       : api.get<Application>(`/applications/${id}`),
 
   create: (data: CreateApplicationDto): Promise<Application> =>
     USE_MOCKS
       ? Promise.resolve({
-          id: `a_mock_${Date.now()}`,
-          vacancyId: data.vacancyId,
-          status: data.status ?? 'NEW',
-          notes: data.notes,
-          appliedAt: data.appliedAt,
-          resumeId: data.resumeId,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        })
+        id: `a_mock_${Date.now()}`,
+        vacancyId: data.vacancyId,
+        status: data.status ?? 'NEW',
+        notes: data.notes,
+        appliedAt: data.appliedAt,
+        resumeId: data.resumeId,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
       : api.post<Application>('/applications', data),
 
   updateStatus: (id: string, data: UpdateApplicationStatusDto): Promise<ApplicationStatusUpdateResponse> =>
     USE_MOCKS
       ? applicationService.getById(id).then((a) => ({
-          id: a.id,
-          payload: a.notes,
-        }))
+        id: a.id,
+        payload: a.notes,
+      }))
       : api.patch<ApplicationStatusUpdateResponse>(`/applications/${id}/status`, data),
 
   update: (id: string, data: Partial<CreateApplicationDto>): Promise<Application> =>
@@ -111,10 +111,10 @@ export const applicationService = {
   board: (): Promise<Record<ApplicationStatus, Application[]>> =>
     USE_MOCKS
       ? Promise.resolve(
-          ALL_STATUSES.reduce((acc, s) => {
-            acc[s] = mockApplications.filter((a) => a.status === s)
-            return acc
-          }, {} as Record<ApplicationStatus, Application[]>),
-        )
+        ALL_STATUSES.reduce((acc, s) => {
+          acc[s] = mockApplications.filter((a) => a.status === s)
+          return acc
+        }, {} as Record<ApplicationStatus, Application[]>),
+      )
       : api.get<Record<ApplicationStatus, Application[]>>('/applications/board'),
 }

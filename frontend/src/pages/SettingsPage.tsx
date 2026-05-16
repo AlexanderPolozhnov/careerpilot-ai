@@ -49,7 +49,7 @@ const professionalProfileSchema = z.object({
     location: z.string().optional(),
     yearsOfExperience: z.preprocess(
         (val) => (val === '' || isNaN(Number(val)) ? undefined : Number(val)),
-        z.number({ invalid_type_error: 'forms.validation.number' })
+        z.number({ message: 'forms.validation.number' })
             .min(0, { message: 'forms.validation.min' })
             .max(50, { message: 'forms.validation.max' })
             .optional()
@@ -190,7 +190,7 @@ export default function SettingsPage() {
     })
 
     const professionalProfileForm = useForm<ProfessionalProfileValues>({
-        resolver: zodResolver(professionalProfileSchema),
+        resolver: zodResolver(professionalProfileSchema) as any,
         defaultValues: {
             headline: '',
             location: '',
@@ -330,7 +330,7 @@ export default function SettingsPage() {
             headline: values.headline,
             location: values.location,
             yearsOfExperience: values.yearsOfExperience,
-            skills: values.skills ? values.skills.split(',').map(s => s.trim()).filter(s => s) : [],
+            skills: values.skills ? values.skills.split(',').map((s: string) => s.trim()).filter((s: string) => s) : [],
             linkedinUrl: values.linkedinUrl,
             githubUrl: values.githubUrl,
             portfolioUrl: values.portfolioUrl,
