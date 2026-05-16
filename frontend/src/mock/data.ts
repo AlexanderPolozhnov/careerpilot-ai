@@ -226,7 +226,6 @@ export const mockInterviews: Interview[] = [
     timezone: 'UTC',
     meetingLink: 'https://meet.google.com/abc-defg-hij',
     notes: 'Focus on React internals and TypeScript generics',
-    createdAt: '2024-02-15T10:00:00Z',
   },
   {
     id: 'i2',
@@ -235,7 +234,6 @@ export const mockInterviews: Interview[] = [
     scheduledAt: '2024-02-20T10:00:00Z',
     timezone: 'UTC',
     meetingLink: 'https://zoom.us/j/123456789',
-    createdAt: '2024-02-14T10:00:00Z',
   },
 ]
 
