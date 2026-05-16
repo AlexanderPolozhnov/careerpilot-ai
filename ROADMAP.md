@@ -96,7 +96,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] CI pipeline with GitHub Actions.
 - [ ] Full-stack Docker Compose setup.
 - [ ] Deployment notes.и
-- [ ] Security hardening: refresh/revocation strategy, rate limits for AI endpoints, audit trail.
+- [x] Security hardening: refresh/revocation strategy [x], rate limits for AI endpoints [x], audit trail [ ].
 
 ## Current Development Focus
 

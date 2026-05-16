@@ -437,6 +437,7 @@
     "serverError": "Server error. Please try again later.",
     "networkError": "Network error. Check your connection.",
     "unexpected": "An unexpected error occurred.",
+    "tooManyRequests": "Too many requests. Please wait.",
     "boundaryTitle": "Application Error",
     "boundaryMessage": "Something went wrong in the application interface.",
     "reload": "Reload page"
