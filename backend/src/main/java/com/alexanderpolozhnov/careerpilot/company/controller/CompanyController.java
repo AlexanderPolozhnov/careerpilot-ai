@@ -28,7 +28,7 @@ public class CompanyController {
     @GetMapping
     public PagedResponse<CompanyResponse> list(
             @Min(0) @RequestParam(defaultValue = "0") int page,
-            @Min(1) @Max(100) @RequestParam(defaultValue = "20") int size,
+            @Min(1) @Max(1000) @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sort,
             @RequestParam(defaultValue = "DESC") String direction,
             @RequestParam(required = false) String search

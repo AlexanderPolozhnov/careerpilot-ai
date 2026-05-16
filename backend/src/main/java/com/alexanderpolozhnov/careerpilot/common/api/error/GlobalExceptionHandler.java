@@ -7,6 +7,7 @@ import com.alexanderpolozhnov.careerpilot.auth.exception.InvalidCredentialsExcep
 import com.alexanderpolozhnov.careerpilot.common.ratelimit.RateLimitException;
 import com.alexanderpolozhnov.careerpilot.notification.exception.NotificationException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -31,10 +33,24 @@ public class GlobalExceptionHandler {
         Map<String, String> fieldErrors = exception.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .collect(java.util.stream.Collectors.toMap(
+                .collect(Collectors.toMap(
                         FieldError::getField,
                         fieldError -> fieldError.getDefaultMessage() == null ? "Invalid value"
                                 : fieldError.getDefaultMessage(),
+                        (left, right) -> left));
+
+        return build(HttpStatus.BAD_REQUEST, "Validation failed", "VALIDATION_ERROR", request, fieldErrors);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(
+            ConstraintViolationException exception,
+            HttpServletRequest request) {
+        Map<String, String> fieldErrors = exception.getConstraintViolations()
+                .stream()
+                .collect(Collectors.toMap(
+                        violation -> violation.getPropertyPath().toString(),
+                        violation -> violation.getMessage(),
                         (left, right) -> left));
 
         return build(HttpStatus.BAD_REQUEST, "Validation failed", "VALIDATION_ERROR", request, fieldErrors);

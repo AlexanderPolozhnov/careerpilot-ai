@@ -36,7 +36,7 @@ public class ApplicationController {
     @GetMapping
     public PagedResponse<ApplicationResponse> list(
         @Min(0) @RequestParam(defaultValue = "0") int page,
-        @Min(1) @Max(100) @RequestParam(defaultValue = "20") int size,
+        @Min(1) @Max(1000) @RequestParam(defaultValue = "20") int size,
         @RequestParam(required = false) ApplicationStatus status,
         @RequestParam(required = false) UUID vacancyId
     ) {

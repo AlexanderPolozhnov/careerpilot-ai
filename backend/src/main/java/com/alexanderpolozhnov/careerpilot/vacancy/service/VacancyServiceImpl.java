@@ -72,6 +72,8 @@ public class VacancyServiceImpl implements VacancyService {
             String companyId,
             String tag
     ) {
+        log.info("vacancies.list start page={} size={} sort={} direction={} search={} status={} remote={} companyId={} tag={}",
+                page, size, sort, direction, search, status, remote, companyId, tag);
         UUID userId = currentUserResolver.resolveRequired().getId();
         Pageable pageable = PageRequest.of(
                 Math.max(page, 0),
@@ -86,11 +88,16 @@ public class VacancyServiceImpl implements VacancyService {
                 .and(byCompany(companyId))
                 .and(byTag(tag));
 
-        Page<VacancyDto> mappedPage = vacancyRepository.findAll(specification, pageable)
-                .map(vacancyMapper::toDto);
-        log.info("vacancies.list userId={} page={} size={} total={} filters(status={}, remote={}, companyId={})",
-                userId, page, size, mappedPage.getTotalElements(), status, remote, companyId);
-        return PagedResponse.fromPage(mappedPage);
+        try {
+            Page<VacancyDto> mappedPage = vacancyRepository.findAll(specification, pageable)
+                    .map(vacancyMapper::toDto);
+            log.info("vacancies.list success userId={} total={}", userId, mappedPage.getTotalElements());
+            return PagedResponse.fromPage(mappedPage);
+        } catch (Exception e) {
+            log.error("vacancies.list failed userId={} filters(search={}, status={}, remote={}, companyId={}, tag={}) error={}",
+                    userId, search, status, remote, companyId, tag, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Override
@@ -165,6 +172,7 @@ public class VacancyServiceImpl implements VacancyService {
         try {
             parsed = UUID.fromString(companyId);
         } catch (IllegalArgumentException exception) {
+            log.warn("Invalid companyId format: {}", companyId);
             throw new IllegalArgumentException("Invalid companyId");
         }
         return companyRepository.findByIdAndUserId(parsed, userId)
@@ -231,7 +239,8 @@ public class VacancyServiceImpl implements VacancyService {
             VacancyStatus parsed = VacancyStatus.valueOf(status.trim().toUpperCase());
             return (root, query, cb) -> cb.equal(root.get("status"), parsed);
         } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException("Invalid status value");
+            log.warn("Invalid vacancy status requested: {}", status);
+            return null; // Ignore invalid status instead of 500
         }
     }
 
@@ -244,7 +253,8 @@ public class VacancyServiceImpl implements VacancyService {
                     com.alexanderpolozhnov.careerpilot.vacancy.entity.RemoteType.valueOf(remote.trim().toUpperCase());
             return (root, query, cb) -> cb.equal(root.get("remoteType"), parsed);
         } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException("Invalid remote value");
+            log.warn("Invalid remote type requested: {}", remote);
+            return null; // Ignore invalid remote instead of 500
         }
     }
 
@@ -256,7 +266,8 @@ public class VacancyServiceImpl implements VacancyService {
             UUID parsed = UUID.fromString(companyId);
             return (root, query, cb) -> cb.equal(root.get("company").get("id"), parsed);
         } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException("Invalid companyId");
+            log.warn("Invalid companyId format requested: {}", companyId);
+            return null; // Ignore invalid companyId instead of 500
         }
     }
 
