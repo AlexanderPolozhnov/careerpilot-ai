@@ -9,6 +9,7 @@ import DashboardPage from '../pages/DashboardPage'
 import VacanciesPage from '../pages/VacanciesPage'
 import VacancyDetailPage from '../pages/VacancyDetailPage'
 import ApplicationsPage from '../pages/ApplicationsPage'
+import InterviewsPage from '../pages/InterviewsPage'
 import CompaniesPage from '../pages/CompaniesPage'
 import AiAssistantPage from '../pages/AiAssistantPage'
 import AnalyticsPage from '../pages/AnalyticsPage'
@@ -51,6 +52,7 @@ export function AppRouter() {
         <Route path="vacancies" element={<VacanciesPage />} />
         <Route path="vacancies/:id" element={<VacancyDetailPage />} />
         <Route path="applications" element={<ApplicationsPage />} />
+        <Route path="interviews" element={<InterviewsPage />} />
         <Route path="companies" element={<CompaniesPage />} />
         <Route path="ai-assistant" element={<AiAssistantPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />

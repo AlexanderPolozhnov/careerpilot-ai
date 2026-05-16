@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { LayoutGrid, Briefcase, FileText, Building2, Sparkles, BarChart3, Settings, Lightbulb, Command } from 'lucide-react'
+import { LayoutGrid, Briefcase, FileText, Building2, Sparkles, BarChart3, Settings, Lightbulb, Command, Calendar } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
@@ -11,6 +11,7 @@ export function Sidebar() {
     { label: t('navigation.dashboard'), to: '/app/dashboard', icon: LayoutGrid },
     { label: t('navigation.vacancies'), to: '/app/vacancies', icon: Briefcase },
     { label: t('navigation.applications'), to: '/app/applications', icon: FileText },
+    { label: t('navigation.interviews'), to: '/app/interviews', icon: Calendar },
     { label: t('navigation.companies'), to: '/app/companies', icon: Building2 },
     { label: t('navigation.aiAssistant'), to: '/app/ai-assistant', icon: Sparkles },
     { label: t('navigation.analytics'), to: '/app/analytics', icon: BarChart3 },
@@ -32,6 +33,11 @@ export function Sidebar() {
       'navigation.tips.applications.0',
       'navigation.tips.applications.1',
       'navigation.tips.applications.2',
+    ],
+    '/app/interviews': [
+      'navigation.tips.interviews.0',
+      'navigation.tips.interviews.1',
+      'navigation.tips.interviews.2',
     ],
     '/app/companies': [
       'navigation.tips.companies.0',

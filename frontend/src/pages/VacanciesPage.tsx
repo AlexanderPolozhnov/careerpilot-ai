@@ -190,26 +190,24 @@ export default function VacanciesPage() {
                     {/* Filters */}
                     <div className="flex items-center gap-3 flex-wrap">
                         <select
-                            className="h-10 px-3 pr-8 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-lg text-[13px] text-[#8b8fa3] focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200 appearance-none cursor-pointer"
+                            className="select w-auto"
                             value={status}
                             onChange={(e) => setStatus(e.target.value as VacancyStatus | 'ALL')}
-                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7590' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
                         >
-                            <option value="ALL">{t('vacancies.allStatuses')}</option>
-                            <option value="ACTIVE">Active</option>
-                            <option value="ARCHIVED">Archived</option>
-                            <option value="EXPIRED">Expired</option>
+                            <option value="ALL" className="select-option">{t('vacancies.allStatuses')}</option>
+                            <option value="ACTIVE" className="select-option">Active</option>
+                            <option value="ARCHIVED" className="select-option">Archived</option>
+                            <option value="EXPIRED" className="select-option">Expired</option>
                         </select>
                         <select
-                            className="h-10 px-3 pr-8 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-lg text-[13px] text-[#8b8fa3] focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200 appearance-none cursor-pointer"
+                            className="select w-auto"
                             value={remote}
                             onChange={(e) => setRemote(e.target.value as RemoteType | 'ALL')}
-                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7590' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
                         >
-                            <option value="ALL">{t('vacancies.allModes')}</option>
-                            <option value="REMOTE">Remote</option>
-                            <option value="HYBRID">Hybrid</option>
-                            <option value="ON_SITE">On-site</option>
+                            <option value="ALL" className="select-option">{t('vacancies.allModes')}</option>
+                            <option value="REMOTE" className="select-option">Remote</option>
+                            <option value="HYBRID" className="select-option">Hybrid</option>
+                            <option value="ON_SITE" className="select-option">On-site</option>
                         </select>
 
                         {/* View toggle */}

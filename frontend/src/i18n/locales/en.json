@@ -22,6 +22,7 @@
     "dashboard": "Dashboard",
     "vacancies": "Vacancies",
     "applications": "Applications",
+    "interviews": "Interviews",
     "companies": "Companies",
     "aiAssistant": "AI Assistant",
     "analytics": "Analytics",
@@ -45,6 +46,11 @@
         "Move applications between statuses right after each company interaction.",
         "Mark interviews separately so analytics stays useful.",
         "Do not keep stale applications in active statuses if there has been no response."
+      ],
+      "interviews": [
+        "Schedule interviews in advance so you can prepare better.",
+        "Add notes after each interview for future preparation.",
+        "Track results to understand your strengths and weaknesses."
       ],
       "companies": [
         "Add company notes so you can compare context, not only vacancy titles.",
@@ -268,6 +274,53 @@
     "finalRound": "FINAL ROUND",
     "offer": "OFFER",
     "rejected": "REJECTED"
+  },
+  "interviews": {
+    "title": "Interviews",
+    "single": "Interview",
+    "type": "Type",
+    "scheduledAt": "Time",
+    "meetingLink": "Link",
+    "result": "Result",
+    "notes": "Notes",
+    "form": {
+      "createTitle": "Schedule Interview",
+      "editTitle": "Edit Interview",
+      "application": "Application",
+      "selectApplication": "Select application",
+      "type": "Interview type",
+      "scheduledAt": "Date and time",
+      "timezone": "Timezone",
+      "meetingLink": "Meeting link",
+      "notes": "Notes",
+      "result": "Result"
+    },
+    "emptyState": "No interviews yet",
+    "emptyStateDescription": "Schedule your first interview to get started.",
+    "deleteTitle": "Delete Interview",
+    "deleteConfirm": "Are you sure you want to delete this interview? This action cannot be undone.",
+    "allTypes": "All types",
+    "allResults": "All results",
+    "interviewsCount_one": "{{count}} interview",
+    "interviewsCount_other": "{{count}} interviews",
+    "types": {
+      "PHONE": "Phone Screen",
+      "HR": "HR Interview",
+      "HR_SCREEN": "HR Screen",
+      "TECHNICAL": "Technical Interview",
+      "TECH_SCREEN": "Technical Screen",
+      "TECH_INTERVIEW": "Technical Interview",
+      "SYSTEM_DESIGN": "System Design",
+      "CULTURE_FIT": "Culture Fit",
+      "FINAL": "Final Interview",
+      "OTHER": "Other"
+    },
+    "results": {
+      "PENDING": "Pending",
+      "PASSED": "Passed",
+      "FAILED": "Failed",
+      "CANCELLED": "Cancelled"
+    }
   },
   "companies": {
     "title": "Companies",

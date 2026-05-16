@@ -60,9 +60,9 @@ export function CompanyForm({ onSubmit, onCancel, initialValues, isSubmitting }:
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="size" className="text-xs text-ink-dim">{t('companies.form.size')}</label>
-          <select id="size" {...form.register('size')} className="input mt-1">
-            <option value="">{t('companies.form.selectSize')}</option>
-            {companySizeValues.map(v => <option key={v} value={v}>{v}</option>)}
+          <select id="size" {...form.register('size')} className="select mt-1">
+            <option value="" className="select-option">{t('companies.form.selectSize')}</option>
+            {companySizeValues.map(v => <option key={v} value={v} className="select-option">{v}</option>)}
           </select>
         </div>
         <div>

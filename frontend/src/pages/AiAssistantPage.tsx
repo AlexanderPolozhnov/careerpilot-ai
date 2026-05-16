@@ -307,16 +307,16 @@ export default function AiAssistantPage() {
                           {t('aiAssistant.tone')}
                         </label>
                         <select
-                          className="h-11 w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 text-sm text-white outline-none transition-all focus:border-violet-500/50 focus:bg-white/[0.05] focus:ring-2 focus:ring-violet-500/10 appearance-none cursor-pointer"
+                          className="select"
                           {...form.register('tone')}
                         >
-                          <option value="PROFESSIONAL" className="bg-[#0a0f1a] text-white">
+                          <option value="PROFESSIONAL" className="select-option">
                             {t('aiAssistant.toneProfessional')}
                           </option>
-                          <option value="FRIENDLY" className="bg-[#0a0f1a] text-white">
+                          <option value="FRIENDLY" className="select-option">
                             {t('aiAssistant.toneFriendly')}
                           </option>
-                          <option value="ENTHUSIASTIC" className="bg-[#0a0f1a] text-white">
+                          <option value="ENTHUSIASTIC" className="select-option">
                             {t('aiAssistant.toneEnthusiastic')}
                           </option>
                         </select>

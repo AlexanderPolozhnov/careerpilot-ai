@@ -469,14 +469,14 @@ Response `AnalyticsSummary`:
 }
 ```
 
-## Dashboard — USED BY FRONTEND
+## Dashboard тАФ USED BY FRONTEND
 
 Frontend source:
 
 - `frontend/src/pages/DashboardPage.tsx`
 - `frontend/src/services/dashboard.service.ts`
 
-### `GET /dashboard/summary` — USED BY FRONTEND
+### `GET /dashboard/summary` тАФ USED BY FRONTEND
 
 Response:
 
@@ -495,7 +495,54 @@ Response:
 }
 ```
 
-## Settings, preferences, notifications — USED BY FRONTEND
+## Interviews — USED BY FRONTEND
+
+Frontend source: `frontend/src/services/interview.service.ts`.
+
+### `GET /interviews` — USED BY FRONTEND
+
+Query params:
+- `page`
+- `size`
+- `sortBy`
+- `direction`
+- `q` (search)
+
+Response: `PagedResponse<Interview>`.
+
+### `GET /interviews/{id}` — USED BY FRONTEND
+
+Response: `Interview`.
+
+### `POST /interviews` — USED BY FRONTEND
+
+Request `InterviewRequest`:
+```json
+{
+  "applicationId": "app1",
+  "type": "TECHNICAL",
+  "scheduledAt": "2024-05-20T10:00:00Z",
+  "timezone": "Europe/Moscow",
+  "meetingLink": "https://zoom.us/j/123",
+  "notes": "Preparation: study system design",
+  "result": "PENDING"
+}
+```
+
+Response: `Interview`.
+
+### `PUT /interviews/{id}` — USED BY FRONTEND
+
+Request: partial `InterviewRequest`.
+
+Response: `Interview`.
+
+### `DELETE /interviews/{id}` — USED BY FRONTEND
+
+Response: `204 No Content`.
+
+## Settings, preferences, notifications тАФ USED BY FRONTEND
+
 
 Frontend source:
 
@@ -635,6 +682,7 @@ Response: `204 No Content`.
 | `VacanciesPage` | `GET /vacancies` |
 | `VacancyDetailPage` | `GET /vacancies/{id}`, `GET /ai/history?type=VACANCY_ANALYSIS`, `POST /applications`, `POST /ai/analyze-vacancy` |
 | `ApplicationsPage` | `GET /applications/board` |
+| `InterviewsPage` | `GET /interviews`, `POST /interviews`, `PUT /interviews/{id}`, `DELETE /interviews/{id}` |
 | `CompaniesPage` | `GET /companies`, `GET /vacancies` |
 | `AiAssistantPage` | `GET /ai/history`, `POST /ai/analyze-vacancy`, `POST /ai/resume-match`, `POST /ai/cover-letter`, `POST /ai/interview-questions` |
 | `AnalyticsPage` | `GET /analytics/summary` |

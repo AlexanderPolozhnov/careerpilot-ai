@@ -68,10 +68,10 @@ export function VacancyForm({ onSubmit, onCancel, initialValues, isSubmitting }:
 
       <div>
         <label htmlFor="companyId" className="text-xs text-ink-dim">{t('vacancies.form.company')}</label>
-        <select id="companyId" {...form.register('companyId')} className="input mt-1">
-          <option value="">{t('vacancies.form.selectCompany')}</option>
+        <select id="companyId" {...form.register('companyId')} className="select mt-1">
+          <option value="" className="select-option">{t('vacancies.form.selectCompany')}</option>
           {companies.map(c => (
-            <option key={c.id} value={c.id}>{c.name}</option>
+            <option key={c.id} value={c.id} className="select-option">{c.name}</option>
           ))}
         </select>
         {form.formState.errors.companyId && <p className="text-xs text-danger mt-1">{form.formState.errors.companyId.message}</p>}
@@ -102,14 +102,14 @@ export function VacancyForm({ onSubmit, onCancel, initialValues, isSubmitting }:
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
          <div>
           <label htmlFor="remote" className="text-xs text-ink-dim">{t('vacancies.form.remote')}</label>
-          <select id="remote" {...form.register('remote')} className="input mt-1">
-            {remoteTypeValues.map(v => <option key={v} value={v}>{v}</option>)}
+          <select id="remote" {...form.register('remote')} className="select mt-1">
+            {remoteTypeValues.map(v => <option key={v} value={v} className="select-option">{v}</option>)}
           </select>
         </div>
          <div>
           <label htmlFor="contractType" className="text-xs text-ink-dim">{t('vacancies.form.contractType')}</label>
-          <select id="contractType" {...form.register('contractType')} className="input mt-1">
-            {contractTypeValues.map(v => <option key={v} value={v}>{v}</option>)}
+          <select id="contractType" {...form.register('contractType')} className="select mt-1">
+            {contractTypeValues.map(v => <option key={v} value={v} className="select-option">{v}</option>)}
           </select>
         </div>
       </div>

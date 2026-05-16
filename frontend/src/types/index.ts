@@ -117,17 +117,20 @@ export type ApplicationStatus =
 
 // ─── Interview ────────────────────────────────────────────────────────────────
 
+export type InterviewResult = 'PENDING' | 'PASSED' | 'FAILED' | 'CANCELLED'
+
 export interface Interview {
   id: string
   applicationId: string
-  application?: Application
   type: InterviewType
   scheduledAt: string
-  duration?: number
-  location?: string
+  timezone?: string
+  meetingLink?: string
+  result?: InterviewResult
   notes?: string
-  outcome?: string
-  createdAt: string
+  // Additional fields from DashboardSummaryDto if needed
+  companyName?: string
+  vacancyTitle?: string
 }
 
 export type InterviewType =
