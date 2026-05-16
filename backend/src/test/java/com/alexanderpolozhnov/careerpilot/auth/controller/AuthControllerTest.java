@@ -2,6 +2,7 @@ package com.alexanderpolozhnov.careerpilot.auth.controller;
 
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthResponse;
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthUserResponse;
+import com.alexanderpolozhnov.careerpilot.auth.service.AuthResult;
 import com.alexanderpolozhnov.careerpilot.auth.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +40,7 @@ class AuthControllerTest {
     @Test
     void registerHappyPath() throws Exception {
         AuthUserResponse user = new AuthUserResponse(UUID.randomUUID(), "user@example.com", "Alex", null, Instant.now());
-        when(authService.register(any())).thenReturn(new AuthResponse("jwt-token", user));
+        when(authService.register(any())).thenReturn(new AuthResult(new AuthResponse("jwt-token", user), "refresh-token"));
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -52,7 +53,7 @@ class AuthControllerTest {
     @Test
     void loginHappyPath() throws Exception {
         AuthUserResponse user = new AuthUserResponse(UUID.randomUUID(), "user@example.com", "Alex", null, Instant.now());
-        when(authService.login(any())).thenReturn(new AuthResponse("jwt-token", user));
+        when(authService.login(any())).thenReturn(new AuthResult(new AuthResponse("jwt-token", user), "refresh-token"));
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

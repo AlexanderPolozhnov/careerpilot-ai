@@ -34,9 +34,12 @@ export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY)
 }
 
+let isRefreshing = false
+let refreshPromise: Promise<string> | null = null
+
 async function request<T>(
   path: string,
-  options: RequestInit = {},
+  options: RequestInit & { _retry?: boolean } = {},
 ): Promise<T> {
   const token = getToken()
   const headers: Record<string, string> = {
@@ -48,13 +51,47 @@ async function request<T>(
     headers['Authorization'] = `Bearer ${token}`
   }
 
+  const fetchOptions: RequestInit = {
+    ...options,
+    headers,
+    credentials: 'include' // Needed for HttpOnly refresh_token cookie
+  }
+
   try {
-    const response = await fetch(`${API_BASE}${path}`, {
-      ...options,
-      headers,
-    })
+    const response = await fetch(`${API_BASE}${path}`, fetchOptions)
 
     if (!response.ok) {
+      if (response.status === 401 && !options._retry && !path.includes('/auth/refresh') && !path.includes('/auth/login')) {
+        if (!isRefreshing) {
+          isRefreshing = true
+          refreshPromise = fetch(`${API_BASE}/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include' // Send the cookie
+          })
+            .then(async (res) => {
+              if (!res.ok) throw new Error('Refresh failed')
+              const data = await res.json()
+              setToken(data.accessToken)
+              return data.accessToken
+            })
+            .finally(() => {
+              isRefreshing = false
+            })
+        }
+
+        try {
+          await refreshPromise
+          // Retry the original request
+          return request<T>(path, { ...options, _retry: true })
+        } catch (refreshErr) {
+          clearToken()
+          if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/auth')) {
+            window.location.href = '/login'
+          }
+          throw new ApiError(401, 'Session expired')
+        }
+      }
+
       const errorData = await response.json().catch(() => null)
       const message = (errorData as { message?: string })?.message ?? response.statusText
       
@@ -83,8 +120,8 @@ async function request<T>(
 function handleHttpError(status: number, message: string) {
   switch (status) {
     case 401:
+      // In case 401 leaks through (e.g. from /auth/refresh)
       clearToken()
-      // Redirect to login if not already there
       if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/auth')) {
         window.location.href = '/login'
       }
@@ -112,14 +149,14 @@ function handleHttpError(status: number, message: string) {
 export const api = {
   get: <T>(path: string) => request<T>(path),
 
-  post: <T>(path: string, body: unknown) =>
-    request<T>(path, { method: 'POST', body: JSON.stringify(body) }),
+  post: <T>(path: string, body?: unknown) =>
+    request<T>(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined }),
 
-  put: <T>(path: string, body: unknown) =>
-    request<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
+  put: <T>(path: string, body?: unknown) =>
+    request<T>(path, { method: 'PUT', body: body ? JSON.stringify(body) : undefined }),
 
-  patch: <T>(path: string, body: unknown) =>
-    request<T>(path, { method: 'PATCH', body: JSON.stringify(body) }),
+  patch: <T>(path: string, body?: unknown) =>
+    request<T>(path, { method: 'PATCH', body: body ? JSON.stringify(body) : undefined }),
 
   delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
 }
@@ -136,3 +173,4 @@ export function buildQuery(params: Record<string, string | number | boolean | un
   const str = q.toString()
   return str ? `?${str}` : ''
 }
+

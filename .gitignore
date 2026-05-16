@@ -62,3 +62,6 @@ Thumbs.db
 **/.aiassistant/
 private-notes/
 backend/.aiassistant/rules/.aiignore
+
+# Test output files
+backend/test_compile_output.txt

@@ -1,6 +1,7 @@
 package com.alexanderpolozhnov.careerpilot.auth.service;
 
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
+import com.alexanderpolozhnov.careerpilot.auth.entity.RefreshTokenEntity;
 import com.alexanderpolozhnov.careerpilot.auth.exception.DuplicateEmailException;
 import com.alexanderpolozhnov.careerpilot.auth.exception.InvalidCredentialsException;
 import com.alexanderpolozhnov.careerpilot.auth.repository.AuthRepository;
@@ -8,7 +9,6 @@ import com.alexanderpolozhnov.careerpilot.auth.request.ForgotPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.LoginRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.RegisterRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.ResetPasswordRequest;
-import com.alexanderpolozhnov.careerpilot.auth.response.AuthResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,10 +36,13 @@ class AuthServiceImplTest {
     private AuthRepository authRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private RefreshTokenService refreshTokenService;
     @InjectMocks
     private AuthServiceImpl authService;
 
     private AuthEntity user;
+    private RefreshTokenEntity refreshTokenEntity;
 
     @BeforeEach
     void setUp() {
@@ -51,6 +54,9 @@ class AuthServiceImplTest {
         user.setLastName("User");
         user.setCreatedAt(Instant.parse("2026-04-27T10:00:00Z"));
         user.setPasswordHash("hashed-password");
+
+        refreshTokenEntity = new RefreshTokenEntity();
+        refreshTokenEntity.setToken("refresh-token");
     }
 
     @Test
@@ -60,12 +66,14 @@ class AuthServiceImplTest {
         when(passwordEncoder.encode("secret123")).thenReturn("hashed-password");
         when(authRepository.save(any(AuthEntity.class))).thenReturn(user);
         when(jwtService.generateToken("user@example.com")).thenReturn("jwt-token");
+        when(refreshTokenService.createRefreshToken(user.getId())).thenReturn(refreshTokenEntity);
 
-        AuthResponse response = authService.register(request);
+        AuthResult result = authService.register(request);
 
-        assertThat(response.accessToken()).isEqualTo("jwt-token");
-        assertThat(response.user().email()).isEqualTo("user@example.com");
-        assertThat(response.user().name()).isEqualTo("Alex User");
+        assertThat(result.response().accessToken()).isEqualTo("jwt-token");
+        assertThat(result.response().user().email()).isEqualTo("user@example.com");
+        assertThat(result.response().user().name()).isEqualTo("Alex User");
+        assertThat(result.refreshToken()).isEqualTo("refresh-token");
 
         ArgumentCaptor<AuthEntity> captor = ArgumentCaptor.forClass(AuthEntity.class);
         verify(authRepository).save(captor.capture());
@@ -85,11 +93,13 @@ class AuthServiceImplTest {
         when(authRepository.findByEmail("user@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("secret123", "hashed-password")).thenReturn(true);
         when(jwtService.generateToken("user@example.com")).thenReturn("jwt-token");
+        when(refreshTokenService.createRefreshToken(user.getId())).thenReturn(refreshTokenEntity);
 
-        AuthResponse response = authService.login(new LoginRequest("user@example.com", "secret123"));
+        AuthResult result = authService.login(new LoginRequest("user@example.com", "secret123"));
 
-        assertThat(response.accessToken()).isEqualTo("jwt-token");
-        assertThat(response.user().id()).isEqualTo(user.getId());
+        assertThat(result.response().accessToken()).isEqualTo("jwt-token");
+        assertThat(result.response().user().id()).isEqualTo(user.getId());
+        assertThat(result.refreshToken()).isEqualTo("refresh-token");
     }
 
     @Test

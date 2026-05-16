@@ -45,6 +45,9 @@ export const authService = {
 
   logout: (): void => {
     clearToken()
+    if (!USE_MOCKS) {
+      api.post<void>('/auth/logout').catch(e => console.error('Logout API call failed', e))
+    }
   },
 
   me: (): Promise<User> => api.get<User>('/auth/me'),
@@ -55,3 +58,5 @@ export const authService = {
   resetPassword: (token: string, password: string): Promise<void> =>
     USE_MOCKS ? Promise.resolve() : api.post<void>('/auth/reset-password', { token, password }),
 }
+
+

@@ -1,7 +1,9 @@
 package com.alexanderpolozhnov.careerpilot.auth.service;
 
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
+import com.alexanderpolozhnov.careerpilot.auth.entity.RefreshTokenEntity;
 import com.alexanderpolozhnov.careerpilot.auth.entity.UserRole;
+import com.alexanderpolozhnov.careerpilot.auth.exception.AuthException;
 import com.alexanderpolozhnov.careerpilot.auth.exception.DuplicateEmailException;
 import com.alexanderpolozhnov.careerpilot.auth.exception.InvalidCredentialsException;
 import com.alexanderpolozhnov.careerpilot.auth.repository.AuthRepository;
@@ -29,9 +31,11 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
-    public AuthResponse login(LoginRequest request) {
+    @Transactional
+    public AuthResult login(LoginRequest request) {
         AuthEntity user = authRepository.findByEmail(request.email().trim().toLowerCase())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
@@ -39,7 +43,7 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        return buildAuthResponse(user);
+        return buildAuthResult(user);
     }
 
     @Override
@@ -82,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResult register(RegisterRequest request) {
         String normalizedEmail = request.email().trim().toLowerCase();
         if (authRepository.existsByEmail(normalizedEmail)) {
             throw new DuplicateEmailException("User with this email already exists");
@@ -97,7 +101,7 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(UserRole.USER);
         AuthEntity savedUser = authRepository.save(user);
 
-        return buildAuthResponse(savedUser);
+        return buildAuthResult(savedUser);
     }
 
     @Override
@@ -112,9 +116,32 @@ public class AuthServiceImpl implements AuthService {
         return toUserResponse(user);
     }
 
-    private AuthResponse buildAuthResponse(AuthEntity user) {
-        String token = jwtService.generateToken(user.getEmail());
-        return new AuthResponse(token, toUserResponse(user));
+    @Override
+    @Transactional
+    public AuthResult refresh(String token) {
+        RefreshTokenEntity refreshTokenEntity = refreshTokenService.findByToken(token)
+                .map(refreshTokenService::verifyExpiration)
+                .orElseThrow(() -> new AuthException("Refresh token is not in database!"));
+
+        AuthEntity user = refreshTokenEntity.getUser();
+        refreshTokenService.deleteByUserId(user.getId());
+        return buildAuthResult(user);
+    }
+
+    @Override
+    @Transactional
+    public void logout(String token) {
+        if (token != null && !token.isBlank()) {
+            refreshTokenService.findByToken(token)
+                    .ifPresent(rt -> refreshTokenService.deleteByUserId(rt.getUser().getId()));
+        }
+    }
+
+    private AuthResult buildAuthResult(AuthEntity user) {
+        String accessToken = jwtService.generateToken(user.getEmail());
+        RefreshTokenEntity refreshToken = refreshTokenService.createRefreshToken(user.getId());
+        AuthResponse response = new AuthResponse(accessToken, toUserResponse(user));
+        return new AuthResult(response, refreshToken.getToken());
     }
 
     private AuthUserResponse toUserResponse(AuthEntity user) {

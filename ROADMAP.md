@@ -58,7 +58,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Application API (POST /applications, GET/PUT/DELETE /applications/{id}).
 - [x] AI provider abstraction и Ollama-oriented layer (с fallback-заглушкой).
 - [x] Notification API alignment with frontend contract.
-- [ ] Unified validation coverage across public endpoints.
+- [x] Unified validation coverage across public endpoints.
 
 ## Phase 4 — Frontend/Backend Integration
 
@@ -95,7 +95,7 @@ Roadmap отражает текущее состояние перед первы
 - [ ] Frontend tests.
 - [x] CI pipeline with GitHub Actions.
 - [ ] Full-stack Docker Compose setup.
-- [ ] Deployment notes.
+- [ ] Deployment notes.и
 - [ ] Security hardening: refresh/revocation strategy, rate limits for AI endpoints, audit trail.
 
 ## Current Development Focus
