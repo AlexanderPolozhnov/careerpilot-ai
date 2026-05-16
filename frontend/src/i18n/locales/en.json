@@ -378,6 +378,20 @@
     "subtitle": "Manage your account preferences and settings",
     "profile": "Profile",
     "profileDescription": "These fields will map to `/users/me`.",
+    "professionalProfile": "Professional Profile",
+    "professionalProfileDescription": "Manage your professional information",
+    "headline": "Headline / Position",
+    "headlinePlaceholder": "e.g. Senior Frontend Engineer",
+    "yearsOfExperience": "Years of Experience",
+    "skills": "Skills",
+    "skillsPlaceholder": "React, TypeScript, Node.js",
+    "skillsHint": "Separate skills with commas",
+    "linkedinUrl": "LinkedIn",
+    "githubUrl": "GitHub",
+    "portfolioUrl": "Portfolio",
+    "profileSaved": "Profile saved successfully",
+    "profileError": "Error saving profile",
+    "saveProfile": "Save Profile",
     "notifications": "Notifications",
     "notificationsDescription": "Preferences (placeholders).",
     "name": "Name",
@@ -420,7 +434,10 @@
       "required": "This field is required",
       "invalidEmail": "Invalid email address",
       "minLength": "Minimum length is {{length}} characters",
-      "passwordMismatch": "Passwords do not match"
+      "passwordMismatch": "Passwords do not match",
+      "min": "Minimum value is {{min}}",
+      "max": "Maximum value is {{max}}",
+      "number": "Please enter a number"
     }
   },
   "messages": {

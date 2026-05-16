@@ -1836,3 +1836,23 @@ ight-0 и mt-2 для правильного выравнивания и отс�
 **Статус:** Готово. Все задачи из группы Security Hardening (Refresh tokens, Rate Limits, Audit Trail) завершены.
 
 
+
+## Update 2026-05-18 — Profile API Implementation
+
+**Сделано:**
+Реализован бэкенд и фронтенд для работы с профилем пользователя (Profile vertical slice).
+
+**Backend:**
+- **Migration**: V15__create_profiles_table.sql с таблицей profiles и JSONB полем skills.
+- **Domain**: ProfileEntity, ProfileRepository, ProfileMapper (MapStruct), ProfileService, ProfileController.
+- **Security**: Использование CurrentUserResolver.resolveRequired().getId() для связи userId с профилем.
+- **DTO**: ProfileRequest с аннотациями @Size, @Min, @Max и ProfileResponse.
+- **Тесты**: Успешно пройдены Unit-тесты (ProfileServiceImplTest и ProfileControllerTest).
+
+**Frontend:**
+- **Service**: profile.service.ts с методами getMe и updateMe.
+- **UI**: Вкладка профессионального профиля интегрирована в SettingsPage.tsx с ds-card формами. Скиллы вводятся через запятую.
+- **State**: React Query кэширует профиль по ключу ['profile', 'me'].
+- **i18n**: Локализация для профиля добавлена в u.json и en.json.
+
+**Статус:** Готово и проверено (6/6 тестов).

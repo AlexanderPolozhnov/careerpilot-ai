@@ -378,6 +378,20 @@
     "subtitle": "Управляйте настройками аккаунта и предпочтениями",
     "profile": "Профиль",
     "profileDescription": "Эти поля будут отправлены на `/users/me`.",
+    "professionalProfile": "Профессиональный профиль",
+    "professionalProfileDescription": "Управляйте своей профессиональной информацией",
+    "headline": "Заголовок / Должность",
+    "headlinePlaceholder": "Например, Senior Frontend Engineer",
+    "yearsOfExperience": "Опыт работы (лет)",
+    "skills": "Навыки",
+    "skillsPlaceholder": "React, TypeScript, Node.js",
+    "skillsHint": "Разделяйте навыки запятыми",
+    "linkedinUrl": "LinkedIn",
+    "githubUrl": "GitHub",
+    "portfolioUrl": "Портфолио",
+    "profileSaved": "Профиль успешно сохранен",
+    "profileError": "Ошибка при сохранении профиля",
+    "saveProfile": "Сохранить профиль",
     "notifications": "Уведомления",
     "notificationsDescription": "Предпочтения (примеры).",
     "name": "Имя",
@@ -420,7 +434,10 @@
       "required": "Это поле обязательно",
       "invalidEmail": "Введите корректный email",
       "minLength": "Минимальная длина {{length}} символов",
-      "passwordMismatch": "Пароли не совпадают"
+      "passwordMismatch": "Пароли не совпадают",
+      "min": "Минимальное значение {{min}}",
+      "max": "Максимальное значение {{max}}",
+      "number": "Введите число"
     }
   },
   "messages": {

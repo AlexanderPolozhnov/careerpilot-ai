@@ -71,6 +71,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Dashboard integration (replacing mock data with backend services).
 - [x] Settings/preferences integration.
 - [x] Notifications integration.
+- [x] Profile API integration.
 - [x] Manual API smoke scenarios documented and verified (`docs/SMOKE_SCENARIOS.md`).
 
 ## Phase 5 — AI Features

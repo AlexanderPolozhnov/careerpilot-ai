@@ -5,19 +5,23 @@ import com.alexanderpolozhnov.careerpilot.profile.response.ProfileResponse;
 import com.alexanderpolozhnov.careerpilot.profile.service.ProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/profiles")
+@RequestMapping("/api/profile")
 @RequiredArgsConstructor
+@Validated
 public class ProfileController {
-    private final ProfileService service;
+    private final ProfileService profileService;
 
-    @PostMapping
-    public ProfileResponse create(@Valid @RequestBody ProfileRequest request) {
-        return service.create(request);
+    @GetMapping("/me")
+    public ProfileResponse getMyProfile() {
+        return profileService.getMyProfile();
+    }
+
+    @PutMapping("/me")
+    public ProfileResponse updateMyProfile(@Valid @RequestBody ProfileRequest request) {
+        return profileService.updateMyProfile(request);
     }
 }

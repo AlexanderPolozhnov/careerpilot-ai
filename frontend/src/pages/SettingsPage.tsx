@@ -1,13 +1,15 @@
-import {useEffect, useState} from 'react'
-import {useForm, useWatch} from 'react-hook-form'
-import {useTranslation} from 'react-i18next'
-import {z} from 'zod'
-import {zodResolver} from '@hookform/resolvers/zod'
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
-import type {PreferencesRequest, UserUpdateRequest} from '@/services/settings.service'
-import {settingsService} from '@/services/settings.service'
-import {cn, formatRelative} from '@/lib/utils'
-import {notificationService} from '@/services/notification.service'
+import { useEffect, useState } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { PreferencesRequest, UserUpdateRequest } from '@/services/settings.service'
+import { settingsService } from '@/services/settings.service'
+import { profileService } from '@/services/profile.service'
+import { cn, formatRelative } from '@/lib/utils'
+import { notificationService } from '@/services/notification.service'
+import type { Profile } from '@/types'
 import {
     AlertTriangle,
     Bell,
@@ -25,8 +27,8 @@ import {
 } from 'lucide-react'
 
 const profileSchema = z.object({
-    name: z.string().min(2),
-    email: z.string().email(),
+    name: z.string().min(2, { message: 'auth.nameMinLength' }),
+    email: z.string().email({ message: 'auth.emailInvalid' }),
     location: z.string().optional(),
 })
 
@@ -37,11 +39,28 @@ const preferencesSchema = z.object({
     language: z.enum(['ru', 'en']),
 })
 
+const professionalProfileSchema = z.object({
+    headline: z.string().optional(),
+    location: z.string().optional(),
+    yearsOfExperience: z.preprocess(
+        (val) => (val === '' || isNaN(Number(val)) ? undefined : Number(val)),
+        z.number({ invalid_type_error: 'forms.validation.number' })
+            .min(0, { message: 'forms.validation.min' })
+            .max(50, { message: 'forms.validation.max' })
+            .optional()
+    ),
+    skills: z.string().optional(),
+    linkedinUrl: z.union([z.literal(''), z.string().url({ message: 'vacancies.form.errors.invalidUrl' })]).optional(),
+    githubUrl: z.union([z.literal(''), z.string().url({ message: 'vacancies.form.errors.invalidUrl' })]).optional(),
+    portfolioUrl: z.union([z.literal(''), z.string().url({ message: 'vacancies.form.errors.invalidUrl' })]).optional(),
+})
+
 type ProfileValues = z.infer<typeof profileSchema>
 type PreferencesValues = z.infer<typeof preferencesSchema>
+type ProfessionalProfileValues = z.infer<typeof professionalProfileSchema>
 
 // Toggle Switch Component
-function Toggle({checked, onChange, disabled = false}: {
+function Toggle({ checked, onChange, disabled = false }: {
     checked: boolean;
     onChange: (v: boolean) => void;
     disabled?: boolean
@@ -70,12 +89,12 @@ function Toggle({checked, onChange, disabled = false}: {
 }
 
 // Section Header Component
-function SectionHeader({icon: Icon, title, description}: { icon: typeof User; title: string; description: string }) {
+function SectionHeader({ icon: Icon, title, description }: { icon: typeof User; title: string; description: string }) {
     return (
         <div className="flex items-start gap-4 mb-6">
             <div
                 className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20 flex items-center justify-center">
-                <Icon className="w-5 h-5 text-violet-400"/>
+                <Icon className="w-5 h-5 text-violet-400" />
             </div>
             <div>
                 <h2 className="text-base font-semibold text-white">{title}</h2>
@@ -86,7 +105,7 @@ function SectionHeader({icon: Icon, title, description}: { icon: typeof User; ti
 }
 
 // Status Toast
-function StatusToast({type, message}: { type: 'success' | 'error'; message: string }) {
+function StatusToast({ type, message }: { type: 'success' | 'error'; message: string }) {
     return (
         <div
             className={cn(
@@ -97,10 +116,10 @@ function StatusToast({type, message}: { type: 'success' | 'error'; message: stri
         >
             {type === 'success' ? (
                 <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                    <Check className="w-3 h-3"/>
+                    <Check className="w-3 h-3" />
                 </div>
             ) : (
-                <AlertTriangle className="w-4 h-4"/>
+                <AlertTriangle className="w-4 h-4" />
             )}
             {message}
         </div>
@@ -108,37 +127,42 @@ function StatusToast({type, message}: { type: 'success' | 'error'; message: stri
 }
 
 export default function SettingsPage() {
-    const {t, i18n} = useTranslation()
+    const { t, i18n } = useTranslation()
     const queryClient = useQueryClient()
     const [deleteConfirm, setDeleteConfirm] = useState(false)
 
-    const {data: notificationsData} = useQuery({
+    const { data: notificationsData } = useQuery({
         queryKey: ['notifications'],
-        queryFn: () => notificationService.list({page: 0, size: 5}),
+        queryFn: () => notificationService.list({ page: 0, size: 5 }),
     })
 
     const markAsReadMutation = useMutation({
         mutationFn: (id: string) => notificationService.markAsRead(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['notifications']})
+            queryClient.invalidateQueries({ queryKey: ['notifications'] })
         },
     })
 
     const notifications = notificationsData?.content ?? []
 
-    const {data: userData} = useQuery({
+    const { data: userData } = useQuery({
         queryKey: ['users', 'me'],
         queryFn: () => settingsService.getMe(),
     })
 
-    const {data: prefsData} = useQuery({
+    const { data: prefsData } = useQuery({
         queryKey: ['preferences'],
         queryFn: () => settingsService.getPreferences(),
     })
 
+    const { data: profileData } = useQuery({
+        queryKey: ['profile', 'me'],
+        queryFn: () => profileService.getMe(),
+    })
+
     const profileForm = useForm<ProfileValues>({
         resolver: zodResolver(profileSchema),
-        defaultValues: {name: '', email: '', location: ''},
+        defaultValues: { name: '', email: '', location: '' },
     })
 
     const prefsForm = useForm<PreferencesValues>({
@@ -151,8 +175,21 @@ export default function SettingsPage() {
         },
     })
 
-    const weeklyDigest = useWatch({control: prefsForm.control, name: 'weeklyDigest'})
-    const interviewReminders = useWatch({control: prefsForm.control, name: 'interviewReminders'})
+    const professionalProfileForm = useForm<ProfessionalProfileValues>({
+        resolver: zodResolver(professionalProfileSchema),
+        defaultValues: {
+            headline: '',
+            location: '',
+            yearsOfExperience: undefined,
+            skills: '',
+            linkedinUrl: '',
+            githubUrl: '',
+            portfolioUrl: '',
+        },
+    })
+
+    const weeklyDigest = useWatch({ control: prefsForm.control, name: 'weeklyDigest' })
+    const interviewReminders = useWatch({ control: prefsForm.control, name: 'interviewReminders' })
 
     useEffect(() => {
         if (userData) {
@@ -176,17 +213,38 @@ export default function SettingsPage() {
         }
     }, [prefsData, prefsForm, i18n])
 
+    useEffect(() => {
+        if (profileData) {
+            professionalProfileForm.reset({
+                headline: profileData.headline ?? '',
+                location: profileData.location ?? '',
+                yearsOfExperience: profileData.yearsOfExperience,
+                skills: profileData.skills?.join(', ') ?? '',
+                linkedinUrl: profileData.linkedinUrl ?? '',
+                githubUrl: profileData.githubUrl ?? '',
+                portfolioUrl: profileData.portfolioUrl ?? '',
+            })
+        }
+    }, [profileData, professionalProfileForm])
+
     const updateUserMutation = useMutation({
         mutationFn: (data: UserUpdateRequest) => settingsService.updateMe(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['users', 'me']})
+            queryClient.invalidateQueries({ queryKey: ['users', 'me'] })
         },
     })
 
     const updatePrefsMutation = useMutation({
         mutationFn: (data: PreferencesRequest) => settingsService.updatePreferences(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['preferences']})
+            queryClient.invalidateQueries({ queryKey: ['preferences'] })
+        },
+    })
+
+    const updateProfileMutation = useMutation({
+        mutationFn: (data: Partial<Profile>) => profileService.updateMe(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['profile', 'me'] })
         },
     })
 
@@ -203,17 +261,32 @@ export default function SettingsPage() {
         i18n.changeLanguage(values.language)
     })
 
+    const handleProfessionalProfileSubmit = professionalProfileForm.handleSubmit(async (values) => {
+        const payload: Partial<Profile> = {
+            headline: values.headline,
+            location: values.location,
+            yearsOfExperience: values.yearsOfExperience,
+            skills: values.skills ? values.skills.split(',').map(s => s.trim()).filter(s => s) : [],
+            linkedinUrl: values.linkedinUrl,
+            githubUrl: values.githubUrl,
+            portfolioUrl: values.portfolioUrl,
+        }
+        await updateProfileMutation.mutateAsync(payload)
+    })
+
     const handleLanguageChange = (newLanguage: 'ru' | 'en') => {
         i18n.changeLanguage(newLanguage)
         prefsForm.setValue('language', newLanguage)
         const current = prefsForm.getValues()
-        updatePrefsMutation.mutate({...current, language: newLanguage})
+        updatePrefsMutation.mutate({ ...current, language: newLanguage })
     }
 
     const profileSuccess = updateUserMutation.isSuccess
     const profileError = updateUserMutation.isError
     const prefsSuccess = updatePrefsMutation.isSuccess
     const prefsError = updatePrefsMutation.isError
+    const professionalProfileSuccess = updateProfileMutation.isSuccess
+    const professionalProfileError = updateProfileMutation.isError
     const aiProviderMode = useWatch({
         control: prefsForm.control,
         name: 'aiProviderMode',
@@ -247,7 +320,7 @@ export default function SettingsPage() {
                 <div className="flex items-center gap-3 mb-2">
                     <div
                         className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20 flex items-center justify-center">
-                        <Sparkles className="w-4 h-4 text-violet-400"/>
+                        <Sparkles className="w-4 h-4 text-violet-400" />
                     </div>
                     <h1 className="text-2xl font-semibold text-white tracking-tight">{t('settings.title')}</h1>
                 </div>
@@ -265,9 +338,9 @@ export default function SettingsPage() {
                         />
 
                         {profileSuccess &&
-                            <div className="mb-5"><StatusToast type="success" message={t('settings.saved')}/></div>}
+                            <div className="mb-5"><StatusToast type="success" message={t('settings.saved')} /></div>}
                         {profileError &&
-                            <div className="mb-5"><StatusToast type="error" message={t('settings.saveError')}/></div>}
+                            <div className="mb-5"><StatusToast type="error" message={t('settings.saveError')} /></div>}
 
                         <form onSubmit={handleProfileSubmit} className="space-y-5">
                             {/* Avatar placeholder */}
@@ -286,7 +359,7 @@ export default function SettingsPage() {
                                 <div className="space-y-2">
                                     <label
                                         className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
-                                        <User className="w-3.5 h-3.5"/>
+                                        <User className="w-3.5 h-3.5" />
                                         {t('settings.name')}
                                     </label>
                                     <input
@@ -294,13 +367,13 @@ export default function SettingsPage() {
                                         {...profileForm.register('name')}
                                     />
                                     {profileForm.formState.errors.name?.message && (
-                                        <p className="text-xs text-red-400">{String(profileForm.formState.errors.name.message)}</p>
+                                        <p className="text-xs text-red-400">{t(profileForm.formState.errors.name.message as any)}</p>
                                     )}
                                 </div>
                                 <div className="space-y-2">
                                     <label
                                         className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
-                                        <Mail className="w-3.5 h-3.5"/>
+                                        <Mail className="w-3.5 h-3.5" />
                                         {t('settings.email')}
                                     </label>
                                     <input
@@ -308,7 +381,7 @@ export default function SettingsPage() {
                                         {...profileForm.register('email')}
                                     />
                                     {profileForm.formState.errors.email?.message && (
-                                        <p className="text-xs text-red-400">{String(profileForm.formState.errors.email.message)}</p>
+                                        <p className="text-xs text-red-400">{t(profileForm.formState.errors.email.message as any)}</p>
                                     )}
                                 </div>
                             </div>
@@ -316,7 +389,7 @@ export default function SettingsPage() {
                             <div className="space-y-2">
                                 <label
                                     className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
-                                    <MapPin className="w-3.5 h-3.5"/>
+                                    <MapPin className="w-3.5 h-3.5" />
                                     {t('settings.location')}
                                 </label>
                                 <input
@@ -338,11 +411,164 @@ export default function SettingsPage() {
                                     {profileForm.formState.isSubmitting ? (
                                         <span className="flex items-center gap-2">
                                             <span
-                                                className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>
+                                                className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                             Saving...
                                         </span>
                                     ) : (
                                         t('settings.saveSettings')
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+
+                    {/* Professional Profile Section */}
+                    <section className="ds-card ds-anim-rise rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm">
+                        <SectionHeader
+                            icon={User}
+                            title={t('settings.professionalProfile')}
+                            description={t('settings.professionalProfileDescription') || 'Manage your professional information'}
+                        />
+
+                        {professionalProfileSuccess &&
+                            <div className="mb-5"><StatusToast type="success" message={t('settings.profileSaved') || 'Profile saved successfully'} /></div>}
+                        {(professionalProfileError || Object.keys(professionalProfileForm.formState.errors).length > 0) &&
+                            <div className="mb-5">
+                                <StatusToast 
+                                    type="error" 
+                                    message={professionalProfileError ? (t('settings.profileError') || 'Error saving profile') : (t('aiAssistant.fixFields') || 'Please fix the fields.')} 
+                                />
+                            </div>}
+
+                        <form onSubmit={handleProfessionalProfileSubmit} className="space-y-5">
+                            <div className="space-y-2">
+                                <label
+                                    className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                    {t('settings.headline') || 'Headline / Position'}
+                                </label>
+                                <input
+                                    className="input"
+                                    {...professionalProfileForm.register('headline')}
+                                    placeholder={t('settings.headlinePlaceholder') || 'e.g. Senior Frontend Engineer'}
+                                />
+                                {professionalProfileForm.formState.errors.headline?.message && (
+                                    <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.headline.message as any)}</p>
+                                )}
+                            </div>
+
+                            <div className="grid gap-5 sm:grid-cols-2">
+                                <div className="space-y-2">
+                                    <label
+                                        className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                        <MapPin className="w-3.5 h-3.5" />
+                                        {t('settings.location') || 'Location'}
+                                    </label>
+                                    <input
+                                        className="input"
+                                        {...professionalProfileForm.register('location')}
+                                        placeholder={t('settings.locationPlaceholder') || 'e.g. Remote, San Francisco'}
+                                    />
+                                    {professionalProfileForm.formState.errors.location?.message && (
+                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.location.message as any)}</p>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <label
+                                        className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                        {t('settings.yearsOfExperience') || 'Years of Experience'}
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="50"
+                                        className="input"
+                                        {...professionalProfileForm.register('yearsOfExperience', { valueAsNumber: true })}
+                                        placeholder="3"
+                                    />
+                                    {professionalProfileForm.formState.errors.yearsOfExperience?.message && (
+                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.yearsOfExperience.message as any, { min: 0, max: 50 })}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label
+                                    className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                    {t('settings.skills') || 'Skills'}
+                                </label>
+                                <input
+                                    className="input"
+                                    {...professionalProfileForm.register('skills')}
+                                    placeholder={t('settings.skillsPlaceholder') || 'React, TypeScript, Node.js'}
+                                />
+                                <p className="text-xs text-white/30">{t('settings.skillsHint') || 'Separate skills with commas'}</p>
+                                {professionalProfileForm.formState.errors.skills?.message && (
+                                    <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.skills.message as any)}</p>
+                                )}
+                            </div>
+
+                            <div className="grid gap-5 sm:grid-cols-3">
+                                <div className="space-y-2">
+                                    <label
+                                        className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                        {t('settings.linkedinUrl') || 'LinkedIn'}
+                                    </label>
+                                    <input
+                                        className="input"
+                                        {...professionalProfileForm.register('linkedinUrl')}
+                                        placeholder="https://linkedin.com/in/..."
+                                    />
+                                    {professionalProfileForm.formState.errors.linkedinUrl?.message && (
+                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.linkedinUrl.message as any)}</p>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <label
+                                        className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                        {t('settings.githubUrl') || 'GitHub'}
+                                    </label>
+                                    <input
+                                        className="input"
+                                        {...professionalProfileForm.register('githubUrl')}
+                                        placeholder="https://github.com/..."
+                                    />
+                                    {professionalProfileForm.formState.errors.githubUrl?.message && (
+                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.githubUrl.message as any)}</p>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <label
+                                        className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                        {t('settings.portfolioUrl') || 'Portfolio'}
+                                    </label>
+                                    <input
+                                        className="input"
+                                        {...professionalProfileForm.register('portfolioUrl')}
+                                        placeholder="https://..."
+                                    />
+                                    {professionalProfileForm.formState.errors.portfolioUrl?.message && (
+                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.portfolioUrl.message as any)}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="pt-2">
+                                <button
+                                    type="submit"
+                                    disabled={professionalProfileForm.formState.isSubmitting}
+                                    className={cn(
+                                        'btn-primary px-5',
+                                        professionalProfileForm.formState.isSubmitting && 'opacity-70 cursor-not-allowed'
+                                    )}
+                                >
+                                    {professionalProfileForm.formState.isSubmitting ? (
+                                        <span className="flex items-center gap-2">
+                                            <span
+                                                className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Saving...
+                                        </span>
+                                    ) : (
+                                        t('settings.saveProfile') || 'Save Profile'
                                     )}
                                 </button>
                             </div>
@@ -374,7 +600,7 @@ export default function SettingsPage() {
                                 {i18n.language === 'en' && (
                                     <div
                                         className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center">
-                                        <Check className="w-3 h-3 text-white"/>
+                                        <Check className="w-3 h-3 text-white" />
                                     </div>
                                 )}
                             </button>
@@ -394,7 +620,7 @@ export default function SettingsPage() {
                                 {i18n.language === 'ru' && (
                                     <div
                                         className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center">
-                                        <Check className="w-3 h-3 text-white"/>
+                                        <Check className="w-3 h-3 text-white" />
                                     </div>
                                 )}
                             </button>
@@ -421,7 +647,7 @@ export default function SettingsPage() {
                                             const val = option.value as 'LOCAL' | 'CLOUD' | 'BRING_YOUR_OWN_KEY'
                                             prefsForm.setValue('aiProviderMode', val)
                                             const current = prefsForm.getValues()
-                                            updatePrefsMutation.mutate({...current, aiProviderMode: val})
+                                            updatePrefsMutation.mutate({ ...current, aiProviderMode: val })
                                         }}
                                         className={cn(
                                             'w-full flex items-center gap-4 rounded-xl border px-4 py-4 text-left transition-all duration-200',
@@ -435,7 +661,7 @@ export default function SettingsPage() {
                                             isActive ? 'bg-violet-500/20' : 'bg-white/[0.04]'
                                         )}>
                                             <Icon
-                                                className={cn('w-5 h-5', isActive ? 'text-violet-400' : 'text-white/40')}/>
+                                                className={cn('w-5 h-5', isActive ? 'text-violet-400' : 'text-white/40')} />
                                         </div>
                                         <div className="flex-1">
                                             <p className={cn('text-sm font-medium', isActive ? 'text-white' : 'text-white/70')}>
@@ -447,7 +673,7 @@ export default function SettingsPage() {
                                             'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all',
                                             isActive ? 'border-violet-500 bg-violet-500' : 'border-white/20'
                                         )}>
-                                            {isActive && <Check className="w-3 h-3 text-white"/>}
+                                            {isActive && <Check className="w-3 h-3 text-white" />}
                                         </div>
                                     </button>
                                 )
@@ -464,9 +690,9 @@ export default function SettingsPage() {
                         />
 
                         {prefsSuccess &&
-                            <div className="mb-5"><StatusToast type="success" message={t('settings.saved')}/></div>}
+                            <div className="mb-5"><StatusToast type="success" message={t('settings.saved')} /></div>}
                         {prefsError &&
-                            <div className="mb-5"><StatusToast type="error" message={t('settings.saveError')}/></div>}
+                            <div className="mb-5"><StatusToast type="error" message={t('settings.saveError')} /></div>}
 
                         <form onSubmit={handlePrefsSubmit} className="space-y-3">
                             <div
@@ -474,7 +700,7 @@ export default function SettingsPage() {
                                 <div className="flex items-center gap-4">
                                     <div
                                         className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                                        <Mail className="w-5 h-5 text-blue-400"/>
+                                        <Mail className="w-5 h-5 text-blue-400" />
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-white">{t('settings.weeklyDigest')}</p>
@@ -487,7 +713,7 @@ export default function SettingsPage() {
                                     onChange={(v) => {
                                         prefsForm.setValue('weeklyDigest', v)
                                         const current = prefsForm.getValues()
-                                        updatePrefsMutation.mutate({...current, weeklyDigest: v})
+                                        updatePrefsMutation.mutate({ ...current, weeklyDigest: v })
                                     }}
                                 />
                             </div>
@@ -497,7 +723,7 @@ export default function SettingsPage() {
                                 <div className="flex items-center gap-4">
                                     <div
                                         className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                                        <Bell className="w-5 h-5 text-amber-400"/>
+                                        <Bell className="w-5 h-5 text-amber-400" />
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-white">{t('settings.interviewReminders')}</p>
@@ -510,7 +736,7 @@ export default function SettingsPage() {
                                     onChange={(v) => {
                                         prefsForm.setValue('interviewReminders', v)
                                         const current = prefsForm.getValues()
-                                        updatePrefsMutation.mutate({...current, interviewReminders: v})
+                                        updatePrefsMutation.mutate({ ...current, interviewReminders: v })
                                     }}
                                 />
                             </div>
@@ -566,7 +792,7 @@ export default function SettingsPage() {
                         <div className="flex items-start gap-4 mb-6">
                             <div
                                 className="flex-shrink-0 w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-                                <Shield className="w-5 h-5 text-red-400"/>
+                                <Shield className="w-5 h-5 text-red-400" />
                             </div>
                             <div>
                                 <h2 className="text-base font-semibold text-white">{t('settings.dangerZone')}</h2>
@@ -578,7 +804,7 @@ export default function SettingsPage() {
                             className="flex items-center justify-between rounded-xl border border-red-500/10 bg-red-500/[0.03] px-4 py-4">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                                    <Trash2 className="w-5 h-5 text-red-400"/>
+                                    <Trash2 className="w-5 h-5 text-red-400" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-white">{t('settings.deleteAccount')}</p>
