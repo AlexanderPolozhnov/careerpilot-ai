@@ -12,6 +12,7 @@
     "logout": "Выход",
     "settings": "Настройки",
     "account": "Аккаунт",
+    "delete": "Удалить",
     "preparingWorkspace": "Подготавливаем рабочую область…",
     "new": "новое",
     "markRead": "Прочитано"
@@ -210,7 +211,8 @@
     "noAiInsightTitle": "AI-аналитика отсутствует",
     "noAiInsightDescription": "Сгенерируйте анализ вакансии, чтобы получить персональные рекомендации.",
     "newTitlePrompt": "Новое название вакансии",
-    "deleteConfirmation": "Удалить вакансию?",
+    "deleteConfirmation": "Удаление вакансии",
+    "deleteDescription": "Вы уверены, что хотите удалить эту вакансию?",
     "vacancyUpdated": "Вакансия обновлена.",
     "vacancyUpdateFailed": "Не удалось обновить вакансию",
     "vacancyDeleteFailed": "Не удалось удалить вакансию",
@@ -427,7 +429,26 @@
     "deleteAccount": "Удалить аккаунт",
     "deleteAccountDescription": "Навсегда удалить аккаунт и все данные",
     "delete": "Удалить",
-    "confirmDelete": "Подтвердить удаление"
+    "confirmDelete": "Подтвердить удаление",
+    "resumes": {
+      "title": "Мои резюме",
+      "description": "Управляйте версиями ваших резюме для AI-анализа",
+      "addResume": "Добавить резюме",
+      "deleteTitle": "Удаление резюме",
+      "defaultBadge": "Основное",
+      "makeDefault": "Сделать основным",
+      "form": {
+        "name": "Название (например, Software Engineer 2024)",
+        "fileUrl": "Ссылка на файл (PDF/Google Drive)",
+        "textContent": "Текст резюме (для AI)"
+      },
+      "deleteConfirm": "Вы уверены, что хотите удалить это резюме?",
+      "created": "Резюме успешно добавлено",
+      "updated": "Резюме успешно обновлено",
+      "deleted": "Резюме удалено",
+      "defaultSet": "Резюме выбрано как основное",
+      "error": "Ошибка при работе с резюме"
+    }
   },
   "forms": {
     "validation": {

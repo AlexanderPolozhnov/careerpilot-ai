@@ -12,7 +12,8 @@
     "logout": "Logout",
     "settings": "Settings",
     "account": "Account",
-    "preparingWorkspace": "Preparing workspace…",
+    "delete": "Delete",
+    "preparingWorkspace": "Preparing workspace...",
     "new": "new",
     "markRead": "Mark read"
   },
@@ -210,7 +211,8 @@
     "noAiInsightTitle": "No AI insight yet",
     "noAiInsightDescription": "Generate a vacancy analysis to get tailored recommendations.",
     "newTitlePrompt": "New vacancy title",
-    "deleteConfirmation": "Delete vacancy?",
+    "deleteConfirmation": "Delete Vacancy",
+    "deleteDescription": "Are you sure you want to delete this vacancy?",
     "vacancyUpdated": "Vacancy updated.",
     "vacancyUpdateFailed": "Failed to update vacancy",
     "vacancyDeleteFailed": "Failed to delete vacancy",
@@ -427,7 +429,26 @@
     "deleteAccount": "Delete account",
     "deleteAccountDescription": "Permanently remove your account and all data",
     "delete": "Delete",
-    "confirmDelete": "Confirm Delete"
+    "confirmDelete": "Confirm Delete",
+    "resumes": {
+      "title": "My Resumes",
+      "description": "Manage your resume versions for AI analysis",
+      "addResume": "Add Resume",
+      "deleteTitle": "Delete Resume",
+      "defaultBadge": "Default",
+      "makeDefault": "Make Default",
+      "form": {
+        "name": "Name (e.g., Software Engineer 2024)",
+        "fileUrl": "File URL (PDF/Google Drive)",
+        "textContent": "Resume Text (for AI)"
+      },
+      "deleteConfirm": "Are you sure you want to delete this resume?",
+      "created": "Resume added successfully",
+      "updated": "Resume updated successfully",
+      "deleted": "Resume deleted",
+      "defaultSet": "Resume set as default",
+      "error": "Error managing resume"
+    }
   },
   "forms": {
     "validation": {

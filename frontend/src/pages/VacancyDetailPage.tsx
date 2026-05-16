@@ -9,6 +9,7 @@ import { ErrorState } from '@/components/ErrorState'
 import { vacancyService } from '@/services/vacancy.service'
 import { aiService } from '@/services/ai.service'
 import { applicationService } from '@/services/application.service'
+import { ConfirmModal } from '@/components/ConfirmModal'
 import type { AiResult, Vacancy } from '@/types'
 import { cn, formatSalary } from '@/lib/utils'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -138,6 +139,7 @@ export default function VacancyDetailPage() {
     const [insight, setInsight] = useState<AiResult | null>(null)
     const [isEditing, setIsEditing] = useState(false)
     const [isAnalyzing, setIsAnalyzing] = useState(false)
+    const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
 
     const vacancyQuery = useQuery({
         queryKey: ['vacancies', 'detail', { id }],
@@ -434,17 +436,13 @@ export default function VacancyDetailPage() {
                             </button>
                             <button
                                 type="button"
-                                onClick={async () => {
-                                    if (!id || !window.confirm(t('vacancies.deleteConfirmation'))) return
-                                    await deleteMutation.mutateAsync(id)
-                                }}
+                                onClick={() => setIsConfirmDeleteOpen(true)}
                                 disabled={deleteMutation.isPending}
                                 className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl hover:bg-red-500/15 hover:border-red-500/30 transition-all duration-200"
                             >
                                 <TrashIcon className="w-4 h-4" />
                                 {t('vacancies.delete')}
-                            </button>
-                            <button
+                            </button>                            <button
                                 type="button"
                                 onClick={async () => {
                                     await applicationService.create({ vacancyId: vacancy.id, status: 'SAVED' })
@@ -582,6 +580,16 @@ export default function VacancyDetailPage() {
                     </div>
                 </div>
             )}
+
+            {/* Deletion Confirmation Modal */}
+            <ConfirmModal
+                isOpen={isConfirmDeleteOpen}
+                onClose={() => setIsConfirmDeleteOpen(false)}
+                onConfirm={() => id && deleteMutation.mutate(id)}
+                title={t('vacancies.deleteConfirmation')}
+                description={t('vacancies.deleteDescription')}
+                isLoading={deleteMutation.isPending}
+            />
         </section>
     )
 }

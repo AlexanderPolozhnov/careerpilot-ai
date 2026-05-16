@@ -7,15 +7,20 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { PreferencesRequest, UserUpdateRequest } from '@/services/settings.service'
 import { settingsService } from '@/services/settings.service'
 import { profileService } from '@/services/profile.service'
+import { resumeService, type CreateResumeDto } from '@/services/resume.service'
 import { cn, formatRelative } from '@/lib/utils'
 import { notificationService } from '@/services/notification.service'
-import type { Profile } from '@/types'
+import { ResumeForm } from '@/components/ResumeForm'
+import { ConfirmModal } from '@/components/ConfirmModal'
+import { toast } from '@/lib/toast'
+import type { Profile, Resume } from '@/types'
 import {
     AlertTriangle,
     Bell,
     Check,
     Cloud,
     Cpu,
+    FileText,
     Globe,
     Key,
     Mail,
@@ -130,6 +135,10 @@ export default function SettingsPage() {
     const { t, i18n } = useTranslation()
     const queryClient = useQueryClient()
     const [deleteConfirm, setDeleteConfirm] = useState(false)
+    const [showResumeModal, setShowResumeModal] = useState(false)
+    const [editingResume, setEditingResume] = useState<Resume | null>(null)
+    const [resumeToDeleteId, setResumeToDeleteId] = useState<string | null>(null)
+    const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
 
     const { data: notificationsData } = useQuery({
         queryKey: ['notifications'],
@@ -158,6 +167,11 @@ export default function SettingsPage() {
     const { data: profileData } = useQuery({
         queryKey: ['profile', 'me'],
         queryFn: () => profileService.getMe(),
+    })
+
+    const { data: resumesData } = useQuery({
+        queryKey: ['resumes', 'list'],
+        queryFn: () => resumeService.list(),
     })
 
     const profileForm = useForm<ProfileValues>({
@@ -248,6 +262,56 @@ export default function SettingsPage() {
         },
     })
 
+    const createResumeMutation = useMutation({
+        mutationFn: (data: CreateResumeDto) => resumeService.create(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['resumes', 'list'] })
+            toast.success(t('settings.resumes.created'))
+            setShowResumeModal(false)
+            setEditingResume(null)
+        },
+        onError: () => {
+            toast.error(t('settings.resumes.error'))
+        }
+    })
+
+    const updateResumeMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: Partial<CreateResumeDto> }) => resumeService.update(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['resumes', 'list'] })
+            toast.success(t('settings.resumes.updated'))
+            setShowResumeModal(false)
+            setEditingResume(null)
+        },
+        onError: () => {
+            toast.error(t('settings.resumes.error'))
+        }
+    })
+
+    const deleteResumeMutation = useMutation({
+        mutationFn: (id: string) => resumeService.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['resumes', 'list'] })
+            toast.success(t('settings.resumes.deleted'))
+            setIsConfirmDeleteOpen(false)
+            setResumeToDeleteId(null)
+        },
+        onError: () => {
+            toast.error(t('settings.resumes.error'))
+        }
+    })
+
+    const setDefaultResumeMutation = useMutation({
+        mutationFn: (id: string) => resumeService.setAsDefault(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['resumes', 'list'] })
+            toast.success(t('settings.resumes.defaultSet'))
+        },
+        onError: () => {
+            toast.error(t('settings.resumes.error'))
+        }
+    })
+
     const handleProfileSubmit = profileForm.handleSubmit(async (values) => {
         await updateUserMutation.mutateAsync({
             name: values.name,
@@ -279,6 +343,38 @@ export default function SettingsPage() {
         prefsForm.setValue('language', newLanguage)
         const current = prefsForm.getValues()
         updatePrefsMutation.mutate({ ...current, language: newLanguage })
+    }
+
+    const handleResumeSubmit = async (values: any) => {
+        if (editingResume) {
+            await updateResumeMutation.mutateAsync({ id: editingResume.id, data: values })
+        } else {
+            await createResumeMutation.mutateAsync(values)
+        }
+    }
+
+    const handleEditResume = (resume: Resume) => {
+        setEditingResume(resume)
+        setShowResumeModal(true)
+    }
+
+    const handleDeleteResume = (id: string) => {
+        setResumeToDeleteId(id)
+        setIsConfirmDeleteOpen(true)
+    }
+
+    const handleSetDefaultResume = (id: string) => {
+        setDefaultResumeMutation.mutate(id)
+    }
+
+    const handleOpenResumeModal = () => {
+        setEditingResume(null)
+        setShowResumeModal(true)
+    }
+
+    const handleCloseResumeModal = () => {
+        setShowResumeModal(false)
+        setEditingResume(null)
     }
 
     const profileSuccess = updateUserMutation.isSuccess
@@ -434,9 +530,9 @@ export default function SettingsPage() {
                             <div className="mb-5"><StatusToast type="success" message={t('settings.profileSaved') || 'Profile saved successfully'} /></div>}
                         {(professionalProfileError || Object.keys(professionalProfileForm.formState.errors).length > 0) &&
                             <div className="mb-5">
-                                <StatusToast 
-                                    type="error" 
-                                    message={professionalProfileError ? (t('settings.profileError') || 'Error saving profile') : (t('aiAssistant.fixFields') || 'Please fix the fields.')} 
+                                <StatusToast
+                                    type="error"
+                                    message={professionalProfileError ? (t('settings.profileError') || 'Error saving profile') : (t('aiAssistant.fixFields') || 'Please fix the fields.')}
                                 />
                             </div>}
 
@@ -573,6 +669,78 @@ export default function SettingsPage() {
                                 </button>
                             </div>
                         </form>
+                    </section>
+
+                    {/* Resumes Section */}
+                    <section className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm">
+                        <SectionHeader
+                            icon={FileText}
+                            title={t('settings.resumes.title')}
+                            description={t('settings.resumes.description')}
+                        />
+
+                        <div className="space-y-3">
+                            {resumesData && resumesData.length > 0 ? (
+                                resumesData.map((resume) => (
+                                    <div
+                                        key={resume.id}
+                                        className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"
+                                    >
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-sm font-medium text-white truncate">{resume.name}</p>
+                                                {resume.isDefault && (
+                                                    <span className="px-2 py-0.5 rounded-full bg-violet-500/10 text-xs font-medium text-violet-400">
+                                                        {t('settings.resumes.defaultBadge')}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {resume.fileUrl && (
+                                                <p className="text-xs text-white/40 mt-0.5 truncate">{resume.fileUrl}</p>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2 shrink-0 ml-4">
+                                            {!resume.isDefault && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleSetDefaultResume(resume.id)}
+                                                    className="text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                                                >
+                                                    {t('settings.resumes.makeDefault')}
+                                                </button>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEditResume(resume)}
+                                                className="text-xs text-white/60 hover:text-white transition-colors"
+                                            >
+                                                {t('vacancies.edit')}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDeleteResume(resume.id)}
+                                                className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                                            >
+                                                {t('vacancies.delete')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-sm text-white/40 text-center py-4">
+                                    {t('settings.resumes.description')}
+                                </p>
+                            )}
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleOpenResumeModal}
+                            className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-white/[0.12] px-4 py-3 text-sm text-white/60 hover:text-white hover:border-white/[0.24] hover:bg-white/[0.02] transition-all"
+                        >
+                            <FileText className="w-4 h-4" />
+                            {t('settings.resumes.addResume')}
+                        </button>
                     </section>
 
                     {/* Language Section */}
@@ -838,6 +1006,42 @@ export default function SettingsPage() {
                             )}
                         </div>
                     </section>
+
+                    {/* Resume Modal */}
+                    {showResumeModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                            <div
+                                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                                onClick={handleCloseResumeModal}
+                            />
+                            <div className="relative w-full max-w-lg rounded-2xl border border-white/[0.08] bg-[#0a0b0f] p-6 shadow-2xl">
+                                <h3 className="text-lg font-semibold text-white mb-4">
+                                    {editingResume ? t('vacancies.edit') : t('settings.resumes.addResume')}
+                                </h3>
+                                <ResumeForm
+                                    onSubmit={handleResumeSubmit}
+                                    onCancel={handleCloseResumeModal}
+                                    initialValues={editingResume ? {
+                                        name: editingResume.name,
+                                        fileUrl: editingResume.fileUrl,
+                                        textContent: editingResume.textContent,
+                                        isDefault: editingResume.isDefault,
+                                    } : undefined}
+                                    isSubmitting={createResumeMutation.isPending || updateResumeMutation.isPending}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Deletion Confirmation Modal */}
+                    <ConfirmModal
+                        isOpen={isConfirmDeleteOpen}
+                        onClose={() => setIsConfirmDeleteOpen(false)}
+                        onConfirm={() => resumeToDeleteId && deleteResumeMutation.mutate(resumeToDeleteId)}
+                        title={t('settings.resumes.deleteTitle')}
+                        description={t('settings.resumes.deleteConfirm')}
+                        isLoading={deleteResumeMutation.isPending}
+                    />
                 </div>
             </div>
         </div>

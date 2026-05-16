@@ -25,6 +25,7 @@ export interface Resume {
   userId: string
   name: string
   fileUrl: string
+  textContent?: string
   uploadedAt: string
   isDefault: boolean
 }
