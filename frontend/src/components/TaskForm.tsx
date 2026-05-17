@@ -1,9 +1,8 @@
-import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { applicationService } from '@/services/application.service'
-import type { Application } from '@/types'
+import type { Application, TaskPriority } from '@/types'
 import { useQuery } from '@tanstack/react-query'
-import type { TaskRequest, TaskPriority } from '@/services/task.service'
+import type { TaskRequest } from '@/services/task.service'
 
 interface TaskFormProps {
   onSubmit: (values: TaskRequest) => void

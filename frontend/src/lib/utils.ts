@@ -145,6 +145,7 @@ export const PRIORITY_META: Record<TaskPriority, { label: string; color: string 
   LOW: { label: 'Low', color: 'text-ink-dim' },
   MEDIUM: { label: 'Medium', color: 'text-amber-400' },
   HIGH: { label: 'High', color: 'text-red-400' },
+  URGENT: { label: 'Urgent', color: 'text-red-500' },
 }
 
 // ─── Currency formatting ──────────────────────────────────────────────────────

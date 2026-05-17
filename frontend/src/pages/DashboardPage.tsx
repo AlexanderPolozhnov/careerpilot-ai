@@ -9,7 +9,7 @@ import { getDashboardSummary } from '@/services/dashboard.service'
 import { taskService } from '@/services/task.service'
 import { formatDateTime, formatRelative } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
-import type { AiResult, Task } from '@/types'
+import type { AiResult } from '@/types'
 import { toast } from '@/lib/toast'
 
 function toAiResult(insight: DashboardAiInsight): AiResult {
