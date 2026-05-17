@@ -303,7 +303,7 @@ export default function VacanciesPage() {
                                         <div className="flex items-center gap-3 text-[13px] text-[#6b7590]">
                                             <span className="flex items-center gap-1.5">
                                                 <BuildingIcon className="w-3.5 h-3.5" />
-                                                {v.company?.name ?? 'Unknown company'}
+                                                {v.company?.name ?? t('vacancies.unknownCompany')}
                                             </span>
                                             <span className="flex items-center gap-1.5">
                                                 <MapPinIcon className="w-3.5 h-3.5" />
@@ -355,7 +355,7 @@ export default function VacanciesPage() {
                                             </div>
                                         </div>
                                         <div className="col-span-3 flex items-center text-[13px] text-[#8b8fa3] truncate">
-                                            {v.company?.name ?? '—'}
+                                            {v.company?.name ?? t('vacancies.unknownCompany')}
                                         </div>
                                         <div className="col-span-2 flex items-center">
                                             <StatusBadge status={v.status} kind="vacancy" size="sm"/>

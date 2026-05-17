@@ -41,10 +41,16 @@ public class VacancyMapper {
         if (company == null) {
             return null;
         }
-        if (!Hibernate.isInitialized(company)) {
-            return new VacancyCompanyDto(company.getId(), null);
-        }
-        return new VacancyCompanyDto(company.getId(), company.getName());
+        return new VacancyCompanyDto(
+                company.getId(),
+                company.getName(),
+                company.getIndustry(),
+                company.getSize(),
+                company.getWebsite(),
+                company.getLogoUrl(),
+                company.getDescription(),
+                company.getLocation()
+        );
     }
 
     private List<VacancyTagDto> toTagDtos(List<VacancyTagEntity> tags, String prefix) {

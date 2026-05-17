@@ -290,7 +290,7 @@ export default function VacancyDetailPage() {
                                         <div className="flex items-center gap-3 text-[14px] text-[#6b7590]">
                                             <span className="flex items-center gap-1.5">
                                                 <BuildingIcon className="w-4 h-4" />
-                                                {company?.name ?? t('vacancies.companyLabel')}
+                                                {company?.name ?? t('vacancies.unknownCompany')}
                                             </span>
                                             <span className="text-[#4a4e5a]">·</span>
                                             <span className="flex items-center gap-1.5">

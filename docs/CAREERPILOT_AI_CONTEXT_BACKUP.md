@@ -407,3 +407,21 @@ ight-0 и mt-2 для правильного выравнивания и отс�
 - **Contract**: Обновлен `docs/FRONTEND_BACKEND_CONTRACT.md`, статус эндпоинтов изменен на `USED BY FRONTEND`.
 
 **Статус:** Готово и проверено. Теперь пользователи могут полноценно планировать и отслеживать этапы найма.
+
+## Update 2026-05-21 — Vacancy Company Display Fix
+
+**Сделано:**
+Исправлено отображение данных компании в вакансиях (в списке и в деталях).
+
+**Backend:**
+- **Repository**: В `VacancyRepository` добавлены аннотации `@EntityGraph(attributePaths = {"company"})` для методов `findAll` и `findByIdAndUserId` для исключения N+1 и обеспечения загрузки данных компании.
+- **DTO**: `VacancyCompanyDto` расширен полями `industry`, `size`, `website`, `logoUrl`, `description`, `location`.
+- **Mapper**: В `VacancyMapper` удалена проверка `Hibernate.isInitialized`, теперь все поля компании маппятся в DTO.
+- **Tests**: Добавлен тест `vacancyResponseContainsCompanyData` в `VacancyServiceImplTest` (пройден).
+
+**Frontend:**
+- **Types**: Обновлен интерфейс `VacancyCompany` в `types/index.ts`.
+- **UI**: В `VacanciesPage.tsx` и `VacancyDetailPage.tsx` добавлена локализованная строка-fallback "Компания неизвестна" (`vacancies.unknownCompany`) и обеспечен рендеринг данных из `vacancy.company`.
+- **i18n**: Добавлены ключи `vacancies.unknownCompany` в RU/EN локали.
+
+**Статус:** Готово и проверено (7/7 тестов).

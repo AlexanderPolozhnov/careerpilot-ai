@@ -56,11 +56,22 @@ export type CompanySize =
 
 // ─── Vacancy ──────────────────────────────────────────────────────────────────
 
+export interface VacancyCompany {
+  id: string
+  name: string
+  industry?: string
+  size?: CompanySize
+  website?: string
+  logoUrl?: string
+  description?: string
+  location?: string
+}
+
 export interface Vacancy {
   id: string
   title: string
   companyId: string
-  company?: Company
+  company?: VacancyCompany
   url?: string
   description?: string
   location?: string

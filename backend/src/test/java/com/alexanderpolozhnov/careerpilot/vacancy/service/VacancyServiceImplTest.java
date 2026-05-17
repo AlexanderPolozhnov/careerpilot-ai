@@ -108,6 +108,24 @@ class VacancyServiceImplTest {
     }
 
     @Test
+    void vacancyResponseContainsCompanyData() {
+        com.alexanderpolozhnov.careerpilot.company.entity.CompanyEntity company = new com.alexanderpolozhnov.careerpilot.company.entity.CompanyEntity();
+        company.setId(UUID.randomUUID());
+        company.setName("Tech Corp");
+        company.setIndustry("IT");
+        vacancy.setCompany(company);
+
+        when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
+        when(vacancyRepository.findByIdAndUserId(vacancy.getId(), currentUser.getId())).thenReturn(Optional.of(vacancy));
+
+        var dto = vacancyService.getById(vacancy.getId());
+
+        assertThat(dto.company()).isNotNull();
+        assertThat(dto.company().name()).isEqualTo("Tech Corp");
+        assertThat(dto.company().industry()).isEqualTo("IT");
+    }
+
+    @Test
     void getByIdNotFoundForOtherUser() {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
         when(vacancyRepository.findByIdAndUserId(any(UUID.class), eq(currentUser.getId()))).thenReturn(Optional.empty());
