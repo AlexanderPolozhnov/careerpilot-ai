@@ -12,7 +12,7 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
-  closestCenter,
+  pointerWithin,
   useDroppable,
   useSensor,
   useSensors,
@@ -21,6 +21,7 @@ import {
 } from '@dnd-kit/core'
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { snapCenterToCursor } from '@dnd-kit/modifiers'
 
 const STATUS_ORDER: ApplicationStatus[] = [
   'NEW',
@@ -481,7 +482,7 @@ export default function ApplicationsPage() {
       ) : (
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCenter}
+          collisionDetection={pointerWithin}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           onDragCancel={handleDragCancel}
@@ -504,7 +505,10 @@ export default function ApplicationsPage() {
           </div>
 
           {/* Drag overlay */}
-          <DragOverlay dropAnimation={{ duration: 180, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' }}>
+          <DragOverlay 
+            modifiers={[snapCenterToCursor]}
+            dropAnimation={{ duration: 180, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' }}
+          >
             {activeApplication ? (
               <div className="w-[300px] p-3.5 rounded-xl bg-[#18181b] border border-violet-500/40 shadow-2xl shadow-violet-500/20">
                 <ApplicationCardBody application={activeApplication} isDragging />
