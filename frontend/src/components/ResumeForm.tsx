@@ -63,14 +63,15 @@ export function ResumeForm({ onSubmit, onCancel, initialValues, isSubmitting }: 
         </label>
       </div>
 
-      <div className="flex justify-end gap-2 pt-4">
+      <div className="flex justify-end gap-3 pt-4">
         <button type="button" onClick={onCancel} className="btn-secondary">
           {t('common.cancel')}
         </button>
         <button type="submit" className="btn-primary" disabled={isSubmitting}>
-          {isSubmitting ? t('common.loading') : t('common.save')}
+          {isSubmitting ? t('common.loading') : (initialValues?.name ? t('common.save') : t('common.create'))}
         </button>
       </div>
+
     </form>
   )
 }

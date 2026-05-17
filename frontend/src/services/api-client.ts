@@ -59,6 +59,8 @@ async function request<T>(
 
   try {
     const response = await fetch(`${API_BASE}${path}`, fetchOptions)
+    const text = await response.text()
+    const data = text ? JSON.parse(text) : undefined
 
     if (!response.ok) {
       if (response.status === 401 && !options._retry && !path.includes('/auth/refresh') && !path.includes('/auth/login')) {
@@ -70,9 +72,10 @@ async function request<T>(
           })
             .then(async (res) => {
               if (!res.ok) throw new Error('Refresh failed')
-              const data = await res.json()
-              setToken(data.accessToken)
-              return data.accessToken
+              const refreshText = await res.text()
+              const refreshData = refreshText ? JSON.parse(refreshText) : {}
+              setToken(refreshData.accessToken)
+              return refreshData.accessToken
             })
             .finally(() => {
               isRefreshing = false
@@ -92,20 +95,12 @@ async function request<T>(
         }
       }
 
-      const errorData = await response.json().catch(() => null)
-      const message = (errorData as { message?: string })?.message ?? response.statusText
-      
+      const message = (data as { message?: string })?.message ?? response.statusText
       handleHttpError(response.status, message)
-      
-      throw new ApiError(response.status, message, errorData)
+      throw new ApiError(response.status, message, data)
     }
 
-    // Handle 204 No Content
-    if (response.status === 204) {
-      return undefined as T
-    }
-
-    return response.json() as Promise<T>
+    return data as T
   } catch (error) {
     if (error instanceof ApiError) {
       throw error
@@ -173,4 +168,3 @@ export function buildQuery(params: Record<string, string | number | boolean | un
   const str = q.toString()
   return str ? `?${str}` : ''
 }
-

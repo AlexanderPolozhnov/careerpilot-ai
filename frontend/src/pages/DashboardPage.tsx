@@ -1,14 +1,16 @@
-import {Briefcase, CalendarDays, FileText, Sparkles} from 'lucide-react'
-import {useNavigate} from 'react-router-dom'
-import {useQuery} from '@tanstack/react-query'
-import {StatCard} from '@/components/StatCard'
-import {AiInsightCard, AiInsightCardSkeleton} from '@/components/AiInsightCard'
-import {StatusBadge} from '@/components/StatusBadge'
-import type {DashboardAiInsight} from '@/services/dashboard.service'
-import {getDashboardSummary} from '@/services/dashboard.service'
-import {formatDateTime, formatRelative} from '@/lib/utils'
-import {useTranslation} from 'react-i18next'
-import type {AiResult} from '@/types'
+import { Briefcase, CalendarDays, FileText, Sparkles, Check } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { StatCard } from '@/components/StatCard'
+import { AiInsightCard, AiInsightCardSkeleton } from '@/components/AiInsightCard'
+import { StatusBadge } from '@/components/StatusBadge'
+import type { DashboardAiInsight } from '@/services/dashboard.service'
+import { getDashboardSummary } from '@/services/dashboard.service'
+import { taskService } from '@/services/task.service'
+import { formatDateTime, formatRelative } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
+import type { AiResult, Task } from '@/types'
+import { toast } from '@/lib/toast'
 
 function toAiResult(insight: DashboardAiInsight): AiResult {
     return {
@@ -24,12 +26,25 @@ function toAiResult(insight: DashboardAiInsight): AiResult {
 }
 
 export default function DashboardPage() {
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
 
-    const {data, isLoading} = useQuery({
+    const { data, isLoading } = useQuery({
         queryKey: ['dashboard', 'summary'],
         queryFn: getDashboardSummary,
+    })
+
+    const toggleDoneMutation = useMutation({
+        mutationFn: (id: string) => taskService.toggleDone(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['dashboard', 'summary'] })
+            queryClient.invalidateQueries({ queryKey: ['tasks'] })
+        },
+        onError: (error) => {
+            console.error(error)
+            toast.error(t('common.error'))
+        },
     })
 
     const kpis = data?.kpis
@@ -37,6 +52,20 @@ export default function DashboardPage() {
     const tasks = data?.tasks ?? []
     const aiInsights = data?.aiInsights ?? []
     const notifications = data?.notifications ?? []
+
+    const handleToggleDone = (taskId: string) => {
+        toggleDoneMutation.mutate(taskId)
+    }
+
+    const getPriorityColor = (priority: string) => {
+        switch (priority) {
+            case 'URGENT': return 'text-rose-400 font-bold'
+            case 'HIGH': return 'text-red-400'
+            case 'MEDIUM': return 'text-amber-400'
+            case 'LOW': return 'text-emerald-400'
+            default: return 'text-[#6b7590]'
+        }
+    }
 
     return (
         <section className="space-y-6 w-full min-w-0">
@@ -84,14 +113,14 @@ export default function DashboardPage() {
                 </div>
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ds-stagger">
                     {isLoading
-                        ? Array.from({length: 3}).map((_, i) => (
+                        ? Array.from({ length: 3 }).map((_, i) => (
                             <div key={i} className="ds-anim-rise">
                                 <AiInsightCardSkeleton />
                             </div>
                         ))
                         : aiInsights.slice(0, 3).map((r) => (
                             <div key={r.id} className="ds-anim-rise">
-                                <AiInsightCard result={toAiResult(r)}/>
+                                <AiInsightCard result={toAiResult(r)} />
                             </div>
                         ))}
                 </div>
@@ -138,21 +167,33 @@ export default function DashboardPage() {
                             {tasks.slice(0, 4).map((task) => (
                                 <div
                                     key={task.id}
-                                    className="flex items-start justify-between gap-3 rounded-xl px-3 py-2 hover:bg-surface-3/50 transition-colors"
+                                    className={`flex items-start justify-between gap-3 rounded-xl px-3 py-2 hover:bg-surface-3/50 transition-colors ${task.done ? 'opacity-60' : ''}`}
                                 >
-                                    <div className="min-w-0">
-                                        <div className="text-sm text-ink break-words">{task.title}</div>
+                                    <div className="min-w-0 flex-1">
+                                        <div className={`text-sm break-words ${task.done ? 'line-through text-ink-dim' : 'text-ink'}`}>{task.title}</div>
                                         <div className="text-xs text-ink-dim mt-1">
                                             {t('dashboard.priority')}: <span
-                                            className="text-ink-muted">{task.priority}</span> ·{' '}
-                                            {t('dashboard.status')}:{' '}
-                                            <span className="text-ink-muted">{task.done ? 'DONE' : 'PENDING'}</span>
+                                                className={getPriorityColor(task.priority)}>{t(`tasks.priorities.${task.priority}`)}</span>
                                         </div>
                                     </div>
-                                    {/* TODO: open task detail requires a dedicated tasks page — not yet implemented */}
-                                    <button type="button" className="ds-btn ds-btn-ghost text-xs px-2.5 py-1.5">
-                                        {t('dashboard.open')}
-                                    </button>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleToggleDone(task.id)}
+                                            disabled={toggleDoneMutation.isPending}
+                                            className={`w-7 h-7 flex items-center justify-center rounded-lg transition-all duration-200 ${task.done ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/[0.05] text-ink-dim hover:text-ink hover:bg-white/[0.1]'}`}
+                                            title={task.done ? t('tasks.markUndone') : t('tasks.markDone')}
+                                        >
+                                            <Check className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/app/tasks')}
+                                            className="ds-btn ds-btn-ghost text-xs px-2.5 py-1.5"
+                                        >
+                                            {t('dashboard.open')}
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -178,7 +219,7 @@ export default function DashboardPage() {
                                         </div>
                                         {n.status !== 'READ' && (
                                             <StatusBadge status={'NEW'} kind="application" size="sm"
-                                                         className="opacity-80 self-start"/>
+                                                className="opacity-80 self-start" />
                                         )}
                                         <div className="text-xs text-ink-dim break-words">{n.message}</div>
                                     </div>

@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { format, formatDistanceToNow, parseISO } from 'date-fns'
+import { ru, enUS } from 'date-fns/locale'
+import i18n from '@/i18n'
 import type { ApplicationStatus, ContractType, RemoteType, TaskPriority, VacancyStatus } from '@/types'
 
 export function cn(...inputs: ClassValue[]) {
@@ -9,9 +11,14 @@ export function cn(...inputs: ClassValue[]) {
 
 // ─── Date formatting ──────────────────────────────────────────────────────────
 
+const getLocale = () => {
+  const lng = i18n.language || 'ru'
+  return lng.startsWith('en') ? enUS : ru
+}
+
 export function formatDate(dateStr: string): string {
   try {
-    return format(parseISO(dateStr), 'MMM d, yyyy')
+    return format(parseISO(dateStr), 'MMM d, yyyy', { locale: getLocale() })
   } catch {
     return dateStr
   }
@@ -19,7 +26,7 @@ export function formatDate(dateStr: string): string {
 
 export function formatDateTime(dateStr: string): string {
   try {
-    return format(parseISO(dateStr), 'MMM d, yyyy · HH:mm')
+    return format(parseISO(dateStr), 'MMM d, yyyy · HH:mm', { locale: getLocale() })
   } catch {
     return dateStr
   }
@@ -27,7 +34,10 @@ export function formatDateTime(dateStr: string): string {
 
 export function formatRelative(dateStr: string): string {
   try {
-    return formatDistanceToNow(parseISO(dateStr), { addSuffix: true })
+    return formatDistanceToNow(parseISO(dateStr), {
+      addSuffix: true,
+      locale: getLocale()
+    })
   } catch {
     return dateStr
   }

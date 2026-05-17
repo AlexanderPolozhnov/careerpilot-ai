@@ -105,10 +105,10 @@ Roadmap отражает текущее состояние перед первы
 ## Current Development Focus
 
 - [x] Все основные vertical slices реализованы и базово проверены.
-- [ ] Замена оставшихся mock-only зон реальными backend-backed сервисами.
-- [ ] Устранение известных проблем (Known UX/Technical Issues).
+- [x] **Tasks Management:** полный цикл управления задачами.
+- [ ] Стабилизация интеграционных тестов с Testcontainers.
 
-## Known UX/Technical Issues (Post-release v0.1.0-alpha)
+## Known UX/Technical Issues (Post-release v0.2.0-alpha)
 
 - [x] **Analytics:** Нет перевода "Week" в блоке "Активность за неделю".
 - [x] **Analytics:** Отклик может отображаться в неправильной неделе.
@@ -122,6 +122,16 @@ Roadmap отражает текущее состояние перед первы
 - [x] **Vacancies:** Исправлено отображение компании (теперь приходят полные данные компании в объекте `company`).
 
 ## Releases
+
+### v0.3.0-alpha — Tasks Management & Final Polish
+
+**Статус:** В разработке. Реализация системы задач и устранение оставшихся mock-зон.
+
+Что нового:
+- **Tasks:** полноценный CRUD, пагинация, фильтры по приоритетам (включая URGENT), привязка к Applications.
+- **Dashboard:** интерактивный список задач с быстрым toggle done.
+- **Sidebar:** новый раздел "Задачи".
+- **Refactoring:** переход от mock-DTO к доменным структурам в модуле Tasks.
 
 ### v0.2.0-alpha — UI Redesign & Polish
 

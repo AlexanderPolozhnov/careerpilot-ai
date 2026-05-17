@@ -155,20 +155,17 @@ export type InterviewType =
 
 export interface Task {
   id: string
-  userId: string
   title: string
   description?: string
-  dueDate?: string
+  dueAt?: string
+  done: boolean
   priority: TaskPriority
-  status: TaskStatus
   applicationId?: string
-  companyId?: string
   createdAt: string
   updatedAt: string
 }
 
-export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH'
-export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'DONE'
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 
 // ─── AI ───────────────────────────────────────────────────────────────────────
 

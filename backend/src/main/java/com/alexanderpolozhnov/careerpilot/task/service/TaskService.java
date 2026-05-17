@@ -1,18 +1,22 @@
 package com.alexanderpolozhnov.careerpilot.task.service;
+
+import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.task.request.TaskRequest;
 import com.alexanderpolozhnov.careerpilot.task.response.TaskResponse;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface TaskService {
     TaskResponse create(TaskRequest request);
 
-    List<TaskResponse> list(int page, int size, String sortBy, String direction, String q);
+    PagedResponse<TaskResponse> list(UUID userId, Pageable pageable, String q);
 
     TaskResponse getById(UUID id);
 
     TaskResponse update(UUID id, TaskRequest request);
 
     void delete(UUID id);
+
+    TaskResponse toggleDone(UUID id);
 }

@@ -1,5 +1,33 @@
 **Обновлено:**
 
+- ROADMAP.md: релиз v0.3.0-alpha начат, Tasks Management Vertical Slice полностью реализован и отполирован.
+
+## Update 2026-05-23: Tasks Management Vertical Slice & UX Polish
+
+Реализована полноценная система управления задачами (Tasks) и проведена глобальная чистка UI/UX багов.
+
+**Backend:**
+- **DTO Migration**: `TaskRequest` теперь использует `LocalDateTime` для совместимости с `datetime-local`, а `TaskResponse` и `Entity` сохраняют `Instant`.
+- **Mapper Fix**: В `TaskMapper` добавлен метод для корректного преобразования типов дат.
+- **Service logic**: `TaskServiceImpl` переписан на доменную логику с поддержкой пагинации, фильтрации и проверки владения данными.
+- **Toggle Endpoint**: Добавлен эндпоинт `PATCH /api/tasks/{id}/toggle`.
+
+**Frontend:**
+- **Service & Client**: `api-client.ts` теперь корректно обрабатывает пустые ответы (`204 No Content`), предотвращая `SyntaxError`.
+- **Date Localization**: Даты теперь отображаются на языке пользователя (например, "18 мая 2026 г." на русском) благодаря интеграции `date-fns` с `i18n`.
+- **UI Consistency**: 
+    - `TaskForm` приведен к общему стандарту дизайн-системы.
+    - Исправлена логика кнопок: «Создать» для новых объектов, «Сохранить» для редактирования, «Редактировать» на карточках в списках.
+- **Tasks Management**: Полноценный CRUD с фильтрами по приоритетам (включая URGENT) и статусу.
+- **Dashboard**: Интегрирован быстрый toggle статуса задач.
+
+**Обновлено:**
+- ROADMAP.md: задачи по Tasks отмечены как выполненные.
+- docs/FRONTEND_BACKEND_CONTRACT.md: контракт Tasks синхронизирован с реализаей.
+- GEMINI.md: добавлены правила по локализации дат и обработке пустых API ответов.
+
+**Обновлено (ранее):**
+
 - ROADMAP.md: пункт "CI pipeline with GitHub Actions" отмечен как выполненный.
 
 ## Update 2026-05-03: CI Pipeline Setup

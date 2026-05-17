@@ -541,6 +541,55 @@ Response: `Interview`.
 
 Response: `204 No Content`.
 
+## Tasks — USED BY FRONTEND
+
+Frontend source: `frontend/src/services/task.service.ts`.
+
+### `GET /tasks` — USED BY FRONTEND
+
+Query params:
+- `page`
+- `size`
+- `sortBy`
+- `direction`
+- `q` (search)
+
+Response: `PagedResponse<Task>`.
+
+### `GET /tasks/{id}` — USED BY FRONTEND
+
+Response: `Task`.
+
+### `POST /tasks` — USED BY FRONTEND
+
+Request `TaskRequest`:
+```json
+{
+  "title": "Update resume",
+  "description": "Add new project",
+  "dueAt": "2024-05-25T10:00:00Z",
+  "done": false,
+  "priority": "HIGH",
+  "applicationId": "app1"
+}
+```
+
+Response: `Task`.
+
+### `PUT /tasks/{id}` — USED BY FRONTEND
+
+Request: partial `TaskRequest`.
+
+Response: `Task`.
+
+### `DELETE /tasks/{id}` — USED BY FRONTEND
+
+Response: `204 No Content`.
+
+### `PATCH /tasks/{id}/toggle` — USED BY FRONTEND
+
+Response: `Task` with toggled `done` status.
+
 ## Settings, preferences, notifications тАФ USED BY FRONTEND
 
 
@@ -682,6 +731,7 @@ Response: `204 No Content`.
 | `VacanciesPage` | `GET /vacancies` |
 | `VacancyDetailPage` | `GET /vacancies/{id}`, `GET /ai/history?type=VACANCY_ANALYSIS`, `POST /applications`, `POST /ai/analyze-vacancy` |
 | `ApplicationsPage` | `GET /applications/board` |
+| `TasksPage` | `GET /tasks`, `POST /tasks`, `PUT /tasks/{id}`, `DELETE /tasks/{id}` |
 | `InterviewsPage` | `GET /interviews`, `POST /interviews`, `PUT /interviews/{id}`, `DELETE /interviews/{id}` |
 | `CompaniesPage` | `GET /companies`, `GET /vacancies` |
 | `AiAssistantPage` | `GET /ai/history`, `POST /ai/analyze-vacancy`, `POST /ai/resume-match`, `POST /ai/cover-letter`, `POST /ai/interview-questions` |

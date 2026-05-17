@@ -196,7 +196,7 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
           {t('common.cancel')}
         </button>
         <button type="submit" className="btn-primary" disabled={isSubmitting}>
-          {isSubmitting ? t('common.loading') : t('common.save')}
+          {isSubmitting ? t('common.loading') : (initialValues?.applicationId || initialValues?.type ? t('common.save') : t('common.create'))}
         </button>
       </div>
     </form>

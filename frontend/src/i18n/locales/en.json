@@ -3,7 +3,9 @@
     "language": "Language",
     "russian": "Русский",
     "english": "English",
-    "save": "Edit",
+    "save": "Save",
+    "edit": "Edit",
+    "create": "Create",
     "cancel": "Cancel",
     "close": "Close",
     "loading": "Loading...",
@@ -22,6 +24,7 @@
     "dashboard": "Dashboard",
     "vacancies": "Vacancies",
     "applications": "Applications",
+    "tasks": "Tasks",
     "interviews": "Interviews",
     "companies": "Companies",
     "aiAssistant": "AI Assistant",
@@ -46,6 +49,11 @@
         "Move applications between statuses right after each company interaction.",
         "Mark interviews separately so analytics stays useful.",
         "Do not keep stale applications in active statuses if there has been no response."
+      ],
+      "tasks": [
+        "Link tasks to specific applications to maintain context.",
+        "Sort by deadline: overdue and nearest tasks first.",
+        "Mark completed tasks to keep the list current."
       ],
       "interviews": [
         "Schedule interviews in advance so you can prepare better.",
@@ -584,5 +592,41 @@
     "label": "GET STARTED",
     "title": "Ready to take control of your job search?",
     "button": "Get started for free"
+  },
+  "tasks": {
+    "title": "Tasks",
+    "tasksCount": "{{count}} tasks",
+    "emptyState": "No tasks",
+    "emptyStateDescription": "Create your first task to track your actions",
+    "allPriorities": "All priorities",
+    "allStatuses": "All statuses",
+    "deleteTitle": "Delete task",
+    "deleteConfirm": "Are you sure you want to delete this task?",
+    "markDone": "Mark as done",
+    "markUndone": "Mark as undone",
+    "priorities": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "URGENT": "Urgent"
+    },
+    "status": {
+      "pending": "Pending",
+      "done": "Done"
+    },
+    "form": {
+      "createTitle": "Create task",
+      "editTitle": "Edit task",
+      "title": "Title",
+      "titlePlaceholder": "e.g., Update resume",
+      "description": "Description",
+      "descriptionPlaceholder": "Task details...",
+      "dueAt": "Due date",
+      "priority": "Priority",
+      "application": "Linked application",
+      "noApplication": "No application",
+      "untitled": "Untitled",
+      "done": "Done"
+    }
   }
 }

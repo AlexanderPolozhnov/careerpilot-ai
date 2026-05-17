@@ -214,6 +214,18 @@ MapStruct для маппинга. GlobalExceptionHandler для доменны�
 16. **Проверяй, что patch реально применился**: После редактирования критичных файлов делай grep/read контроль по старым символам (`payload()`, старые enum values, старые return types). Не доверяй сообщению патча без проверки: если старый код остался в grep, задача не завершена.
 17. **После изменения Java контрактов делай clean compile и перезапуск backend**: Обычный incremental compile может сказать `Nothing to compile` или devtools может держать старое состояние. Для изменений DTO/Service/Controller используй `.\mvnw.cmd clean compile -DskipTests`, затем полностью перезапускай backend процесс.
 18. **Frontend build не заменяет backend contract check**: Успешный `npm run build` подтверждает только TypeScript/Vite. Отдельно проверь backend compile и фактический JSON shape endpoint'а, особенно для страниц со списками, фильтрами и React Query invalidation.
+19. **Frontend Form Checkbox**: При использовании `FormData` в React, значение чекбокса — `'on'` (если отмечен) или `null` (если нет). Чтобы получить `boolean` для API, используй `!!formData.get('name')`. Сравнение с `'true'` или `'on'` напрямую менее надежно.
+20. **Frontend Service Imports и API Calls**: 
+    - Всегда импортируй `api` как именованный импорт: `import { api } from '@/lib/api-client'`.
+    - Метод `api.get` в `api-client.ts` принимает только путь. Параметры запроса нужно формировать через `buildQuery(params)`, например: `api.get(\`/tasks\${buildQuery(params)}\`)`. Не пытайся передать объект вторым аргументом.
+21. **Design System Consistency (Forms)**: При создании форм ВСЕГДА используй стандартные классы из `globals.css`:
+    - Метки (labels): `text-xs text-ink-dim`.
+    - Поля ввода/выбора (inputs/selects): `input mt-1` или `select mt-1`.
+    - Текстовые области (textareas): `input mt-1 h-24 py-2`.
+    - Кнопки: `btn-primary` и `btn-secondary`.
+    - Логика текста кнопок: `isEditing ? t('common.save') : t('common.create')`. Избегай использования только `t('common.save')` для всех случаев.
+22. **Empty API Responses (204 No Content)**: Фронтенд-клиент (`api-client.ts`) теперь безопасно обрабатывает пустые ответы. При реализации новых эндпоинтов удаления на бэкенде всегда возвращай `204 No Content`. На фронтенде не ожидай данных от таких запросов (они вернут `undefined`).
+23. **Date Localization**: Для форматирования дат используй функции из `@/lib/utils`. Они автоматически учитывают текущий язык `i18n` и подставляют нужную локаль `date-fns`. Не хардкодь формат месяцев.
 
 ---
 
