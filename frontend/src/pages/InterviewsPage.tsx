@@ -10,6 +10,14 @@ import { toast } from '@/lib/toast'
 import { InterviewForm } from '@/components/InterviewForm'
 import { ConfirmModal } from '@/components/ConfirmModal'
 
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+    </svg>
+  )
+}
+
 function CloseIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -37,6 +45,7 @@ function TrashIcon({ className }: { className?: string }) {
 export default function InterviewsPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const [query, setQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<InterviewType | ''>('')
   const [resultFilter, setResultFilter] = useState<InterviewResult | ''>('')
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -94,9 +103,15 @@ export default function InterviewsPage() {
     return interviews.filter((i) => {
       if (typeFilter && i.type !== typeFilter) return false
       if (resultFilter && i.result !== resultFilter) return false
+      
+      if (query) {
+        const searchStr = `${i.companyName || ''} ${i.vacancyTitle || ''} ${i.notes || ''}`.toLowerCase()
+        if (!searchStr.includes(query.toLowerCase())) return false
+      }
+      
       return true
     })
-  }, [interviews, typeFilter, resultFilter])
+  }, [interviews, typeFilter, resultFilter, query])
 
   // Sort by date (nearest first)
   const sortedInterviews = useMemo(() => {
@@ -209,50 +224,70 @@ export default function InterviewsPage() {
               {t('interviews.title')}
             </h1>
             <p className="text-sm text-[#6b7590] mt-0.5">
-              {t('interviews.interviewsCount', { count: interviews.length })}
+              {t('interviews.subtitle')}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Filters Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-3 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)]">
-        <div className="flex items-center gap-3">
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value as InterviewType | '')}
-            className="select w-auto"
-          >
-            <option value="" className="select-option">{t('interviews.allTypes')}</option>
-            {interviewTypeValues.map(v => (
-              <option key={v} value={v} className="select-option">
-                {t(`interviews.types.${v}`)}
-              </option>
-            ))}
-          </select>
-          <select
-            value={resultFilter}
-            onChange={(e) => setResultFilter(e.target.value as InterviewResult | '')}
-            className="select w-auto"
-          >
-            <option value="" className="select-option">{t('interviews.allResults')}</option>
-            {interviewResultValues.map(v => (
-              <option key={v} value={v} className="select-option">
-                {t(`interviews.results.${v}`)}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Filter bar */}
+      <div className="p-4 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+          {/* Search */}
+          <div className="relative flex-1 max-w-md">
+            <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#6b7590]" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t('interviews.searchPlaceholder')}
+              className="w-full h-10 pl-11 pr-4 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-lg text-[14px] text-[#e8eaed] placeholder:text-[#4a4e5a] focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
+            />
+          </div>
 
-        <button
-          type="button"
-          onClick={() => setIsFormOpen(true)}
-          disabled={createMutation.isPending}
-          className="h-10 px-4 flex items-center gap-2 bg-gradient-to-r from-violet-600 to-violet-500 text-white text-[13px] font-semibold rounded-lg shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 disabled:opacity-60"
-        >
-          <PlusIcon className="w-4 h-4" />
-          {t('interviews.form.createTitle')}
-        </button>
+          {/* Filters */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value as InterviewType | '')}
+              className="select w-auto"
+            >
+              <option value="" className="select-option">{t('interviews.allTypes')}</option>
+              {interviewTypeValues.map(v => (
+                <option key={v} value={v} className="select-option">
+                  {t(`interviews.types.${v}`)}
+                </option>
+              ))}
+            </select>
+            <select
+              value={resultFilter}
+              onChange={(e) => setResultFilter(e.target.value as InterviewResult | '')}
+              className="select w-auto"
+            >
+              <option value="" className="select-option">{t('interviews.allResults')}</option>
+              {interviewResultValues.map(v => (
+                <option key={v} value={v} className="select-option">
+                  {t(`interviews.results.${v}`)}
+                </option>
+              ))}
+            </select>
+
+            {/* Results count */}
+            <span className="px-3 py-1.5 text-xs font-medium text-[#6b7590] bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] rounded-full">
+              {t('interviews.interviewsCount', { count: filteredInterviews.length })}
+            </span>
+
+            {/* Add button */}
+            <button
+              type="button"
+              onClick={() => setIsFormOpen(true)}
+              disabled={createMutation.isPending}
+              className="h-10 px-4 flex items-center gap-2 bg-gradient-to-r from-violet-600 to-violet-500 text-white text-[13px] font-semibold rounded-lg shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 disabled:opacity-60"
+            >
+              <PlusIcon className="w-4 h-4" />
+              {t('interviews.addInterview')}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Content */}

@@ -11,6 +11,14 @@ import { TaskForm } from '@/components/TaskForm'
 import { ConfirmModal } from '@/components/ConfirmModal'
 import { formatDateTime } from '@/lib/utils'
 
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+    </svg>
+  )
+}
+
 function CloseIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -46,6 +54,7 @@ function CheckIcon({ className }: { className?: string }) {
 export default function TasksPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const [query, setQuery] = useState('')
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | ''>('')
   const [doneFilter, setDoneFilter] = useState<boolean | ''>('')
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -118,9 +127,15 @@ export default function TasksPage() {
     return tasks.filter((task) => {
       if (priorityFilter && task.priority !== priorityFilter) return false
       if (doneFilter !== '' && task.done !== doneFilter) return false
+      
+      if (query) {
+        const searchStr = `${task.title} ${task.description || ''}`.toLowerCase()
+        if (!searchStr.includes(query.toLowerCase())) return false
+      }
+      
       return true
     })
-  }, [tasks, priorityFilter, doneFilter])
+  }, [tasks, priorityFilter, doneFilter, query])
 
   // Sort by due date (overdue and nearest first), then by priority
   const sortedTasks = useMemo(() => {
@@ -255,47 +270,67 @@ export default function TasksPage() {
               {t('tasks.title')}
             </h1>
             <p className="text-sm text-[#6b7590] mt-0.5">
-              {t('tasks.tasksCount', { count: tasks.length })}
+              {t('tasks.subtitle')}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Filters Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-3 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)]">
-        <div className="flex items-center gap-3">
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | '')}
-            className="select w-auto"
-          >
-            <option value="" className="select-option">{t('tasks.allPriorities')}</option>
-            {priorityValues.map(v => (
-              <option key={v} value={v} className="select-option">
-                {t(`tasks.priorities.${v}`)}
-              </option>
-            ))}
-          </select>
-          <select
-            value={doneFilter === '' ? '' : String(doneFilter)}
-            onChange={(e) => setDoneFilter(e.target.value === '' ? '' : e.target.value === 'true')}
-            className="select w-auto"
-          >
-            <option value="" className="select-option">{t('tasks.allStatuses')}</option>
-            <option value="false" className="select-option">{t('tasks.status.pending')}</option>
-            <option value="true" className="select-option">{t('tasks.status.done')}</option>
-          </select>
-        </div>
+      {/* Filter bar */}
+      <div className="p-4 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+          {/* Search */}
+          <div className="relative flex-1 max-w-md">
+            <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#6b7590]" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t('tasks.searchPlaceholder')}
+              className="w-full h-10 pl-11 pr-4 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-lg text-[14px] text-[#e8eaed] placeholder:text-[#4a4e5a] focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
+            />
+          </div>
 
-        <button
-          type="button"
-          onClick={() => setIsFormOpen(true)}
-          disabled={createMutation.isPending}
-          className="h-10 px-4 flex items-center gap-2 bg-gradient-to-r from-violet-600 to-violet-500 text-white text-[13px] font-semibold rounded-lg shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 disabled:opacity-60"
-        >
-          <PlusIcon className="w-4 h-4" />
-          {t('tasks.form.createTitle')}
-        </button>
+          {/* Filters */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | '')}
+              className="select w-auto"
+            >
+              <option value="" className="select-option">{t('tasks.allPriorities')}</option>
+              {priorityValues.map(v => (
+                <option key={v} value={v} className="select-option">
+                  {t(`tasks.priorities.${v}`)}
+                </option>
+              ))}
+            </select>
+            <select
+              value={doneFilter === '' ? '' : String(doneFilter)}
+              onChange={(e) => setDoneFilter(e.target.value === '' ? '' : e.target.value === 'true')}
+              className="select w-auto"
+            >
+              <option value="" className="select-option">{t('tasks.allStatuses')}</option>
+              <option value="false" className="select-option">{t('tasks.status.pending')}</option>
+              <option value="true" className="select-option">{t('tasks.status.done')}</option>
+            </select>
+
+            {/* Results count */}
+            <span className="px-3 py-1.5 text-xs font-medium text-[#6b7590] bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] rounded-full">
+              {t('tasks.tasksCount', { count: filteredTasks.length })}
+            </span>
+
+            {/* Add button */}
+            <button
+              type="button"
+              onClick={() => setIsFormOpen(true)}
+              disabled={createMutation.isPending}
+              className="h-10 px-4 flex items-center gap-2 bg-gradient-to-r from-violet-600 to-violet-500 text-white text-[13px] font-semibold rounded-lg shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 disabled:opacity-60"
+            >
+              <PlusIcon className="w-4 h-4" />
+              {t('tasks.form.createTitle')}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Content */}

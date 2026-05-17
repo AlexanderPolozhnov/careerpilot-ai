@@ -287,12 +287,15 @@
   },
   "interviews": {
     "title": "Interviews",
+    "subtitle": "Prepare for meetings and record communication results",
     "single": "Interview",
     "type": "Type",
     "scheduledAt": "Time",
     "meetingLink": "Link",
     "result": "Result",
     "notes": "Notes",
+    "searchPlaceholder": "Search across interviews...",
+    "addInterview": "Add interview",
     "form": {
       "createTitle": "Schedule Interview",
       "editTitle": "Edit Interview",
@@ -595,7 +598,10 @@
   },
   "tasks": {
     "title": "Tasks",
-    "tasksCount": "{{count}} tasks",
+    "subtitle": "Plan your actions and track every search step",
+    "tasksCount_one": "{{count}} task",
+    "tasksCount_other": "{{count}} tasks",
+    "searchPlaceholder": "Search across tasks...",
     "emptyState": "No tasks",
     "emptyStateDescription": "Create your first task to track your actions",
     "allPriorities": "All priorities",
