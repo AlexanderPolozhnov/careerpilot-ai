@@ -8,7 +8,7 @@ import { applicationService } from '@/services/application.service'
 import { useQuery } from '@tanstack/react-query'
 import { useState, useMemo } from 'react'
 
-const interviewTypeValues: InterviewType[] = ['PHONE', 'HR', 'TECHNICAL', 'SYSTEM_DESIGN', 'CULTURE_FIT', 'FINAL', 'OTHER']
+const interviewTypeValues: InterviewType[] = ['HR_SCREEN', 'TECH_SCREEN', 'TECH_INTERVIEW', 'FINAL', 'OTHER']
 const interviewResultValues: InterviewResult[] = ['PENDING', 'PASSED', 'FAILED', 'CANCELLED']
 
 const getInterviewSchema = (t: TFunction) => z.object({
@@ -68,7 +68,7 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
     resolver: zodResolver(interviewSchema) as unknown as Resolver<InterviewFormValues>,
     defaultValues: {
       applicationId: applicationId || '',
-      type: 'TECHNICAL',
+      type: 'TECH_INTERVIEW',
       result: 'PENDING',
       ...initialValues,
     },

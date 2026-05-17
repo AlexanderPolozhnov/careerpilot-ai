@@ -221,7 +221,7 @@ export const mockInterviews: Interview[] = [
   {
     id: 'i1',
     applicationId: 'a1',
-    type: 'TECHNICAL',
+    type: 'TECH_INTERVIEW',
     scheduledAt: '2024-02-20T14:00:00Z',
     timezone: 'UTC',
     meetingLink: 'https://meet.google.com/abc-defg-hij',
@@ -230,7 +230,7 @@ export const mockInterviews: Interview[] = [
   {
     id: 'i2',
     applicationId: 'a3',
-    type: 'HR',
+    type: 'HR_SCREEN',
     scheduledAt: '2024-02-20T10:00:00Z',
     timezone: 'UTC',
     meetingLink: 'https://zoom.us/j/123456789',

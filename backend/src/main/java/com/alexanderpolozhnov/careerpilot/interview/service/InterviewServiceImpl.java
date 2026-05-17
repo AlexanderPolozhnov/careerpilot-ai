@@ -2,16 +2,16 @@ package com.alexanderpolozhnov.careerpilot.interview.service;
 
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationEntity;
 import com.alexanderpolozhnov.careerpilot.application.repository.ApplicationRepository;
+import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
 import com.alexanderpolozhnov.careerpilot.interview.entity.InterviewEntity;
-import com.alexanderpolozhnov.careerpilot.interview.entity.InterviewType;
 import com.alexanderpolozhnov.careerpilot.interview.request.InterviewRequest;
 import com.alexanderpolozhnov.careerpilot.interview.response.InterviewResponse;
 import com.alexanderpolozhnov.careerpilot.interview.repository.InterviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -28,15 +28,12 @@ public class InterviewServiceImpl implements InterviewService {
     @Override
     public InterviewResponse create(InterviewRequest request) {
         InterviewEntity entity = new InterviewEntity();
-        entity.setApplication(resolveRequiredApplication());
-        entity.setType(InterviewType.OTHER);
-        entity.setScheduledAt(Instant.now().plusSeconds(3600));
-        entity.setNotes(request.payload());
+        applyRequest(entity, request);
         return toResponse(interviewRepository.save(entity));
     }
 
     @Override
-    public List<InterviewResponse> list(int page, int size, String sortBy, String direction, String q) {
+    public PagedResponse<InterviewResponse> list(int page, int size, String sortBy, String direction, String q) {
         UUID userId = currentUserResolver.resolveOrCreate().getId();
         Comparator<InterviewEntity> comparator = buildComparator(sortBy);
         if ("desc".equalsIgnoreCase(direction)) {
@@ -49,7 +46,19 @@ public class InterviewServiceImpl implements InterviewService {
                 .filter(entity -> query.isBlank() || asSearchableText(entity).contains(query))
                 .sorted(comparator)
                 .toList();
-        return paginate(filtered, page, size).stream().map(this::toResponse).toList();
+        List<InterviewResponse> content = paginate(filtered, page, size).stream().map(this::toResponse).toList();
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.max(size, 1);
+        int totalPages = filtered.isEmpty() ? 0 : (int) Math.ceil((double) filtered.size() / safeSize);
+        return new PagedResponse<>(
+                content,
+                filtered.size(),
+                totalPages,
+                safeSize,
+                safePage,
+                safePage == 0,
+                safePage >= Math.max(totalPages - 1, 0)
+        );
     }
 
     @Override
@@ -60,7 +69,7 @@ public class InterviewServiceImpl implements InterviewService {
     @Override
     public InterviewResponse update(UUID id, InterviewRequest request) {
         InterviewEntity entity = findOwnedInterview(id);
-        entity.setNotes(request.payload());
+        applyRequest(entity, request);
         return toResponse(interviewRepository.save(entity));
     }
 
@@ -80,15 +89,45 @@ public class InterviewServiceImpl implements InterviewService {
         return entity;
     }
 
-    private ApplicationEntity resolveRequiredApplication() {
+    private ApplicationEntity resolveApplication(UUID applicationId) {
         UUID userId = currentUserResolver.resolveOrCreate().getId();
         return applicationRepository.findAllByUserId(userId).stream()
+                .filter(application -> application.getId().equals(applicationId))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Create application first"));
+                .orElseThrow(() -> new IllegalArgumentException("Application not found"));
     }
 
     private InterviewResponse toResponse(InterviewEntity entity) {
-        return new InterviewResponse(entity.getId(), entity.getNotes());
+        return new InterviewResponse(
+                entity.getId(),
+                entity.getApplication().getId(),
+                entity.getType(),
+                entity.getScheduledAt(),
+                entity.getTimezone(),
+                entity.getMeetingLink(),
+                entity.getResult(),
+                entity.getNotes());
+    }
+
+    private void applyRequest(InterviewEntity entity, InterviewRequest request) {
+        entity.setApplication(resolveApplication(request.applicationId()));
+        entity.setType(request.type());
+        entity.setScheduledAt(request.scheduledAt().atZone(resolveZoneId(request.timezone())).toInstant());
+        entity.setTimezone(blankToNull(request.timezone()));
+        entity.setMeetingLink(blankToNull(request.meetingLink()));
+        entity.setResult(request.result());
+        entity.setNotes(blankToNull(request.notes()));
+    }
+
+    private ZoneId resolveZoneId(String timezone) {
+        if (timezone == null || timezone.isBlank()) {
+            return ZoneId.systemDefault();
+        }
+        return ZoneId.of(timezone);
+    }
+
+    private String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value;
     }
 
     private Comparator<InterviewEntity> buildComparator(String sortBy) {

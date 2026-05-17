@@ -1,5 +1,6 @@
 package com.alexanderpolozhnov.careerpilot.interview.controller;
 
+import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.interview.request.InterviewRequest;
 import com.alexanderpolozhnov.careerpilot.interview.response.InterviewResponse;
 import com.alexanderpolozhnov.careerpilot.interview.service.InterviewService;
@@ -10,7 +11,6 @@ import org.springframework.validation.annotation.Validated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,13 +26,12 @@ public class InterviewController {
     }
 
     @GetMapping
-    public List<InterviewResponse> list(
+    public PagedResponse<InterviewResponse> list(
             @Min(0) @RequestParam(defaultValue = "0") int page,
             @Min(1) @Max(1000) @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction,
-            @RequestParam(defaultValue = "") String q
-    ) {
+            @RequestParam(defaultValue = "") String q) {
         return service.list(page, size, sortBy, direction, q);
     }
 

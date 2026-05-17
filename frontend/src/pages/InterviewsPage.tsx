@@ -123,7 +123,7 @@ export default function InterviewsPage() {
     setIsConfirmDeleteOpen(true)
   }
 
-  const interviewTypeValues: InterviewType[] = ['PHONE', 'HR', 'TECHNICAL', 'SYSTEM_DESIGN', 'CULTURE_FIT', 'FINAL', 'OTHER']
+  const interviewTypeValues: InterviewType[] = ['HR_SCREEN', 'TECH_SCREEN', 'TECH_INTERVIEW', 'FINAL', 'OTHER']
   const interviewResultValues: InterviewResult[] = ['PENDING', 'PASSED', 'FAILED', 'CANCELLED']
 
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
@@ -278,7 +278,11 @@ export default function InterviewsPage() {
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="text-[15px] font-semibold text-[#e8eaed] truncate group-hover:text-white transition-colors" style={{ fontFamily: 'Onest, system-ui, sans-serif' }}>
+                  <h3
+                    className="text-[15px] font-semibold text-[#e8eaed] truncate group-hover:text-white transition-colors"
+                    style={{ fontFamily: 'Onest, system-ui, sans-serif' }}
+                    title={interview.companyName || interview.vacancyTitle || t('interviews.single')}
+                  >
                     {interview.companyName || interview.vacancyTitle || t('interviews.single')}
                   </h3>
                   <div className="flex items-center gap-2 mt-1 text-xs text-[#6b7590]">
@@ -286,12 +290,11 @@ export default function InterviewsPage() {
                       {t(`interviews.types.${interview.type}`)}
                     </span>
                     {interview.result && (
-                      <span className={`px-2 py-0.5 rounded-md border text-xs font-medium ${
-                        interview.result === 'PASSED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+                      <span className={`px-2 py-0.5 rounded-md border text-xs font-medium ${interview.result === 'PASSED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
                         interview.result === 'FAILED' ? 'bg-red-500/10 border-red-500/20 text-red-400' :
-                        interview.result === 'CANCELLED' ? 'bg-gray-500/10 border-gray-500/20 text-gray-400' :
-                        'bg-amber-500/10 border-amber-500/20 text-amber-400'
-                      }`}>
+                          interview.result === 'CANCELLED' ? 'bg-gray-500/10 border-gray-500/20 text-gray-400' :
+                            'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                        }`}>
                         {t(`interviews.results.${interview.result}`)}
                       </span>
                     )}
@@ -324,7 +327,10 @@ export default function InterviewsPage() {
 
               {/* Notes */}
               {interview.notes && (
-                <p className="text-[13px] text-[#8b8fa3] leading-relaxed line-clamp-2 mb-4">
+                <p
+                  className="text-[13px] text-[#8b8fa3] leading-relaxed line-clamp-2 mb-4"
+                  title={interview.notes}
+                >
                   {interview.notes}
                 </p>
               )}

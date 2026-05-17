@@ -134,11 +134,9 @@ export interface Interview {
 }
 
 export type InterviewType =
-  | 'PHONE'
-  | 'HR'
-  | 'TECHNICAL'
-  | 'SYSTEM_DESIGN'
-  | 'CULTURE_FIT'
+  | 'HR_SCREEN'
+  | 'TECH_SCREEN'
+  | 'TECH_INTERVIEW'
   | 'FINAL'
   | 'OTHER'
 
