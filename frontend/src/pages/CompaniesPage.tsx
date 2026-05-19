@@ -1,13 +1,13 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link, useSearchParams } from 'react-router-dom'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { EmptyState } from '@/components/EmptyState'
 import { LoadingState } from '@/components/LoadingState'
 import { ErrorState } from '@/components/ErrorState'
 import { companyService } from '@/services/company.service'
 import { vacancyService } from '@/services/vacancy.service'
 import type { Company, Vacancy } from '@/types'
-import { Link } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from '@/lib/toast'
 import { CompanyForm, type CompanyFormValues } from '@/components/CompanyForm'
 
@@ -30,8 +30,10 @@ function PlusIcon({ className }: { className?: string }) {
 export default function CompaniesPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [query, setQuery] = useState('')
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null)
 
   const companiesQuery = useQuery({
     queryKey: ['companies', { query }],
@@ -41,6 +43,22 @@ export default function CompaniesPage() {
     queryKey: ['vacancies', { scope: 'all' }],
     queryFn: () => vacancyService.list({ page: 0, size: 200 }),
   })
+
+  // Handle deep linking from search
+  useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && companiesQuery.data?.content) {
+      const company = companiesQuery.data.content.find(c => c.id === id)
+      if (company) {
+        setEditingCompany(company)
+        setIsFormOpen(true)
+        // Clear the param after opening to avoid re-opening
+        const newParams = new URLSearchParams(searchParams)
+        newParams.delete('id')
+        setSearchParams(newParams, { replace: true })
+      }
+    }
+  }, [searchParams, companiesQuery.data, setSearchParams])
 
   const createMutation = useMutation({
     mutationFn: (values: CompanyFormValues) => companyService.create(values),
@@ -55,7 +73,26 @@ export default function CompaniesPage() {
     },
   })
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, values }: { id: string; values: CompanyFormValues }) => companyService.update(id, values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['companies'] })
+      toast.success(t('common.success'))
+      setIsFormOpen(false)
+      setEditingCompany(null)
+    },
+    onError: (error) => {
+      console.error(error)
+      toast.error(t('common.error'))
+    },
+  })
+
   const companies: Company[] = companiesQuery.data?.content ?? []
+
+  const handleEdit = (company: Company) => {
+    setEditingCompany(company)
+    setIsFormOpen(true)
+  }
 
   const related = useMemo(() => {
     const vacancies: Vacancy[] = vacanciesQuery.data?.content ?? []
@@ -82,15 +119,21 @@ export default function CompaniesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-            onClick={() => setIsFormOpen(false)}
+            onClick={() => {
+              setIsFormOpen(false)
+              setEditingCompany(null)
+            }}
           />
           <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0c0c0e] border border-[rgba(255,255,255,0.08)] rounded-2xl shadow-2xl shadow-black/50">
             <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-[#0c0c0e]/95 backdrop-blur-sm border-b border-[rgba(255,255,255,0.06)]">
               <h3 className="text-lg font-semibold text-[#e8eaed]" style={{ fontFamily: 'Onest, system-ui, sans-serif' }}>
-                {t('companies.addCompany')}
+                {editingCompany ? t('companies.editCompany') : t('companies.addCompany')}
               </h3>
               <button
-                onClick={() => setIsFormOpen(false)}
+                onClick={() => {
+                  setIsFormOpen(false)
+                  setEditingCompany(null)
+                }}
                 className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6b7590] hover:text-[#e8eaed] hover:bg-[rgba(255,255,255,0.06)] transition-all duration-200"
               >
                 <CloseIcon className="w-5 h-5" />
@@ -99,10 +142,18 @@ export default function CompaniesPage() {
             <div className="p-6">
               <CompanyForm
                 onSubmit={async (values) => {
-                  await createMutation.mutateAsync(values)
+                  if (editingCompany) {
+                    await updateMutation.mutateAsync({ id: editingCompany.id, values })
+                  } else {
+                    await createMutation.mutateAsync(values)
+                  }
                 }}
-                onCancel={() => setIsFormOpen(false)}
-                isSubmitting={createMutation.isPending}
+                onCancel={() => {
+                  setIsFormOpen(false)
+                  setEditingCompany(null)
+                }}
+                initialValues={editingCompany ?? undefined}
+                isSubmitting={createMutation.isPending || updateMutation.isPending}
               />
             </div>
           </div>
@@ -232,19 +283,30 @@ export default function CompaniesPage() {
                 </div>
 
                 {/* Website Link */}
-                {c.website && (
-                  <a
-                    href={c.website}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-[#6b7590] hover:text-violet-400 hover:border-violet-500/30 hover:bg-violet-500/10 transition-all duration-200"
-                    title={t('companies.visitWebsite')}
+                <div className="flex items-center gap-2 shrink-0">
+                  {c.website && (
+                    <a
+                      href={c.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-[#6b7590] hover:text-violet-400 hover:border-violet-500/30 hover:bg-violet-500/10 transition-all duration-200"
+                      title={t('companies.visitWebsite')}
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                      </svg>
+                    </a>
+                  )}
+                  <button
+                    onClick={() => handleEdit(c)}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-[#6b7590] hover:text-[#e8eaed] hover:border-violet-500/30 hover:bg-violet-500/10 transition-all duration-200"
+                    title={t('common.edit')}
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                     </svg>
-                  </a>
-                )}
+                  </button>
+                </div>
               </div>
 
               {/* Description */}

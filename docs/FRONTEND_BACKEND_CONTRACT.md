@@ -720,6 +720,39 @@ Frontend source: `frontend/src/services/resume.service.ts`.
 
 Response: `204 No Content`.
 
+## Search
+
+### `GET /search` — USED BY FRONTEND
+
+Frontend source: `frontend/src/services/search.service.ts`.
+
+Query params:
+- `q`: search query string (min 2 chars)
+
+Response `SearchResponse`:
+
+```json
+{
+  "results": [
+    {
+      "id": "uuid",
+      "type": "VACANCY",
+      "title": "Senior Frontend Engineer",
+      "subtitle": "Stripe",
+      "status": "ACTIVE",
+      "url": "/app/vacancies/uuid"
+    }
+  ]
+}
+```
+
+Allowed `type`: `VACANCY`, `COMPANY`, `TASK`, `INTERVIEW`.
+
+Search behavior:
+- Searches across vacancies (by title), companies (by name), tasks (by title), and interviews (by type)
+- Limits results to 5 items per category
+- Returns aggregated results from all entity types
+
 ## Page to endpoint mapping
 
 | Page / module | Current API calls |

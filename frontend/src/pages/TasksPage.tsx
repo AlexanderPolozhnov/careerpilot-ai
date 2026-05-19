@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import { EmptyState } from '@/components/EmptyState'
 import { LoadingState } from '@/components/LoadingState'
 import { ErrorState } from '@/components/ErrorState'
@@ -54,6 +55,7 @@ function CheckIcon({ className }: { className?: string }) {
 export default function TasksPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [query, setQuery] = useState('')
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | ''>('')
   const [doneFilter, setDoneFilter] = useState<boolean | ''>('')
@@ -64,6 +66,22 @@ export default function TasksPage() {
     queryKey: ['tasks', 'list'],
     queryFn: () => taskService.list({ page: 0, size: 100 }),
   })
+
+  // Handle deep linking from search
+  useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && tasksQuery.data?.content) {
+      const task = tasksQuery.data.content.find(t => t.id === id)
+      if (task) {
+        setEditingTask(task)
+        setIsFormOpen(true)
+        // Clear the param after opening to avoid re-opening
+        const newParams = new URLSearchParams(searchParams)
+        newParams.delete('id')
+        setSearchParams(newParams, { replace: true })
+      }
+    }
+  }, [searchParams, tasksQuery.data, setSearchParams])
 
   const createMutation = useMutation({
     mutationFn: (values: TaskRequest) => taskService.create(values),

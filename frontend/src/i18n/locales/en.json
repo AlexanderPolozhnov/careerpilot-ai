@@ -349,6 +349,7 @@
     "noCompanies": "No companies found",
     "description": "Start by saving companies.",
     "addCompany": "Add Company",
+    "editCompany": "Edit Company",
     "vacancies": "Vacancies",
     "visitWebsite": "Visit website",
     "openPositions": "Open positions",
@@ -445,6 +446,15 @@
     "appliedCount": "Applied {{count}}",
     "interviewsCount": "Interviews {{count}}",
     "offersCount": "Offers {{count}}"
+  },
+  "search": {
+    "placeholder": "Search everywhere...",
+    "noResults": "Nothing found",
+    "vacancies": "Vacancies",
+    "companies": "Companies",
+    "tasks": "Tasks",
+    "interviews": "Interviews",
+    "shortcut": "⌘K"
   },
   "settings": {
     "title": "Settings",

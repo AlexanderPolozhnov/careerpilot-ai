@@ -4,6 +4,7 @@ import { LogOut, ExternalLink, ChevronDown, Bell, Settings } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { GlobalSearch } from './GlobalSearch'
 import { cn } from '@/lib/utils'
 
 interface TopbarProps {
@@ -15,6 +16,7 @@ export function Topbar({ title }: TopbarProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Handle click outside to close dropdown
@@ -31,6 +33,23 @@ export function Topbar({ title }: TopbarProps) {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [isDropdownOpen])
+
+  // Handle keyboard shortcut for search (Cmd+K / Ctrl+K)
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault()
+        setIsSearchOpen(true)
+      }
+      if (event.key === 'Escape' && isSearchOpen) {
+        setIsSearchOpen(false)
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isSearchOpen])
 
   const handleLogout = () => {
     logout()
@@ -163,6 +182,9 @@ export function Topbar({ title }: TopbarProps) {
           )}
         </div>
       </div>
+
+      {/* Global Search Modal */}
+      <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </header>
   )
 }

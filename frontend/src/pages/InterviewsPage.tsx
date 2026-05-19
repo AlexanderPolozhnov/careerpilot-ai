@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import { EmptyState } from '@/components/EmptyState'
 import { LoadingState } from '@/components/LoadingState'
 import { ErrorState } from '@/components/ErrorState'
@@ -45,6 +46,7 @@ function TrashIcon({ className }: { className?: string }) {
 export default function InterviewsPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [query, setQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<InterviewType | ''>('')
   const [resultFilter, setResultFilter] = useState<InterviewResult | ''>('')
@@ -55,6 +57,22 @@ export default function InterviewsPage() {
     queryKey: ['interviews', 'list'],
     queryFn: () => interviewService.list({ page: 0, size: 100 }),
   })
+
+  // Handle deep linking from search
+  useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && interviewsQuery.data?.content) {
+      const interview = interviewsQuery.data.content.find(i => i.id === id)
+      if (interview) {
+        setEditingInterview(interview)
+        setIsFormOpen(true)
+        // Clear the param after opening to avoid re-opening
+        const newParams = new URLSearchParams(searchParams)
+        newParams.delete('id')
+        setSearchParams(newParams, { replace: true })
+      }
+    }
+  }, [searchParams, interviewsQuery.data, setSearchParams])
 
   const createMutation = useMutation({
     mutationFn: (values: InterviewFormValues) => interviewService.create(values),

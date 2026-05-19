@@ -17,7 +17,9 @@
     "delete": "Удалить",
     "preparingWorkspace": "Подготавливаем рабочую область…",
     "new": "новое",
-    "markRead": "Прочитано"
+    "markRead": "Прочитано",
+    "toClose": "чтобы закрыть",
+    "toNavigate": "чтобы навигировать"
   },
   "navigation": {
     "workspace": "Рабочая область",
@@ -351,6 +353,7 @@
     "noCompanies": "Компании не найдены",
     "description": "Начните с поиска и сохранения компаний.",
     "addCompany": "Добавить компанию",
+    "editCompany": "Редактировать компанию",
     "vacancies": "Вакансии",
     "visitWebsite": "Открыть сайт",
     "openPositions": "Открытые позиции",
@@ -447,6 +450,15 @@
     "appliedCount": "Откликов {{count}}",
     "interviewsCount": "Интервью {{count}}",
     "offersCount": "Офферов {{count}}"
+  },
+  "search": {
+    "placeholder": "Поиск везде...",
+    "noResults": "Ничего не найдено",
+    "vacancies": "Вакансии",
+    "companies": "Компании",
+    "tasks": "Задачи",
+    "interviews": "Собеседования",
+    "shortcut": "⌘K"
   },
   "settings": {
     "title": "Настройки",

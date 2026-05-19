@@ -99,13 +99,14 @@ Roadmap отражает текущее состояние перед первы
 - [ ] Frontend tests.
 - [x] CI pipeline with GitHub Actions.
 - [ ] Full-stack Docker Compose setup.
-- [ ] Deployment notes.и
+- [x] **Global Search:** единый поиск по всем сущностям (Cmd+K).
+- [ ] Deployment notes.
 - [x] Security hardening: refresh/revocation strategy [x], rate limits for AI endpoints [x], audit trail [x].
 
 ## Current Development Focus
 
 - [x] Все основные vertical slices реализованы и базово проверены.
-- [x] **Tasks Management:** полный цикл управления задачами.
+- [x] **Global Search:** реализация завершена, поддержка горячих клавиш добавлена.
 - [ ] Стабилизация интеграционных тестов с Testcontainers.
 
 ## Known UX/Technical Issues (Post-release v0.2.0-alpha)

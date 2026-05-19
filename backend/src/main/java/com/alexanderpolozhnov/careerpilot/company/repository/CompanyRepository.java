@@ -12,7 +12,12 @@ import java.util.UUID;
 
 public interface CompanyRepository extends JpaRepository<CompanyEntity, UUID>, JpaSpecificationExecutor<CompanyEntity> {
     List<CompanyEntity> findAllByUserId(UUID userId);
+
     Page<CompanyEntity> findAllByUserId(UUID userId, Pageable pageable);
+
     Optional<CompanyEntity> findByUserIdAndName(UUID userId, String name);
+
     Optional<CompanyEntity> findByIdAndUserId(UUID id, UUID userId);
+
+    List<CompanyEntity> findAllByUserIdAndNameContainingIgnoreCase(UUID userId, String name);
 }
