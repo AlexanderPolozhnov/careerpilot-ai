@@ -1,6 +1,7 @@
 package com.alexanderpolozhnov.careerpilot.interview.repository;
 
 import com.alexanderpolozhnov.careerpilot.interview.entity.InterviewEntity;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.Instant;

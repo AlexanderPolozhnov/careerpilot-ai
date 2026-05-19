@@ -100,4 +100,9 @@ public class AuthController {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
+
+    @GetMapping("/oauth2/authorize/{provider}")
+    public void authorizeOAuth2(@PathVariable String provider, HttpServletResponse response) throws java.io.IOException {
+        response.sendRedirect("/oauth2/authorization/" + provider);
+    }
 }

@@ -32,6 +32,7 @@ public class AuditLogEntity extends BaseCreatedAtEntity {
     @Column(name = "entity_id")
     private UUID entityId;
 
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private String metadata;
 }

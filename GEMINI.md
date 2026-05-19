@@ -230,6 +230,8 @@ MapStruct для маппинга. GlobalExceptionHandler для доменны�
 25. **Task Types Consistency**: В `Task` интерфейсе поле дедлайна называется `dueAt` (Instant), а статус готовности — `done` (boolean). Избегай использования устаревших полей `dueDate` или `status: 'PENDING'/'IN_PROGRESS'` в моках и компонентах, так как это приведет к ошибкам типизации при сборке.
 26. **PRIORITY_META and URGENT**: При работе с приоритетами задач всегда учитывай уровень `URGENT`. Он должен присутствовать во всех Record-объектах (например, `PRIORITY_META` в `utils.ts`), переключателях и формах. Игнорирование этого типа приведет к ошибке TS2741.
 27. **Global Search and Hotkeys**: При реализации глобальных функций (поиск, быстрые действия) всегда добавляй поддержку горячих клавиш (например, `Cmd+K`). Используй `useEffect` в `Topbar` или `AppLayout` для глобального перехвата клавиш. Глобальный поиск должен агрегировать данные из нескольких сущностей для удобства пользователя.
+28. **Hibernate 6 и JSONB**: В Hibernate 6 для корректного маппинга полей типа `jsonb` в PostgreSQL обязательно нужно использовать аннотацию `@org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)` вместе с `@Column(columnDefinition = "jsonb")`. Иначе Hibernate попытается сохранить строку как `character varying` и база выдаст ошибку несоответствия типов.
+29. **Spring Security AnonymousUser**: При извлечении текущего пользователя из `SecurityContextHolder` убедись, что проверяешь `authentication.getName()` на равенство строке `"anonymousUser"`. Spring Security подставляет эту строку для неавторизованных сессий, и если пытаться искать по ней в БД, это приведет к ошибкам (например, `User not found`).
 
 ---
 

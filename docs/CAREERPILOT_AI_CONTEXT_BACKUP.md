@@ -500,3 +500,23 @@ ight-0 и mt-2 для правильного выравнивания и отс�
 - **i18n**: Добавлены ключи `vacancies.unknownCompany` в RU/EN локали.
 
 **Статус:** Готово и проверено (7/7 тестов).
+
+## Update 2026-05-20 — OAuth2 Social Login
+
+**Сделано:**
+Реализована полноценная авторизация через социальные сети (GitHub и Google).
+
+**Backend:**
+- **Security**: Настроен `spring-boot-starter-oauth2-client` с поддержкой Google и GitHub.
+- **Logic**: Создан `CustomOAuth2UserService` для автоматического маппинга профилей в доменную таблицу `users` (слияние по email).
+- **GitHub Fix**: Добавлена поддержка извлечения приватных/скрытых email-адресов через прямой вызов API GitHub (`/user/emails`), если основной профиль не содержит почты.
+- **Audit**: Исправлена ошибка сохранения `jsonb` в PostgreSQL через аннотацию `@JdbcTypeCode`.
+- **JWT**: Реализован `OAuth2SuccessHandler`, генерирующий стандартный JWT для фронтенда и выполняющий редирект.
+- **Migrations**: Добавлена миграция `V17__add_oauth2_provider_fields.sql`.
+
+**Frontend:**
+- **UI**: На страницах Login/Register добавлены кнопки входа через Google и GitHub.
+- **Callback**: Реализована страница `OAuthCallbackPage.tsx`, которая принимает токен и выполняет бесшовный вход с перенаправлением в `/app/dashboard`.
+- **Router**: Добавлен маршрут `/auth/callback`.
+
+**Статус:** Готово и проверено (включая Unit-тесты для OAuth-сервиса).

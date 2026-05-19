@@ -57,6 +57,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Analytics API (GET /api/analytics/summary).
 - [x] Application API (POST /applications, GET/PUT/DELETE /applications/{id}).
 - [x] AI provider abstraction и Ollama-oriented layer (с fallback-заглушкой).
+- [x] OAuth2 Social Login.
 - [x] Notification API alignment with frontend contract.
 - [x] Unified validation coverage across public endpoints.
 

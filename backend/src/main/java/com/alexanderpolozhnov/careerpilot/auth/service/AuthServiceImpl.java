@@ -107,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthUserResponse me() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getName() == null) {
+        if (authentication == null || authentication.getName() == null || "anonymousUser".equals(authentication.getName())) {
             throw new InvalidCredentialsException("Unauthorized");
         }
         String email = authentication.getName();

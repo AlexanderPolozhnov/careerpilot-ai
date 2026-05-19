@@ -476,6 +476,7 @@ export default function AuthPages({mode}: AuthPagesProps) {
                         <div className="grid grid-cols-2 gap-3">
                             <button
                                 type="button"
+                                onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api'}/auth/oauth2/authorize/google`}
                                 className="h-11 flex items-center justify-center gap-2.5 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] text-[13px] font-medium text-[#8b8fa3] hover:bg-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] hover:text-[#e8eaed] transition-all duration-200"
                             >
                                 <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -488,6 +489,7 @@ export default function AuthPages({mode}: AuthPagesProps) {
                             </button>
                             <button
                                 type="button"
+                                onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api'}/auth/oauth2/authorize/github`}
                                 className="h-11 flex items-center justify-center gap-2.5 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] text-[13px] font-medium text-[#8b8fa3] hover:bg-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] hover:text-[#e8eaed] transition-all duration-200"
                             >
                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">

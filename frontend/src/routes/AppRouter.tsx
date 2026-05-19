@@ -5,6 +5,7 @@ import { AppLayout } from '../components/AppLayout'
 import { useAuth } from '../context/useAuth'
 import LandingPage from '../pages/LandingPage'
 import AuthPages from '../pages/AuthPages'
+import OAuthCallbackPage from '../pages/OAuthCallbackPage'
 import DashboardPage from '../pages/DashboardPage'
 import VacanciesPage from '../pages/VacanciesPage'
 import VacancyDetailPage from '../pages/VacancyDetailPage'
@@ -39,6 +40,7 @@ export function AppRouter() {
       <Route path="/auth/login" element={<AuthPages mode="login" />} />
       <Route path="/auth/register" element={<AuthPages mode="register" />} />
       <Route path="/auth/forgot-password" element={<AuthPages mode="forgot-password" />} />
+      <Route path="/auth/callback" element={<OAuthCallbackPage />} />
 
       <Route
         path="/app"
