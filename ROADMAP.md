@@ -106,6 +106,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] **Frontend Linting & Build Hardening:** полное устранение ошибок ESLint и предупреждений рендеринга.
 - [ ] Full-stack Docker Compose setup.
 - [x] **Global Search:** единый поиск по всем сущностям (Cmd+K).
+- [x] **Scheduled Notifications:** автоматические напоминания о задачах и собеседованиях.
 - [ ] Deployment notes.
 - [x] Security hardening: refresh/revocation strategy [x], rate limits for AI endpoints [x], audit trail [x], password creation/update for OAuth2 users [x].
 
@@ -137,6 +138,7 @@ Roadmap отражает текущее состояние перед первы
 Что нового:
 - [x] **AI Observability:** сбор метрик (latency, tokens, error tracking) для всех AI-запросов.
 - [x] **AI Assistant UX Polish:** замена ручного ввода ID вакансии на выбор из списка с автозаполнением описания.
+- [x] **Scheduled Notifications:** фоновый процесс для создания напоминаний о дедлайнах задач и времени собеседований (In-app + Email).
 - [ ] Frontend Testing: внедрение Vitest + React Testing Library (в процессе).
 - [ ] Backend IT Stability: стабилизация тестов с Testcontainers (в процессе).
 - [ ] Deployment: полная конфигурация Docker Compose для production-like запуска.

@@ -19,5 +19,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity, UUID>, JpaSpec
 
     List<TaskEntity> findAllByDueAtBeforeAndDoneFalse(Instant dueAt);
 
+    List<TaskEntity> findAllByDueAtBetweenAndDoneFalseAndReminderSentFalse(Instant from, Instant to);
+
     List<TaskEntity> findAllByUserIdAndTitleContainingIgnoreCase(UUID userId, String title);
 }

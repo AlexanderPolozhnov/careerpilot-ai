@@ -70,6 +70,11 @@ spring:
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
 
+reminder:
+  scheduler:
+    enabled: ${REMINDER_SCHEDULER_ENABLED:true}
+    cron: ${REMINDER_SCHEDULER_CRON:0 0 * * * *}
+
 security:
   jwt:
     secret: ${JWT_SECRET:Q2FyZWVyUGlsb3RBdXRoU2VjcmV0S2V5Rm9yRGV2RW52aXJvbm1lbnQxMjM0NTY3ODkwMTIzNDU2Nzg5MA==}

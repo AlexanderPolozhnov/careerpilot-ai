@@ -21,6 +21,7 @@ public interface TaskMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "reminderSent", ignore = true)
     void updateEntity(TaskRequest request, @MappingTarget TaskEntity entity);
 
     default Instant map(LocalDateTime value) {

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { StatCard } from '@/components/StatCard'
 import { AiInsightCard, AiInsightCardSkeleton } from '@/components/AiInsightCard'
-import { StatusBadge } from '@/components/StatusBadge'
 import type { DashboardAiInsight } from '@/services/dashboard.service'
 import { getDashboardSummary } from '@/services/dashboard.service'
 import { taskService } from '@/services/task.service'
@@ -139,8 +138,8 @@ export default function DashboardPage() {
                             <div className="text-sm font-semibold text-ink">{t('dashboard.upcomingInterviews')}</div>
                             <span className="pill">{upcomingInterviews.length}</span>
                         </div>
-                        <div className="mt-3 grid gap-2">
-                            {upcomingInterviews.slice(0, 3).map((i) => (
+                        <div className="mt-3 grid gap-2 max-h-[260px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                            {upcomingInterviews.map((i) => (
                                 <div
                                     key={i.id}
                                     className="flex items-start justify-between gap-3 rounded-xl px-3 py-2 hover:bg-surface-3/50 transition-colors"
@@ -163,8 +162,8 @@ export default function DashboardPage() {
                             <div className="text-sm font-semibold text-ink">{t('dashboard.tasks')}</div>
                             <span className="pill">{tasks.length}</span>
                         </div>
-                        <div className="mt-3 grid gap-2">
-                            {tasks.slice(0, 4).map((task) => (
+                        <div className="mt-3 grid gap-2 max-h-[260px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                            {tasks.map((task) => (
                                 <div
                                     key={task.id}
                                     className={`flex items-start justify-between gap-3 rounded-xl px-3 py-2 hover:bg-surface-3/50 transition-colors ${task.done ? 'opacity-60' : ''}`}
@@ -205,8 +204,8 @@ export default function DashboardPage() {
                                 {notifications.filter((n) => n.status !== 'READ').length} {t('common.new')}
                             </span>
                         </div>
-                        <div className="mt-3 grid gap-2">
-                            {notifications.slice(0, 3).map((n) => (
+                        <div className="mt-3 grid gap-2 max-h-[260px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                            {notifications.map((n) => (
                                 <div
                                     key={n.id}
                                     className="flex items-start justify-between gap-3 rounded-xl px-3 py-2 hover:bg-surface-3/50 transition-colors"
@@ -218,8 +217,9 @@ export default function DashboardPage() {
                                                 className="text-xs text-ink-dim shrink-0">{formatRelative(n.createdAt)}</span>
                                         </div>
                                         {n.status !== 'READ' && (
-                                            <StatusBadge status={'NEW'} kind="application" size="sm"
-                                                className="opacity-80 self-start" />
+                                            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-violet-300 bg-violet-500/20 border border-violet-500/30 rounded-full shrink-0 self-start">
+                                                {t('common.new')}
+                                            </span>
                                         )}
                                         <div className="text-xs text-ink-dim break-words">{n.message}</div>
                                     </div>

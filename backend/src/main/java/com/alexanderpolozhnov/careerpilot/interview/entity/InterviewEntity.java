@@ -40,4 +40,7 @@ public class InterviewEntity extends BaseAuditableEntity {
 
     @Column(columnDefinition = "TEXT")
     private String notes;
+
+    @Column(name = "reminder_sent", nullable = false)
+    private boolean reminderSent = false;
 }

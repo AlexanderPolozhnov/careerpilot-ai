@@ -22,6 +22,9 @@ public class PreferencesEntity extends BaseAuditableEntity {
     @Column(name = "interview_reminders", nullable = false)
     private boolean interviewReminders = true;
 
+    @Column(name = "task_reminders", nullable = false)
+    private boolean taskReminders = true;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "ai_provider_mode", nullable = false, length = 50)
     private AiProviderMode aiProviderMode = AiProviderMode.LOCAL;

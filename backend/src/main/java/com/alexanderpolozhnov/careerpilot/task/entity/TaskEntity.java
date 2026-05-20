@@ -43,4 +43,7 @@ public class TaskEntity extends BaseAuditableEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private TaskPriority priority = TaskPriority.MEDIUM;
+
+    @Column(name = "reminder_sent", nullable = false)
+    private boolean reminderSent = false;
 }
