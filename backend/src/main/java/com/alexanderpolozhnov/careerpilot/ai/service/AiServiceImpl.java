@@ -1,5 +1,6 @@
 package com.alexanderpolozhnov.careerpilot.ai.service;
 
+import com.alexanderpolozhnov.careerpilot.ai.dto.LlmResponse;
 import com.alexanderpolozhnov.careerpilot.ai.entity.AiEntity;
 import com.alexanderpolozhnov.careerpilot.ai.exception.AiNotFoundException;
 import com.alexanderpolozhnov.careerpilot.ai.mapper.AiMapper;
@@ -14,6 +15,7 @@ import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,14 +36,23 @@ public class AiServiceImpl implements AiService {
         String prompt = buildVacancyAnalysisPrompt(request);
         String textHash = Integer.toHexString(prompt.hashCode());
 
-        String resultText = aiResultCacheService.getCachedResult(
-            "VACANCY_ANALYSIS",
-            request.vacancyId(),
-            textHash,
-            () -> llmProvider.generate("VACANCY_ANALYSIS\n" + prompt)
-        );
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        LlmResponse llmResponse = aiResultCacheService.getCachedResult(
+                "VACANCY_ANALYSIS",
+                request.vacancyId(),
+                textHash,
+                () -> llmProvider.generate("VACANCY_ANALYSIS\n" + prompt));
+        stopWatch.stop();
 
-        AiEntity entity = createAndSave(user, "VACANCY_ANALYSIS", prompt, resultText, request.vacancyId());
+        Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
+        LlmResponse responseWithLatency = new LlmResponse(
+                llmResponse.text(),
+                llmResponse.tokens(),
+                latencyMs,
+                llmResponse.errorMessage());
+
+        AiEntity entity = createAndSave(user, "VACANCY_ANALYSIS", prompt, responseWithLatency, request.vacancyId());
         return new AiResponse(aiMapper.toDto(entity));
     }
 
@@ -51,14 +62,23 @@ public class AiServiceImpl implements AiService {
         String prompt = buildResumeMatchPrompt(request);
         String textHash = Integer.toHexString(prompt.hashCode());
 
-        String resultText = aiResultCacheService.getCachedResult(
-            "RESUME_MATCH",
-            request.vacancyId(),
-            textHash,
-            () -> llmProvider.generate("RESUME_MATCH\n" + prompt)
-        );
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        LlmResponse llmResponse = aiResultCacheService.getCachedResult(
+                "RESUME_MATCH",
+                request.vacancyId(),
+                textHash,
+                () -> llmProvider.generate("RESUME_MATCH\n" + prompt));
+        stopWatch.stop();
 
-        AiEntity entity = createAndSave(user, "RESUME_MATCH", prompt, resultText, request.vacancyId());
+        Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
+        LlmResponse responseWithLatency = new LlmResponse(
+                llmResponse.text(),
+                llmResponse.tokens(),
+                latencyMs,
+                llmResponse.errorMessage());
+
+        AiEntity entity = createAndSave(user, "RESUME_MATCH", prompt, responseWithLatency, request.vacancyId());
         return new AiResponse(aiMapper.toDto(entity));
     }
 
@@ -66,8 +86,20 @@ public class AiServiceImpl implements AiService {
     public AiResponse coverLetter(AiCoverLetterRequest request) {
         AuthEntity user = currentUserResolver.resolveRequired();
         String prompt = buildCoverLetterPrompt(request);
-        String resultText = llmProvider.generate("COVER_LETTER\n" + prompt);
-        AiEntity entity = createAndSave(user, "COVER_LETTER", prompt, resultText, request.vacancyId());
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        LlmResponse llmResponse = llmProvider.generate("COVER_LETTER\n" + prompt);
+        stopWatch.stop();
+
+        Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
+        LlmResponse responseWithLatency = new LlmResponse(
+                llmResponse.text(),
+                llmResponse.tokens(),
+                latencyMs,
+                llmResponse.errorMessage());
+
+        AiEntity entity = createAndSave(user, "COVER_LETTER", prompt, responseWithLatency, request.vacancyId());
         return new AiResponse(aiMapper.toDto(entity));
     }
 
@@ -75,8 +107,20 @@ public class AiServiceImpl implements AiService {
     public AiResponse interviewQuestions(AiInterviewQuestionsRequest request) {
         AuthEntity user = currentUserResolver.resolveRequired();
         String prompt = buildInterviewQuestionsPrompt(request);
-        String resultText = llmProvider.generate("INTERVIEW_QUESTIONS\n" + prompt);
-        AiEntity entity = createAndSave(user, "INTERVIEW_QUESTIONS", prompt, resultText, request.vacancyId());
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        LlmResponse llmResponse = llmProvider.generate("INTERVIEW_QUESTIONS\n" + prompt);
+        stopWatch.stop();
+
+        Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
+        LlmResponse responseWithLatency = new LlmResponse(
+                llmResponse.text(),
+                llmResponse.tokens(),
+                latencyMs,
+                llmResponse.errorMessage());
+
+        AiEntity entity = createAndSave(user, "INTERVIEW_QUESTIONS", prompt, responseWithLatency, request.vacancyId());
         return new AiResponse(aiMapper.toDto(entity));
     }
 
@@ -96,34 +140,41 @@ public class AiServiceImpl implements AiService {
     public AiResultDto historyById(UUID id) {
         AuthEntity user = currentUserResolver.resolveRequired();
         AiEntity entity = aiRepository.findByIdAndUserId(id, user.getId())
-            .orElseThrow(() -> new AiNotFoundException(id));
+                .orElseThrow(() -> new AiNotFoundException(id));
         return aiMapper.toDto(entity);
     }
 
-    private AiEntity createAndSave(AuthEntity user, String type, String prompt, String result, UUID vacancyId) {
+    private AiEntity createAndSave(AuthEntity user, String type, String prompt, LlmResponse llmResponse,
+            UUID vacancyId) {
         AiEntity entity = new AiEntity();
         entity.setUser(user);
         entity.setType(type);
         entity.setPrompt(prompt);
-        entity.setResult(result);
+        entity.setResult(llmResponse.text());
         entity.setVacancyId(vacancyId);
+        entity.setTokensUsed(llmResponse.tokens());
+        entity.setLatencyMs(llmResponse.latencyMs());
+        entity.setErrorMessage(llmResponse.errorMessage());
         entity.setInputHash(Integer.toHexString(prompt.hashCode()));
         entity.setInputPayload(prompt);
-        entity.setOutputPayload(result);
+        entity.setOutputPayload(llmResponse.text());
         return aiRepository.save(entity);
     }
 
     private String buildVacancyAnalysisPrompt(AiAnalyzeVacancyRequest req) {
         StringBuilder sb = new StringBuilder("Analyze the following vacancy");
-        if (req.vacancyId() != null) sb.append(" (id: ").append(req.vacancyId()).append(")");
+        if (req.vacancyId() != null)
+            sb.append(" (id: ").append(req.vacancyId()).append(")");
         sb.append(":\n");
-        if (req.vacancyText() != null && !req.vacancyText().isBlank()) sb.append(req.vacancyText());
+        if (req.vacancyText() != null && !req.vacancyText().isBlank())
+            sb.append(req.vacancyText());
         return sb.toString();
     }
 
     private String buildResumeMatchPrompt(AiResumeMatchRequest req) {
         StringBuilder sb = new StringBuilder("Match resume against vacancy");
-        if (req.vacancyId() != null) sb.append(" (id: ").append(req.vacancyId()).append(")");
+        if (req.vacancyId() != null)
+            sb.append(" (id: ").append(req.vacancyId()).append(")");
         sb.append(":\n");
         if (req.vacancyText() != null && !req.vacancyText().isBlank()) {
             sb.append("Vacancy: ").append(req.vacancyText()).append("\n");
@@ -136,8 +187,10 @@ public class AiServiceImpl implements AiService {
 
     private String buildCoverLetterPrompt(AiCoverLetterRequest req) {
         StringBuilder sb = new StringBuilder("Generate a cover letter");
-        if (req.tone() != null) sb.append(" with ").append(req.tone()).append(" tone");
-        if (req.vacancyId() != null) sb.append(" for vacancy (id: ").append(req.vacancyId()).append(")");
+        if (req.tone() != null)
+            sb.append(" with ").append(req.tone()).append(" tone");
+        if (req.vacancyId() != null)
+            sb.append(" for vacancy (id: ").append(req.vacancyId()).append(")");
         sb.append(":\n");
         if (req.vacancyText() != null && !req.vacancyText().isBlank()) {
             sb.append("Vacancy: ").append(req.vacancyText()).append("\n");
@@ -157,7 +210,8 @@ public class AiServiceImpl implements AiService {
         if (req.focusArea() != null && !req.focusArea().isBlank()) {
             sb.append(" focused on: ").append(req.focusArea());
         }
-        if (req.vacancyId() != null) sb.append(" for vacancy (id: ").append(req.vacancyId()).append(")");
+        if (req.vacancyId() != null)
+            sb.append(" for vacancy (id: ").append(req.vacancyId()).append(")");
         sb.append(":\n");
         if (req.vacancyText() != null && !req.vacancyText().isBlank()) {
             sb.append(req.vacancyText());

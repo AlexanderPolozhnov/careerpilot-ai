@@ -179,6 +179,8 @@ export interface AiResult {
   vacancyId?: string
   createdAt: string
   tokensUsed?: number
+  latencyMs?: number
+  errorMessage?: string
 }
 
 export type AiResultType =

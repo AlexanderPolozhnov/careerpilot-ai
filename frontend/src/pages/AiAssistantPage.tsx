@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { cn } from '@/lib/utils'
 import { aiService } from '@/services/ai.service'
+import { vacancyService } from '@/services/vacancy.service'
 import type { AiResult } from '@/types'
 import { AiInsightCard } from '@/components/AiInsightCard'
 import { LoadingState } from '@/components/LoadingState'
@@ -118,8 +119,26 @@ export default function AiAssistantPage() {
     queryFn: () => aiService.getHistory(),
   })
 
+  const vacanciesQuery = useQuery({
+    queryKey: ['vacancies', 'all-minimal'],
+    queryFn: () => vacancyService.list({ page: 0, size: 100 }),
+  })
+
   const history = historyQuery.data ?? []
   const isLoadingHistory = historyQuery.isLoading
+  const vacancies = vacanciesQuery.data?.content ?? []
+
+  const handleVacancySelect = (id: string) => {
+    form.setValue('vacancyId', id)
+    if (id) {
+      const selected = vacancies.find((v) => v.id === id)
+      if (selected) {
+        form.setValue('vacancyText', selected.description || '')
+      }
+    } else {
+      form.setValue('vacancyText', '')
+    }
+  }
 
   const ToolIcon = toolConfig[tool].icon
 
@@ -266,13 +285,22 @@ export default function AiAssistantPage() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <label className="text-xs font-medium uppercase tracking-wider text-white/30">
-                        {t('aiAssistant.vacancyIdOptional')}
+                        {t('aiAssistant.relatedVacancy')}
                       </label>
-                      <input
-                        className="h-11 w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 text-sm text-white placeholder:text-white/20 outline-none transition-all focus:border-violet-500/50 focus:bg-white/[0.05] focus:ring-2 focus:ring-violet-500/10"
+                      <select
+                        className="select h-11"
                         {...form.register('vacancyId')}
-                        placeholder="v1"
-                      />
+                        onChange={(e) => handleVacancySelect(e.target.value)}
+                      >
+                        <option value="" className="select-option">
+                          {t('aiAssistant.noVacancy')}
+                        </option>
+                        {vacancies.map((v) => (
+                          <option key={v.id} value={v.id} className="select-option">
+                            {v.title} @ {v.company?.name || t('common.unknown')}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     {tool === 'interview' && (

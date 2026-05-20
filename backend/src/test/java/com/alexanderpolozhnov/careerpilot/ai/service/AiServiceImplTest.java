@@ -1,5 +1,6 @@
 package com.alexanderpolozhnov.careerpilot.ai.service;
 
+import com.alexanderpolozhnov.careerpilot.ai.dto.LlmResponse;
 import com.alexanderpolozhnov.careerpilot.ai.entity.AiEntity;
 import com.alexanderpolozhnov.careerpilot.ai.exception.AiNotFoundException;
 import com.alexanderpolozhnov.careerpilot.ai.mapper.AiMapper;
@@ -64,8 +65,8 @@ class AiServiceImplTest {
         UUID vacancyId = UUID.randomUUID();
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
         when(aiResultCacheService.getCachedResult(any(), any(), any(), any()))
-            .thenAnswer(invocation -> ((java.util.function.Supplier<String>) invocation.getArgument(3)).get());
-        when(llmProvider.generate(any())).thenReturn("## Analysis result");
+                .thenAnswer(invocation -> ((java.util.function.Supplier<LlmResponse>) invocation.getArgument(3)).get());
+        when(llmProvider.generate(any())).thenReturn(new LlmResponse("## Analysis result", 100, 500L, null));
         AiEntity saved = makeEntity(currentUser, "VACANCY_ANALYSIS", vacancyId);
         when(aiRepository.save(any(AiEntity.class))).thenReturn(saved);
         AiResultDto dto = makeDto(saved);
@@ -86,7 +87,7 @@ class AiServiceImplTest {
         AiEntity e1 = makeEntity(currentUser, "VACANCY_ANALYSIS", null);
         AiEntity e2 = makeEntity(currentUser, "RESUME_MATCH", null);
         when(aiRepository.findAllByUserIdOrderByCreatedAtDesc(currentUser.getId()))
-            .thenReturn(List.of(e1, e2));
+                .thenReturn(List.of(e1, e2));
         AiResultDto dto1 = makeDto(e1);
         AiResultDto dto2 = makeDto(e2);
         when(aiMapper.toDto(e1)).thenReturn(dto1);
@@ -103,7 +104,7 @@ class AiServiceImplTest {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
         AiEntity e1 = makeEntity(currentUser, "VACANCY_ANALYSIS", null);
         when(aiRepository.findAllByUserIdAndTypeOrderByCreatedAtDesc(currentUser.getId(), "VACANCY_ANALYSIS"))
-            .thenReturn(List.of(e1));
+                .thenReturn(List.of(e1));
         AiResultDto dto1 = makeDto(e1);
         when(aiMapper.toDto(e1)).thenReturn(dto1);
 
@@ -120,7 +121,7 @@ class AiServiceImplTest {
         when(aiRepository.findByIdAndUserId(id, currentUser.getId())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> aiService.historyById(id))
-            .isInstanceOf(AiNotFoundException.class);
+                .isInstanceOf(AiNotFoundException.class);
     }
 
     @Test
@@ -128,7 +129,7 @@ class AiServiceImplTest {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
         AiEntity entity = makeEntity(currentUser, "INTERVIEW_QUESTIONS", null);
         when(aiRepository.findByIdAndUserId(entity.getId(), currentUser.getId()))
-            .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(entity));
         AiResultDto dto = makeDto(entity);
         when(aiMapper.toDto(entity)).thenReturn(dto);
 
@@ -141,7 +142,7 @@ class AiServiceImplTest {
     @Test
     void interviewQuestionsUsesDefaultCountWhenNull() {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
-        when(llmProvider.generate(any())).thenReturn("## Questions");
+        when(llmProvider.generate(any())).thenReturn(new LlmResponse("## Questions", 50, 300L, null));
         AiEntity saved = makeEntity(currentUser, "INTERVIEW_QUESTIONS", null);
         when(aiRepository.save(any(AiEntity.class))).thenReturn(saved);
         AiResultDto dto = makeDto(saved);
@@ -157,7 +158,7 @@ class AiServiceImplTest {
     @Test
     void coverLetterDoesNotUseCache() {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
-        when(llmProvider.generate(any())).thenReturn("## Cover Letter");
+        when(llmProvider.generate(any())).thenReturn(new LlmResponse("## Cover Letter", 80, 400L, null));
         AiEntity saved = makeEntity(currentUser, "COVER_LETTER", null);
         when(aiRepository.save(any(AiEntity.class))).thenReturn(saved);
         AiResultDto dto = makeDto(saved);
@@ -187,14 +188,15 @@ class AiServiceImplTest {
 
     private AiResultDto makeDto(AiEntity e) {
         return new AiResultDto(
-            e.getId(),
-            e.getUser().getId(),
-            e.getType(),
-            e.getPrompt(),
-            e.getResult(),
-            e.getVacancyId(),
-            e.getCreatedAt(),
-            null
-        );
+                e.getId(),
+                e.getUser().getId(),
+                e.getType(),
+                e.getPrompt(),
+                e.getResult(),
+                e.getVacancyId(),
+                e.getCreatedAt(),
+                null,
+                null,
+                null);
     }
 }

@@ -13,10 +13,10 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "ai_results", schema = "careerpilot", indexes = {
-    @Index(name = "idx_ai_results_user_id", columnList = "user_id"),
-    @Index(name = "idx_ai_results_type", columnList = "type"),
-    @Index(name = "idx_ai_results_input_hash", columnList = "input_hash"),
-    @Index(name = "idx_ai_results_created_at", columnList = "created_at")
+        @Index(name = "idx_ai_results_user_id", columnList = "user_id"),
+        @Index(name = "idx_ai_results_type", columnList = "type"),
+        @Index(name = "idx_ai_results_input_hash", columnList = "input_hash"),
+        @Index(name = "idx_ai_results_created_at", columnList = "created_at")
 })
 public class AiEntity extends BaseCreatedAtEntity {
 
@@ -51,4 +51,10 @@ public class AiEntity extends BaseCreatedAtEntity {
 
     @Column(name = "tokens_used")
     private Integer tokensUsed;
+
+    @Column(name = "latency_ms")
+    private Long latencyMs;
+
+    @Column(name = "error_message", columnDefinition = "TEXT")
+    private String errorMessage;
 }

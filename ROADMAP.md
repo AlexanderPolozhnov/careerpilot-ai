@@ -93,7 +93,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] `POST /ai/cover-letter` aligned with frontend contract.
 - [x] `POST /ai/interview-questions` aligned with frontend contract.
 - [x] AI history endpoints (`GET /ai/history`, `GET /ai/history/{id}`).
-- [ ] Cost/latency/error metrics for AI calls.
+- [x] Cost/latency/error metrics for AI calls.
 
 ## Phase 6 — Production Readiness
 
@@ -130,15 +130,16 @@ Roadmap отражает текущее состояние перед первы
 
 ## Releases
 
-### v0.5.0-alpha — Quality, Testing & Metrics (Planned)
+### v0.5.0-alpha — Quality, Testing & Metrics (In Progress)
 
 **Статус:** В разработке.
 
-Цели:
-- **Frontend Testing:** внедрение Vitest + React Testing Library, покрытие основных сервисов и компонентов.
-- **Backend IT Stability:** стабилизация тестов с Testcontainers в Docker-окружении.
-- **AI Observability:** сбор метрик (cost, latency, tokens) для AI-запросов.
-- **Deployment:** полная конфигурация Docker Compose для production-like запуска.
+Что нового:
+- [x] **AI Observability:** сбор метрик (latency, tokens, error tracking) для всех AI-запросов.
+- [x] **AI Assistant UX Polish:** замена ручного ввода ID вакансии на выбор из списка с автозаполнением описания.
+- [ ] Frontend Testing: внедрение Vitest + React Testing Library (в процессе).
+- [ ] Backend IT Stability: стабилизация тестов с Testcontainers (в процессе).
+- [ ] Deployment: полная конфигурация Docker Compose для production-like запуска.
 
 ### v0.4.0-alpha — Email, Real Analytics & Tags
 

@@ -1,1 +1,7 @@
-package com.alexanderpolozhnov.careerpilot.ai.service; public interface LlmProvider { String generate(String prompt); }
+package com.alexanderpolozhnov.careerpilot.ai.service;
+
+import com.alexanderpolozhnov.careerpilot.ai.dto.LlmResponse;
+
+public interface LlmProvider {
+    LlmResponse generate(String prompt);
+}

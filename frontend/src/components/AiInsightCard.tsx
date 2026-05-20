@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { ChevronRight, Sparkles, Search, FileText, PenLine, MessageSquare } from 'lucide-react'
+import { ChevronRight, Sparkles, Search, FileText, PenLine, MessageSquare, Clock, Zap } from 'lucide-react'
 import { cn, formatRelative } from '@/lib/utils'
 import type { AiResult } from '@/types'
 
@@ -51,6 +51,22 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
               {result.type.replace(/_/g, ' ')}
             </span>
             <span className="text-[10px] text-white/20">{formatRelative(result.createdAt)}</span>
+            {(result.latencyMs !== undefined || result.tokensUsed !== undefined) && (
+              <div className="flex items-center gap-1.5 ml-auto text-[10px] font-medium text-white/30">
+                {result.latencyMs !== undefined && (
+                  <span className="flex items-center gap-0.5">
+                    <Clock className="h-2.5 w-2.5" />
+                    {result.latencyMs}ms
+                  </span>
+                )}
+                {result.tokensUsed !== undefined && result.tokensUsed > 0 && (
+                  <span className="flex items-center gap-0.5 border-l border-white/10 pl-1.5">
+                    <Zap className="h-2.5 w-2.5" />
+                    {result.tokensUsed}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           <p className="text-xs text-white/50 leading-relaxed line-clamp-2">
             {preview}
@@ -91,9 +107,27 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
             >
               {result.type.replace(/_/g, ' ')}
             </span>
-            <span className="text-xs text-white/25 shrink-0">
-              {formatRelative(result.createdAt)}
-            </span>
+            <div className="flex items-center gap-3 shrink-0">
+              {(result.latencyMs !== undefined || result.tokensUsed !== undefined) && (
+                <div className="flex items-center gap-3 text-[10px] font-medium text-white/20 uppercase tracking-widest">
+                  {result.latencyMs !== undefined && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {result.latencyMs}ms
+                    </span>
+                  )}
+                  {result.tokensUsed !== undefined && result.tokensUsed > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Zap className="h-3 w-3" />
+                      {result.tokensUsed}
+                    </span>
+                  )}
+                </div>
+              )}
+              <span className="text-xs text-white/25">
+                {formatRelative(result.createdAt)}
+              </span>
+            </div>
           </div>
 
           <p className="text-sm text-white/60 leading-relaxed line-clamp-4">

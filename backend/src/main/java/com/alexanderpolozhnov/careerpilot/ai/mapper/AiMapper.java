@@ -9,14 +9,15 @@ public class AiMapper {
 
     public AiResultDto toDto(AiEntity entity) {
         return new AiResultDto(
-            entity.getId(),
-            entity.getUser().getId(),
-            entity.getType(),
-            entity.getPrompt(),
-            entity.getResult(),
-            entity.getVacancyId(),
-            entity.getCreatedAt(),
-            entity.getTokensUsed()
-        );
+                entity.getId(),
+                entity.getUser().getId(),
+                entity.getType(),
+                entity.getPrompt(),
+                entity.getResult(),
+                entity.getVacancyId(),
+                entity.getCreatedAt(),
+                entity.getTokensUsed(),
+                entity.getLatencyMs(),
+                entity.getErrorMessage());
     }
 }
