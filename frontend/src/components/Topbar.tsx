@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
-import { LogOut, ExternalLink, ChevronDown, Bell, Settings } from 'lucide-react'
+import { LogOut, ExternalLink, ChevronDown, Bell, Settings, Search } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './LanguageSwitcher'
@@ -74,6 +74,26 @@ export function Topbar({ title }: TopbarProps) {
 
       {/* Right - Actions */}
       <div className="flex items-center gap-2">
+        {/* Search button */}
+        <button
+          type="button"
+          onClick={() => setIsSearchOpen(true)}
+          className={cn(
+            "group flex items-center gap-2 h-9 px-2 md:px-3 rounded-lg",
+            "bg-white/[0.03] border border-white/[0.06]",
+            "hover:bg-white/[0.06] hover:border-white/[0.1] transition-all duration-200",
+            "text-white/40 hover:text-white/70"
+          )}
+        >
+          <Search className="w-4 h-4" />
+          <span className="text-[13px] hidden xl:block">
+            {t('search.placeholder')}
+          </span>
+          <span className="hidden sm:block text-[10px] font-mono bg-white/[0.05] px-1.5 py-0.5 rounded border border-white/[0.05] text-white/30 ml-1">
+            {t('search.shortcut')}
+          </span>
+        </button>
+
         {/* Notifications - subtle bell */}
         <button
           type="button"

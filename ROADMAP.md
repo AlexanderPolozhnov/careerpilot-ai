@@ -130,6 +130,27 @@ Roadmap отражает текущее состояние перед первы
 
 ## Releases
 
+### v0.5.0-alpha — Quality, Testing & Metrics (Planned)
+
+**Статус:** В разработке.
+
+Цели:
+- **Frontend Testing:** внедрение Vitest + React Testing Library, покрытие основных сервисов и компонентов.
+- **Backend IT Stability:** стабилизация тестов с Testcontainers в Docker-окружении.
+- **AI Observability:** сбор метрик (cost, latency, tokens) для AI-запросов.
+- **Deployment:** полная конфигурация Docker Compose для production-like запуска.
+
+### v0.4.0-alpha — Email, Real Analytics & Tags
+
+**Статус:** Выпущено (Текущая версия).
+
+Что нового:
+- **Password Reset:** полноценный флоу сброса пароля через реальный Email (SMTP + HTML шаблоны).
+- **Real Analytics:** расчет Skill Gaps и Time to Interview на основе реальных данных профиля и откликов.
+- **Vacancy Tags:** поддержка тегов в вакансиях для связи с аналитикой.
+- **UI/UX Polish:** исправление десериализации дат, устранение ворнингов React, приведение тулбаров к единому стилю.
+- **Security:** фикс утечки сессий OAuth2.
+
 ### v0.3.0-alpha — Tasks, Global Search & Security Hardening
 
 **Статус:** Выпущено (Релиз v0.3.0-alpha опубликован на GitHub).
