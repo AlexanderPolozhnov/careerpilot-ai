@@ -2,7 +2,7 @@
 
 <div align="center">
 
-**Управление поиском работы как структурированным workflow — с AI-ассистентом, Kanban-бордом и аналитикой.**
+**Управление поиском работы как структурированным workflow — с AI-ассистентом, Kanban-бордом, задачами, собеседованиями и аналитикой.**
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-careerpilot--ai-violet?style=for-the-badge&logo=vercel)](https://careerpilot-ai-sigma.vercel.app)
 [![Release](https://img.shields.io/badge/Release-v0.3.0--alpha-orange?style=for-the-badge)](https://github.com/AlexanderPolozhnov/careerpilot-ai/releases)
@@ -84,7 +84,9 @@ CareerPilot AI собирает этот процесс в один понятн
 
 - хранение вакансий и компаний;
 - отслеживание этапов откликов через Kanban-борд с drag-and-drop;
+- планирование задач (Tasks) и отслеживание собеседований (Interviews);
 - AI-анализ вакансий, сравнение резюме, генерация cover letter и вопросов к интервью;
+- единый глобальный поиск по всем сущностям (с поддержкой горячих клавиш);
 - аналитика прогресса поиска работы;
 - интерфейс на русском и английском.
 
@@ -94,36 +96,47 @@ CareerPilot AI собирает этот процесс в один понятн
 
 ### Backend (REST API)
 
-| Slice         | Эндпоинты                                                                 | Статус |
-|---------------|---------------------------------------------------------------------------|--------|
-| Auth          | `POST /auth/register`, `POST /auth/login`, `GET /auth/me`                 | ✅      |
-| Vacancies     | Полный CRUD, pagination, user ownership                                   | ✅      |
-| Companies     | Полный CRUD, pagination, user ownership                                   | ✅      |
-| Applications  | Board, PATCH status, полный CRUD                                          | ✅      |
-| Analytics     | `GET /analytics/summary` с funnel, weeklyActivity, topSkillGaps           | ✅      |
-| AI Assistant  | analyze-vacancy, resume-match, cover-letter, interview-questions, history | ✅      |
-| Dashboard     | `GET /dashboard/summary` (KPI, upcoming interviews, AI insights)          | ✅      |
-| Settings      | `GET/PUT /users/me`, `GET/PUT /preferences`                               | ✅      |
-| Notifications | `GET /notifications` (pagination, read filter), `PATCH /{id}/read`        | ✅      |
+| Slice         | Эндпоинты                                                                                                     | Статус |
+|---------------|---------------------------------------------------------------------------------------------------------------|--------|
+| Auth          | `POST /auth/register`, `POST /auth/login`, `GET /auth/me`, `POST /auth/forgot-password`, `POST /auth/reset-password`, `POST /auth/password`, `POST /auth/refresh`, `POST /auth/logout` | ✅      |
+| OAuth2        | Авторизация через GitHub / Google, автоматический маппинг профилей, поддержка приватных email                 | ✅      |
+| Vacancies     | Полный CRUD, pagination, user ownership, загрузка данных компании без N+1                                     | ✅      |
+| Companies     | Полный CRUD, pagination, user ownership                                                                       | ✅      |
+| Applications  | Board, PATCH status, полный CRUD                                                                              | ✅      |
+| Tasks         | Полный CRUD, pagination, фильтрация, toggle статуса выполнения, связь с Applications                          | ✅      |
+| Interviews    | Полный CRUD, pagination, фильтрация по типу/результату, связь с Applications                                  | ✅      |
+| Resumes       | Полный CRUD, транзакционная логика установки дефолтного резюме, валидация URL                                 | ✅      |
+| Search        | `GET /api/search` — агрегированный полнотекстовый поиск по вакансиям, компаниям, задачам и собеседованиям     | ✅      |
+| Analytics     | `GET /analytics/summary` с воронкой откликов, недельной активностью и top skill gaps                         | ✅      |
+| AI Assistant  | analyze-vacancy, resume-match, cover-letter, interview-questions, history                                     | ✅      |
+| Dashboard     | `GET /dashboard/summary` (KPI, предстоящие интервью, AI инсайты, список задач)                                | ✅      |
+| Profile       | `GET /profiles/me`, `PUT /profiles/me` с JSONB-полем скиллов                                                  | ✅      |
+| Settings      | `GET/PUT /users/me`, `GET/PUT /preferences`                                                                   | ✅      |
+| Notifications | `GET /notifications` (pagination, read filter), `PATCH /{id}/read`                                            | ✅      |
 
 ### Frontend
 
-- World-class UI redesign в стиле **Linear / Vercel / Clerk** — тёмная тема, glassmorphism, violet-акценты
-- **Kanban-борд** с drag-and-drop (dnd-kit), DragOverlay-preview, optimistic update
-- **AI-ассистент** — 4 инструмента с динамическими формами и историей запросов
-- **Analytics** — KPI-карточки, funnel, mini bar chart, skill gaps
-- **Dashboard** — подключён к backend через React Query, skeleton-loading
-- **Settings** — профиль и preferences с backend persistence
-- React Query (TanStack Query) для кэширования и инвалидации
-- Error boundaries + unified Toast-система с перехватом HTTP-ошибок
-- i18n: `ru` + `en`, переключатель языка, persistence в localStorage
+- World-class UI redesign в стиле **Linear / Vercel / Clerk** — тёмная тема, glassmorphism, violet-акценты.
+- **Kanban-борд** с drag-and-drop (dnd-kit), DragOverlay-preview, optimistic update.
+- **Интерактивные задачи & Собеседования** — полноценный CRUD, фильтрация, приведение к стандартам дизайн-системы.
+- **Глобальный поиск (Cmd+K / Ctrl+K)** — модальное окно с дебаунсом и быстрым переходом к любой сущности.
+- **AI-ассистент** — 4 инструмента с динамическими формами и автообновлением истории запросов.
+- **Analytics** — KPI-карточки, воронка (funnel), график активности по реальным неделям, skill gaps.
+- **Dashboard** — подключён к backend через React Query, skeleton-loading, быстрый toggle задач.
+- **Settings** — профиль (ввод навыков), управление резюме (Zod-валидация), управление паролями (в т.ч. создание для OAuth2 пользователей).
+- React Query (TanStack Query) для кэширования и инвалидации.
+- Error boundaries + unified Toast-система с перехватом HTTP-ошибок.
+- i18n: `ru` + `en`, переключатель языка, автоматическая локализация дат (`date-fns`).
 
-### Инфраструктура
+### Безопасность и Инфраструктура
 
-- Docker Compose: PostgreSQL, Redis, optional MinIO и Ollama
-- AI: Ollama как local provider с автоматическим fallback на mock-ответы
-- Redis: кэширование AI-результатов (TTL 24ч, fallback при недоступности)
-- CI: GitHub Actions — frontend lint/build + backend unit tests при push в main
+- **Refresh Tokens:** Автоматическое продление сессии через HttpOnly Cookies, безопасный выход с очисткой сессий в БД.
+- **Rate Limiting:** Ограничение частоты запросов для AI-эндпоинтов с использованием алгоритма Token Bucket (Bucket4j, HTTP 429).
+- **Audit Trail:** Журналирование критичных действий пользователей (логин, изменения сущностей, AI-запросы) в PostgreSQL.
+- **Docker Compose:** PostgreSQL, Redis, optional MinIO и Ollama.
+- **AI Integration:** Ollama как local provider с автоматическим fallback на mock-ответы.
+- **Redis Cache:** Кэширование AI-результатов (TTL 24ч, с автоматическим обходом при сбоях Redis).
+- **CI Pipeline:** GitHub Actions — frontend lint/build + backend unit-тесты при push и PR в main.
 
 ---
 
@@ -131,8 +144,8 @@ CareerPilot AI собирает этот процесс в один понятн
 
 ### Бэкенд
 
-`Java 21` · `Spring Boot 3` · `Spring Security` · `JWT` · `Spring Data JPA` · `PostgreSQL` · `Flyway` · `MapStruct` ·
-`Bean Validation` · `OpenAPI / Swagger` · `JUnit 5` · `Mockito` · `Testcontainers` · `Redis`
+`Java 21` · `Spring Boot 3` · `Spring Security` · `OAuth 2.0` · `JWT` · `Spring Data JPA` · `PostgreSQL` · `Flyway` · `MapStruct` ·
+`Bean Validation` · `OpenAPI / Swagger` · `JUnit 5` · `Mockito` · `Testcontainers` · `Redis` · `Bucket4j`
 
 ### Фронтенд
 
@@ -147,17 +160,12 @@ CareerPilot AI собирает этот процесс в один понятн
 
 ## ⚠️ Известные ограничения
 
-Актуально для `v0.2.0-alpha`:
+Актуально для `v0.3.0-alpha`:
 
-- **Companies:** в интерфейсе нет формы создания компании (backend endpoint `POST /api/companies` существует, UI — нет).
-- **AI-история:** повторный анализ вакансии перезаписывает предыдущий результат в панели.
-- **Auth:** forgot-password и reset-password пока не реализованы.
-- **Header:** dropdown-меню у аватара пользователя неактивно (переход в Settings и Logout).
-- **Analytics:** метки недель не переведены на русский; отклик может попасть в неправильную неделю.
-- **Frontend:** тесты не настроены.
-- **Backend:** Testcontainers-тесты требуют работающего Docker-окружения.
+- **Frontend:** Тесты для фронтенд-компонентов пока не настроены.
+- **Backend:** Интеграционные тесты с Testcontainers требуют работающего локального Docker-окружения.
 
-Полный список: [ROADMAP.md → Known UX/Technical Issues](./ROADMAP.md).
+Полный список и статус задач: [ROADMAP.md](./ROADMAP.md).
 
 ---
 
@@ -216,8 +224,8 @@ Backend запускается на `http://localhost:8080`. Swagger UI: `http:/
 
 ```bash
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Frontend запускается на `http://localhost:5173`.
@@ -233,7 +241,7 @@ Frontend запускается на `http://localhost:5173`.
 
 ```bash
 # Frontend
-cd frontend && npm run lint && npm run build
+cd frontend && pnpm run lint && pnpm run build
 
 # Backend
 cd backend && ./mvnw test

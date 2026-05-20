@@ -107,9 +107,9 @@ Roadmap отражает текущее состояние перед первы
 
 ## Current Development Focus
 
-- [x] Все основные vertical slices реализованы и базово проверены.
-- [x] **Global Search:** реализация завершена, поддержка горячих клавиш добавлена.
-- [ ] Стабилизация интеграционных тестов с Testcontainers.
+- [ ] Стабилизация интеграционных тестов с Testcontainers на бэкенде.
+- [ ] Настройка фреймворка тестирования компонентов и сервисов на фронтенде.
+- [ ] Подготовка и проверка полноценного Docker Compose окружения для production-like запуска.
 
 ## Known UX/Technical Issues (Post-release v0.2.0-alpha)
 
@@ -126,12 +126,14 @@ Roadmap отражает текущее состояние перед первы
 
 ## Releases
 
-### v0.3.0-alpha — Tasks Management & Final Polish
+### v0.3.0-alpha — Tasks, Global Search & Security Hardening
 
-**Статус:** В разработке. Реализация системы задач и устранение оставшихся mock-зон.
+**Статус:** Выпущено (Релиз v0.3.0-alpha опубликован на GitHub).
 
 Что нового:
 - **Tasks:** полноценный CRUD, пагинация, фильтры по приоритетам (включая URGENT), привязка к Applications.
+- **Global Search:** единая система поиска по вакансиям, компаниям, задачам и собеседованиям с поддержкой горячих клавиш (`Cmd+K` / `Ctrl+K`).
+- **Security Hardening:** поддержка Refresh Tokens через HttpOnly Cookies, ограничение частоты запросов к AI (Rate Limiting via Bucket4j), логирование действий пользователей (Audit Trail).
 - **Dashboard:** интерактивный список задач с быстрым toggle done.
 - **Sidebar:** новый раздел "Задачи".
 - **Refactoring:** переход от mock-DTO к доменным структурам в модуле Tasks.
