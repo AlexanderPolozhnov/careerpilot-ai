@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useForm, type Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -44,12 +45,13 @@ export function VacancyForm({ onSubmit, onCancel, initialValues, isSubmitting }:
 
   const form = useForm<VacancyFormValues>({
     resolver: zodResolver(vacancySchema) as unknown as Resolver<VacancyFormValues>,
-    defaultValues: {
+    defaultValues: useMemo(() => ({
       remote: 'REMOTE',
       contractType: 'FULL_TIME',
       salaryCurrency: 'USD',
       ...initialValues,
-    },
+      deadline: initialValues?.deadline ? initialValues.deadline.slice(0, 10) : undefined,
+    }), [initialValues]),
   })
 
   if (companiesQuery.isLoading) {
@@ -79,7 +81,7 @@ export function VacancyForm({ onSubmit, onCancel, initialValues, isSubmitting }:
 
       <div>
         <label htmlFor="url" className="text-xs text-ink-dim">{t('vacancies.form.url')}</label>
-        <input id="url" {...form.register('url')} className="input mt-1" placeholder="https://"/>
+        <input id="url" {...form.register('url')} className="input mt-1" placeholder="https://" />
         {form.formState.errors.url && <p className="text-xs text-danger mt-1">{form.formState.errors.url.message}</p>}
       </div>
 
@@ -100,13 +102,13 @@ export function VacancyForm({ onSubmit, onCancel, initialValues, isSubmitting }:
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-         <div>
+        <div>
           <label htmlFor="remote" className="text-xs text-ink-dim">{t('vacancies.form.remote')}</label>
           <select id="remote" {...form.register('remote')} className="select mt-1">
             {remoteTypeValues.map(v => <option key={v} value={v} className="select-option">{v}</option>)}
           </select>
         </div>
-         <div>
+        <div>
           <label htmlFor="contractType" className="text-xs text-ink-dim">{t('vacancies.form.contractType')}</label>
           <select id="contractType" {...form.register('contractType')} className="select mt-1">
             {contractTypeValues.map(v => <option key={v} value={v} className="select-option">{v}</option>)}

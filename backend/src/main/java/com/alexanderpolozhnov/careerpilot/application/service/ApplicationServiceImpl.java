@@ -54,7 +54,9 @@ public class ApplicationServiceImpl implements ApplicationService {
         ApplicationStatus status = request.status() != null ? request.status() : ApplicationStatus.NEW;
         entity.setStatus(status);
         entity.setNotes(request.notes());
-        entity.setAppliedAt(request.appliedAt());
+        entity.setAppliedAt(
+                request.appliedAt() != null ? request.appliedAt().atStartOfDay(java.time.ZoneOffset.UTC).toInstant()
+                        : null);
         entity.setResumeId(request.resumeId());
 
         // Если статус сразу "интервью", фиксируем время
@@ -158,7 +160,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             entity.setNotes(request.notes());
         }
         if (request.appliedAt() != null) {
-            entity.setAppliedAt(request.appliedAt());
+            entity.setAppliedAt(request.appliedAt().atStartOfDay(java.time.ZoneOffset.UTC).toInstant());
         }
         if (request.resumeId() != null) {
             entity.setResumeId(request.resumeId());

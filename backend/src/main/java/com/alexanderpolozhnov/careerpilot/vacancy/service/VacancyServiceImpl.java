@@ -52,7 +52,9 @@ public class VacancyServiceImpl implements VacancyService {
         entity.setSalaryTo(request.salaryMax());
         entity.setCurrency(request.salaryCurrency());
         entity.setEmploymentType(request.contractType());
-        entity.setDeadline(request.deadline());
+        entity.setDeadline(
+                request.deadline() != null ? request.deadline().atStartOfDay(java.time.ZoneOffset.UTC).toInstant()
+                        : null);
         entity.setStatus(VacancyStatus.ACTIVE);
         entity.setCompany(resolveCompanyOrNull(currentUser.getId(), request.companyId()));
         replaceTags(entity, request.tagIds());
@@ -70,16 +72,15 @@ public class VacancyServiceImpl implements VacancyService {
             String status,
             String remote,
             String companyId,
-            String tag
-    ) {
-        log.info("vacancies.list start page={} size={} sort={} direction={} search={} status={} remote={} companyId={} tag={}",
+            String tag) {
+        log.info(
+                "vacancies.list start page={} size={} sort={} direction={} search={} status={} remote={} companyId={} tag={}",
                 page, size, sort, direction, search, status, remote, companyId, tag);
         UUID userId = currentUserResolver.resolveRequired().getId();
         Pageable pageable = PageRequest.of(
                 Math.max(page, 0),
                 Math.max(size, 1),
-                Sort.by(parseDirection(direction), mapSortField(sort))
-        );
+                Sort.by(parseDirection(direction), mapSortField(sort)));
 
         Specification<VacancyEntity> specification = byUser(userId)
                 .and(bySearch(search))
@@ -94,7 +95,8 @@ public class VacancyServiceImpl implements VacancyService {
             log.info("vacancies.list success userId={} total={}", userId, mappedPage.getTotalElements());
             return PagedResponse.fromPage(mappedPage);
         } catch (Exception e) {
-            log.error("vacancies.list failed userId={} filters(search={}, status={}, remote={}, companyId={}, tag={}) error={}",
+            log.error(
+                    "vacancies.list failed userId={} filters(search={}, status={}, remote={}, companyId={}, tag={}) error={}",
                     userId, search, status, remote, companyId, tag, e.getMessage(), e);
             throw e;
         }
@@ -142,7 +144,7 @@ public class VacancyServiceImpl implements VacancyService {
             entity.setEmploymentType(request.contractType());
         }
         if (request.deadline() != null) {
-            entity.setDeadline(request.deadline());
+            entity.setDeadline(request.deadline().atStartOfDay(java.time.ZoneOffset.UTC).toInstant());
         }
         if (request.status() != null) {
             entity.setStatus(request.status());
@@ -227,8 +229,7 @@ public class VacancyServiceImpl implements VacancyService {
         return (root, query, cb) -> cb.or(
                 cb.like(cb.lower(root.get("title")), likeValue),
                 cb.like(cb.lower(cb.coalesce(root.get("descriptionRaw"), "")), likeValue),
-                cb.like(cb.lower(cb.coalesce(root.get("location"), "")), likeValue)
-        );
+                cb.like(cb.lower(cb.coalesce(root.get("location"), "")), likeValue));
     }
 
     private Specification<VacancyEntity> byStatus(String status) {
@@ -249,8 +250,8 @@ public class VacancyServiceImpl implements VacancyService {
             return null;
         }
         try {
-            com.alexanderpolozhnov.careerpilot.vacancy.entity.RemoteType parsed =
-                    com.alexanderpolozhnov.careerpilot.vacancy.entity.RemoteType.valueOf(remote.trim().toUpperCase());
+            com.alexanderpolozhnov.careerpilot.vacancy.entity.RemoteType parsed = com.alexanderpolozhnov.careerpilot.vacancy.entity.RemoteType
+                    .valueOf(remote.trim().toUpperCase());
             return (root, query, cb) -> cb.equal(root.get("remoteType"), parsed);
         } catch (IllegalArgumentException exception) {
             log.warn("Invalid remote type requested: {}", remote);
