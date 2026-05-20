@@ -39,7 +39,7 @@ class AuthControllerTest {
 
     @Test
     void registerHappyPath() throws Exception {
-        AuthUserResponse user = new AuthUserResponse(UUID.randomUUID(), "user@example.com", "Alex", null, Instant.now());
+        AuthUserResponse user = new AuthUserResponse(UUID.randomUUID(), "user@example.com", "Alex", null, Instant.now(), true);
         when(authService.register(any())).thenReturn(new AuthResult(new AuthResponse("jwt-token", user), "refresh-token"));
 
         mockMvc.perform(post("/api/auth/register")
@@ -52,7 +52,7 @@ class AuthControllerTest {
 
     @Test
     void loginHappyPath() throws Exception {
-        AuthUserResponse user = new AuthUserResponse(UUID.randomUUID(), "user@example.com", "Alex", null, Instant.now());
+        AuthUserResponse user = new AuthUserResponse(UUID.randomUUID(), "user@example.com", "Alex", null, Instant.now(), true);
         when(authService.login(any())).thenReturn(new AuthResult(new AuthResponse("jwt-token", user), "refresh-token"));
 
         mockMvc.perform(post("/api/auth/login")
@@ -74,7 +74,7 @@ class AuthControllerTest {
 
     @Test
     void meHappyPath() throws Exception {
-        AuthUserResponse user = new AuthUserResponse(UUID.randomUUID(), "user@example.com", "Alex", null, Instant.now());
+        AuthUserResponse user = new AuthUserResponse(UUID.randomUUID(), "user@example.com", "Alex", null, Instant.now(), true);
         when(authService.me()).thenReturn(user);
 
         mockMvc.perform(get("/api/auth/me"))

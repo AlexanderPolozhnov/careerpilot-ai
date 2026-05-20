@@ -14,6 +14,7 @@ export const mockUser = {
   email: 'alexander@careerpilot.ai',
   name: 'Alexander',
   createdAt: '2024-01-01T09:00:00Z',
+  hasPassword: true
 }
 
 // ─── Companies ────────────────────────────────────────────────────────────────

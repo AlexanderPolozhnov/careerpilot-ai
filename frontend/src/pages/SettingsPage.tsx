@@ -8,6 +8,7 @@ import type { PreferencesRequest, UserUpdateRequest } from '@/services/settings.
 import { settingsService } from '@/services/settings.service'
 import { profileService } from '@/services/profile.service'
 import { resumeService, type CreateResumeDto } from '@/services/resume.service'
+import { authService, type UpdatePasswordRequest } from '@/services/auth.service'
 import { cn, formatRelative } from '@/lib/utils'
 import { notificationService } from '@/services/notification.service'
 import { ResumeForm } from '@/components/ResumeForm'
@@ -64,6 +65,23 @@ type ProfileValues = z.infer<typeof profileSchema>
 type PreferencesValues = z.infer<typeof preferencesSchema>
 type ProfessionalProfileValues = z.infer<typeof professionalProfileSchema>
 
+type PasswordValues = {
+    currentPassword?: string
+    newPassword: string
+    confirmPassword: string
+}
+
+const getPasswordSchema = (hasPassword: boolean) => {
+    return z.object({
+        currentPassword: hasPassword ? z.string().min(1, { message: 'settings.currentPasswordRequired' }) : z.string().optional(),
+        newPassword: z.string().min(6, { message: 'auth.passwordMinLength' }),
+        confirmPassword: z.string().min(6, { message: 'auth.passwordMinLength' }),
+    }).refine((data) => data.newPassword === data.confirmPassword, {
+        message: 'auth.passwordMismatch',
+        path: ['confirmPassword']
+    })
+}
+
 // Toggle Switch Component
 function Toggle({ checked, onChange, disabled = false }: {
     checked: boolean;
@@ -94,7 +112,7 @@ function Toggle({ checked, onChange, disabled = false }: {
 }
 
 // Section Header Component
-function SectionHeader({ icon: Icon, title, description }: { icon: typeof User; title: string; description: string }) {
+function SectionHeader({ icon: Icon, title, description }: { icon: typeof User | typeof Shield | typeof Globe | typeof Sparkles | typeof Bell | typeof Key; title: string; description: string }) {
     return (
         <div className="flex items-start gap-4 mb-6">
             <div
@@ -155,8 +173,8 @@ export default function SettingsPage() {
     const notifications = notificationsData?.content ?? []
 
     const { data: userData } = useQuery({
-        queryKey: ['users', 'me'],
-        queryFn: () => settingsService.getMe(),
+        queryKey: ['auth', 'me'],
+        queryFn: () => authService.me(),
     })
 
     const { data: prefsData } = useQuery({
@@ -202,6 +220,15 @@ export default function SettingsPage() {
         },
     })
 
+    const passwordForm = useForm<PasswordValues>({
+        resolver: zodResolver(getPasswordSchema(userData?.hasPassword ?? false)) as any,
+        defaultValues: {
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: '',
+        },
+    })
+
     const weeklyDigest = useWatch({ control: prefsForm.control, name: 'weeklyDigest' })
     const interviewReminders = useWatch({ control: prefsForm.control, name: 'interviewReminders' })
 
@@ -210,7 +237,7 @@ export default function SettingsPage() {
             profileForm.reset({
                 name: userData.name,
                 email: userData.email,
-                location: userData.location ?? '',
+                location: (userData as any).location ?? '',
             })
         }
     }, [userData, profileForm])
@@ -224,6 +251,13 @@ export default function SettingsPage() {
                 language: (prefsData.language as 'ru' | 'en') || 'en',
             })
             i18n.changeLanguage(prefsData.language)
+        } else {
+            prefsForm.reset({
+                weeklyDigest: true,
+                interviewReminders: true,
+                aiProviderMode: 'LOCAL',
+                language: (i18n.language as 'ru' | 'en') || 'en',
+            })
         }
     }, [prefsData, prefsForm, i18n])
 
@@ -238,8 +272,40 @@ export default function SettingsPage() {
                 githubUrl: profileData.githubUrl ?? '',
                 portfolioUrl: profileData.portfolioUrl ?? '',
             })
+        } else {
+            professionalProfileForm.reset({
+                headline: '',
+                location: '',
+                yearsOfExperience: undefined,
+                skills: '',
+                linkedinUrl: '',
+                githubUrl: '',
+                portfolioUrl: '',
+            })
         }
     }, [profileData, professionalProfileForm])
+
+    useEffect(() => {
+        if (userData) {
+            passwordForm.reset({
+                currentPassword: '',
+                newPassword: '',
+                confirmPassword: '',
+            })
+        }
+    }, [userData, passwordForm])
+
+    const updatePasswordMutation = useMutation({
+        mutationFn: (data: UpdatePasswordRequest) => authService.updatePassword(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+            toast.success(t('settings.passwordUpdated'))
+            passwordForm.reset()
+        },
+        onError: () => {
+            toast.error(t('settings.passwordUpdateError'))
+        }
+    })
 
     const updateUserMutation = useMutation({
         mutationFn: (data: UserUpdateRequest) => settingsService.updateMe(data),
@@ -336,6 +402,14 @@ export default function SettingsPage() {
             portfolioUrl: values.portfolioUrl,
         }
         await updateProfileMutation.mutateAsync(payload)
+    })
+
+    const handlePasswordSubmit = passwordForm.handleSubmit(async (values) => {
+        const payload: UpdatePasswordRequest = {
+            currentPassword: values.currentPassword,
+            newPassword: values.newPassword,
+        }
+        await updatePasswordMutation.mutateAsync(payload)
     })
 
     const handleLanguageChange = (newLanguage: 'ru' | 'en') => {
@@ -515,6 +589,100 @@ export default function SettingsPage() {
                                         </span>
                                     ) : (
                                         t('settings.saveSettings')
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+
+                    {/* Password/Security Section */}
+                    <section className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm">
+                        <SectionHeader
+                            icon={Shield}
+                            title={userData?.hasPassword ? t('settings.changePassword') : t('settings.createPassword')}
+                            description={userData?.hasPassword ? t('settings.changePasswordDescription') : t('settings.createPasswordDescription')}
+                        />
+
+                        {updatePasswordMutation.isSuccess && (
+                            <div className="mb-5"><StatusToast type="success" message={t('settings.passwordUpdated')} /></div>
+                        )}
+                        {updatePasswordMutation.isError && (
+                            <div className="mb-5"><StatusToast type="error" message={t('settings.passwordUpdateError')} /></div>
+                        )}
+
+                        {!userData?.hasPassword && (
+                            <div className="mb-5 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                                <p className="text-sm text-blue-300">{t('settings.oauth2Hint')}</p>
+                            </div>
+                        )}
+
+                        <form onSubmit={handlePasswordSubmit} className="space-y-5">
+                            {userData?.hasPassword && (
+                                <div className="space-y-2">
+                                    <label
+                                        className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                        <Key className="w-3.5 h-3.5" />
+                                        {t('settings.currentPassword')}
+                                    </label>
+                                    <input
+                                        type="password"
+                                        className="input"
+                                        {...passwordForm.register('currentPassword')}
+                                    />
+                                    {passwordForm.formState.errors.currentPassword?.message && (
+                                        <p className="text-xs text-red-400">{t(passwordForm.formState.errors.currentPassword.message as any)}</p>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="space-y-2">
+                                <label
+                                    className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                    <Key className="w-3.5 h-3.5" />
+                                    {t('settings.newPassword')}
+                                </label>
+                                <input
+                                    type="password"
+                                    className="input"
+                                    {...passwordForm.register('newPassword')}
+                                />
+                                {passwordForm.formState.errors.newPassword?.message && (
+                                    <p className="text-xs text-red-400">{t(passwordForm.formState.errors.newPassword.message as any)}</p>
+                                )}
+                            </div>
+
+                            <div className="space-y-2">
+                                <label
+                                    className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
+                                    <Key className="w-3.5 h-3.5" />
+                                    {t('settings.confirmPassword')}
+                                </label>
+                                <input
+                                    type="password"
+                                    className="input"
+                                    {...passwordForm.register('confirmPassword')}
+                                />
+                                {passwordForm.formState.errors.confirmPassword?.message && (
+                                    <p className="text-xs text-red-400">{t(passwordForm.formState.errors.confirmPassword.message as any)}</p>
+                                )}
+                            </div>
+
+                            <div className="pt-2">
+                                <button
+                                    type="submit"
+                                    disabled={updatePasswordMutation.isPending}
+                                    className={cn(
+                                        'btn-primary px-5',
+                                        updatePasswordMutation.isPending && 'opacity-70 cursor-not-allowed'
+                                    )}
+                                >
+                                    {updatePasswordMutation.isPending ? (
+                                        <span className="flex items-center gap-2">
+                                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Saving...
+                                        </span>
+                                    ) : (
+                                        userData?.hasPassword ? t('settings.changePassword') : t('settings.createPassword')
                                     )}
                                 </button>
                             </div>

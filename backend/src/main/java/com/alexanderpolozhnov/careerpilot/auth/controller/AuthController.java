@@ -5,6 +5,7 @@ import com.alexanderpolozhnov.careerpilot.auth.request.ForgotPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.LoginRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.RegisterRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.ResetPasswordRequest;
+import com.alexanderpolozhnov.careerpilot.auth.request.UpdatePasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthResponse;
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthUserResponse;
 import com.alexanderpolozhnov.careerpilot.auth.service.AuthResult;
@@ -60,6 +61,13 @@ public class AuthController {
         authService.resetPassword(request);
     }
 
+    @PostMapping("/password")
+    @Auditable(action = "UPDATE_PASSWORD", entityType = "USER")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updatePassword(@Valid @RequestBody UpdatePasswordRequest request) {
+        authService.updatePassword(request);
+    }
+
     @PostMapping("/refresh")
     public AuthResponse refresh(@CookieValue(name = "refresh_token") String refreshToken,
             HttpServletResponse response) {
@@ -72,10 +80,23 @@ public class AuthController {
     @Auditable(action = "USER_LOGOUT", entityType = "USER")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(@CookieValue(name = "refresh_token", required = false) String refreshToken,
+            jakarta.servlet.http.HttpServletRequest request,
             HttpServletResponse response) {
         if (refreshToken != null) {
             authService.logout(refreshToken);
         }
+        jakarta.servlet.http.HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        org.springframework.security.core.context.SecurityContextHolder.clearContext();
+
+        // Принудительное удаление куки JSESSIONID из браузера
+        jakarta.servlet.http.Cookie cookieJSession = new jakarta.servlet.http.Cookie("JSESSIONID", null);
+        cookieJSession.setPath("/");
+        cookieJSession.setMaxAge(0);
+        response.addCookie(cookieJSession);
+
         ResponseCookie cookie = ResponseCookie.from("refresh_token", "")
                 .httpOnly(true)
                 .secure(false) // Assuming DEV might not use HTTPS, should be configurable but sticking to
@@ -102,7 +123,8 @@ public class AuthController {
     }
 
     @GetMapping("/oauth2/authorize/{provider}")
-    public void authorizeOAuth2(@PathVariable String provider, HttpServletResponse response) throws java.io.IOException {
+    public void authorizeOAuth2(@PathVariable String provider, HttpServletResponse response)
+            throws java.io.IOException {
         response.sendRedirect("/oauth2/authorization/" + provider);
     }
 }

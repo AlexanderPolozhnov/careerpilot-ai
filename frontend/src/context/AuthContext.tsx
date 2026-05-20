@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react'
 import type { User } from '@/types'
 import { authService } from '@/services/auth.service'
 import { AuthContext } from './auth-context'
+import { useQueryClient } from '@tanstack/react-query'
 
 export interface AuthContextValue {
   user: User | null
@@ -16,6 +17,7 @@ export interface AuthContextValue {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem('cp_access_token'))
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     const token = localStorage.getItem('cp_access_token')
@@ -46,7 +48,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(() => {
     authService.logout()
     setUser(null)
-  }, [])
+    queryClient.clear()
+  }, [queryClient])
+
 
   return (
     <AuthContext.Provider

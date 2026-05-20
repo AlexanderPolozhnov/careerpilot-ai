@@ -4,10 +4,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record AuthUserResponse(
-        UUID id,
-        String email,
-        String name,
-        String avatarUrl,
-        Instant createdAt
-) {
+                UUID id,
+                String email,
+                String name,
+                String avatarUrl,
+                Instant createdAt,
+                boolean hasPassword) {
 }

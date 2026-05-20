@@ -6,6 +6,7 @@ export interface User {
   name: string
   avatarUrl?: string
   createdAt: string
+  hasPassword: boolean
 }
 
 export interface Profile {

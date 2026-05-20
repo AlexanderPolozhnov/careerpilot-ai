@@ -1,8 +1,10 @@
 package com.alexanderpolozhnov.careerpilot.auth.service;
+
 import com.alexanderpolozhnov.careerpilot.auth.request.ForgotPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.LoginRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.RegisterRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.ResetPasswordRequest;
+import com.alexanderpolozhnov.careerpilot.auth.request.UpdatePasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthUserResponse;
 
 public interface AuthService {
@@ -15,6 +17,8 @@ public interface AuthService {
     void forgotPassword(ForgotPasswordRequest request);
 
     void resetPassword(ResetPasswordRequest request);
+
+    void updatePassword(UpdatePasswordRequest request);
 
     AuthResult refresh(String refreshToken);
 

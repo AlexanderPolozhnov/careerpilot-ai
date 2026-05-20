@@ -9,6 +9,9 @@ import com.alexanderpolozhnov.careerpilot.auth.request.ForgotPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.LoginRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.RegisterRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.ResetPasswordRequest;
+import com.alexanderpolozhnov.careerpilot.auth.request.UpdatePasswordRequest;
+import com.alexanderpolozhnov.careerpilot.auth.exception.AuthException;
+import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +41,8 @@ class AuthServiceImplTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private RefreshTokenService refreshTokenService;
+    @Mock
+    private CurrentUserResolver currentUserResolver;
     @InjectMocks
     private AuthServiceImpl authService;
 
@@ -84,7 +89,8 @@ class AuthServiceImplTest {
     void registerDuplicateEmail() {
         when(authRepository.existsByEmail("user@example.com")).thenReturn(true);
 
-        assertThatThrownBy(() -> authService.register(new RegisterRequest("Alex User", "user@example.com", "secret123")))
+        assertThatThrownBy(
+                () -> authService.register(new RegisterRequest("Alex User", "user@example.com", "secret123")))
                 .isInstanceOf(DuplicateEmailException.class);
     }
 
@@ -165,5 +171,51 @@ class AuthServiceImplTest {
         assertThatThrownBy(() -> authService.resetPassword(new ResetPasswordRequest("invalid-token", "new-secret")))
                 .isInstanceOf(InvalidCredentialsException.class)
                 .hasMessage("Invalid or expired reset token");
+    }
+
+    @Test
+    void updatePasswordWithExistingPasswordSuccess() {
+        when(currentUserResolver.resolveRequired()).thenReturn(user);
+        when(passwordEncoder.matches("old-password", "hashed-password")).thenReturn(true);
+        when(passwordEncoder.encode("new-password")).thenReturn("new-hashed-password");
+        when(authRepository.save(any(AuthEntity.class))).thenReturn(user);
+
+        authService.updatePassword(new UpdatePasswordRequest("old-password", "new-password"));
+
+        verify(authRepository).save(user);
+        assertThat(user.getPasswordHash()).isEqualTo("new-hashed-password");
+    }
+
+    @Test
+    void updatePasswordOAuth2UserSuccess() {
+        user.setPasswordHash(null);
+        when(currentUserResolver.resolveRequired()).thenReturn(user);
+        when(passwordEncoder.encode("new-password")).thenReturn("new-hashed-password");
+        when(authRepository.save(any(AuthEntity.class))).thenReturn(user);
+
+        authService.updatePassword(new UpdatePasswordRequest(null, "new-password"));
+
+        verify(authRepository).save(user);
+        assertThat(user.getPasswordHash()).isEqualTo("new-hashed-password");
+    }
+
+    @Test
+    void updatePasswordInvalidCurrentPasswordThrowsException() {
+        when(currentUserResolver.resolveRequired()).thenReturn(user);
+        when(passwordEncoder.matches("wrong-password", "hashed-password")).thenReturn(false);
+
+        assertThatThrownBy(
+                () -> authService.updatePassword(new UpdatePasswordRequest("wrong-password", "new-password")))
+                .isInstanceOf(AuthException.class)
+                .hasMessage("Неверный текущий пароль");
+    }
+
+    @Test
+    void updatePasswordMissingCurrentPasswordThrowsException() {
+        when(currentUserResolver.resolveRequired()).thenReturn(user);
+
+        assertThatThrownBy(() -> authService.updatePassword(new UpdatePasswordRequest(null, "new-password")))
+                .isInstanceOf(AuthException.class)
+                .hasMessage("Текущий пароль обязателен");
     }
 }

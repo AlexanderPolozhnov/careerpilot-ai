@@ -102,7 +102,7 @@ Roadmap отражает текущее состояние перед первы
 - [ ] Full-stack Docker Compose setup.
 - [x] **Global Search:** единый поиск по всем сущностям (Cmd+K).
 - [ ] Deployment notes.
-- [x] Security hardening: refresh/revocation strategy [x], rate limits for AI endpoints [x], audit trail [x].
+- [x] Security hardening: refresh/revocation strategy [x], rate limits for AI endpoints [x], audit trail [x], password creation/update for OAuth2 users [x].
 
 ## Current Development Focus
 

@@ -28,20 +28,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+        String path = request.getRequestURI();
+
+        // Если это публичный эндпоинт, просто пропускаем дальше
+        if (isPublicPath(path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader(AUTHORIZATION);
         if (header == null || !header.startsWith(BEARER_PREFIX)) {
+            // ПРИНУДИТЕЛЬНО очищаем контекст безопасности для защищенных путей,
+            // чтобы сессия HttpSession (например, от OAuth2) не подставила старого пользователя
+            SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
 
         String token = header.substring(BEARER_PREFIX.length());
         if (!jwtService.isTokenValid(token)) {
+            // То же самое, если токен невалиден
+            SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
 
         String subject = jwtService.extractSubject(token);
-        if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (subject != null) {
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(subject, null, List.of());
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -49,5 +62,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isPublicPath(String path) {
+        return path.contains("/api/auth/login") ||
+               path.contains("/api/auth/register") ||
+               path.contains("/api/auth/forgot-password") ||
+               path.contains("/api/auth/reset-password") ||
+               path.contains("/api/auth/refresh") ||
+               path.contains("/api/auth/logout") ||
+               path.contains("/api/auth/oauth2") ||
+               path.contains("/oauth2/") ||
+               path.contains("/login/oauth2");
     }
 }

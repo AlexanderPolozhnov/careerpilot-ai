@@ -11,8 +11,10 @@ import com.alexanderpolozhnov.careerpilot.auth.request.ForgotPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.LoginRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.RegisterRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.ResetPasswordRequest;
+import com.alexanderpolozhnov.careerpilot.auth.request.UpdatePasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthResponse;
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthUserResponse;
+import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -32,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
+    private final CurrentUserResolver currentUserResolver;
 
     @Override
     @Transactional
@@ -72,7 +75,8 @@ public class AuthServiceImpl implements AuthService {
         AuthEntity user = authRepository.findByResetPasswordToken(request.token())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid or expired reset token"));
 
-        if (user.getResetPasswordExpiresAt() == null || user.getResetPasswordExpiresAt().isBefore(OffsetDateTime.now())) {
+        if (user.getResetPasswordExpiresAt() == null
+                || user.getResetPasswordExpiresAt().isBefore(OffsetDateTime.now())) {
             throw new InvalidCredentialsException("Invalid or expired reset token");
         }
 
@@ -107,7 +111,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthUserResponse me() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getName() == null || "anonymousUser".equals(authentication.getName())) {
+        if (authentication == null || authentication.getName() == null
+                || "anonymousUser".equals(authentication.getName())) {
             throw new InvalidCredentialsException("Unauthorized");
         }
         String email = authentication.getName();
@@ -137,6 +142,26 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    @Override
+    @Transactional
+    public void updatePassword(UpdatePasswordRequest request) {
+        AuthEntity user = currentUserResolver.resolveRequired();
+
+        if (user.getPasswordHash() != null) {
+            if (request.currentPassword() == null || request.currentPassword().isBlank()) {
+                throw new AuthException("Текущий пароль обязателен");
+            }
+            if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+                throw new AuthException("Неверный текущий пароль");
+            }
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        authRepository.save(user);
+
+        log.info("Password updated for user: {}", user.getEmail());
+    }
+
     private AuthResult buildAuthResult(AuthEntity user) {
         String accessToken = jwtService.generateToken(user.getEmail());
         RefreshTokenEntity refreshToken = refreshTokenService.createRefreshToken(user.getId());
@@ -150,8 +175,8 @@ public class AuthServiceImpl implements AuthService {
                 user.getEmail(),
                 resolveDisplayName(user),
                 null,
-                user.getCreatedAt()
-        );
+                user.getCreatedAt(),
+                user.getPasswordHash() != null);
     }
 
     private void applyNameParts(AuthEntity user, String name) {
