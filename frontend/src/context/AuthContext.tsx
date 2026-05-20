@@ -11,6 +11,7 @@ export interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string) => Promise<void>
   forgotPassword: (email: string) => Promise<void>
+  resetPassword: (token: string, password: string) => Promise<void>
   logout: () => void
 }
 
@@ -45,6 +46,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await authService.forgotPassword(email)
   }, [])
 
+  const resetPassword = useCallback(async (token: string, password: string) => {
+    await authService.resetPassword(token, password)
+  }, [])
+
   const logout = useCallback(() => {
     authService.logout()
     setUser(null)
@@ -61,6 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         forgotPassword,
+        resetPassword,
         logout,
       }}
     >

@@ -151,6 +151,7 @@
     "resetPassword": "We'll send a reset link if the email exists.",
     "email": "Email",
     "password": "Password",
+    "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
     "name": "Name",
     "submit": "Submit",
@@ -164,7 +165,12 @@
     "loginHint": "🔒 Data is protected",
     "skip": "Skip",
     "sendResetLink": "Send link",
-    "resetPasswordSuccess": "We have sent a reset link to the specified email. Please check your inbox."
+    "forgotPasswordSuccess": "If an account with this Email exists, we have sent a reset link to it.",
+    "resetPasswordSuccess": "Password successfully changed. Redirecting to login...",
+    "resetPasswordTitle": "Reset Password",
+    "resetPasswordDescription": "Enter your new password to complete the reset.",
+    "resetPasswordButton": "Reset Password",
+    "invalidToken": "Invalid or missing reset link. Please request a new link."
   },
   "dashboard": {
     "title": "Dashboard",

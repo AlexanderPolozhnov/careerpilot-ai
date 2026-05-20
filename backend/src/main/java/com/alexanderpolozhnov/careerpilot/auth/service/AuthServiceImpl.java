@@ -15,6 +15,7 @@ import com.alexanderpolozhnov.careerpilot.auth.request.UpdatePasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthResponse;
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthUserResponse;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
+import com.alexanderpolozhnov.careerpilot.notification.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -35,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
     private final CurrentUserResolver currentUserResolver;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -59,13 +61,12 @@ public class AuthServiceImpl implements AuthService {
             user.setResetPasswordExpiresAt(OffsetDateTime.now().plusHours(24));
             authRepository.save(user);
 
-            log.info("Password reset requested for email: {}. Reset token: {}", email, token);
-            // In a real application, send email here
+            emailService.sendPasswordResetEmail(email, token);
         });
 
         // If user not found, we still return success to prevent email enumeration
         if (!authRepository.existsByEmail(email)) {
-            log.info("Password reset requested for non-existent email: {}", email);
+            log.warn("PASSWORD RESET FAILED: Email '{}' not found in database. No email sent.", email);
         }
     }
 

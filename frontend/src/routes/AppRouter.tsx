@@ -40,6 +40,7 @@ export function AppRouter() {
       <Route path="/auth/login" element={<AuthPages mode="login" />} />
       <Route path="/auth/register" element={<AuthPages mode="register" />} />
       <Route path="/auth/forgot-password" element={<AuthPages mode="forgot-password" />} />
+      <Route path="/auth/reset-password" element={<AuthPages mode="reset-password" />} />
       <Route path="/auth/callback" element={<OAuthCallbackPage />} />
 
       <Route

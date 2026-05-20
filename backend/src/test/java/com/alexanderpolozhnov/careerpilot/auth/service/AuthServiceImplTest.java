@@ -12,6 +12,7 @@ import com.alexanderpolozhnov.careerpilot.auth.request.ResetPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.UpdatePasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.exception.AuthException;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
+import com.alexanderpolozhnov.careerpilot.notification.service.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +44,8 @@ class AuthServiceImplTest {
     private RefreshTokenService refreshTokenService;
     @Mock
     private CurrentUserResolver currentUserResolver;
+    @Mock
+    private EmailService emailService;
     @InjectMocks
     private AuthServiceImpl authService;
 
@@ -126,6 +129,7 @@ class AuthServiceImplTest {
         verify(authRepository).save(user);
         assertThat(user.getResetPasswordToken()).isNotNull();
         assertThat(user.getResetPasswordExpiresAt()).isAfter(OffsetDateTime.now());
+        verify(emailService).sendPasswordResetEmail("user@example.com", user.getResetPasswordToken());
     }
 
     @Test
