@@ -10,4 +10,6 @@ public interface NotificationService {
     PagedResponse<NotificationDto> list(int page, int size, Boolean read);
 
     NotificationDto markAsRead(UUID id);
+
+    long getUnreadCount();
 }

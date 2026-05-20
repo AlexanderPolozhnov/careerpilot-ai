@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { GlobalSearch } from './GlobalSearch'
 import { cn } from '@/lib/utils'
+import { useQuery } from '@tanstack/react-query'
+import { notificationService } from '@/services/notification.service'
 
 interface TopbarProps {
   title: string
@@ -18,6 +20,14 @@ export function Topbar({ title }: TopbarProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const { data: unreadData } = useQuery({
+    queryKey: ['notifications', 'unread-count'],
+    queryFn: () => notificationService.getUnreadCount(),
+    refetchInterval: 60000, // Poll every minute
+  })
+  
+  const unreadCount = unreadData?.count || 0
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -97,12 +107,16 @@ export function Topbar({ title }: TopbarProps) {
         {/* Notifications - subtle bell */}
         <button
           type="button"
+          onClick={() => navigate('/app/settings#notifications')}
           className="relative w-9 h-9 rounded-lg flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all duration-150"
         >
           <Bell className="w-[18px] h-[18px]" />
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-violet-500" />
+          {unreadCount > 0 && (
+            <span className="absolute top-1.5 right-1.5 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-violet-500 text-[9px] font-bold text-white border-2 border-[#08060d]">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </button>
-
         {/* Language Switcher */}
         <LanguageSwitcher />
 

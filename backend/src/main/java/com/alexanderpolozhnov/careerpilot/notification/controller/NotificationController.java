@@ -32,4 +32,11 @@ public class NotificationController {
     public NotificationDto markAsRead(@PathVariable UUID id) {
         return service.markAsRead(id);
     }
+
+    @GetMapping("/unread-count")
+    public UnreadCountResponse getUnreadCount() {
+        return new UnreadCountResponse(service.getUnreadCount());
+    }
+
+    public record UnreadCountResponse(long count) {}
 }

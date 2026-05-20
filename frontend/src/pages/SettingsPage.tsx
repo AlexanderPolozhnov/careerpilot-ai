@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useForm, useWatch, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
@@ -151,12 +152,24 @@ function StatusToast({ type, message }: { type: 'success' | 'error'; message: st
 
 export default function SettingsPage() {
     const { t, i18n } = useTranslation()
+    const location = useLocation()
     const queryClient = useQueryClient()
     const [deleteConfirm, setDeleteConfirm] = useState(false)
     const [showResumeModal, setShowResumeModal] = useState(false)
     const [editingResume, setEditingResume] = useState<Resume | null>(null)
     const [resumeToDeleteId, setResumeToDeleteId] = useState<string | null>(null)
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
+
+    useEffect(() => {
+        if (location.hash === '#notifications') {
+            setTimeout(() => {
+                const element = document.getElementById('notifications')
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' })
+                }
+            }, 100)
+        }
+    }, [location.hash])
 
     const { data: notificationsData } = useQuery({
         queryKey: ['notifications'],
@@ -1021,7 +1034,7 @@ export default function SettingsPage() {
                     </section>
 
                     {/* Notifications Section */}
-                    <section className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm">
+                    <section id="notifications" className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm scroll-mt-24">
                         <SectionHeader
                             icon={Bell}
                             title={t('settings.notifications')}

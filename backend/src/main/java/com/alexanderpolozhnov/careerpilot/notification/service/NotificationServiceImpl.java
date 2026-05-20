@@ -51,4 +51,11 @@ public class NotificationServiceImpl implements NotificationService {
         entity.setRead(true);
         return notificationMapper.toDto(notificationRepository.save(entity));
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getUnreadCount() {
+        UUID userId = currentUserResolver.resolveRequired().getId();
+        return notificationRepository.countByUserIdAndReadFalse(userId);
+    }
 }

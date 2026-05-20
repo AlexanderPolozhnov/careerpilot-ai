@@ -39,13 +39,20 @@ export const notificationService = {
             `/notifications${buildQuery(filters as Record<string, string | number | boolean | undefined>)}`,
         )
     },
-
-    markAsRead: (id: string): Promise<Notification> => {
-        if (USE_MOCKS) {
-            const found = mockNotifications.find((n) => n.id === id)
-            if (!found) return Promise.reject(new Error('Notification not found'))
-            return Promise.resolve({...found, read: true})
-        }
-        return api.patch<Notification>(`/notifications/${id}/read`, {})
-    },
+markAsRead: (id: string): Promise<Notification> => {
+    if (USE_MOCKS) {
+        const found = mockNotifications.find((n) => n.id === id)
+        if (!found) return Promise.reject(new Error('Notification not found'))
+        found.read = true
+        return Promise.resolve(found)
+    }
+    return api.patch<Notification>(`/notifications/${id}/read`, {})
+},
+getUnreadCount: (): Promise<{ count: number }> => {
+    if (USE_MOCKS) {
+        const count = mockNotifications.filter(n => !n.read).length
+        return Promise.resolve({ count })
+    }
+    return api.get<{ count: number }>('/notifications/unread-count')
+}
 }
