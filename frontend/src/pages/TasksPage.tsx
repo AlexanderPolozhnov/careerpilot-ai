@@ -301,7 +301,7 @@ export default function TasksPage() {
       <div className="p-4 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl">
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           {/* Search */}
-          <div className="relative flex-1 max-w-md">
+          <div className="relative flex-1">
             <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#6b7590]" />
             <input
               value={query}

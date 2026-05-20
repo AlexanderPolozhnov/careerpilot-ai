@@ -467,19 +467,19 @@ export default function SettingsPage() {
             value: 'CLOUD',
             label: t('settings.aiProviderCloud'),
             icon: Cloud,
-            description: 'Fast, reliable cloud inference'
+            description: t('settings.aiProviderCloudDescriptionFull')
         },
         {
             value: 'LOCAL',
             label: t('settings.aiProviderLocal'),
             icon: Cpu,
-            description: 'Privacy-first local processing'
+            description: t('settings.aiProviderLocalDescriptionFull')
         },
         {
             value: 'BRING_YOUR_OWN_KEY',
             label: t('settings.aiProviderCustom'),
             icon: Key,
-            description: 'Use your own API key'
+            description: t('settings.aiProviderCustomDescriptionFull')
         },
     ]
 
@@ -1043,8 +1043,7 @@ export default function SettingsPage() {
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-white">{t('settings.weeklyDigest')}</p>
-                                        <p className="text-xs text-white/40 mt-0.5">Receive a weekly summary of your job
-                                            search</p>
+                                        <p className="text-xs text-white/40 mt-0.5">{t('settings.weeklyDigestDescription')}</p>
                                     </div>
                                 </div>
                                 <Toggle
@@ -1066,8 +1065,7 @@ export default function SettingsPage() {
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-white">{t('settings.interviewReminders')}</p>
-                                        <p className="text-xs text-white/40 mt-0.5">Get reminded before scheduled
-                                            interviews</p>
+                                        <p className="text-xs text-white/40 mt-0.5">{t('settings.interviewRemindersDescription')}</p>
                                     </div>
                                 </div>
                                 <Toggle
