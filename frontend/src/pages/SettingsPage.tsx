@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm, useWatch, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,7 +14,7 @@ import { notificationService } from '@/services/notification.service'
 import { ResumeForm } from '@/components/ResumeForm'
 import { ConfirmModal } from '@/components/ConfirmModal'
 import { toast } from '@/lib/toast'
-import type { Profile, Resume } from '@/types'
+import type { Profile, Resume, User as UserType } from '@/types'
 import {
     AlertTriangle,
     Bell,
@@ -208,7 +208,7 @@ export default function SettingsPage() {
     })
 
     const professionalProfileForm = useForm<ProfessionalProfileValues>({
-        resolver: zodResolver(professionalProfileSchema) as any,
+        resolver: zodResolver(professionalProfileSchema) as unknown as Resolver<ProfessionalProfileValues>,
         defaultValues: {
             headline: '',
             location: '',
@@ -221,7 +221,7 @@ export default function SettingsPage() {
     })
 
     const passwordForm = useForm<PasswordValues>({
-        resolver: zodResolver(getPasswordSchema(userData?.hasPassword ?? false)) as any,
+        resolver: zodResolver(getPasswordSchema(userData?.hasPassword ?? false)) as unknown as Resolver<PasswordValues>,
         defaultValues: {
             currentPassword: '',
             newPassword: '',
@@ -237,7 +237,7 @@ export default function SettingsPage() {
             profileForm.reset({
                 name: userData.name,
                 email: userData.email,
-                location: (userData as any).location ?? '',
+                location: (userData as UserType & { location?: string }).location ?? '',
             })
         }
     }, [userData, profileForm])
@@ -419,7 +419,7 @@ export default function SettingsPage() {
         updatePrefsMutation.mutate({ ...current, language: newLanguage })
     }
 
-    const handleResumeSubmit = async (values: any) => {
+    const handleResumeSubmit = async (values: CreateResumeDto) => {
         if (editingResume) {
             await updateResumeMutation.mutateAsync({ id: editingResume.id, data: values })
         } else {
@@ -540,7 +540,7 @@ export default function SettingsPage() {
                                         {...profileForm.register('name')}
                                     />
                                     {profileForm.formState.errors.name?.message && (
-                                        <p className="text-xs text-red-400">{t(profileForm.formState.errors.name.message as any)}</p>
+                                        <p className="text-xs text-red-400">{t(profileForm.formState.errors.name.message as string)}</p>
                                     )}
                                 </div>
                                 <div className="space-y-2">
@@ -554,7 +554,7 @@ export default function SettingsPage() {
                                         {...profileForm.register('email')}
                                     />
                                     {profileForm.formState.errors.email?.message && (
-                                        <p className="text-xs text-red-400">{t(profileForm.formState.errors.email.message as any)}</p>
+                                        <p className="text-xs text-red-400">{t(profileForm.formState.errors.email.message as string)}</p>
                                     )}
                                 </div>
                             </div>
@@ -630,7 +630,7 @@ export default function SettingsPage() {
                                         {...passwordForm.register('currentPassword')}
                                     />
                                     {passwordForm.formState.errors.currentPassword?.message && (
-                                        <p className="text-xs text-red-400">{t(passwordForm.formState.errors.currentPassword.message as any)}</p>
+                                        <p className="text-xs text-red-400">{t(passwordForm.formState.errors.currentPassword.message as string)}</p>
                                     )}
                                 </div>
                             )}
@@ -647,7 +647,7 @@ export default function SettingsPage() {
                                     {...passwordForm.register('newPassword')}
                                 />
                                 {passwordForm.formState.errors.newPassword?.message && (
-                                    <p className="text-xs text-red-400">{t(passwordForm.formState.errors.newPassword.message as any)}</p>
+                                    <p className="text-xs text-red-400">{t(passwordForm.formState.errors.newPassword.message as string)}</p>
                                 )}
                             </div>
 
@@ -663,7 +663,7 @@ export default function SettingsPage() {
                                     {...passwordForm.register('confirmPassword')}
                                 />
                                 {passwordForm.formState.errors.confirmPassword?.message && (
-                                    <p className="text-xs text-red-400">{t(passwordForm.formState.errors.confirmPassword.message as any)}</p>
+                                    <p className="text-xs text-red-400">{t(passwordForm.formState.errors.confirmPassword.message as string)}</p>
                                 )}
                             </div>
 
@@ -719,7 +719,7 @@ export default function SettingsPage() {
                                     placeholder={t('settings.headlinePlaceholder') || 'e.g. Senior Frontend Engineer'}
                                 />
                                 {professionalProfileForm.formState.errors.headline?.message && (
-                                    <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.headline.message as any)}</p>
+                                    <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.headline.message as string)}</p>
                                 )}
                             </div>
 
@@ -736,7 +736,7 @@ export default function SettingsPage() {
                                         placeholder={t('settings.locationPlaceholder') || 'e.g. Remote, San Francisco'}
                                     />
                                     {professionalProfileForm.formState.errors.location?.message && (
-                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.location.message as any)}</p>
+                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.location.message as string)}</p>
                                     )}
                                 </div>
                                 <div className="space-y-2">
@@ -753,7 +753,7 @@ export default function SettingsPage() {
                                         placeholder="3"
                                     />
                                     {professionalProfileForm.formState.errors.yearsOfExperience?.message && (
-                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.yearsOfExperience.message as any, { min: 0, max: 50 })}</p>
+                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.yearsOfExperience.message as string, { min: 0, max: 50 })}</p>
                                     )}
                                 </div>
                             </div>
@@ -770,7 +770,7 @@ export default function SettingsPage() {
                                 />
                                 <p className="text-xs text-white/30">{t('settings.skillsHint') || 'Separate skills with commas'}</p>
                                 {professionalProfileForm.formState.errors.skills?.message && (
-                                    <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.skills.message as any)}</p>
+                                    <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.skills.message as string)}</p>
                                 )}
                             </div>
 
@@ -786,7 +786,7 @@ export default function SettingsPage() {
                                         placeholder="https://linkedin.com/in/..."
                                     />
                                     {professionalProfileForm.formState.errors.linkedinUrl?.message && (
-                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.linkedinUrl.message as any)}</p>
+                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.linkedinUrl.message as string)}</p>
                                     )}
                                 </div>
                                 <div className="space-y-2">
@@ -800,7 +800,7 @@ export default function SettingsPage() {
                                         placeholder="https://github.com/..."
                                     />
                                     {professionalProfileForm.formState.errors.githubUrl?.message && (
-                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.githubUrl.message as any)}</p>
+                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.githubUrl.message as string)}</p>
                                     )}
                                 </div>
                                 <div className="space-y-2">
@@ -814,7 +814,7 @@ export default function SettingsPage() {
                                         placeholder="https://..."
                                     />
                                     {professionalProfileForm.formState.errors.portfolioUrl?.message && (
-                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.portfolioUrl.message as any)}</p>
+                                        <p className="text-xs text-red-400">{t(professionalProfileForm.formState.errors.portfolioUrl.message as string)}</p>
                                     )}
                                 </div>
                             </div>

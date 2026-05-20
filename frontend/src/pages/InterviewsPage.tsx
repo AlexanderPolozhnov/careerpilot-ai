@@ -64,12 +64,14 @@ export default function InterviewsPage() {
     if (id && interviewsQuery.data?.content) {
       const interview = interviewsQuery.data.content.find(i => i.id === id)
       if (interview) {
-        setEditingInterview(interview)
-        setIsFormOpen(true)
-        // Clear the param after opening to avoid re-opening
-        const newParams = new URLSearchParams(searchParams)
-        newParams.delete('id')
-        setSearchParams(newParams, { replace: true })
+        setTimeout(() => {
+          setEditingInterview(interview)
+          setIsFormOpen(true)
+          // Clear the param after opening to avoid re-opening
+          const newParams = new URLSearchParams(searchParams)
+          newParams.delete('id')
+          setSearchParams(newParams, { replace: true })
+        }, 0)
       }
     }
   }, [searchParams, interviewsQuery.data, setSearchParams])
@@ -114,22 +116,23 @@ export default function InterviewsPage() {
     },
   })
 
-  const interviews: Interview[] = interviewsQuery.data?.content ?? []
-
   // Filter interviews
   const filteredInterviews = useMemo(() => {
+    const interviews = interviewsQuery.data?.content ?? []
     return interviews.filter((i) => {
       if (typeFilter && i.type !== typeFilter) return false
       if (resultFilter && i.result !== resultFilter) return false
-      
+
       if (query) {
         const searchStr = `${i.companyName || ''} ${i.vacancyTitle || ''} ${i.notes || ''}`.toLowerCase()
         if (!searchStr.includes(query.toLowerCase())) return false
       }
-      
+
       return true
     })
-  }, [interviews, typeFilter, resultFilter, query])
+  }, [interviewsQuery.data?.content, typeFilter, resultFilter, query])
+
+  const interviews: Interview[] = interviewsQuery.data?.content ?? []
 
   // Sort by date (nearest first)
   const sortedInterviews = useMemo(() => {

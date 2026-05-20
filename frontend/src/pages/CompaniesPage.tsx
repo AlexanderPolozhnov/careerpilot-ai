@@ -50,12 +50,14 @@ export default function CompaniesPage() {
     if (id && companiesQuery.data?.content) {
       const company = companiesQuery.data.content.find(c => c.id === id)
       if (company) {
-        setEditingCompany(company)
-        setIsFormOpen(true)
-        // Clear the param after opening to avoid re-opening
-        const newParams = new URLSearchParams(searchParams)
-        newParams.delete('id')
-        setSearchParams(newParams, { replace: true })
+        setTimeout(() => {
+          setEditingCompany(company)
+          setIsFormOpen(true)
+          // Clear the param after opening to avoid re-opening
+          const newParams = new URLSearchParams(searchParams)
+          newParams.delete('id')
+          setSearchParams(newParams, { replace: true })
+        }, 0)
       }
     }
   }, [searchParams, companiesQuery.data, setSearchParams])

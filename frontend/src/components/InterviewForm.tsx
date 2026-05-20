@@ -47,7 +47,7 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
     if (!applicationsQuery.data?.content) return []
     const companyMap = new Map<string, { id: string; name: string }>()
     applicationsQuery.data.content.forEach((app) => {
-      const company = (app as any).vacancy?.company
+      const company = app.vacancy?.company
       if (company?.id && company?.name) {
         companyMap.set(company.id, { id: company.id, name: company.name })
       }
@@ -59,7 +59,7 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
   const filteredVacancies = useMemo(() => {
     if (!applicationsQuery.data?.content || !selectedCompanyId) return []
     return applicationsQuery.data.content.filter((app) => {
-      const company = (app as any).vacancy?.company
+      const company = app.vacancy?.company
       return company?.id === selectedCompanyId
     })
   }, [applicationsQuery.data?.content, selectedCompanyId])
@@ -120,7 +120,7 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
               {selectedCompanyId ? t('interviews.form.selectVacancy') : t('interviews.form.selectCompanyFirst')}
             </option>
             {filteredVacancies.map((app) => {
-              const vacancyTitle = (app as any).vacancy?.title || t('common.unknown');
+              const vacancyTitle = app.vacancy?.title || t('common.unknown');
               return (
                 <option key={app.id} value={app.id} className="select-option">
                   {vacancyTitle}

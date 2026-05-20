@@ -99,6 +99,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Frontend error boundaries.
 - [ ] Frontend tests.
 - [x] CI pipeline with GitHub Actions.
+- [x] **Frontend Linting & Build Hardening:** полное устранение ошибок ESLint и предупреждений рендеринга.
 - [ ] Full-stack Docker Compose setup.
 - [x] **Global Search:** единый поиск по всем сущностям (Cmd+K).
 - [ ] Deployment notes.

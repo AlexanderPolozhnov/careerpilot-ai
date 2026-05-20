@@ -86,7 +86,7 @@ async function request<T>(
           await refreshPromise
           // Retry the original request
           return request<T>(path, { ...options, _retry: true })
-        } catch (refreshErr) {
+        } catch {
           clearToken()
           if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/auth')) {
             window.location.href = '/login'
@@ -105,7 +105,7 @@ async function request<T>(
     if (error instanceof ApiError) {
       throw error
     }
-    
+
     // Handle network or unexpected errors
     toast.error(i18n.t('errors.networkError'))
     throw error

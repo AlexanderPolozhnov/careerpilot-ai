@@ -20,7 +20,7 @@ export interface TaskParams {
 
 export const taskService = {
   list: (params: TaskParams = {}) =>
-    api.get<PagedResponse<Task>>(`/tasks${buildQuery(params as any)}`),
+    api.get<PagedResponse<Task>>(`/tasks${buildQuery(params as Record<string, string | number | boolean | undefined>)}`),
 
   get: (id: string) => api.get<Task>(`/tasks/${id}`),
 

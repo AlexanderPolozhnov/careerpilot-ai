@@ -73,12 +73,14 @@ export default function TasksPage() {
     if (id && tasksQuery.data?.content) {
       const task = tasksQuery.data.content.find(t => t.id === id)
       if (task) {
-        setEditingTask(task)
-        setIsFormOpen(true)
-        // Clear the param after opening to avoid re-opening
-        const newParams = new URLSearchParams(searchParams)
-        newParams.delete('id')
-        setSearchParams(newParams, { replace: true })
+        setTimeout(() => {
+          setEditingTask(task)
+          setIsFormOpen(true)
+          // Clear the param after opening to avoid re-opening
+          const newParams = new URLSearchParams(searchParams)
+          newParams.delete('id')
+          setSearchParams(newParams, { replace: true })
+        }, 0)
       }
     }
   }, [searchParams, tasksQuery.data, setSearchParams])
@@ -138,36 +140,37 @@ export default function TasksPage() {
     },
   })
 
-  const tasks: Task[] = tasksQuery.data?.content ?? []
-
   // Filter tasks
   const filteredTasks = useMemo(() => {
+    const tasks = tasksQuery.data?.content ?? []
     return tasks.filter((task) => {
       if (priorityFilter && task.priority !== priorityFilter) return false
       if (doneFilter !== '' && task.done !== doneFilter) return false
-      
+
       if (query) {
         const searchStr = `${task.title} ${task.description || ''}`.toLowerCase()
         if (!searchStr.includes(query.toLowerCase())) return false
       }
-      
+
       return true
     })
-  }, [tasks, priorityFilter, doneFilter, query])
+  }, [tasksQuery.data?.content, priorityFilter, doneFilter, query])
+
+  const tasks: Task[] = tasksQuery.data?.content ?? []
 
   // Sort by due date (overdue and nearest first), then by priority
   const sortedTasks = useMemo(() => {
     return [...filteredTasks].sort((a, b) => {
       // Undone tasks first
       if (a.done !== b.done) return a.done ? 1 : -1
-      
+
       // Then by due date
       if (a.dueAt && b.dueAt) {
         return new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime()
       }
       if (a.dueAt) return -1
       if (b.dueAt) return 1
-      
+
       // Then by priority (URGENT > HIGH > MEDIUM > LOW)
       const priorityOrder = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 }
       return priorityOrder[a.priority] - priorityOrder[b.priority]

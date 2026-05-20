@@ -54,7 +54,7 @@ export type InterviewFormValues = CreateInterviewDto
 export const interviewService = {
   list: (filters: InterviewFilters = {}): Promise<PagedResponse<Interview>> => {
     if (USE_MOCKS) {
-      let items = mockInterviews
+      const items = mockInterviews
       return Promise.resolve(toPaged(items, filters.page ?? 0, filters.size ?? 20))
     }
     return api.get<PagedResponse<Interview>>(
