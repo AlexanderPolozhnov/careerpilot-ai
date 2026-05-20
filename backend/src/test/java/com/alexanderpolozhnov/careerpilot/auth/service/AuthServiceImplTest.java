@@ -5,6 +5,7 @@ import com.alexanderpolozhnov.careerpilot.auth.entity.RefreshTokenEntity;
 import com.alexanderpolozhnov.careerpilot.auth.exception.DuplicateEmailException;
 import com.alexanderpolozhnov.careerpilot.auth.exception.InvalidCredentialsException;
 import com.alexanderpolozhnov.careerpilot.auth.repository.AuthRepository;
+import com.alexanderpolozhnov.careerpilot.auth.request.AccountDeletionRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.ForgotPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.LoginRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.RegisterRequest;
@@ -221,5 +222,57 @@ class AuthServiceImplTest {
         assertThatThrownBy(() -> authService.updatePassword(new UpdatePasswordRequest(null, "new-password")))
                 .isInstanceOf(AuthException.class)
                 .hasMessage("Текущий пароль обязателен");
+    }
+
+    @Test
+    void deleteAccountWithWrongPasswordThrowsException() {
+        when(currentUserResolver.resolveRequired()).thenReturn(user);
+        when(passwordEncoder.matches("wrong-password", "hashed-password")).thenReturn(false);
+
+        assertThatThrownBy(
+                () -> authService.deleteAccount(new AccountDeletionRequest("wrong-password", "user@example.com")))
+                .isInstanceOf(InvalidCredentialsException.class)
+                .hasMessage("Неверный пароль");
+    }
+
+    @Test
+    void deleteAccountWithMissingPasswordThrowsException() {
+        when(currentUserResolver.resolveRequired()).thenReturn(user);
+
+        assertThatThrownBy(
+                () -> authService.deleteAccount(new AccountDeletionRequest(null, "user@example.com")))
+                .isInstanceOf(AuthException.class)
+                .hasMessage("Пароль обязателен для удаления аккаунта");
+    }
+
+    @Test
+    void deleteAccountWithWrongConfirmationThrowsException() {
+        when(currentUserResolver.resolveRequired()).thenReturn(user);
+        when(passwordEncoder.matches("secret123", "hashed-password")).thenReturn(true);
+
+        assertThatThrownBy(
+                () -> authService.deleteAccount(new AccountDeletionRequest("secret123", "wrong@example.com")))
+                .isInstanceOf(AuthException.class)
+                .hasMessage("Email подтверждения не совпадает с email аккаунта");
+    }
+
+    @Test
+    void deleteAccountWithCorrectPasswordAndConfirmationSucceeds() {
+        when(currentUserResolver.resolveRequired()).thenReturn(user);
+        when(passwordEncoder.matches("secret123", "hashed-password")).thenReturn(true);
+
+        authService.deleteAccount(new AccountDeletionRequest("secret123", "user@example.com"));
+
+        verify(authRepository).delete(user);
+    }
+
+    @Test
+    void deleteAccountOAuth2UserWithoutPasswordSucceeds() {
+        user.setPasswordHash(null);
+        when(currentUserResolver.resolveRequired()).thenReturn(user);
+
+        authService.deleteAccount(new AccountDeletionRequest(null, "user@example.com"));
+
+        verify(authRepository).delete(user);
     }
 }

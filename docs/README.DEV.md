@@ -4,7 +4,7 @@
 
 ## Статус
 
-Проект находится в активной разработке (v0.3.0-alpha). Архитектура построена как production-like portfolio project с полным frontend-backend интегрированием по документированному контракту.
+Проект находится в активной разработке (v0.5.0-alpha). Архитектура построена как production-like portfolio project с полным frontend-backend интегрированием по документированному контракту.
 
 ## Monorepo-структура
 
@@ -218,7 +218,7 @@ docker compose config
 
 ### Auth v1 интеграция (текущий статус)
 
-- Реализованы backend endpoints `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/forgot-password`, `POST /api/auth/reset-password`, `POST /api/auth/refresh`, `POST /api/auth/logout`.
+- Реализованы backend endpoints `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/forgot-password`, `POST /api/auth/reset-password`, `POST /api/auth/refresh`, `POST /api/auth/logout`, `POST /api/auth/password`, `DELETE /api/users/me` (удаление аккаунта).
 - Frontend в API mode (`VITE_USE_MOCKS=false`) использует `cp_access_token` (Bearer token) и refresh token через HttpOnly cookie.
 - Logout вызывает backend endpoint для инвалидации сессии в БД.
 - Реализована OAuth2 авторизация через GitHub и Google с автоматическим маппингом профилей.
@@ -279,3 +279,4 @@ docker compose config
 - **Rate Limiting**: ограничение частоты запросов для AI-эндпоинтов (Token Bucket, HTTP 429).
 - **Audit Trail**: журналирование критичных действий в PostgreSQL.
 - **OAuth2**: социальная авторизация через GitHub и Google.
+- **Secure Account Deletion**: удаление аккаунта с проверкой пароля и подтверждением Email.

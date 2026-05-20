@@ -96,7 +96,17 @@ async function request<T>(
       }
 
       const message = (data as { message?: string })?.message ?? response.statusText
-      handleHttpError(response.status, message)
+      
+      // Skip global 401 handling (logout/redirect) for functional errors.
+      // A functional 401 happens if:
+      // 1. It's a login attempt (refresh is skipped).
+      // 2. It's a retry after a successful refresh (token is fresh, but request still fails - e.g. wrong password).
+      const isFunctional401 = response.status === 401 && (options._retry || path.includes('/auth/login'))
+      
+      if (!isFunctional401) {
+        handleHttpError(response.status, message)
+      }
+      
       throw new ApiError(response.status, message, data)
     }
 
@@ -153,7 +163,8 @@ export const api = {
   patch: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: 'PATCH', body: body ? JSON.stringify(body) : undefined }),
 
-  delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
+  delete: <T>(path: string, body?: unknown) =>
+    request<T>(path, { method: 'DELETE', body: body ? JSON.stringify(body) : undefined }),
 }
 
 // ─── Query string builder ─────────────────────────────────────────────────────

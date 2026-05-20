@@ -108,7 +108,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] **Global Search:** единый поиск по всем сущностям (Cmd+K).
 - [x] **Scheduled Notifications:** автоматические напоминания о задачах и собеседованиях.
 - [ ] Deployment notes.
-- [x] Security hardening: refresh/revocation strategy [x], rate limits for AI endpoints [x], audit trail [x], password creation/update for OAuth2 users [x].
+- [x] Security hardening: refresh/revocation strategy [x], rate limits for AI endpoints [x], audit trail [x], password creation/update for OAuth2 users [x], secure account deletion [x].
 
 ## Current Development Focus
 
@@ -141,6 +141,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] **Scheduled Notifications:** фоновый процесс для создания напоминаний о дедлайнах задач и времени собеседований (In-app + Email).
 - [x] **Vacancy Archive Endpoint:** реализован `PATCH /api/vacancies/{id}/archive` (закрыт последний `TODO` из контракта Vacancies).
 - [x] **Vacancy UI Polish:** добавлена кнопка архивации, кнопка возврата из архива и визуальное "затухание" (dimming) для архивированных вакансий в списке.
+- [x] **Secure Account Deletion:** реализован защищенный процесс удаления аккаунта с подтверждением пароля и email.
 - [ ] Frontend Testing: внедрение Vitest + React Testing Library (в процессе).
 - [ ] Backend IT Stability: стабилизация тестов с Testcontainers (в процессе).
 - [ ] Deployment: полная конфигурация Docker Compose для production-like запуска.

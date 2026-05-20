@@ -603,7 +603,7 @@ Frontend source:
 
 Response: `User` plus optional settings fields.
 
-### `PUT /users/me` — USED BY FRONTEND
+### PUT /users/me — USED BY FRONTEND
 
 Target request:
 
@@ -615,7 +615,22 @@ Target request:
 }
 ```
 
-### `GET /preferences` — USED BY FRONTEND
+### DELETE /users/me — USED BY FRONTEND
+
+Request `DeleteAccountRequest`:
+
+```json
+{
+  "password": "secret-password",
+  "confirmation": "alexander@careerpilot.ai"
+}
+```
+
+Response: `204 No Content`.
+Clears all user data (cascade delete).
+
+### GET /preferences — USED BY FRONTEND
+
 
 Response:
 

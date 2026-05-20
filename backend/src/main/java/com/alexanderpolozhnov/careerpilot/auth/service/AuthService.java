@@ -1,5 +1,6 @@
 package com.alexanderpolozhnov.careerpilot.auth.service;
 
+import com.alexanderpolozhnov.careerpilot.auth.request.AccountDeletionRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.ForgotPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.LoginRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.RegisterRequest;
@@ -23,4 +24,6 @@ public interface AuthService {
     AuthResult refresh(String refreshToken);
 
     void logout(String refreshToken);
+
+    void deleteAccount(AccountDeletionRequest request);
 }

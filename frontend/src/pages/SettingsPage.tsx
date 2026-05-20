@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { PreferencesRequest, UserUpdateRequest } from '@/services/settings.service'
+import type { PreferencesRequest, UserUpdateRequest, DeleteAccountRequest } from '@/services/settings.service'
 import { settingsService } from '@/services/settings.service'
 import { profileService } from '@/services/profile.service'
 import { resumeService, type CreateResumeDto } from '@/services/resume.service'
@@ -72,6 +72,11 @@ type PasswordValues = {
     confirmPassword: string
 }
 
+type DeleteAccountValues = {
+    password?: string
+    confirmation: string
+}
+
 const getPasswordSchema = (hasPassword: boolean) => {
     return z.object({
         currentPassword: hasPassword ? z.string().min(1, { message: 'settings.currentPasswordRequired' }) : z.string().optional(),
@@ -80,6 +85,15 @@ const getPasswordSchema = (hasPassword: boolean) => {
     }).refine((data) => data.newPassword === data.confirmPassword, {
         message: 'auth.passwordMismatch',
         path: ['confirmPassword']
+    })
+}
+
+const getDeleteAccountSchema = (hasPassword: boolean, userEmail: string) => {
+    return z.object({
+        password: hasPassword ? z.string().min(1, { message: 'settings.currentPasswordRequired' }) : z.string().optional(),
+        confirmation: z.string().min(1, { message: 'forms.validation.required' }).refine((val) => val.toLowerCase() === userEmail.toLowerCase(), {
+            message: 'settings.deleteAccountWrongConfirmation'
+        })
     })
 }
 
@@ -154,7 +168,7 @@ export default function SettingsPage() {
     const { t, i18n } = useTranslation()
     const location = useLocation()
     const queryClient = useQueryClient()
-    const [deleteConfirm, setDeleteConfirm] = useState(false)
+    const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
     const [showResumeModal, setShowResumeModal] = useState(false)
     const [editingResume, setEditingResume] = useState<Resume | null>(null)
     const [resumeToDeleteId, setResumeToDeleteId] = useState<string | null>(null)
@@ -239,6 +253,14 @@ export default function SettingsPage() {
             currentPassword: '',
             newPassword: '',
             confirmPassword: '',
+        },
+    })
+
+    const deleteAccountForm = useForm<DeleteAccountValues>({
+        resolver: zodResolver(getDeleteAccountSchema(userData?.hasPassword ?? false, userData?.email ?? '')) as unknown as Resolver<DeleteAccountValues>,
+        defaultValues: {
+            password: '',
+            confirmation: '',
         },
     })
 
@@ -333,6 +355,41 @@ export default function SettingsPage() {
             queryClient.invalidateQueries({ queryKey: ['preferences'] })
         },
     })
+
+    const deleteAccountMutation = useMutation({
+        mutationFn: (data: DeleteAccountRequest) => settingsService.deleteAccount(data),
+        onSuccess: async () => {
+            toast.success(t('settings.deleteAccountSuccess'))
+            setShowDeleteAccountModal(false)
+            deleteAccountForm.reset()
+            // Clear tokens and logout
+            try {
+                await authService.logout()
+            } catch {
+                // Ignore logout errors since account is already deleted
+            }
+            // Clear all query cache
+            queryClient.clear()
+            // Redirect to landing page
+            window.location.href = '/'
+        },
+        onError: (error: { status?: number }) => {
+            if (error.status === 401) {
+                toast.error(t('settings.deleteAccountWrongPassword'))
+            } else if (error.status === 400) {
+                toast.error(t('settings.deleteAccountWrongConfirmation'))
+            } else {
+                toast.error(t('settings.deleteAccountError'))
+            }
+        }
+    })
+
+    const handleDeleteAccount = (data: DeleteAccountValues) => {
+        deleteAccountMutation.mutate({
+            password: data.password,
+            confirmation: data.confirmation
+        })
+    }
 
     const updateProfileMutation = useMutation({
         mutationFn: (data: Partial<Profile>) => profileService.updateMe(data),
@@ -1161,33 +1218,87 @@ export default function SettingsPage() {
                                     <p className="text-xs text-white/40 mt-0.5">{t('settings.deleteAccountDescription')}</p>
                                 </div>
                             </div>
-                            {!deleteConfirm ? (
-                                <button
-                                    type="button"
-                                    onClick={() => setDeleteConfirm(true)}
-                                    className="px-4 py-2 rounded-lg border border-red-500/30 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
-                                >
-                                    {t('settings.delete')}
-                                </button>
-                            ) : (
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => setDeleteConfirm(false)}
-                                        className="px-3 py-1.5 rounded-lg text-sm text-white/60 hover:text-white transition-colors"
-                                    >
-                                        {t('common.cancel')}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="px-4 py-2 rounded-lg bg-red-500 text-sm font-medium text-white hover:bg-red-600 transition-colors"
-                                    >
-                                        {t('settings.confirmDelete')}
-                                    </button>
-                                </div>
-                            )}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowDeleteAccountModal(true)
+                                    deleteAccountForm.reset()
+                                }}
+                                className="px-4 py-2 rounded-lg border border-red-500/30 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+                            >
+                                {t('settings.delete')}
+                            </button>
                         </div>
                     </section>
+
+                    {/* Delete Account Modal */}
+                    {showDeleteAccountModal && (
+                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                            <div className="bg-[#0f1014] rounded-2xl border border-red-500/20 w-full max-w-md p-6">
+                                <div className="flex items-start gap-4 mb-6">
+                                    <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                                        <Trash2 className="w-5 h-5 text-red-400" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-base font-semibold text-white">{t('settings.deleteAccountModalTitle')}</h2>
+                                        <p className="text-sm text-white/40 mt-0.5">{t('settings.deleteAccountModalDescription')}</p>
+                                    </div>
+                                </div>
+
+                                <form onSubmit={deleteAccountForm.handleSubmit(handleDeleteAccount)} className="space-y-4">
+                                    {userData?.hasPassword && (
+                                        <div>
+                                            <label className="block text-sm text-white/60 mb-2">
+                                                {t('settings.deleteAccountPasswordLabel')}
+                                            </label>
+                                            <input
+                                                type="password"
+                                                {...deleteAccountForm.register('password')}
+                                                placeholder={t('settings.deleteAccountPasswordPlaceholder')}
+                                                className="w-full px-4 py-2.5 rounded-lg border border-white/10 bg-white/[0.02] text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
+                                            />
+                                            {deleteAccountForm.formState.errors.password && (
+                                                <p className="text-xs text-red-400 mt-1">{t(deleteAccountForm.formState.errors.password.message as string)}</p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div>
+                                        <label className="block text-sm text-white/60 mb-2">
+                                            {t('settings.deleteAccountConfirmationLabel')}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            {...deleteAccountForm.register('confirmation')}
+                                            placeholder={t('settings.deleteAccountConfirmationPlaceholder')}
+                                            className="w-full px-4 py-2.5 rounded-lg border border-white/10 bg-white/[0.02] text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-transparent"
+                                        />
+                                        {deleteAccountForm.formState.errors.confirmation && (
+                                            <p className="text-xs text-red-400 mt-1">{t(deleteAccountForm.formState.errors.confirmation.message as string)}</p>
+                                        )}
+                                        <p className="text-xs text-white/30 mt-1">{userData?.email}</p>
+                                    </div>
+
+                                    <div className="flex items-center gap-3 pt-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowDeleteAccountModal(false)}
+                                            className="flex-1 px-4 py-2 rounded-lg border border-white/10 text-sm font-medium text-white hover:bg-white/[0.02] transition-colors"
+                                        >
+                                            {t('common.cancel')}
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={deleteAccountMutation.isPending}
+                                            className="flex-1 px-4 py-2 rounded-lg bg-red-500 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        >
+                                            {deleteAccountMutation.isPending ? t('common.loading') : t('settings.deleteAccountConfirmButton')}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Resume Modal */}
                     {showResumeModal && (

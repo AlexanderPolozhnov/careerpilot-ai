@@ -1,5 +1,5 @@
-import {api} from '@/lib/api-client'
-import type {User} from '@/types'
+import { api } from '@/lib/api-client'
+import type { User } from '@/types'
 
 const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'false') === 'true'
 
@@ -25,6 +25,11 @@ export interface PreferencesRequest {
     interviewReminders: boolean
     aiProviderMode: 'LOCAL' | 'CLOUD' | 'BRING_YOUR_OWN_KEY'
     language: string
+}
+
+export interface DeleteAccountRequest {
+    password?: string
+    confirmation: string
 }
 
 const mockPreferences: PreferencesResponse = {
@@ -68,4 +73,9 @@ export const settingsService = {
         USE_MOCKS
             ? Promise.resolve(data)
             : api.put<PreferencesResponse>('/preferences', data),
+
+    deleteAccount: (data: DeleteAccountRequest): Promise<void> =>
+        USE_MOCKS
+            ? Promise.resolve()
+            : api.delete<void>('/users/me', data),
 }

@@ -7,6 +7,7 @@ import com.alexanderpolozhnov.careerpilot.auth.exception.AuthException;
 import com.alexanderpolozhnov.careerpilot.auth.exception.DuplicateEmailException;
 import com.alexanderpolozhnov.careerpilot.auth.exception.InvalidCredentialsException;
 import com.alexanderpolozhnov.careerpilot.auth.repository.AuthRepository;
+import com.alexanderpolozhnov.careerpilot.auth.request.AccountDeletionRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.ForgotPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.LoginRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.RegisterRequest;
@@ -194,5 +195,33 @@ public class AuthServiceImpl implements AuthService {
             return user.getFirstName().trim();
         }
         return user.getFullName();
+    }
+
+    @Override
+    @Transactional
+    public void deleteAccount(AccountDeletionRequest request) {
+        AuthEntity user = currentUserResolver.resolveRequired();
+
+        // Verify password if user has one (local auth)
+        if (user.getPasswordHash() != null) {
+            if (request.password() == null || request.password().isBlank()) {
+                throw new AuthException("Пароль обязателен для удаления аккаунта");
+            }
+            if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+                throw new InvalidCredentialsException("Неверный пароль");
+            }
+        }
+
+        // Verify confirmation matches user email (case-insensitive)
+        String confirmation = request.confirmation().trim().toLowerCase();
+        String userEmail = user.getEmail().toLowerCase();
+        if (!confirmation.equals(userEmail)) {
+            throw new AuthException("Email подтверждения не совпадает с email аккаунта");
+        }
+
+        // Delete user (CASCADE will delete all related data)
+        authRepository.delete(user);
+
+        log.info("Account deleted for user: {}", user.getEmail());
     }
 }
