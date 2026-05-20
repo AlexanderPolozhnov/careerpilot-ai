@@ -162,7 +162,9 @@
     "loginMinLength": "Password must be at least 6 characters",
     "nameMinLength": "Name must be at least 2 characters",
     "loginHint": "🔒 Data is protected",
-    "skip": "Skip"
+    "skip": "Skip",
+    "sendResetLink": "Send link",
+    "resetPasswordSuccess": "We have sent a reset link to the specified email. Please check your inbox."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -511,6 +513,18 @@
     "deleteAccountDescription": "Permanently remove your account and all data",
     "delete": "Delete",
     "confirmDelete": "Confirm Delete",
+    "security": "Security",
+    "createPassword": "Create Password",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "oauth2Hint": "You signed in via social network. Set a password to enable email login.",
+    "passwordUpdated": "Password successfully set/changed",
+    "passwordUpdateError": "Error updating password",
+    "createPasswordDescription": "Set a password for email login",
+    "changePasswordDescription": "Change your current password",
+    "currentPasswordRequired": "Current password is required",
     "resumes": {
       "title": "My Resumes",
       "description": "Manage your resume versions for AI analysis",

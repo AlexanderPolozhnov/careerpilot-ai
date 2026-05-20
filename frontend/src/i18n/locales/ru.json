@@ -164,7 +164,9 @@
     "loginMinLength": "Пароль должен содержать минимум 6 символов",
     "nameMinLength": "Имя должно содержать минимум 2 символа",
     "loginHint": "🔒 Данные под защитой",
-    "skip": "Пропустить"
+    "skip": "Пропустить",
+    "sendResetLink": "Отправить ссылку",
+    "resetPasswordSuccess": "Мы отправили ссылку для сброса на указанный email. Пожалуйста, проверьте вашу почту."
   },
   "dashboard": {
     "title": "Панель управления",
@@ -515,6 +517,18 @@
     "deleteAccountDescription": "Навсегда удалить аккаунт и все данные",
     "delete": "Удалить",
     "confirmDelete": "Подтвердить удаление",
+    "security": "Безопасность",
+    "createPassword": "Создать пароль",
+    "changePassword": "Изменить пароль",
+    "currentPassword": "Текущий пароль",
+    "newPassword": "Новый пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "oauth2Hint": "Вы вошли через социальную сеть. Установите пароль, чтобы иметь возможность заходить по email.",
+    "passwordUpdated": "Пароль успешно установлен/изменен",
+    "passwordUpdateError": "Ошибка при обновлении пароля",
+    "createPasswordDescription": "Установите пароль для входа по email",
+    "changePasswordDescription": "Измените ваш текущий пароль",
+    "currentPasswordRequired": "Текущий пароль обязателен",
     "resumes": {
       "title": "Мои резюме",
       "description": "Управляйте версиями ваших резюме для AI-анализа",
