@@ -19,13 +19,13 @@ public interface VacancyRepository extends JpaRepository<VacancyEntity, UUID>, J
 
     List<VacancyEntity> findAllByUserIdAndStatus(UUID userId, VacancyStatus status);
 
-    @EntityGraph(attributePaths = { "company" })
+    @EntityGraph(attributePaths = { "company", "tags" })
     List<VacancyEntity> findAllByUserIdAndTitleContainingIgnoreCase(UUID userId, String title);
 
-    @EntityGraph(attributePaths = { "company" })
+    @EntityGraph(attributePaths = { "company", "tags" })
     Optional<VacancyEntity> findByIdAndUserId(UUID id, UUID userId);
 
     @Override
-    @EntityGraph(attributePaths = { "company" })
+    @EntityGraph(attributePaths = { "company", "tags" })
     Page<VacancyEntity> findAll(@Nullable Specification<VacancyEntity> spec, Pageable pageable);
 }

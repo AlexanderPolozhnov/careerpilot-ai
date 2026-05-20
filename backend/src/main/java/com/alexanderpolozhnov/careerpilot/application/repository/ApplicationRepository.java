@@ -4,6 +4,7 @@ import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationEntity;
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.Instant;
@@ -13,14 +14,19 @@ import java.util.UUID;
 
 public interface ApplicationRepository extends JpaRepository<ApplicationEntity, UUID> {
 
+    @EntityGraph(attributePaths = { "vacancy", "vacancy.tags" })
     List<ApplicationEntity> findAllByUserId(UUID userId);
 
+    @EntityGraph(attributePaths = { "vacancy", "vacancy.company" })
     Page<ApplicationEntity> findAllByUserId(UUID userId, Pageable pageable);
 
+    @EntityGraph(attributePaths = { "vacancy", "vacancy.company" })
     Page<ApplicationEntity> findAllByUserIdAndStatus(UUID userId, ApplicationStatus status, Pageable pageable);
 
+    @EntityGraph(attributePaths = { "vacancy", "vacancy.company" })
     Page<ApplicationEntity> findAllByUserIdAndVacancyId(UUID userId, UUID vacancyId, Pageable pageable);
 
+    @EntityGraph(attributePaths = { "vacancy", "vacancy.company" })
     Page<ApplicationEntity> findAllByUserIdAndStatusAndVacancyId(UUID userId, ApplicationStatus status, UUID vacancyId,
                                                                  Pageable pageable);
 

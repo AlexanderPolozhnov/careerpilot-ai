@@ -64,7 +64,7 @@ Roadmap отражает текущее состояние перед первы
 ## Phase 4 — Frontend/Backend Integration
 
 - [x] Auth integration (JWT-based, token storage, protected routes, manual verification complete).
-- [x] Vacancies integration (CRUD, pagination, ownership, frontend verified, включая формы).
+- [x] Vacancies integration (CRUD, pagination, ownership, frontend verified, включая формы и поддержку тегов).
 - [x] Companies integration (CRUD, pagination, ownership, frontend verified).
 - [x] Analytics integration (summary endpoint, frontend verified, включая skill gaps и реальные метрики).
 - [x] Applications integration (board + status change working, POST/GET/PUT/DELETE реализованы, включая отслеживание времени интервью).
@@ -79,6 +79,8 @@ Roadmap отражает текущее состояние перед первы
 - [x] Password Reset via Email (Full flow).
 - [x] Manual API smoke scenarios documented and verified (`docs/SMOKE_SCENARIOS.md`).
 - [x] **Real Analytics Metrics:** расчет Skill Gaps и среднего времени до интервью на основе реальных данных.
+- [x] **Vacancy Tags UI:** поддержка добавления и редактирования тегов (навыков) в вакансиях.
+- [x] **Analytics & UI Bugfixes:** исправлена ошибка LazyInitializationException, устранены React key warnings, оптимизирована загрузка данных (N+1).
 
 ## Phase 5 — AI Features
 

@@ -165,8 +165,11 @@ export default function VacancyDetailPage() {
     const company = useMemo(() => vacancy?.company, [vacancy])
 
     const updateMutation = useMutation({
-        mutationFn: (values: VacancyFormValues) =>
-            vacancyService.update(id as string, values),
+        mutationFn: (values: VacancyFormValues) => {
+            const { tags, ...rest } = values;
+            const tagIds = tags ? tags.split(',').map(s => s.trim()).filter(Boolean) : [];
+            return vacancyService.update(id as string, { ...rest, tagIds });
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['vacancies', 'detail', { id }] })
             toast.success(t('vacancies.vacancyUpdated'))
@@ -203,6 +206,7 @@ export default function VacancyDetailPage() {
             salaryMax: vacancy.salaryMax,
             salaryCurrency: vacancy.salaryCurrency,
             deadline: vacancy.deadline ? vacancy.deadline.split('T')[0] : undefined,
+            tags: vacancy.tags?.map(t => t.label).join(', ') ?? '',
         }
     }, [vacancy])
 

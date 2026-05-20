@@ -38,6 +38,7 @@ public class VacancyServiceImpl implements VacancyService {
     private final VacancyMapper vacancyMapper;
 
     @Override
+    @Transactional
     public VacancyDto create(CreateVacancyDto request) {
         validateSalaryRange(request.salaryMin(), request.salaryMax());
         AuthEntity currentUser = currentUserResolver.resolveRequired();
@@ -109,6 +110,7 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
+    @Transactional
     public VacancyDto update(UUID id, UpdateVacancyDto request) {
         validateSalaryRange(request.salaryMin(), request.salaryMax());
         UUID userId = currentUserResolver.resolveRequired().getId();
@@ -156,6 +158,7 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
+    @Transactional
     public void delete(UUID id) {
         vacancyRepository.delete(findOwnedVacancy(id));
     }

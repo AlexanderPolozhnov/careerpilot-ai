@@ -23,6 +23,7 @@ const getVacancySchema = (t: TFunction) => z.object({
   salaryMax: z.coerce.number().optional(),
   salaryCurrency: z.string().optional(),
   deadline: z.string().optional(),
+  tags: z.string().optional(),
 })
 
 export type VacancyFormValues = z.infer<ReturnType<typeof getVacancySchema>>
@@ -88,6 +89,17 @@ export function VacancyForm({ onSubmit, onCancel, initialValues, isSubmitting }:
       <div>
         <label htmlFor="description" className="text-xs text-ink-dim">{t('vacancies.form.description')}</label>
         <textarea id="description" {...form.register('description')} className="input mt-1 h-24 py-2" />
+      </div>
+
+      <div>
+        <label htmlFor="tags" className="text-xs text-ink-dim">{t('vacancies.form.tags')}</label>
+        <input
+          id="tags"
+          {...form.register('tags')}
+          className="input mt-1"
+          placeholder={t('settings.skillsPlaceholder')}
+        />
+        <p className="text-[10px] text-ink-dim/50 mt-1">{t('settings.skillsHint')}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

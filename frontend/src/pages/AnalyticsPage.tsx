@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
     Activity,
@@ -310,20 +310,20 @@ function WeeklyActivityChart({
             {/* Summary row */}
             <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/[0.04]">
                 {data.slice(-1).map(w => (
-                    <>
-                        <div key={`applied-${w.week}`} className="text-center">
+                    <Fragment key={`summary-${w.week}`}>
+                        <div className="text-center">
                             <p className="text-lg font-semibold text-violet-400">{w.applied}</p>
                             <p className="text-[10px] text-white/30 uppercase">{t('analytics.thisWeek')}</p>
                         </div>
-                        <div key={`interviews-${w.week}`} className="text-center">
+                        <div className="text-center">
                             <p className="text-lg font-semibold text-cyan-400">{w.interviews}</p>
                             <p className="text-[10px] text-white/30 uppercase">{t('analytics.interviews')}</p>
                         </div>
-                        <div key={`offers-${w.week}`} className="text-center">
+                        <div className="text-center">
                             <p className="text-lg font-semibold text-emerald-400">{w.offers}</p>
                             <p className="text-[10px] text-white/30 uppercase">{t('analytics.offers')}</p>
                         </div>
-                    </>
+                    </Fragment>
                 ))}
             </div>
         </div>
