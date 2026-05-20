@@ -122,4 +122,13 @@ export const vacancyService = {
           updatedAt: new Date().toISOString(),
         }))
       : api.patch<Vacancy>(`/vacancies/${id}/archive`, {}),
+
+  restore: (id: string): Promise<Vacancy> =>
+    USE_MOCKS
+      ? vacancyService.getById(id).then((v) => ({
+          ...v,
+          status: 'ACTIVE',
+          updatedAt: new Date().toISOString(),
+        }))
+      : api.patch<Vacancy>(`/vacancies/${id}/restore`, {}),
 }

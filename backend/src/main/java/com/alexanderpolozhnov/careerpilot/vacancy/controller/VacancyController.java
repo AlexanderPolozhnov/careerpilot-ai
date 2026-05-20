@@ -60,4 +60,16 @@ public class VacancyController {
     public void delete(@PathVariable UUID id) {
         service.delete(id);
     }
+
+    @PatchMapping("/{id}/archive")
+    @Auditable(action = "VACANCY_ARCHIVE", entityType = "VACANCY")
+    public VacancyDto archive(@PathVariable UUID id) {
+        return service.archive(id);
+    }
+
+    @PatchMapping("/{id}/restore")
+    @Auditable(action = "VACANCY_RESTORE", entityType = "VACANCY")
+    public VacancyDto restore(@PathVariable UUID id) {
+        return service.restore(id);
+    }
 }

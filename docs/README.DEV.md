@@ -4,7 +4,7 @@
 
 ## Статус
 
-Проект находится в активной разработке. Архитектура строится как production-like portfolio project, но часть функциональности еще использует mock data, а frontend-backend integration выполняется по документированному контракту.
+Проект находится в активной разработке (v0.3.0-alpha). Архитектура построена как production-like portfolio project с полным frontend-backend интегрированием по документированному контракту.
 
 ## Monorepo-структура
 
@@ -30,6 +30,8 @@ Backend находится в `backend/`.
 - Maven wrapper
 - PostgreSQL
 - Spring Security
+- OAuth 2.0 (GitHub, Google)
+- JWT
 - Spring Data JPA
 - Flyway
 - MapStruct
@@ -38,6 +40,8 @@ Backend находится в `backend/`.
 - JUnit 5
 - Mockito
 - Testcontainers
+- Redis
+- Bucket4j (Rate Limiting)
 
 Запуск на Windows:
 
@@ -84,6 +88,9 @@ Frontend находится в `frontend/`.
 - React Hook Form
 - Zod
 - i18next
+- dnd-kit (drag-and-drop)
+- date-fns
+- lucide-react
 
 Установка зависимостей:
 
@@ -138,6 +145,13 @@ npm.cmd run build
 - `MINIO_ROOT_PASSWORD`
 - `JWT_SECRET` (base64 secret для подписи access token)
 - `JWT_ACCESS_TOKEN_EXPIRATION_MS` (TTL access token в миллисекундах)
+- `JWT_REFRESH_TOKEN_EXPIRATION_MS` (TTL refresh token в миллисекундах)
+- `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_ID`
+- `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_SECRET`
+- `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID`
+- `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET`
+- `REDIS_HOST`
+- `REDIS_PORT`
 
 Файлы `.env` и `.env.*` не должны попадать в Git. Для публичного репозитория коммитится только `.env.example`.
 
@@ -171,7 +185,7 @@ docker compose up -d postgres redis
 docker compose --profile storage up -d minio
 ```
 
-Опциональный профиль Ollama:
+Опциональный профиль Ollama (локальный LLM):
 
 ```bash
 docker compose --profile ai up -d ollama
@@ -204,16 +218,16 @@ docker compose config
 
 ### Auth v1 интеграция (текущий статус)
 
-- Реализованы backend endpoints `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`.
-- Frontend в API mode (`VITE_USE_MOCKS=false`) использует `cp_access_token` и `Authorization: Bearer <accessToken>`.
-- Logout остаётся frontend-only и очищает `localStorage`.
-- Password recovery endpoints (`/auth/forgot-password`, `/auth/reset-password`) остаются следующим шагом.
+- Реализованы backend endpoints `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/forgot-password`, `POST /api/auth/reset-password`, `POST /api/auth/refresh`, `POST /api/auth/logout`.
+- Frontend в API mode (`VITE_USE_MOCKS=false`) использует `cp_access_token` (Bearer token) и refresh token через HttpOnly cookie.
+- Logout вызывает backend endpoint для инвалидации сессии в БД.
+- Реализована OAuth2 авторизация через GitHub и Google с автоматическим маппингом профилей.
 
 ### Vacancies v1 интеграция (текущий статус)
 
-- Реализованы backend endpoints `GET /api/vacancies`, `GET /api/vacancies/{id}`, `POST /api/vacancies`, `PUT /api/vacancies/{id}`, `DELETE /api/vacancies/{id}`.
+- Реализованы backend endpoints `GET /api/vacancies`, `GET /api/vacancies/{id}`, `POST /api/vacancies`, `PUT /api/vacancies/{id}`, `DELETE /api/vacancies/{id}`, `PATCH /api/vacancies/{id}/archive`.
 - Все vacancy операции требуют JWT и scoped по владельцу (user ownership через `SecurityContext`).
-- `PATCH /api/vacancies/{id}/archive` остается отдельным TODO шагом.
+- Данные компании загружаются без N+1 проблем через `@EntityGraph`.
 
 ## Mock/API режим frontend
 
@@ -222,16 +236,13 @@ docker compose config
 - `VITE_USE_MOCKS=true` - service layer возвращает данные из `src/mock/data.ts`;
 - `VITE_USE_MOCKS=false` - service layer вызывает backend через `src/services/api-client.ts`.
 
-Известная особенность: `authService.me()` сейчас не mock-aware. Если в `localStorage` уже лежит `cp_access_token`, `AuthContext` может вызвать `GET /auth/me` даже при mock mode.
+Известная особенность: `authService.me()` не mock-aware. Если в `localStorage` уже лежит `cp_access_token`, `AuthContext` может вызвать `GET /auth/me` даже при mock mode.
 
 ## Known limitations
 
-- `DashboardPage` напрямую использует mock data.
-- `SettingsPage` использует mock/local-only state для части данных и сохранения.
-- Backend endpoints еще не полностью совпадают с frontend contract.
-- Frontend test runner пока не настроен.
-- CI через GitHub Actions запланирован, но не добавлен.
-- Backend tests требуют доступный Docker runtime для Testcontainers.
+- Frontend test runner пока не настроен (только lint/build).
+- Backend интеграционные тесты с Testcontainers требуют доступный Docker runtime.
+- CI через GitHub Actions настроен и работает (frontend lint/build + backend unit-тесты).
 - Документация по production deployment пока запланирована.
 
 ## Merge readiness
@@ -244,13 +255,27 @@ docker compose config
 - сверять backend changes с `docs/FRONTEND_BACKEND_CONTRACT.md`;
 - не менять enum values без одновременного обновления frontend и contract.
 
-## Рекомендуемый порядок интеграции backend endpoints
+## Реализованные вертикальные срезы
 
-1. Auth: `POST /api/auth/login`, `POST /api/auth/register`, `GET /api/auth/me`.
-2. Password flow: `POST /api/auth/forgot-password`, `POST /api/auth/reset-password`.
-3. Vacancies: `GET /api/vacancies`, `GET /api/vacancies/{id}`.
-4. Applications: `POST /api/applications`, `GET /api/applications/board`.
-5. Companies: `GET /api/companies`.
-6. AI: `GET /api/ai/history`, `POST /api/ai/analyze-vacancy`, `POST /api/ai/resume-match`, `POST /api/ai/cover-letter`, `POST /api/ai/interview-questions`.
-7. Analytics: `GET /api/analytics/summary`.
-8. Dashboard/settings/preferences/notifications endpoints для замены mock-only зон.
+Полностью реализованы и интегрированы:
+
+1. **Auth**: login, register, me, forgot-password, reset-password, refresh, logout, OAuth2 (GitHub, Google).
+2. **Vacancies**: полный CRUD с pagination, фильтрами, архивацией, загрузкой компании.
+3. **Companies**: полный CRUD с pagination, поиском.
+4. **Applications**: полный CRUD, Kanban-борд, status updates.
+5. **Tasks**: полный CRUD, pagination, фильтрация, toggle done.
+6. **Interviews**: полный CRUD, pagination, фильтрация по типу/результату.
+7. **Resumes**: полный CRUD, транзакционная логика дефолтного резюме.
+8. **Profile**: GET/PUT me с JSONB-полем скиллов.
+9. **AI Assistant**: analyze-vacancy, resume-match, cover-letter, interview-questions, history с Redis-кэшированием.
+10. **Analytics**: summary с воронкой, недельной активностью, skill gaps.
+11. **Dashboard**: summary с KPI, интервью, задачами.
+12. **Settings**: preferences, notifications, управление резюме.
+13. **Search**: агрегированный поиск по вакансиям, компаниям, задачам, собеседованиям.
+
+## Безопасность
+
+- **Refresh Tokens**: автоматическое продление сессии через HttpOnly Cookies.
+- **Rate Limiting**: ограничение частоты запросов для AI-эндпоинтов (Token Bucket, HTTP 429).
+- **Audit Trail**: журналирование критичных действий в PostgreSQL.
+- **OAuth2**: социальная авторизация через GitHub и Google.

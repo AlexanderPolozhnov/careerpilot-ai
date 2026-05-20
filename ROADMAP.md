@@ -139,6 +139,8 @@ Roadmap отражает текущее состояние перед первы
 - [x] **AI Observability:** сбор метрик (latency, tokens, error tracking) для всех AI-запросов.
 - [x] **AI Assistant UX Polish:** замена ручного ввода ID вакансии на выбор из списка с автозаполнением описания.
 - [x] **Scheduled Notifications:** фоновый процесс для создания напоминаний о дедлайнах задач и времени собеседований (In-app + Email).
+- [x] **Vacancy Archive Endpoint:** реализован `PATCH /api/vacancies/{id}/archive` (закрыт последний `TODO` из контракта Vacancies).
+- [x] **Vacancy UI Polish:** добавлена кнопка архивации, кнопка возврата из архива и визуальное "затухание" (dimming) для архивированных вакансий в списке.
 - [ ] Frontend Testing: внедрение Vitest + React Testing Library (в процессе).
 - [ ] Backend IT Stability: стабилизация тестов с Testcontainers (в процессе).
 - [ ] Deployment: полная конфигурация Docker Compose для production-like запуска.

@@ -96,6 +96,22 @@ function TrashIcon({ className }: { className?: string }) {
     )
 }
 
+function ArrowPathIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+    )
+}
+
+function ArchiveIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+        </svg>
+    )
+}
+
 function BookmarkIcon({ className }: { className?: string }) {
     return (
         <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -189,6 +205,28 @@ export default function VacancyDetailPage() {
         },
         onError: () => {
             toast.error(t('vacancies.vacancyDeleteFailed'))
+        }
+    })
+
+    const archiveMutation = useMutation({
+        mutationFn: (vacancyId: string) => vacancyService.archive(vacancyId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vacancies'] })
+            toast.success(t('vacancies.vacancyArchived'))
+        },
+        onError: () => {
+            toast.error(t('vacancies.vacancyArchiveFailed'))
+        }
+    })
+
+    const restoreMutation = useMutation({
+        mutationFn: (vacancyId: string) => vacancyService.restore(vacancyId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vacancies'] })
+            toast.success(t('vacancies.vacancyRestored'))
+        },
+        onError: () => {
+            toast.error(t('vacancies.vacancyRestoreFailed'))
         }
     })
 
@@ -438,6 +476,28 @@ export default function VacancyDetailPage() {
                                 <PencilIcon className="w-4 h-4" />
                                 {t('vacancies.edit')}
                             </button>
+                            {vacancy.status !== 'ARCHIVED' && (
+                                <button
+                                    type="button"
+                                    onClick={() => archiveMutation.mutate(vacancy.id)}
+                                    disabled={archiveMutation.isPending}
+                                    className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-[#8b8fa3] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-xl hover:bg-[rgba(255,255,255,0.06)] hover:text-[#e8eaed] hover:border-[rgba(255,255,255,0.12)] transition-all duration-200"
+                                >
+                                    <ArchiveIcon className="w-4 h-4" />
+                                    {t('vacancies.archive')}
+                                </button>
+                            )}
+                            {vacancy.status === 'ARCHIVED' && (
+                                <button
+                                    type="button"
+                                    onClick={() => restoreMutation.mutate(vacancy.id)}
+                                    disabled={restoreMutation.isPending}
+                                    className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/15 hover:border-emerald-500/30 transition-all duration-200"
+                                >
+                                    <ArrowPathIcon className="w-4 h-4" />
+                                    {t('vacancies.restore')}
+                                </button>
+                            )}
                             <button
                                 type="button"
                                 onClick={() => setIsConfirmDeleteOpen(true)}

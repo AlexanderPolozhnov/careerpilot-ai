@@ -163,6 +163,22 @@ public class VacancyServiceImpl implements VacancyService {
         vacancyRepository.delete(findOwnedVacancy(id));
     }
 
+    @Override
+    @Transactional
+    public VacancyDto archive(UUID id) {
+        VacancyEntity entity = findOwnedVacancy(id);
+        entity.setStatus(VacancyStatus.ARCHIVED);
+        return vacancyMapper.toDto(vacancyRepository.save(entity));
+    }
+
+    @Override
+    @Transactional
+    public VacancyDto restore(UUID id) {
+        VacancyEntity entity = findOwnedVacancy(id);
+        entity.setStatus(VacancyStatus.ACTIVE);
+        return vacancyMapper.toDto(vacancyRepository.save(entity));
+    }
+
     private VacancyEntity findOwnedVacancy(UUID id) {
         UUID userId = currentUserResolver.resolveRequired().getId();
         return vacancyRepository.findByIdAndUserId(id, userId)

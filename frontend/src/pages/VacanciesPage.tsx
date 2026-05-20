@@ -289,7 +289,10 @@ export default function VacanciesPage() {
                                 <Link
                                     key={v.id}
                                     to={`/app/vacancies/${v.id}`}
-                                    className="group relative flex items-center gap-4 p-4 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl hover:bg-[rgba(255,255,255,0.04)] hover:border-[rgba(139,92,246,0.3)] hover:shadow-[0_0_24px_-8px_rgba(139,92,246,0.2)] transition-all duration-300 no-underline"
+                                    className={cn(
+                                        "group relative flex items-center gap-4 p-4 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl hover:bg-[rgba(255,255,255,0.04)] hover:border-[rgba(139,92,246,0.3)] hover:shadow-[0_0_24px_-8px_rgba(139,92,246,0.2)] transition-all duration-300 no-underline",
+                                        v.status === 'ARCHIVED' && "opacity-60 grayscale-[0.4] hover:opacity-80 hover:grayscale-0"
+                                    )}
                                     style={{ animationDelay: `${index * 40}ms` }}
                                 >
                                     {/* Company avatar */}
@@ -348,7 +351,10 @@ export default function VacanciesPage() {
                                     <Link
                                         key={v.id}
                                         to={`/app/vacancies/${v.id}`}
-                                        className="group grid grid-cols-12 gap-4 px-5 py-4 hover:bg-[rgba(255,255,255,0.03)] transition-colors no-underline"
+                                        className={cn(
+                                            "group grid grid-cols-12 gap-4 px-5 py-4 hover:bg-[rgba(255,255,255,0.03)] transition-colors no-underline",
+                                            v.status === 'ARCHIVED' && "opacity-60 grayscale-[0.4] hover:opacity-80 hover:grayscale-0"
+                                        )}
                                     >
                                         <div className="col-span-5 min-w-0">
                                             <div className="text-[14px] font-medium text-[#e8eaed] truncate group-hover:text-white transition-colors">{v.title}</div>

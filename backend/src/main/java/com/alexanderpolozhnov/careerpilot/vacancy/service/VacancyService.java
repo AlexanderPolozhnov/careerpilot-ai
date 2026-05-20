@@ -1,4 +1,5 @@
 package com.alexanderpolozhnov.careerpilot.vacancy.service;
+
 import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.vacancy.dto.CreateVacancyDto;
 import com.alexanderpolozhnov.careerpilot.vacancy.dto.UpdateVacancyDto;
@@ -18,12 +19,15 @@ public interface VacancyService {
             String status,
             String remote,
             String companyId,
-            String tag
-    );
+            String tag);
 
     VacancyDto getById(UUID id);
 
     VacancyDto update(UUID id, UpdateVacancyDto request);
 
     void delete(UUID id);
+
+    VacancyDto archive(UUID id);
+
+    VacancyDto restore(UUID id);
 }
