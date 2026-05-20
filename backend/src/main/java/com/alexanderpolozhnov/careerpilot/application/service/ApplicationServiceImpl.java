@@ -26,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -50,10 +51,16 @@ public class ApplicationServiceImpl implements ApplicationService {
         ApplicationEntity entity = new ApplicationEntity();
         entity.setUser(currentUser);
         entity.setVacancy(vacancy);
-        entity.setStatus(request.status() != null ? request.status() : ApplicationStatus.NEW);
+        ApplicationStatus status = request.status() != null ? request.status() : ApplicationStatus.NEW;
+        entity.setStatus(status);
         entity.setNotes(request.notes());
         entity.setAppliedAt(request.appliedAt());
         entity.setResumeId(request.resumeId());
+
+        // Если статус сразу "интервью", фиксируем время
+        if (isInterviewStatus(status)) {
+            entity.setFirstInterviewAt(Instant.now());
+        }
 
         ApplicationEntity saved = applicationRepository.save(entity);
         log.info("applications.create userId={} vacancyId={} id={}", userId, request.vacancyId(), saved.getId());
@@ -164,7 +171,14 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional
     public ApplicationResponse updateStatus(UUID id, UpdateApplicationStatusRequest request) {
         ApplicationEntity entity = findOwnedApplication(id);
-        entity.setStatus(mapStatusFromFrontend(request.status()));
+        ApplicationStatus newStatus = mapStatusFromFrontend(request.status());
+
+        // Если статус становится "интервью" и это происходит впервые
+        if (isInterviewStatus(newStatus) && entity.getFirstInterviewAt() == null) {
+            entity.setFirstInterviewAt(Instant.now());
+        }
+
+        entity.setStatus(newStatus);
         return toResponse(applicationRepository.save(entity));
     }
 
@@ -238,5 +252,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException("Unsupported status: " + frontendStatus);
         }
+    }
+
+    private boolean isInterviewStatus(ApplicationStatus status) {
+        return status == ApplicationStatus.HR_SCREEN
+                || status == ApplicationStatus.TECH_INTERVIEW
+                || status == ApplicationStatus.FINAL
+                || status == ApplicationStatus.OFFER;
     }
 }

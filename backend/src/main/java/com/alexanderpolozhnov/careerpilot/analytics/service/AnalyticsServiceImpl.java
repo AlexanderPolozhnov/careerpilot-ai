@@ -7,18 +7,25 @@ import com.alexanderpolozhnov.careerpilot.analytics.request.AnalyticsRequest;
 import com.alexanderpolozhnov.careerpilot.analytics.response.AnalyticsResponse;
 import com.alexanderpolozhnov.careerpilot.analytics.response.AnalyticsSummaryResponse;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
+import com.alexanderpolozhnov.careerpilot.profile.entity.ProfileEntity;
+import com.alexanderpolozhnov.careerpilot.profile.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +36,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     private final ApplicationRepository applicationRepository;
     private final CurrentUserResolver currentUserResolver;
+    private final ProfileRepository profileRepository;
 
     @Override
     public AnalyticsResponse create(AnalyticsRequest request) {
@@ -38,8 +46,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     @Override
     @Transactional(readOnly = true)
     public AnalyticsSummaryResponse summary() {
-        List<ApplicationEntity> applications = applicationRepository
-                .findAllByUserId(currentUserResolver.resolveRequired().getId());
+        UUID userId = currentUserResolver.resolveRequired().getId();
+        List<ApplicationEntity> applications = applicationRepository.findAllByUserId(userId);
         int total = applications.size();
         int active = (int) applications.stream()
                 .filter(a -> a.getStatus() != ApplicationStatus.REJECTED && a.getStatus() != ApplicationStatus.ARCHIVED)
@@ -81,10 +89,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         List<AnalyticsSummaryResponse.WeeklyActivityItem> weeklyActivity = buildWeeklyActivity(applications);
 
-        List<AnalyticsSummaryResponse.SkillGapItem> skillGaps = List.of(
-                new AnalyticsSummaryResponse.SkillGapItem("System Design", 3, false),
-                new AnalyticsSummaryResponse.SkillGapItem("Kubernetes", 2, false),
-                new AnalyticsSummaryResponse.SkillGapItem("PostgreSQL", 4, true));
+        List<AnalyticsSummaryResponse.SkillGapItem> skillGaps = buildSkillGaps(applications, userId);
+        double avgTimeToInterview = calculateAvgTimeToInterview(applications);
 
         return new AnalyticsSummaryResponse(
                 total,
@@ -92,7 +98,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 total == 0 ? 0.0 : (double) interviews / total,
                 total == 0 ? 0.0 : (double) offers / total,
                 total == 0 ? 0.0 : (double) responded / total,
-                interviews == 0 ? 0.0 : 7.0,
+                avgTimeToInterview,
                 funnel,
                 weeklyActivity,
                 skillGaps);
@@ -167,5 +173,54 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         private int applied;
         private int interviews;
         private int offers;
+    }
+
+    private List<AnalyticsSummaryResponse.SkillGapItem> buildSkillGaps(List<ApplicationEntity> applications,
+            UUID userId) {
+        // Get user profile skills
+        List<String> userSkills = new ArrayList<>();
+        profileRepository.findByUserId(userId).ifPresent(profile -> {
+            if (profile.getSkills() != null) {
+                userSkills.addAll(profile.getSkills().stream()
+                        .map(String::toLowerCase)
+                        .toList());
+            }
+        });
+
+        // Collect all tags from vacancies (excluding SAVED status)
+        Map<String, Integer> tagFrequency = applications.stream()
+                .filter(app -> app.getStatus() != ApplicationStatus.SAVED)
+                .filter(app -> app.getVacancy() != null)
+                .filter(app -> app.getVacancy().getTags() != null)
+                .flatMap(app -> app.getVacancy().getTags().stream())
+                .collect(Collectors.groupingBy(
+                        tag -> tag.getTag().toLowerCase(),
+                        Collectors.summingInt(tag -> 1)));
+
+        // Build skill gap items
+        return tagFrequency.entrySet().stream()
+                .map(entry -> new AnalyticsSummaryResponse.SkillGapItem(
+                        entry.getKey(),
+                        entry.getValue(),
+                        userSkills.contains(entry.getKey())))
+                .sorted(Comparator.comparingInt(AnalyticsSummaryResponse.SkillGapItem::frequency).reversed())
+                .limit(10)
+                .toList();
+    }
+
+    private double calculateAvgTimeToInterview(List<ApplicationEntity> applications) {
+        List<Long> daysToInterview = applications.stream()
+                .filter(app -> app.getFirstInterviewAt() != null && app.getAppliedAt() != null)
+                .map(app -> Duration.between(app.getAppliedAt(), app.getFirstInterviewAt()).toDays())
+                .toList();
+
+        if (daysToInterview.isEmpty()) {
+            return 0.0;
+        }
+
+        return daysToInterview.stream()
+                .mapToLong(Long::longValue)
+                .average()
+                .orElse(0.0);
     }
 }

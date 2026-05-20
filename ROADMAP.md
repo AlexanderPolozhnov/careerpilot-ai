@@ -66,8 +66,8 @@ Roadmap отражает текущее состояние перед первы
 - [x] Auth integration (JWT-based, token storage, protected routes, manual verification complete).
 - [x] Vacancies integration (CRUD, pagination, ownership, frontend verified, включая формы).
 - [x] Companies integration (CRUD, pagination, ownership, frontend verified).
-- [x] Analytics integration (summary endpoint, frontend verified, включая skill gaps).
-- [x] Applications integration (board + status change working, POST/GET/PUT/DELETE реализованы).
+- [x] Analytics integration (summary endpoint, frontend verified, включая skill gaps и реальные метрики).
+- [x] Applications integration (board + status change working, POST/GET/PUT/DELETE реализованы, включая отслеживание времени интервью).
 - [x] AI assistant integration (с улучшенной валидацией).
 - [x] Dashboard integration (replacing mock data with backend services).
 - [x] Settings/preferences integration.
@@ -78,6 +78,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Interview UI implementation (Dedicated page + CRUD).
 - [x] Password Reset via Email (Full flow).
 - [x] Manual API smoke scenarios documented and verified (`docs/SMOKE_SCENARIOS.md`).
+- [x] **Real Analytics Metrics:** расчет Skill Gaps и среднего времени до интервью на основе реальных данных.
 
 ## Phase 5 — AI Features
 

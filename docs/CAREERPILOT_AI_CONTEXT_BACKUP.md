@@ -617,3 +617,35 @@ ight-0 и mt-2 для правильного выравнивания и отс�
 
 **Статус:** Готово. Фронтенд успешно компилируется (`pnpm run build`) и линтится без ошибок (`pnpm run lint`). Все юнит-тесты бэкенда (79 тестов) зеленые.
 
+## Update 2026-05-20 — Real Analytics Refinement (Skill Gaps & Performance Metrics)
+
+Реализован расчет реальных метрик аналитики на основе данных пользователя вместо mock-данных.
+
+**Backend:**
+- **Migration V18**: Создана миграция `V18__add_first_interview_at_to_applications.sql` для добавления колонки `first_interview_at TIMESTAMP WITH TIME ZONE` в таблицу `applications`.
+- **ApplicationEntity**: Добавлено поле `firstInterviewAt` (Instant) для отслеживания времени первого перехода в статус интервью.
+- **ApplicationServiceImpl**: 
+  - Добавлен метод `isInterviewStatus()` для определения статусов интервью (HR_SCREEN, TECH_INTERVIEW, FINAL, OFFER).
+  - В методах `create()` и `updateStatus()` добавлена логика фиксации `firstInterviewAt = Instant.now()` при первом переходе в статус интервью.
+- **AnalyticsServiceImpl**: 
+  - Внедрена зависимость `ProfileRepository` для доступа к навыкам пользователя.
+  - Переписан метод `buildSkillGaps()` для расчета пробелов в навыках на основе реальных данных:
+    - Извлекаются навыки из профиля пользователя (List<String> skills).
+    - Собираются все теги из вакансий, на которые есть отклики (кроме статуса SAVED).
+    - Рассчитывается частота каждого тега.
+    - Определяется наличие навыка у пользователя (case-insensitive сравнение).
+    - Результат сортируется по частоте DESC, ограничивается топ-10.
+  - Переписан метод `calculateAvgTimeToInterview()` для расчета среднего времени до интервью:
+    - Фильтруются отклики с заполненными `firstInterviewAt` и `appliedAt`.
+    - Вычисляется разница в днях через `Duration.between()`.
+    - Возвращается среднее значение (0.0 если нет данных).
+
+**Frontend:**
+- Изменения не требовались - структура `AnalyticsSummaryResponse` осталась неизменной согласно контракту API.
+
+**Проверки:**
+- Backend: `.\mvnw.cmd clean compile` - успешно.
+- Frontend: `npm run lint` - успешно (1 предупреждение unrelated), `npm run build` - успешно.
+
+**Статус:** Готово. Аналитика теперь использует реальные данные профиля и откликов пользователя.
+

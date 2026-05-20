@@ -12,14 +12,13 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "applications", schema = "careerpilot",
-    uniqueConstraints = @UniqueConstraint(name = "uq_applications_user_vacancy", columnNames = {"user_id", "vacancy_id"}),
-    indexes = {
-        @Index(name = "idx_applications_user_id", columnList = "user_id"),
-        @Index(name = "idx_applications_vacancy_id", columnList = "vacancy_id"),
-        @Index(name = "idx_applications_status", columnList = "status"),
-        @Index(name = "idx_applications_next_follow_up_at", columnList = "next_follow_up_at")
-    })
+@Table(name = "applications", schema = "careerpilot", uniqueConstraints = @UniqueConstraint(name = "uq_applications_user_vacancy", columnNames = {
+        "user_id", "vacancy_id" }), indexes = {
+                @Index(name = "idx_applications_user_id", columnList = "user_id"),
+                @Index(name = "idx_applications_vacancy_id", columnList = "vacancy_id"),
+                @Index(name = "idx_applications_status", columnList = "status"),
+                @Index(name = "idx_applications_next_follow_up_at", columnList = "next_follow_up_at")
+        })
 public class ApplicationEntity extends BaseAuditableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -48,4 +47,7 @@ public class ApplicationEntity extends BaseAuditableEntity {
 
     @Column(name = "resume_id")
     private String resumeId;
+
+    @Column(name = "first_interview_at")
+    private Instant firstInterviewAt;
 }
