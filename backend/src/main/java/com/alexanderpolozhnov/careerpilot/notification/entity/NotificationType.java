@@ -5,5 +5,7 @@ public enum NotificationType {
     TASK_DUE,
     APPLICATION_STATUS,
     AI_COMPLETE,
-    SYSTEM
+    SYSTEM,
+    INTERVIEW_MISSED,
+    TASK_OVERDUE
 }

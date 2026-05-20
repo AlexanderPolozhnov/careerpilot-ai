@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -46,4 +47,10 @@ public class NotificationEntity extends BaseCreatedAtEntity {
 
     @Column(name = "sent_at")
     private Instant sentAt;
+
+    @Column(name = "reference_id")
+    private UUID referenceId;
+
+    @Column(name = "reference_type", length = 50)
+    private String referenceType;
 }

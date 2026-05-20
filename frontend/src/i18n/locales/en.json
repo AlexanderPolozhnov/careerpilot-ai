@@ -170,7 +170,31 @@
     "resetPasswordTitle": "Reset Password",
     "resetPasswordDescription": "Enter your new password to complete the reset.",
     "resetPasswordButton": "Reset Password",
-    "invalidToken": "Invalid or missing reset link. Please request a new link."
+    "invalidToken": "Invalid or missing reset link. Please request a new link.",
+    "emailPlaceholder": "you@company.com",
+    "leftPanel": {
+      "login": {
+        "title": "Welcome back to your career journey",
+        "description": "Continue tracking applications, managing interviews, and leveraging AI insights to land your dream job."
+      },
+      "register": {
+        "title": "Start your AI-powered career journey",
+        "description": "Join thousands of professionals using intelligent tools to streamline their job search and career growth."
+      },
+      "forgotPassword": {
+        "title": "Secure your account access",
+        "description": "No worries. Enter your email and we'll send you instructions to reset your password."
+      },
+      "resetPassword": {
+        "title": "Set your new password",
+        "description": "Enter your new password below to complete the reset process."
+      }
+    },
+    "footer": {
+      "joinProfessionals": "Join 10,000+ professionals",
+      "soc2Compliant": "SOC 2 Compliant",
+      "gdprReady": "GDPR Ready"
+    }
   },
   "dashboard": {
     "title": "Dashboard",
@@ -500,8 +524,12 @@
     "weeklyDigestDescription": "Receive a weekly summary of your job search",
     "interviewReminders": "Interview reminders",
     "interviewRemindersDescription": "Get reminded before scheduled interviews",
+    "taskReminders": "Task reminders",
+    "taskRemindersDescription": "Get notified when tasks are reaching their deadlines",
     "aiProvider": "AI Provider",
     "aiProviderMode": "Provider mode",
+    "aiProviderSaved": "AI Provider successfully saved",
+    "aiProviderSaveError": "Failed to save AI Provider settings",
     "aiProviderLocal": "Local",
     "aiProviderLocalDescription": "Privacy-first local processing",
     "aiProviderCloud": "Cloud",
@@ -514,6 +542,15 @@
     "aiProviderDescription": "Mode placeholders for backend integration.",
     "aiProviderTodo": "Backend TODO: store this in user preferences and apply to AI endpoints.",
     "recentNotifications": "Recent notifications",
+    "notificationTypes": {
+      "INTERVIEW_REMINDER": "Interview Reminder",
+      "TASK_DUE": "Task Deadline",
+      "APPLICATION_STATUS": "Application Status",
+      "AI_COMPLETE": "AI Analysis",
+      "SYSTEM": "System",
+      "INTERVIEW_MISSED": "Missed Interview",
+      "TASK_OVERDUE": "Task Overdue"
+    },
     "mockFeed": "Mock feed.",
     "saveSettings": "Save settings",
     "saving": "Saving...",

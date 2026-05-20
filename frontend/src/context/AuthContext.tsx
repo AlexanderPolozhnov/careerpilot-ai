@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react'
 import type { User } from '@/types'
 import { authService } from '@/services/auth.service'
 import { AuthContext } from './auth-context'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 export interface AuthContextValue {
   user: User | null
@@ -16,31 +16,43 @@ export interface AuthContextValue {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem('cp_access_token'))
   const queryClient = useQueryClient()
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('cp_access_token'))
 
+  // Listen for storage changes (e.g., login/logout in another tab)
   useEffect(() => {
-    const token = localStorage.getItem('cp_access_token')
-    if (!token) {
-      return
+    const handleStorageChange = () => {
+      setToken(localStorage.getItem('cp_access_token'))
     }
-    authService
-      .me()
-      .then(setUser)
-      .catch(() => setUser(null))
-      .finally(() => setIsLoading(false))
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
+
+  const { data: user, isLoading: isQueryLoading, isFetched } = useQuery({
+    queryKey: ['auth', 'me'],
+    queryFn: () => authService.me(),
+    enabled: !!token,
+    retry: false,
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+
+  // Authenticated state is true ONLY if we have a token AND a user object.
+  // We use isFetched to ensure we don't flash 'unauthenticated' while the first check is happening.
+  const isLoading = !!token && !isFetched && isQueryLoading
+  const isAuthenticated = !!user
 
   const login = useCallback(async (email: string, password: string) => {
-    const { user } = await authService.login({ email, password })
-    setUser(user)
-  }, [])
+    const { user, accessToken } = await authService.login({ email, password })
+    setToken(accessToken)
+    queryClient.setQueryData(['auth', 'me'], user)
+  }, [queryClient])
 
   const register = useCallback(async (name: string, email: string, password: string) => {
-    const { user } = await authService.register({ name, email, password })
-    setUser(user)
-  }, [])
+    const { user, accessToken } = await authService.register({ name, email, password })
+    setToken(accessToken)
+    queryClient.setQueryData(['auth', 'me'], user)
+  }, [queryClient])
 
   const forgotPassword = useCallback(async (email: string) => {
     await authService.forgotPassword(email)
@@ -52,7 +64,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(() => {
     authService.logout()
-    setUser(null)
+    setToken(null)
+    queryClient.setQueryData(['auth', 'me'], null)
     queryClient.clear()
   }, [queryClient])
 
@@ -62,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         isLoading,
-        isAuthenticated: !!user,
+        isAuthenticated,
         login,
         register,
         forgotPassword,

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useAuth } from '@/context/useAuth'
 import { useForm, useWatch, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
@@ -42,6 +43,7 @@ const profileSchema = z.object({
 const preferencesSchema = z.object({
     weeklyDigest: z.boolean(),
     interviewReminders: z.boolean(),
+    taskReminders: z.boolean(),
     aiProviderMode: z.enum(['LOCAL', 'CLOUD', 'BRING_YOUR_OWN_KEY']),
     language: z.enum(['ru', 'en']),
 })
@@ -168,6 +170,7 @@ export default function SettingsPage() {
     const { t, i18n } = useTranslation()
     const location = useLocation()
     const queryClient = useQueryClient()
+    const { user } = useAuth()
     const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
     const [showResumeModal, setShowResumeModal] = useState(false)
     const [editingResume, setEditingResume] = useState<Resume | null>(null)
@@ -199,11 +202,6 @@ export default function SettingsPage() {
 
     const notifications = notificationsData?.content ?? []
 
-    const { data: userData } = useQuery({
-        queryKey: ['auth', 'me'],
-        queryFn: () => authService.me(),
-    })
-
     const { data: prefsData } = useQuery({
         queryKey: ['preferences'],
         queryFn: () => settingsService.getPreferences(),
@@ -229,6 +227,7 @@ export default function SettingsPage() {
         defaultValues: {
             weeklyDigest: true,
             interviewReminders: true,
+            taskReminders: true,
             aiProviderMode: 'LOCAL',
             language: (i18n.language as 'ru' | 'en') || 'en',
         },
@@ -248,7 +247,7 @@ export default function SettingsPage() {
     })
 
     const passwordForm = useForm<PasswordValues>({
-        resolver: zodResolver(getPasswordSchema(userData?.hasPassword ?? false)) as unknown as Resolver<PasswordValues>,
+        resolver: zodResolver(getPasswordSchema(user?.hasPassword ?? false)) as unknown as Resolver<PasswordValues>,
         defaultValues: {
             currentPassword: '',
             newPassword: '',
@@ -257,7 +256,7 @@ export default function SettingsPage() {
     })
 
     const deleteAccountForm = useForm<DeleteAccountValues>({
-        resolver: zodResolver(getDeleteAccountSchema(userData?.hasPassword ?? false, userData?.email ?? '')) as unknown as Resolver<DeleteAccountValues>,
+        resolver: zodResolver(getDeleteAccountSchema(user?.hasPassword ?? false, user?.email ?? '')) as unknown as Resolver<DeleteAccountValues>,
         defaultValues: {
             password: '',
             confirmation: '',
@@ -266,22 +265,24 @@ export default function SettingsPage() {
 
     const weeklyDigest = useWatch({ control: prefsForm.control, name: 'weeklyDigest' })
     const interviewReminders = useWatch({ control: prefsForm.control, name: 'interviewReminders' })
+    const taskReminders = useWatch({ control: prefsForm.control, name: 'taskReminders' })
 
     useEffect(() => {
-        if (userData) {
+        if (user) {
             profileForm.reset({
-                name: userData.name,
-                email: userData.email,
-                location: (userData as UserType & { location?: string }).location ?? '',
+                name: user.name,
+                email: user.email,
+                location: (user as UserType & { location?: string }).location ?? '',
             })
         }
-    }, [userData, profileForm])
+    }, [user, profileForm])
 
     useEffect(() => {
         if (prefsData) {
             prefsForm.reset({
                 weeklyDigest: prefsData.weeklyDigest,
                 interviewReminders: prefsData.interviewReminders,
+                taskReminders: prefsData.taskReminders,
                 aiProviderMode: prefsData.aiProviderMode,
                 language: (prefsData.language as 'ru' | 'en') || 'en',
             })
@@ -290,6 +291,7 @@ export default function SettingsPage() {
             prefsForm.reset({
                 weeklyDigest: true,
                 interviewReminders: true,
+                taskReminders: true,
                 aiProviderMode: 'LOCAL',
                 language: (i18n.language as 'ru' | 'en') || 'en',
             })
@@ -321,14 +323,14 @@ export default function SettingsPage() {
     }, [profileData, professionalProfileForm])
 
     useEffect(() => {
-        if (userData) {
+        if (user) {
             passwordForm.reset({
                 currentPassword: '',
                 newPassword: '',
                 confirmPassword: '',
             })
         }
-    }, [userData, passwordForm])
+    }, [user, passwordForm])
 
     const updatePasswordMutation = useMutation({
         mutationFn: (data: UpdatePasswordRequest) => authService.updatePassword(data),
@@ -350,6 +352,13 @@ export default function SettingsPage() {
     })
 
     const updatePrefsMutation = useMutation({
+        mutationFn: (data: PreferencesRequest) => settingsService.updatePreferences(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['preferences'] })
+        },
+    })
+
+    const updateAiProviderMutation = useMutation({
         mutationFn: (data: PreferencesRequest) => settingsService.updatePreferences(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['preferences'] })
@@ -527,6 +536,8 @@ export default function SettingsPage() {
     const prefsError = updatePrefsMutation.isError
     const professionalProfileSuccess = updateProfileMutation.isSuccess
     const professionalProfileError = updateProfileMutation.isError
+    const aiProviderSuccess = updateAiProviderMutation.isSuccess
+    const aiProviderError = updateAiProviderMutation.isError
     const aiProviderMode = useWatch({
         control: prefsForm.control,
         name: 'aiProviderMode',
@@ -590,11 +601,11 @@ export default function SettingsPage() {
                             <div className="flex items-center gap-5 pb-5 border-b border-white/[0.06]">
                                 <div
                                     className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-violet-500 flex items-center justify-center text-2xl font-semibold text-white shadow-lg shadow-violet-500/20">
-                                    {userData?.name?.charAt(0)?.toUpperCase() || 'U'}
+                                    {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-white">{userData?.name || 'User'}</p>
-                                    <p className="text-xs text-white/40 mt-0.5">{userData?.email}</p>
+                                    <p className="text-sm font-medium text-white">{user?.name || 'User'}</p>
+                                    <p className="text-xs text-white/40 mt-0.5">{user?.email}</p>
                                 </div>
                             </div>
 
@@ -669,8 +680,8 @@ export default function SettingsPage() {
                     <section className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm">
                         <SectionHeader
                             icon={Shield}
-                            title={userData?.hasPassword ? t('settings.changePassword') : t('settings.createPassword')}
-                            description={userData?.hasPassword ? t('settings.changePasswordDescription') : t('settings.createPasswordDescription')}
+                            title={user?.hasPassword ? t('settings.changePassword') : t('settings.createPassword')}
+                            description={user?.hasPassword ? t('settings.changePasswordDescription') : t('settings.createPasswordDescription')}
                         />
 
                         {updatePasswordMutation.isSuccess && (
@@ -680,14 +691,14 @@ export default function SettingsPage() {
                             <div className="mb-5"><StatusToast type="error" message={t('settings.passwordUpdateError')} /></div>
                         )}
 
-                        {!userData?.hasPassword && (
+                        {!user?.hasPassword && (
                             <div className="mb-5 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
                                 <p className="text-sm text-blue-300">{t('settings.oauth2Hint')}</p>
                             </div>
                         )}
 
                         <form onSubmit={handlePasswordSubmit} className="space-y-5">
-                            {userData?.hasPassword && (
+                            {user?.hasPassword && (
                                 <div className="space-y-2">
                                     <label
                                         className="flex items-center gap-2 text-xs font-medium text-white/50 uppercase tracking-wider">
@@ -752,7 +763,7 @@ export default function SettingsPage() {
                                             Saving...
                                         </span>
                                     ) : (
-                                        userData?.hasPassword ? t('settings.changePassword') : t('settings.createPassword')
+                                        user?.hasPassword ? t('settings.changePassword') : t('settings.createPassword')
                                     )}
                                 </button>
                             </div>
@@ -1044,6 +1055,11 @@ export default function SettingsPage() {
                             description={t('settings.aiProviderDescription')}
                         />
 
+                        {aiProviderSuccess &&
+                            <div className="mb-5"><StatusToast type="success" message={t('settings.aiProviderSaved')} /></div>}
+                        {aiProviderError &&
+                            <div className="mb-5"><StatusToast type="error" message={t('settings.aiProviderSaveError')} /></div>}
+
                         <div className="space-y-2">
                             {aiProviderOptions.map((option) => {
                                 const Icon = option.icon
@@ -1056,7 +1072,7 @@ export default function SettingsPage() {
                                             const val = option.value as 'LOCAL' | 'CLOUD' | 'BRING_YOUR_OWN_KEY'
                                             prefsForm.setValue('aiProviderMode', val)
                                             const current = prefsForm.getValues()
-                                            updatePrefsMutation.mutate({ ...current, aiProviderMode: val })
+                                            updateAiProviderMutation.mutate({ ...current, aiProviderMode: val })
                                         }}
                                         className={cn(
                                             'w-full flex items-center gap-4 rounded-xl border px-4 py-4 text-left transition-all duration-200',
@@ -1144,6 +1160,28 @@ export default function SettingsPage() {
                                         prefsForm.setValue('interviewReminders', v)
                                         const current = prefsForm.getValues()
                                         updatePrefsMutation.mutate({ ...current, interviewReminders: v })
+                                    }}
+                                />
+                            </div>
+
+                            <div
+                                className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4">
+                                <div className="flex items-center gap-4">
+                                    <div
+                                        className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                                        <Check className="w-5 h-5 text-emerald-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-white">{t('settings.taskReminders')}</p>
+                                        <p className="text-xs text-white/40 mt-0.5">{t('settings.taskRemindersDescription')}</p>
+                                    </div>
+                                </div>
+                                <Toggle
+                                    checked={taskReminders}
+                                    onChange={(v) => {
+                                        prefsForm.setValue('taskReminders', v)
+                                        const current = prefsForm.getValues()
+                                        updatePrefsMutation.mutate({ ...current, taskReminders: v })
                                     }}
                                 />
                             </div>
@@ -1246,7 +1284,7 @@ export default function SettingsPage() {
                                 </div>
 
                                 <form onSubmit={deleteAccountForm.handleSubmit(handleDeleteAccount)} className="space-y-4">
-                                    {userData?.hasPassword && (
+                                    {user?.hasPassword && (
                                         <div>
                                             <label className="block text-sm text-white/60 mb-2">
                                                 {t('settings.deleteAccountPasswordLabel')}
@@ -1276,7 +1314,7 @@ export default function SettingsPage() {
                                         {deleteAccountForm.formState.errors.confirmation && (
                                             <p className="text-xs text-red-400 mt-1">{t(deleteAccountForm.formState.errors.confirmation.message as string)}</p>
                                         )}
-                                        <p className="text-xs text-white/30 mt-1">{userData?.email}</p>
+                                        <p className="text-xs text-white/30 mt-1">{user?.email}</p>
                                     </div>
 
                                     <div className="flex items-center gap-3 pt-4">

@@ -891,3 +891,40 @@ ight-0 Рё mt-2 РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕРіРѕ РІ�
 **Frontend:**
 - **api-client.ts**: Обновлена логика обработки 401 ошибки. Теперь глобальный логаут и редирект на /login пропускаются, если ошибка является функциональной (например, при попытке логина или если это повторный запрос после обновления токена, который все равно вернул 401 из-за неверных учетных данных).
 - Это позволяет компонентам (таким как SettingsPage или AuthPages) корректно обрабатывать ошибки и показывать пользователю сообщение 'Неверный пароль' вместо внезапного завершения сессии.\
+
+## Update 2026-05-27 — Settings & Preferences Vertical Integration
+
+**Сделано:**
+Реализована полная вертикальная интеграция настроек пользователя (Preferences), включая поддержку нового поля `taskReminders`.
+
+**Backend:**
+- **DTO**: Обновлены `PreferencesRequest` и `PreferencesResponse`, добавлено поле `taskReminders` (boolean).
+- **Service**: В `PreferencesServiceImpl` реализован маппинг нового поля в методах `updatePreferences` и `toResponse`.
+
+**Frontend:**
+- **Service**: Интерфейсы `PreferencesRequest` и `PreferencesResponse` в `settings.service.ts` теперь включают `taskReminders`. Обновлены моки.
+- **UI (SettingsPage.tsx)**: 
+    - Схема валидации Zod теперь включает `taskReminders`.
+    - Добавлен UI-контроль (Toggle) для управления напоминаниями о задачах в секции Notifications.
+    - Реализована реактивная связь через `useWatch` и мгновенное сохранение при изменении.
+- **i18n**: Добавлены локализации `taskReminders` и `taskRemindersDescription` для RU и EN.
+
+**Статус:** Готово и верифицировано. Все слои приложения синхронизированы с базой данных.\
+
+## Update 2026-05-21 — Notification Reference Fields
+
+**Сделано:**
+Добавлены поля reference_id и reference_type в таблицу notifications для связывания уведомлений с сущностями (задачи, интервью и др.).
+
+**Backend:**
+- **Migration**: Создана миграция `V21__add_notification_reference_fields.sql`.
+  - Добавлены поля `reference_id UUID` и `reference_type VARCHAR(50)` в таблицу `notifications`.
+  - Создан составной индекс `idx_notifications_reference` для оптимизации запросов по reference полям.
+- **Repository**: В `InterviewRepository` добавлены методы для поиска интервью по времени с фильтрацией по статусу отправки напоминаний:
+  - `findAllByScheduledAtBeforeAndReminderSentFalse(Instant before)`
+  - `findAllByScheduledAtBeforeAndReminderSentTrue(Instant before)`
+  - `findAllByScheduledAtBetweenAndReminderSentTrue(Instant from, Instant to)`
+
+**Цель:** Подготовка инфраструктуры для реализации Scheduled Notifications — фонового процесса для создания напоминаний о дедлайнах задач и времени собеседований.
+
+**Статус:** Миграция готова, repository методы добавлены. Полная реализация scheduled notifications в процессе.\

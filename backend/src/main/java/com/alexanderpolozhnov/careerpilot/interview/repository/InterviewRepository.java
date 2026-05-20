@@ -15,6 +15,12 @@ public interface InterviewRepository extends JpaRepository<InterviewEntity, UUID
 
     List<InterviewEntity> findAllByScheduledAtBetweenAndReminderSentFalse(Instant from, Instant to);
 
+    List<InterviewEntity> findAllByScheduledAtBeforeAndReminderSentFalse(Instant before);
+
+    List<InterviewEntity> findAllByScheduledAtBeforeAndReminderSentTrue(Instant before);
+
+    List<InterviewEntity> findAllByScheduledAtBetweenAndReminderSentTrue(Instant from, Instant to);
+
     @EntityGraph(attributePaths = { "application", "application.vacancy", "application.vacancy.company" })
     List<InterviewEntity> findAllByApplication_User_IdAndScheduledAtAfterOrderByScheduledAtAsc(UUID userId,
             Instant after);

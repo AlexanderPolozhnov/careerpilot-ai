@@ -4,3 +4,8 @@ spring:
       - classpath:db/migration
       - classpath:db/seeds
     out-of-order: true
+
+reminder:
+  scheduler:
+    enabled: true
+    cron: "*/30 * * * * *"

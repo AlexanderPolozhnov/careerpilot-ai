@@ -16,6 +16,7 @@ export interface UserWithLocation extends User {
 export interface PreferencesResponse {
     weeklyDigest: boolean
     interviewReminders: boolean
+    taskReminders: boolean
     aiProviderMode: 'LOCAL' | 'CLOUD' | 'BRING_YOUR_OWN_KEY'
     language: string
 }
@@ -23,6 +24,7 @@ export interface PreferencesResponse {
 export interface PreferencesRequest {
     weeklyDigest: boolean
     interviewReminders: boolean
+    taskReminders: boolean
     aiProviderMode: 'LOCAL' | 'CLOUD' | 'BRING_YOUR_OWN_KEY'
     language: string
 }
@@ -35,6 +37,7 @@ export interface DeleteAccountRequest {
 const mockPreferences: PreferencesResponse = {
     weeklyDigest: true,
     interviewReminders: true,
+    taskReminders: true,
     aiProviderMode: 'LOCAL',
     language: 'en',
 }

@@ -24,7 +24,7 @@ public class PreferencesServiceImpl implements PreferencesService {
     public PreferencesResponse getPreferences() {
         AuthEntity user = currentUser();
         PreferencesEntity prefs = preferencesRepository.findByUserId(user.getId())
-            .orElseGet(() -> createDefaults(user.getId()));
+                .orElseGet(() -> createDefaults(user.getId()));
         return toResponse(prefs);
     }
 
@@ -33,9 +33,10 @@ public class PreferencesServiceImpl implements PreferencesService {
     public PreferencesResponse updatePreferences(PreferencesRequest request) {
         AuthEntity user = currentUser();
         PreferencesEntity prefs = preferencesRepository.findByUserId(user.getId())
-            .orElseGet(() -> createDefaults(user.getId()));
+                .orElseGet(() -> createDefaults(user.getId()));
         prefs.setWeeklyDigest(request.weeklyDigest());
         prefs.setInterviewReminders(request.interviewReminders());
+        prefs.setTaskReminders(request.taskReminders());
         prefs.setAiProviderMode(request.aiProviderMode());
         prefs.setLanguage(request.language());
         return toResponse(preferencesRepository.save(prefs));
@@ -53,15 +54,15 @@ public class PreferencesServiceImpl implements PreferencesService {
             throw new InvalidCredentialsException("Unauthorized");
         }
         return authRepository.findByEmail(auth.getName())
-            .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
     }
 
     private PreferencesResponse toResponse(PreferencesEntity prefs) {
         return new PreferencesResponse(
-            prefs.isWeeklyDigest(),
-            prefs.isInterviewReminders(),
-            prefs.getAiProviderMode().name(),
-            prefs.getLanguage()
-        );
+                prefs.isWeeklyDigest(),
+                prefs.isInterviewReminders(),
+                prefs.isTaskReminders(),
+                prefs.getAiProviderMode().name(),
+                prefs.getLanguage());
     }
 }

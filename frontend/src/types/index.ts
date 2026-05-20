@@ -209,6 +209,8 @@ export type NotificationType =
   | 'APPLICATION_STATUS'
   | 'AI_COMPLETE'
   | 'SYSTEM'
+  | 'INTERVIEW_MISSED'
+  | 'TASK_OVERDUE'
 
 // ─── API Pagination ───────────────────────────────────────────────────────────
 

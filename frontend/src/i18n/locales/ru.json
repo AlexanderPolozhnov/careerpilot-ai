@@ -172,7 +172,31 @@
     "resetPasswordTitle": "Сброс пароля",
     "resetPasswordDescription": "Введите новый пароль для завершения сброса.",
     "resetPasswordButton": "Сбросить пароль",
-    "invalidToken": "Недействительная или отсутствующая ссылка сброса. Пожалуйста, запросите новую ссылку."
+    "invalidToken": "Недействительная или отсутствующая ссылка сброса. Пожалуйста, запросите новую ссылку.",
+    "emailPlaceholder": "you@company.com",
+    "leftPanel": {
+      "login": {
+        "title": "Добро пожаловать в ваш карьерный путь",
+        "description": "Продолжайте отслеживать заявки, управлять собеседованиями и использовать AI-инсайты, чтобы получить работу мечты."
+      },
+      "register": {
+        "title": "Начните свой AI-карьерный путь",
+        "description": "Присоединяйтесь к тысячам профессионалов, использующих интеллектуальные инструменты для оптимизации поиска работы и карьерного роста."
+      },
+      "forgotPassword": {
+        "title": "Защитите доступ к аккаунту",
+        "description": "Не волнуйтесь. Введите ваш email, и мы отправим инструкции для сброса пароля."
+      },
+      "resetPassword": {
+        "title": "Установите новый пароль",
+        "description": "Введите новый пароль ниже для завершения процесса сброса."
+      }
+    },
+    "footer": {
+      "joinProfessionals": "Присоединяйтесь к 10,000+ профессионалов",
+      "soc2Compliant": "SOC 2 Compliant",
+      "gdprReady": "GDPR Ready"
+    }
   },
   "dashboard": {
     "title": "Панель управления",
@@ -504,8 +528,12 @@
     "weeklyDigestDescription": "Получайте еженедельную сводку по поиску работы",
     "interviewReminders": "Напоминания о собеседованиях",
     "interviewRemindersDescription": "Получайте напоминания перед запланированными интервью",
+    "taskReminders": "Напоминания о задачах",
+    "taskRemindersDescription": "Получайте уведомления, когда срок выполнения задачи подходит к концу",
     "aiProvider": "Поставщик AI",
     "aiProviderMode": "Режим работы",
+    "aiProviderSaved": "Поставщик AI успешно сохранен",
+    "aiProviderSaveError": "Не удалось сохранить настройки поставщика AI",
     "aiProviderLocal": "Локальный",
     "aiProviderLocalDescription": "Приватная локальная обработка",
     "aiProviderCloud": "Облако",
@@ -518,6 +546,15 @@
     "aiProviderDescription": "Режимы для интеграции с бэкендом.",
     "aiProviderTodo": "Бэкенд TODO: сохранить в предпочтениях пользователя и применить к AI.",
     "recentNotifications": "Последние уведомления",
+    "notificationTypes": {
+      "INTERVIEW_REMINDER": "Напоминание о собеседовании",
+      "TASK_DUE": "Дедлайн задачи",
+      "APPLICATION_STATUS": "Статус отклика",
+      "AI_COMPLETE": "AI Анализ",
+      "SYSTEM": "Системное",
+      "INTERVIEW_MISSED": "Пропущено собеседование",
+      "TASK_OVERDUE": "Просрочена задача"
+    },
     "mockFeed": "Макет ленты.",
     "saveSettings": "Сохранить настройки",
     "saving": "Сохранение...",

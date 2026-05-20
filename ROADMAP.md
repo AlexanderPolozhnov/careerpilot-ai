@@ -139,6 +139,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] **AI Observability:** сбор метрик (latency, tokens, error tracking) для всех AI-запросов.
 - [x] **AI Assistant UX Polish:** замена ручного ввода ID вакансии на выбор из списка с автозаполнением описания.
 - [x] **Scheduled Notifications:** фоновый процесс для создания напоминаний о дедлайнах задач и времени собеседований (In-app + Email).
+- [x] **Settings Integration:** полная синхронизация настроек (Preferences) с бэкендом, включая новый тумблер управления напоминаниями о задачах (`taskReminders`).
 - [x] **Vacancy Archive Endpoint:** реализован `PATCH /api/vacancies/{id}/archive` (закрыт последний `TODO` из контракта Vacancies).
 - [x] **Vacancy UI Polish:** добавлена кнопка архивации, кнопка возврата из архива и визуальное "затухание" (dimming) для архивированных вакансий в списке.
 - [x] **Secure Account Deletion:** реализован защищенный процесс удаления аккаунта с подтверждением пароля и email.

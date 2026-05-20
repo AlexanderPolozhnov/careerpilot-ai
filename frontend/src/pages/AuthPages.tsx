@@ -16,34 +16,34 @@ interface AuthPagesProps {
 
 
 const loginSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(6),
+    email: z.string().email('auth.emailInvalid'),
+    password: z.string().min(6, 'auth.loginMinLength'),
 })
 
 const registerSchema = z
     .object({
-        name: z.string().min(2),
-        email: z.string().email(),
-        password: z.string().min(8),
-        confirmPassword: z.string().min(8),
+        name: z.string().min(2, 'auth.nameMinLength'),
+        email: z.string().email('auth.emailInvalid'),
+        password: z.string().min(8, 'auth.passwordMinLength'),
+        confirmPassword: z.string().min(8, 'auth.passwordMinLength'),
     })
     .refine((v) => v.password === v.confirmPassword, {
         path: ['confirmPassword'],
-        message: 'Passwords do not match',
+        message: 'auth.passwordsDoNotMatch',
     })
 
 const forgotSchema = z.object({
-    email: z.string().email(),
+    email: z.string().email('auth.emailInvalid'),
 })
 
 const resetSchema = z
     .object({
-        newPassword: z.string().min(8),
-        confirmPassword: z.string().min(8),
+        newPassword: z.string().min(8, 'auth.passwordMinLength'),
+        confirmPassword: z.string().min(8, 'auth.passwordMinLength'),
     })
     .refine((v) => v.newPassword === v.confirmPassword, {
         path: ['confirmPassword'],
-        message: 'Passwords do not match',
+        message: 'auth.passwordsDoNotMatch',
     })
 
 type AuthFormValues = {
@@ -164,16 +164,16 @@ export default function AuthPages({ mode }: AuthPagesProps) {
                     {/* Middle content */}
                     <div className="space-y-6 max-w-md">
                         <h1 className="text-3xl xl:text-4xl font-semibold text-[#e8eaed] leading-tight tracking-tight" style={{ fontFamily: 'Onest, system-ui, sans-serif' }}>
-                            {mode === 'login' && 'Welcome back to your career journey'}
-                            {mode === 'register' && 'Start your AI-powered career journey'}
-                            {mode === 'forgot-password' && 'Secure your account access'}
-                            {mode === 'reset-password' && 'Set your new password'}
+                            {mode === 'login' && t('auth.leftPanel.login.title')}
+                            {mode === 'register' && t('auth.leftPanel.register.title')}
+                            {mode === 'forgot-password' && t('auth.leftPanel.forgotPassword.title')}
+                            {mode === 'reset-password' && t('auth.leftPanel.resetPassword.title')}
                         </h1>
                         <p className="text-[15px] text-[#8b8fa3] leading-relaxed">
-                            {mode === 'login' && 'Continue tracking applications, managing interviews, and leveraging AI insights to land your dream job.'}
-                            {mode === 'register' && 'Join thousands of professionals using intelligent tools to streamline their job search and career growth.'}
-                            {mode === 'forgot-password' && 'No worries. Enter your email and we\'ll send you instructions to reset your password.'}
-                            {mode === 'reset-password' && 'Enter your new password below to complete the reset process.'}
+                            {mode === 'login' && t('auth.leftPanel.login.description')}
+                            {mode === 'register' && t('auth.leftPanel.register.description')}
+                            {mode === 'forgot-password' && t('auth.leftPanel.forgotPassword.description')}
+                            {mode === 'reset-password' && t('auth.leftPanel.resetPassword.description')}
                         </p>
                     </div>
 
@@ -187,20 +187,20 @@ export default function AuthPages({ mode }: AuthPagesProps) {
                                     </div>
                                 ))}
                             </div>
-                            <span className="text-sm text-[#6b7590]">Join 10,000+ professionals</span>
+                            <span className="text-sm text-[#6b7590]">{t('auth.footer.joinProfessionals')}</span>
                         </div>
                         <div className="flex items-center gap-6 text-sm text-[#6b7590]">
                             <span className="flex items-center gap-1.5">
                                 <svg className="w-4 h-4 text-violet-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>
-                                SOC 2 Compliant
+                                {t('auth.footer.soc2Compliant')}
                             </span>
                             <span className="flex items-center gap-1.5">
                                 <svg className="w-4 h-4 text-violet-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>
-                                GDPR Ready
+                                {t('auth.footer.gdprReady')}
                             </span>
                         </div>
                     </div>
@@ -378,7 +378,7 @@ export default function AuthPages({ mode }: AuthPagesProps) {
                                             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                             </svg>
-                                            {String(form.formState.errors.name.message)}
+                                            {t(String(form.formState.errors.name.message))}
                                         </p>
                                     )}
                                 </div>
@@ -396,7 +396,7 @@ export default function AuthPages({ mode }: AuthPagesProps) {
                                         <input
                                             className="w-full h-11 pl-11 pr-4 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-xl text-[14px] text-[#e8eaed] placeholder:text-[#4a4e5a] focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
                                             {...form.register('email')}
-                                            placeholder="you@company.com"
+                                            placeholder={t('auth.emailPlaceholder')}
                                         />
                                     </div>
                                     {form.formState.errors.email?.message && (
@@ -404,7 +404,7 @@ export default function AuthPages({ mode }: AuthPagesProps) {
                                             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                             </svg>
-                                            {String(form.formState.errors.email.message)}
+                                            {t(String(form.formState.errors.email.message))}
                                         </p>
                                     )}
                                 </div>
@@ -431,7 +431,7 @@ export default function AuthPages({ mode }: AuthPagesProps) {
                                             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                             </svg>
-                                            {String(form.formState.errors.password.message)}
+                                            {t(String(form.formState.errors.password.message))}
                                         </p>
                                     )}
                                 </div>
@@ -459,7 +459,7 @@ export default function AuthPages({ mode }: AuthPagesProps) {
                                                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                                 </svg>
-                                                {String(form.formState.errors.newPassword.message)}
+                                                {t(String(form.formState.errors.newPassword.message))}
                                             </p>
                                         )}
                                     </div>
@@ -484,7 +484,7 @@ export default function AuthPages({ mode }: AuthPagesProps) {
                                                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                                 </svg>
-                                                {String(form.formState.errors.confirmPassword.message)}
+                                                {t(String(form.formState.errors.confirmPassword.message))}
                                             </p>
                                         )}
                                     </div>
@@ -512,7 +512,7 @@ export default function AuthPages({ mode }: AuthPagesProps) {
                                             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                             </svg>
-                                            {String(form.formState.errors.confirmPassword.message)}
+                                            {t(String(form.formState.errors.confirmPassword.message))}
                                         </p>
                                     )}
                                 </div>
