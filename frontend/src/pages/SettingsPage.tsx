@@ -11,7 +11,7 @@ import { settingsService } from '@/services/settings.service'
 import { profileService } from '@/services/profile.service'
 import { resumeService, type CreateResumeDto } from '@/services/resume.service'
 import { authService, type UpdatePasswordRequest } from '@/services/auth.service'
-import { cn, formatRelative } from '@/lib/utils'
+import { cn, formatRelative, translateStatusInText } from '@/lib/utils'
 import { notificationService } from '@/services/notification.service'
 import { ResumeForm } from '@/components/ResumeForm'
 import { ConfirmModal } from '@/components/ConfirmModal'
@@ -1199,8 +1199,8 @@ export default function SettingsPage() {
                                         <Bell className="w-5 h-5 text-blue-400" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium text-white">{t('settings.notifications.applicationStatus')}</p>
-                                        <p className="text-xs text-white/40 mt-0.5">{t('settings.notifications.applicationStatusDescription')}</p>
+                                        <p className="text-sm font-medium text-white">{t('settings.notificationsApplicationStatus')}</p>
+                                        <p className="text-xs text-white/40 mt-0.5">{t('settings.notificationsApplicationStatusDescription')}</p>
                                     </div>
                                 </div>
                                 <Toggle
@@ -1237,7 +1237,7 @@ export default function SettingsPage() {
                                                 <p className={cn('text-sm truncate', n.read ? 'text-white/60' : 'text-white')}>
                                                     {n.title}
                                                 </p>
-                                                <p className="text-xs text-white/40 mt-0.5 truncate">{n.body}</p>
+                                                <p className="text-xs text-white/40 mt-0.5 truncate">{translateStatusInText(n.body, t)}</p>
                                             </div>
                                             <div className="flex items-center gap-3 shrink-0">
                                                 <span

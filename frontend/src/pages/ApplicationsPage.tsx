@@ -6,7 +6,7 @@ import { ErrorState } from '@/components/ErrorState'
 import ApplicationTimelineModal from '@/components/ApplicationTimelineModal'
 import { applicationService } from '@/services/application.service'
 import type { Application, ApplicationStatus } from '@/types'
-import { cn } from '@/lib/utils'
+import { cn, APPLICATION_STATUS_KEYS } from '@/lib/utils'
 import { ApiError } from '@/services/api-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -34,17 +34,6 @@ const STATUS_ORDER: ApplicationStatus[] = [
   'OFFER',
   'REJECTED',
 ]
-
-const STATUS_LABELS: Record<ApplicationStatus, string> = {
-  'NEW': 'applications.new',
-  'SAVED': 'applications.saved',
-  'APPLIED': 'applications.applied',
-  'HR_SCREEN': 'applications.hrScreen',
-  'TECH_INTERVIEW': 'applications.techInterview',
-  'FINAL_ROUND': 'applications.finalRound',
-  'OFFER': 'applications.offer',
-  'REJECTED': 'applications.rejected',
-}
 
 // Status color mapping for visual hierarchy
 const STATUS_COLORS: Record<ApplicationStatus, { bg: string; border: string; text: string; dot: string }> = {
@@ -106,6 +95,7 @@ function moveToDifferentStatus(
 }
 
 function ApplicationCardBody({ application, isDragging = false, onTimelineClick }: { application: Application; isDragging?: boolean; onTimelineClick: () => void }) {
+  const { t } = useTranslation()
   const statusColors = STATUS_COLORS[application.status]
 
   return (
@@ -163,24 +153,35 @@ function ApplicationCardBody({ application, isDragging = false, onTimelineClick 
           statusColors.bg, statusColors.text
         )}>
           <span className={cn('w-1.5 h-1.5 rounded-full', statusColors.dot)} />
-          {application.status.replace('_', ' ')}
+          {t(APPLICATION_STATUS_KEYS[application.status])}
         </div>
 
         {/* Action buttons */}
         <div className="flex items-center gap-2">
           {/* Timeline button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              onTimelineClick()
-            }}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-[rgba(255,255,255,0.06)] text-[#6b7590] hover:text-[#8b8fa3]"
-            title="View history"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
+          <div className="relative group/tip">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onTimelineClick()
+              }}
+              className={[
+                'opacity-0 group-hover:opacity-100 transition-all duration-200',
+                'p-1.5 rounded-lg',
+                'bg-violet-500/10 border border-violet-500/20 text-violet-400',
+                'hover:bg-violet-500/20 hover:border-violet-500/40 hover:text-violet-300',
+                'hover:shadow-sm hover:shadow-violet-500/20',
+              ].join(' ')}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+            <span className="absolute bottom-full right-0 mb-1.5 px-2 py-1.5 rounded-lg bg-[#1a1a1e] border border-violet-500/20 whitespace-nowrap pointer-events-none opacity-0 group-hover/tip:opacity-100 transition-opacity duration-75 z-20 shadow-lg shadow-black/40 min-w-max">
+              <span className="block text-[10px] text-[#e8eaed]">{t('applications.timeline.viewHistory')}</span>
+              <span className="block text-[9px] font-mono text-violet-400/60">applications.timeline.viewHistory</span>
+            </span>
+          </div>
 
           {/* Drag handle indicator */}
           <div className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -511,7 +512,7 @@ export default function ApplicationsPage() {
               {STATUS_ORDER.map((s) => {
                 const col = filteredBoard?.[s] ?? []
                 return (
-                  <ApplicationColumn key={s} status={s} items={col} label={t(STATUS_LABELS[s])} onTimelineClick={setTimelineApplicationId} />
+                  <ApplicationColumn key={s} status={s} items={col} label={t(APPLICATION_STATUS_KEYS[s])} onTimelineClick={setTimelineApplicationId} />
                 )
               })}
             </div>

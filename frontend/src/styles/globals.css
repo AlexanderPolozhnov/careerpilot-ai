@@ -42,7 +42,7 @@
 
     html,
     body {
-        height: 100%;
+        min-height: 100vh;
         scrollbar-width: none;
     }
 
@@ -102,6 +102,7 @@
 }
 
 @layer components {
+
     /* Card component */
     .card {
         @apply rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm;
@@ -130,7 +131,7 @@
     }
 
     .select {
-        @apply h-10 w-full rounded-lg border border-white/[0.08] bg-[rgba(255,255,255,0.03)] px-3 pr-8 text-[13px] text-[#8b8fa3] outline-none transition-all focus:border-violet-500/50 focus:bg-white/[0.05] focus:ring-2 focus:ring-violet-500/10 appearance-none cursor-pointer;
+        @apply h-10 w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 pr-8 text-[13px] text-[#8b8fa3] outline-none transition-all focus:border-violet-500/50 focus:bg-white/[0.05] focus:ring-2 focus:ring-violet-500/10 appearance-none cursor-pointer;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7590' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 8px center;
@@ -155,25 +156,33 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.04),
-            transparent
-        );
+        background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.04),
+                transparent);
         animation: skeleton-shimmer 1.5s ease-in-out infinite;
     }
 
     @keyframes skeleton-shimmer {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
+        0% {
+            transform: translateX(-100%);
+        }
+
+        100% {
+            transform: translateX(100%);
+        }
     }
 }
 
 /* Custom animations */
 @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes slide-up {
@@ -181,6 +190,7 @@
         opacity: 0;
         transform: translateY(16px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -192,6 +202,7 @@
         opacity: 0;
         transform: scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -211,13 +222,30 @@
 }
 
 /* Stagger children */
-.stagger-children > * {
+.stagger-children>* {
     animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
-.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
-.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
-.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
-.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
-.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children>*:nth-child(1) {
+    animation-delay: 0ms;
+}
+
+.stagger-children>*:nth-child(2) {
+    animation-delay: 50ms;
+}
+
+.stagger-children>*:nth-child(3) {
+    animation-delay: 100ms;
+}
+
+.stagger-children>*:nth-child(4) {
+    animation-delay: 150ms;
+}
+
+.stagger-children>*:nth-child(5) {
+    animation-delay: 200ms;
+}
+
+.stagger-children>*:nth-child(6) {
+    animation-delay: 250ms;
+}

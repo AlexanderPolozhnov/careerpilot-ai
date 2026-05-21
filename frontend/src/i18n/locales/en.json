@@ -314,18 +314,19 @@
     "error": "Unable to load applications",
     "noApplications": "No applications yet",
     "description": "Start by saving or applying to a vacancy.",
-    "new": "NEW",
-    "saved": "SAVED",
-    "applied": "APPLIED",
-    "hrScreen": "HR SCREEN",
-    "techInterview": "TECH INTERVIEW",
-    "finalRound": "FINAL ROUND",
-    "offer": "OFFER",
-    "rejected": "REJECTED",
+    "new": "New",
+    "saved": "Saved",
+    "applied": "Applied",
+    "hrScreen": "HR Screen",
+    "techInterview": "Tech Interview",
+    "finalRound": "Final Round",
+    "offer": "Offer",
+    "rejected": "Rejected",
     "timeline": {
       "title": "Status History",
       "noHistory": "No history recorded yet",
-      "initial": "Initial"
+      "initial": "Initial",
+      "viewHistory": "View status history"
     }
   },
   "interviews": {
@@ -531,10 +532,8 @@
     "interviewRemindersDescription": "Get reminded before scheduled interviews",
     "taskReminders": "Task reminders",
     "taskRemindersDescription": "Get notified when tasks are reaching their deadlines",
-    "notifications": {
-      "applicationStatus": "Application status notifications",
-      "applicationStatusDescription": "Get notified when your application status changes"
-    },
+    "notificationsApplicationStatus": "Application status notifications",
+    "notificationsApplicationStatusDescription": "Get notified when your application status changes",
     "aiProvider": "AI Provider",
     "aiProviderMode": "Provider mode",
     "aiProviderSaved": "AI Provider successfully saved",

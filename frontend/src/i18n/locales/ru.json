@@ -327,7 +327,8 @@
     "timeline": {
       "title": "История статусов",
       "noHistory": "История изменений еще не записана",
-      "initial": "Начало"
+      "initial": "Начало",
+      "viewHistory": "Посмотреть историю статусов"
     }
   },
   "interviews": {
@@ -535,10 +536,8 @@
     "interviewRemindersDescription": "Получайте напоминания перед запланированными интервью",
     "taskReminders": "Напоминания о задачах",
     "taskRemindersDescription": "Получайте уведомления, когда срок выполнения задачи подходит к концу",
-    "notifications": {
-      "applicationStatus": "Уведомления о статусе откликов",
-      "applicationStatusDescription": "Получать уведомления при изменении этапа найма по вашим откликам"
-    },
+    "notificationsApplicationStatus": "Уведомления о статусе откликов",
+    "notificationsApplicationStatusDescription": "Получать уведомления при изменении этапа найма по вашим откликам",
     "aiProvider": "Поставщик AI",
     "aiProviderMode": "Режим работы",
     "aiProviderSaved": "Поставщик AI успешно сохранен",

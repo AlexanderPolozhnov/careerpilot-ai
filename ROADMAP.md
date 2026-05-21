@@ -81,6 +81,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] **Real Analytics Metrics:** расчет Skill Gaps и среднего времени до интервью на основе реальных данных.
 - [x] **Vacancy Tags UI:** поддержка добавления и редактирования тегов (навыков) в вакансиях.
 - [x] **Application Status History:** запись и визуализация таймлайна изменения статусов отклика (Timeline).
+- [x] **Timeline UI Polish:** i18n для всех статусов ApplicationStatus, мгновенные CSS-тултипы с i18n ключом, стилизация кнопки истории в фиолетовом акценте проекта.
 - [x] **Analytics & UI Bugfixes:** исправлена ошибка LazyInitializationException, устранены React key warnings, оптимизирована загрузка данных (N+1).
 
 ## Phase 5 — AI Features

@@ -1,4 +1,5 @@
-import { cn, getStatusMeta } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
+import { cn, getStatusMeta, APPLICATION_STATUS_KEYS } from '@/lib/utils'
 import type { ApplicationStatus, VacancyStatus } from '@/types'
 
 interface StatusBadgeProps {
@@ -36,13 +37,16 @@ const getDesignSystemBadgeClass = (status: ApplicationStatus | VacancyStatus): s
 }
 
 export function StatusBadge({ status, kind, className }: StatusBadgeProps) {
+  const { t } = useTranslation()
   const meta = getStatusMeta(status, kind)
   const badgeClass = getDesignSystemBadgeClass(status)
+  const i18nKey = APPLICATION_STATUS_KEYS[status as ApplicationStatus]
+  const label = i18nKey ? t(i18nKey) : meta.label
 
   return (
     <span className={cn('ds-badge', badgeClass, className)}>
       <span className="ds-badge-dot" />
-      {meta.label}
+      {label}
     </span>
   )
 }

@@ -982,3 +982,37 @@ ight-0 Рё mt-2 РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕРіРѕ РІ�
 - **i18n**: Добавлены ключи локализации для новых уведомлений и настроек.
 
 **Статус:** Реализовано и верифицировано тестами. Все слои синхронизированы.
+
+## Update 2026-05-21 — Timeline UI Polish (i18n статусов, тултипы, стиль кнопки)
+
+**Сделано:**
+Устранены три UX-недочёта, выявленных после реализации Application Status History.
+
+**Frontend (только):**
+- **`frontend/src/lib/utils.ts`**: Добавлена экспортируемая константа `APPLICATION_STATUS_KEYS: Record<ApplicationStatus, string>` — маппинг enum-значений на i18n-ключи (`applications.new`, `applications.hrScreen` и т.д.).
+- **`frontend/src/i18n/locales/en.json`**: Значения статусов исправлены с КАПСЛОКА (`"NEW"`, `"SAVED"`) на читаемый English (`"New"`, `"Saved"`, `"HR Screen"`, `"Tech Interview"`, `"Final Round"`). Добавлен ключ `applications.timeline.viewHistory`.
+- **`frontend/src/i18n/locales/ru.json`**: Добавлен ключ `applications.timeline.viewHistory` («Посмотреть историю статусов»).
+- **`frontend/src/components/ApplicationTimelineModal.tsx`**: Исправлена функция `getStatusLabel` — сломанный маппинг через `.replace('_', '')` заменён корректным через `APPLICATION_STATUS_KEYS`. Добавлен компонент `StatusWithTooltip` (объявлен на уровне модуля) с мгновенным CSS-тултипом (duration-75), показывающим перевод + i18n ключ моноширным фиолетовым шрифтом при наведении.
+- **`frontend/src/pages/ApplicationsPage.tsx`**: Удалена дублирующая константа `STATUS_LABELS`, заменена на `APPLICATION_STATUS_KEYS` из utils. Статус в карточке теперь отображается через `t(APPLICATION_STATUS_KEYS[application.status])`. Кнопка-часы (timeline trigger) переоформлена в фиолетовом стиле проекта (`bg-violet-500/10 border border-violet-500/20 text-violet-400`) с кастомным тултипом вместо нативного `title=""`.
+- **`frontend/src/components/StatusBadge.tsx`**: Подключён `useTranslation`. Для `ApplicationStatus` метка берётся через `t(i18nKey)`, для `VacancyStatus` — fallback на `meta.label`.
+
+**Code Review fix (post-review):** `StatusWithTooltip` изначально был объявлен внутри тела `TimelineItem` (anti-pattern: nested component definition). Вынесен на уровень модуля. Props упрощены до `{ label, statusKey }` — значения вычисляются в `TimelineItem` перед передачей.
+
+## Update 2026-05-21 — Bugfixes: Notification Keys, Modal Z-Index, Legacy Status, Notification Translation
+
+**Исправлено:**
+
+**Frontend:**
+- **`frontend/src/i18n/locales/ru.json`**: Устранен дубликат ключа `notifications` (объект), который конфликтовал со строковым значением. Переименованы в `notificationsApplicationStatus` и `notificationsApplicationStatusDescription`.
+- **`frontend/src/i18n/locales/en.json`**: Уплощена структура — удален вложенный объект `notifications`, ключи вынесены на верхний уровень как в ru.json.
+- **`frontend/src/pages/SettingsPage.tsx`**: Обновлены ключи локализации для уведомлений о статусе отклика на новые плоские ключи.
+- **`frontend/src/lib/utils.ts`**: Добавлена константа `LEGACY_STATUS_MAP` для маппинга легаси-значения `FINAL` в `FINAL_ROUND`. Добавлена функция `translateStatusInText` для перевода значений статусов в тексте уведомлений.
+- **`frontend/src/components/ApplicationTimelineModal.tsx`**: Обновлен `getStatusKey` для использования `LEGACY_STATUS_MAP` при нормализации статусов. Разделены backdrop и контент модального окна: backdrop имеет `z-[90]` (выше topbar), контент — `z-[100]`. Добавлен `m-0` к backdrop для переопределения наследуемого margin от родительских элементов с `space-y`.
+- **`frontend/src/pages/DashboardPage.tsx`**: Добавлен импорт `translateStatusInText` и применена функция к сообщению уведомления для перевода статусов.
+- **`frontend/src/styles/globals.css`**: Исправлена ошибка Tailwind CSS — заменено `bg-[rgba(255, 255, 255, 0.03)]` на `bg-white/[0.03]` в классе `.select` (произвольные RGBA значения не поддерживаются в @apply). Изменено `height: 100%` на `min-height: 100vh` для html и body для корректного покрытия backdrop на весь экран.
+
+**Статус:** Исправлено и верифицировано. Линт и билд прошли успешно.
+
+**Верификация:** `npm run lint` — без ошибок. `npm run build` — успешно. Бэкенд не затрагивался.
+
+**Статус:** Реализовано, верифицировано, code review проведён.

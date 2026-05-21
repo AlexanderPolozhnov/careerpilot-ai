@@ -91,6 +91,31 @@ export const APPLICATION_STATUS_META: Record<
   },
 }
 
+export const APPLICATION_STATUS_KEYS: Record<ApplicationStatus, string> = {
+  NEW: 'applications.new',
+  SAVED: 'applications.saved',
+  APPLIED: 'applications.applied',
+  HR_SCREEN: 'applications.hrScreen',
+  TECH_INTERVIEW: 'applications.techInterview',
+  FINAL_ROUND: 'applications.finalRound',
+  OFFER: 'applications.offer',
+  REJECTED: 'applications.rejected',
+}
+
+// Fallback for legacy backend data that uses "FINAL" instead of "FINAL_ROUND"
+export const LEGACY_STATUS_MAP: Record<string, ApplicationStatus> = {
+  'FINAL': 'FINAL_ROUND',
+}
+
+// Translate status values in notification text
+export function translateStatusInText(text: string, t: (key: string) => string): string {
+  return text.replace(/(NEW|SAVED|APPLIED|HR_SCREEN|TECH_INTERVIEW|FINAL_ROUND|FINAL|OFFER|REJECTED)/g, (match) => {
+    const normalized = LEGACY_STATUS_MAP[match] ?? match
+    const key = APPLICATION_STATUS_KEYS[normalized as ApplicationStatus]
+    return key ? t(key) : match
+  })
+}
+
 export const VACANCY_STATUS_META: Record<VacancyStatus, { label: string; color: string; bg: string }> =
 {
   ACTIVE: {

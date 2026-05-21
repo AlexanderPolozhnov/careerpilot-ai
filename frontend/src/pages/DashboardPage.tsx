@@ -6,7 +6,7 @@ import { AiInsightCard, AiInsightCardSkeleton } from '@/components/AiInsightCard
 import type { DashboardAiInsight } from '@/services/dashboard.service'
 import { getDashboardSummary } from '@/services/dashboard.service'
 import { taskService } from '@/services/task.service'
-import { formatDateTime, formatRelative } from '@/lib/utils'
+import { formatDateTime, formatRelative, translateStatusInText } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
 import type { AiResult } from '@/types'
 import { toast } from '@/lib/toast'
@@ -221,7 +221,7 @@ export default function DashboardPage() {
                                                 {t('common.new')}
                                             </span>
                                         )}
-                                        <div className="text-xs text-ink-dim break-words">{n.message}</div>
+                                        <div className="text-xs text-ink-dim break-words">{translateStatusInText(n.message, t)}</div>
                                     </div>
                                 </div>
                             ))}
