@@ -40,6 +40,10 @@ public class PreferencesServiceImpl implements PreferencesService {
         prefs.setApplicationStatusNotifications(request.applicationStatusNotifications());
         prefs.setAiProviderMode(request.aiProviderMode());
         prefs.setLanguage(request.language());
+        prefs.setOpenAiApiKey(request.openAiApiKey());
+        prefs.setOpenAiModel(request.openAiModel());
+        prefs.setOllamaUrl(request.ollamaUrl());
+        prefs.setOllamaModel(request.ollamaModel());
         return toResponse(preferencesRepository.save(prefs));
     }
 
@@ -65,6 +69,10 @@ public class PreferencesServiceImpl implements PreferencesService {
                 prefs.isTaskReminders(),
                 prefs.isApplicationStatusNotifications(),
                 prefs.getAiProviderMode().name(),
-                prefs.getLanguage());
+                prefs.getLanguage(),
+                prefs.getOpenAiApiKey(),
+                prefs.getOpenAiModel(),
+                prefs.getOllamaUrl(),
+                prefs.getOllamaModel());
     }
 }

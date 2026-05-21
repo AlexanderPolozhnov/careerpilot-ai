@@ -159,8 +159,8 @@ imports удалены, skeleton-loading работает.
 1. `GET /api/users/me` → `200` + объект `User` с полями `id`, `email`, `name`, `avatarUrl`, `createdAt`, `location`.
 2. `PUT /api/users/me` — тело `{ "name": "Demo Updated", "email": "demo@careerpilot.ai", "location": "Remote" }` →
    `200` + обновлённый `User`.
-3. `GET /api/preferences` → `200` + объект `{ weeklyDigest, interviewReminders, aiProviderMode, language }`.
-4. `PUT /api/preferences` — тело `{ "weeklyDigest": false, "aiProviderMode": "LOCAL", "language": "ru" }` → `200` +
+3. `GET /api/preferences` → `200` + объект `{ weeklyDigest, interviewReminders, aiProviderMode, language, openAiApiKey, openAiModel, ollamaUrl, ollamaModel }`.
+4. `PUT /api/preferences` — тело `{ "weeklyDigest": false, "aiProviderMode": "LOCAL", "language": "ru", "ollamaUrl": "http://localhost:11434" }` → `200` +
    обновлённые preferences.
 5. `SettingsPage` открывается, форма профиля и форма настроек заполнены реальными данными, сохранение показывает success
    feedback.

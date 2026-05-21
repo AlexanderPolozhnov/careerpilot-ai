@@ -47,6 +47,10 @@ const preferencesSchema = z.object({
     applicationStatusNotifications: z.boolean(),
     aiProviderMode: z.enum(['LOCAL', 'CLOUD', 'BRING_YOUR_OWN_KEY']),
     language: z.enum(['ru', 'en']),
+    openAiApiKey: z.string().optional(),
+    openAiModel: z.string().optional(),
+    ollamaUrl: z.string().optional(),
+    ollamaModel: z.string().optional(),
 })
 
 const professionalProfileSchema = z.object({
@@ -1109,6 +1113,72 @@ export default function SettingsPage() {
                                 )
                             })}
                         </div>
+
+                        {/* Dynamic fields based on AI provider mode */}
+                        {aiProviderMode === 'LOCAL' && (
+                            <div className="space-y-4 mt-6 pt-6 border-t border-white/[0.06]">
+                                <div className="space-y-2">
+                                    <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
+                                        {t('settings.ollamaUrl')}
+                                    </label>
+                                    <input
+                                        className="input mt-1 w-full"
+                                        {...prefsForm.register('ollamaUrl')}
+                                        placeholder="http://localhost:11434"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
+                                        {t('settings.ollamaModel')}
+                                    </label>
+                                    <input
+                                        className="input mt-1 w-full"
+                                        {...prefsForm.register('ollamaModel')}
+                                        placeholder="llama3"
+                                    />
+                                </div>
+                                <p className="text-xs text-white/40 mt-2">
+                                    {t('settings.ollamaDockerTip')}
+                                </p>
+                            </div>
+                        )}
+
+                        {aiProviderMode === 'BRING_YOUR_OWN_KEY' && (
+                            <div className="space-y-4 mt-6 pt-6 border-t border-white/[0.06]">
+                                <div className="space-y-2">
+                                    <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
+                                        {t('settings.openAiApiKey')}
+                                    </label>
+                                    <input
+                                        type="password"
+                                        className="input mt-1 w-full"
+                                        {...prefsForm.register('openAiApiKey')}
+                                        placeholder="sk-..."
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
+                                        {t('settings.openAiModel')}
+                                    </label>
+                                    <input
+                                        className="input mt-1 w-full"
+                                        {...prefsForm.register('openAiModel')}
+                                        placeholder="gpt-4o"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {aiProviderMode === 'CLOUD' && (
+                            <div className="mt-6 pt-6 border-t border-white/[0.06]">
+                                <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                                    <Cloud className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+                                    <p className="text-sm text-white/80">
+                                        {t('settings.cloudModeTip')}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </section>
 
                     {/* Notifications Section */}

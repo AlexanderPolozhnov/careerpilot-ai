@@ -29,37 +29,31 @@ docker compose up -d --build
 - Backend API: http://localhost:8080/api
 - Swagger UI: http://localhost:8080/swagger-ui/index.html
 
-## AI (Ollama)
+## AI (Ollama & OpenAI)
 
-Есть два способа запустить Ollama:
+Начиная с версии `v0.8.0-alpha`, настройки провайдеров ИИ управляются динамически через интерфейс приложения (**Settings -> AI Assistant Settings**).
 
-### Способ 1: Нативная установка (рекомендуется для Windows)
+### Режимы работы
 
-1. Скачайте установщик с https://ollama.com/download
-2. Установите Ollama (автоматически запустится как сервис на `http://localhost:11434`)
-3. Загрузите модель:
-```powershell
-ollama pull llama3
-```
-4. В `backend/.env` убедитесь, что настройки:
-```
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama3
-```
+1.  **Local (Ollama):** Использует локально запущенную LLM.
+    *   Если Ollama запущен нативно на хосте: в UI укажите URL `http://host.docker.internal:11434`.
+    *   Если Ollama запущен через Docker Compose: в UI укажите URL `http://careerpilot-ollama:11434`.
+2.  **Cloud (OpenAI):** Использует системный API-ключ, указанный в `.env` (переменная `OPENAI_API_KEY`).
+3.  **Bring Your Own Key:** Позволяет пользователю ввести свой собственный ключ OpenAI прямо в UI.
 
-### Способ 2: Docker Compose
+### Запуск Ollama через Docker Compose
 
-1. Запустите Ollama сервис:
+1. Запустите сервис:
 ```bash
 docker compose --profile ai up -d ollama
 ```
 
-2. Загрузите модель (например, llama3):
+2. Загрузите модель:
 ```bash
 docker exec careerpilot-ollama ollama pull llama3
 ```
 
-3. В настройках приложения выберите режим AI: "Local".
+3. В настройках приложения (UI) выберите режим "Local" и убедитесь, что URL указан как `http://careerpilot-ollama:11434`.
 
 ## OAuth2
 

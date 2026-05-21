@@ -639,17 +639,18 @@ Response:
   "weeklyDigest": true,
   "interviewReminders": true,
   "aiProviderMode": "CLOUD",
-  "language": "ru"
+  "language": "ru",
+  "openAiApiKey": "sk-...",
+  "openAiModel": "gpt-4o",
+  "ollamaUrl": "http://localhost:11434",
+  "ollamaModel": "llama3"
 }
 ```
 
-### `PUT /preferences` — USED BY FRONTEND
-
-Target request: same shape as `GET /preferences` response.
-
 Allowed `aiProviderMode`: `LOCAL`, `CLOUD`, `BRING_YOUR_OWN_KEY`.
+New optional fields: `openAiApiKey`, `openAiModel`, `ollamaUrl`, `ollamaModel`.
 
-### `GET /notifications` — USED BY FRONTEND
+### `PUT /preferences` — USED BY FRONTEND
 
 Query params:
 

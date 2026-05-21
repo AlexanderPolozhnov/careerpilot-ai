@@ -5,7 +5,7 @@
 **Управление поиском работы как структурированным workflow — с AI-ассистентом, Kanban-бордом, задачами, собеседованиями и аналитикой.**
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-careerpilot--ai-violet?style=for-the-badge&logo=vercel)](https://careerpilot-ai-sigma.vercel.app)
-[![Release](https://img.shields.io/badge/Release-v0.7.0--alpha-orange?style=for-the-badge)](https://github.com/AlexanderPolozhnov/careerpilot-ai/releases)
+[![Release](https://img.shields.io/badge/Release-v0.8.0--alpha-orange?style=for-the-badge)](https://github.com/AlexanderPolozhnov/careerpilot-ai/releases)
 [![Java](https://img.shields.io/badge/Java-21-red?style=for-the-badge&logo=openjdk)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-green?style=for-the-badge&logo=springboot)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-TypeScript-blue?style=for-the-badge&logo=react)](https://react.dev/)

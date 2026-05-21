@@ -1328,3 +1328,28 @@ ight-0 Рё mt-2 РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕРіРѕ РІС‹СЂР°РІРЅРёРІР°РЅРёСЏ Рё РѕС‚СЃС
 
 **РЎС‚Р°С‚СѓСЃ:** Р“РѕС‚РѕРІРѕ. AI-Р°СЃСЃРёСЃС‚РµРЅС‚ С‚РµРїРµСЂСЊ РІС‹РґР°РµС‚ РїСЂРѕС„РµСЃСЃРёРѕРЅР°Р»СЊРЅРѕ РѕС„РѕСЂРјР»РµРЅРЅС‹Рµ, Р»РѕРєР°Р»РёР·РѕРІР°РЅРЅС‹Рµ Рё Р»РµРіРєРѕ С‡РёС‚Р°РµРјС‹Рµ РёРЅСЃР°Р№С‚С‹.
 
+\
+## Update 2026-05-22 — Dynamic AI Provider Configuration
+
+**Сделано:**
+Реализована возможность динамического переключения ИИ-провайдеров (LOCAL, CLOUD, BRING_YOUR_OWN_KEY) через UI настроек с сохранением персональных ключей и URL в базе данных.
+
+**Backend:**
+- **Flyway Migration V25:** Добавлены колонки open_ai_api_key, open_ai_model, ollama_url, ollama_model в таблицу user_preferences.
+- **Preferences Module:** Обновлены PreferencesEntity, PreferencesRequest и PreferencesResponse для поддержки новых полей. Реализован маппинг в PreferencesServiceImpl.
+- **Provider Factory:** Внедрен LlmProviderFactory для динамического выбора реализации LlmProvider на основе настроек пользователя.
+- **OpenAI Integration:** Реализован OpenAiLlmProvider для работы с GPT-4o (через системный ключ или ключ пользователя).
+- **Ollama Improvement:** OllamaLlmProvider теперь использует URL и модель из настроек пользователя, что упрощает работу в Docker (например, http://careerpilot-ollama:11434).
+- **Fallback Logic:** Общая логика заглушек вынесена в FallbackLlmGenerator.
+
+**Frontend:**
+- **Settings UI:** На странице настроек добавлены динамические поля ввода для каждого режима ИИ (API Key, URL, Model).
+- **Validation:** Схема Zod расширена для поддержки новых опциональных полей.
+- **I18n:** Добавлены переводы для новых настроек и Docker-подсказки.
+
+**Верификация:**
+- **Backend Tests:** Пройдены тесты AiServiceImplTest (7 тестов).
+- **Frontend Build:** Сборка 
+pm run build прошла успешно.
+
+**Статус:** Реализовано, верифицировано. Пользователь теперь полностью управляет ИИ-движком без правки .env файлов.\

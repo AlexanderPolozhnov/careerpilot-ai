@@ -224,6 +224,18 @@ docker compose --profile ai up -d ollama
 docker compose config
 ```
 
+## AI Provider Architecture
+
+Начиная с `v0.8.0-alpha`, проект поддерживает динамическое переключение ИИ-провайдеров без перезапуска бэкенда.
+
+Ключевые компоненты:
+- **`LlmProviderFactory`**: Фабрика, которая выбирает реализацию `LlmProvider` на основе настроек текущего пользователя (`AiProviderMode`).
+- **`OllamaLlmProvider`**: Локальный провайдер. Параметры (URL и Модель) теперь берутся из `PreferencesEntity` пользователя.
+- **`OpenAiLlmProvider`**: Облачный провайдер. Может использовать либо системный API ключ (из `.env`), либо персональный ключ пользователя (`BRING_YOUR_OWN_KEY`).
+- **`FallbackLlmGenerator`**: Компонент, обеспечивающий качественные mock-ответы при недоступности внешних сервисов или отсутствии ключей.
+
+Для настройки через UI: `Settings -> AI Assistant Settings`.
+
 ## Frontend-backend contract
 
 Главный контракт находится здесь:

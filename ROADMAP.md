@@ -125,6 +125,19 @@ Roadmap отражает текущее состояние перед первы
 
 ## Releases
 
+### v0.8.0-alpha — Dynamic AI Provider Configuration
+
+**Статус:** Выпущено (Текущая версия).
+
+Что нового:
+- [x] **Dynamic AI Switching:** переключение между LOCAL (Ollama), CLOUD (System OpenAI) и BRING_YOUR_OWN_KEY в реальном времени.
+- [x] **Personalized Settings:** сохранение API-ключей и кастомных URL для Ollama в профиле пользователя.
+- [x] **Provider Factory:** архитектурный переход на фабрику провайдеров на бэкенде.
+- [x] **Docker-ready AI:** возможность легко менять URL для Ollama прямо в UI для корректной работы внутри контейнеров.
+
+**Тег:** `v0.8.0-alpha`
+**Дата:** 2026-05-22
+
 ### v0.7.0-alpha — Advanced AI Prompting & Markdown
 
 **Статус:** Выпущено (Текущая версия).

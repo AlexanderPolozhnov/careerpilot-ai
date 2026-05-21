@@ -12,6 +12,8 @@ import com.alexanderpolozhnov.careerpilot.ai.response.AiResponse;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResultDto;
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
+import com.alexanderpolozhnov.careerpilot.preferences.entity.AiProviderMode;
+import com.alexanderpolozhnov.careerpilot.preferences.entity.PreferencesEntity;
 import com.alexanderpolozhnov.careerpilot.preferences.repository.PreferencesRepository;
 import com.alexanderpolozhnov.careerpilot.resume.service.ResumeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +37,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AiServiceImplTest {
 
+    @Mock
+    private LlmProviderFactory llmProviderFactory;
     @Mock
     private LlmProvider llmProvider;
     @Mock
@@ -64,6 +68,13 @@ class AiServiceImplTest {
         otherUser = new AuthEntity();
         otherUser.setId(UUID.randomUUID());
         otherUser.setEmail("other@example.com");
+
+        PreferencesEntity defaultPreferences = new PreferencesEntity();
+        defaultPreferences.setUserId(currentUser.getId());
+        defaultPreferences.setAiProviderMode(AiProviderMode.LOCAL);
+        org.mockito.Mockito.lenient().when(preferencesRepository.findByUserId(currentUser.getId()))
+                .thenReturn(java.util.Optional.of(defaultPreferences));
+        org.mockito.Mockito.lenient().when(llmProviderFactory.getProvider(AiProviderMode.LOCAL)).thenReturn(llmProvider);
     }
 
     @Test
@@ -72,7 +83,7 @@ class AiServiceImplTest {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
         when(aiResultCacheService.getCachedResult(any(), any(), any(), any()))
                 .thenAnswer(invocation -> ((java.util.function.Supplier<LlmResponse>) invocation.getArgument(3)).get());
-        when(llmProvider.generate(any())).thenReturn(new LlmResponse("## Analysis result", 100, 500L, null));
+        when(llmProvider.generate(any(), any())).thenReturn(new LlmResponse("## Analysis result", 100, 500L, null));
         AiEntity saved = makeEntity(currentUser, "VACANCY_ANALYSIS", vacancyId);
         when(aiRepository.save(any(AiEntity.class))).thenReturn(saved);
         AiResultDto dto = makeDto(saved);
@@ -148,7 +159,7 @@ class AiServiceImplTest {
     @Test
     void interviewQuestionsUsesDefaultCountWhenNull() {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
-        when(llmProvider.generate(any())).thenReturn(new LlmResponse("## Questions", 50, 300L, null));
+        when(llmProvider.generate(any(), any())).thenReturn(new LlmResponse("## Questions", 50, 300L, null));
         AiEntity saved = makeEntity(currentUser, "INTERVIEW_QUESTIONS", null);
         when(aiRepository.save(any(AiEntity.class))).thenReturn(saved);
         AiResultDto dto = makeDto(saved);
@@ -164,7 +175,7 @@ class AiServiceImplTest {
     @Test
     void coverLetterDoesNotUseCache() {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
-        when(llmProvider.generate(any())).thenReturn(new LlmResponse("## Cover Letter", 80, 400L, null));
+        when(llmProvider.generate(any(), any())).thenReturn(new LlmResponse("## Cover Letter", 80, 400L, null));
         AiEntity saved = makeEntity(currentUser, "COVER_LETTER", null);
         when(aiRepository.save(any(AiEntity.class))).thenReturn(saved);
         AiResultDto dto = makeDto(saved);

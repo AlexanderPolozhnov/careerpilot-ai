@@ -34,4 +34,16 @@ public class PreferencesEntity extends BaseAuditableEntity {
 
     @Column(name = "application_status_notifications", nullable = false)
     private boolean applicationStatusNotifications = true;
+
+    @Column(name = "open_ai_api_key", length = 255)
+    private String openAiApiKey;
+
+    @Column(name = "open_ai_model", length = 50)
+    private String openAiModel = "gpt-4o";
+
+    @Column(name = "ollama_url", length = 255)
+    private String ollamaUrl = "http://localhost:11434";
+
+    @Column(name = "ollama_model", length = 50)
+    private String ollamaModel = "llama3";
 }

@@ -591,6 +591,12 @@
     "aiProviderCustomDescriptionFull": "Use your own API key",
     "aiProviderDescription": "Mode placeholders for backend integration.",
     "aiProviderTodo": "Backend TODO: store this in user preferences and apply to AI endpoints.",
+    "openAiApiKey": "OpenAI API Key",
+    "openAiModel": "OpenAI Model",
+    "ollamaUrl": "Ollama URL",
+    "ollamaModel": "Ollama Model",
+    "ollamaDockerTip": "Run Ollama via Docker: docker run -d -p 11434:11434 ollama/ollama && docker exec -it ollama ollama pull llama3",
+    "cloudModeTip": "Using system API key. AI features run in cloud mode.",
     "recentNotifications": "Recent notifications",
     "notificationTypes": {
       "INTERVIEW_REMINDER": "Interview Reminder",

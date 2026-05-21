@@ -14,6 +14,7 @@ import com.alexanderpolozhnov.careerpilot.ai.response.AiResponse;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResultDto;
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
+import com.alexanderpolozhnov.careerpilot.preferences.entity.PreferencesEntity;
 import com.alexanderpolozhnov.careerpilot.preferences.repository.PreferencesRepository;
 import com.alexanderpolozhnov.careerpilot.resume.response.ResumeResponse;
 import com.alexanderpolozhnov.careerpilot.resume.service.ResumeService;
@@ -31,7 +32,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AiServiceImpl implements AiService {
 
-    private final LlmProvider llmProvider;
+    private final LlmProviderFactory llmProviderFactory;
     private final AiRepository aiRepository;
     private final AiMapper aiMapper;
     private final CurrentUserResolver currentUserResolver;
@@ -45,6 +46,15 @@ public class AiServiceImpl implements AiService {
                 .orElse("en");
     }
 
+    private PreferencesEntity getUserPreferences(AuthEntity user) {
+        return preferencesRepository.findByUserId(user.getId())
+                .orElseGet(() -> {
+                    PreferencesEntity prefs = new PreferencesEntity();
+                    prefs.setUserId(user.getId());
+                    return preferencesRepository.save(prefs);
+                });
+    }
+
     @Override
     public AiResponse analyzeVacancy(AiAnalyzeVacancyRequest request) {
         AuthEntity user = currentUserResolver.resolveRequired();
@@ -54,11 +64,13 @@ public class AiServiceImpl implements AiService {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
+        PreferencesEntity preferences = getUserPreferences(user);
         LlmResponse llmResponse = aiResultCacheService.getCachedResult(
                 "VACANCY_ANALYSIS",
                 request.vacancyId(),
                 textHash,
-                () -> llmProvider.generate("VACANCY_ANALYSIS\n" + prompt));
+                () -> llmProviderFactory.getProvider(preferences.getAiProviderMode())
+                        .generate("VACANCY_ANALYSIS\n" + prompt, preferences));
         stopWatch.stop();
 
         Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
@@ -97,11 +109,13 @@ public class AiServiceImpl implements AiService {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
+        PreferencesEntity preferences = getUserPreferences(user);
         LlmResponse llmResponse = aiResultCacheService.getCachedResult(
                 "RESUME_MATCH",
                 request.vacancyId(),
                 textHash,
-                () -> llmProvider.generate("RESUME_MATCH\n" + prompt));
+                () -> llmProviderFactory.getProvider(preferences.getAiProviderMode())
+                        .generate("RESUME_MATCH\n" + prompt, preferences));
         stopWatch.stop();
 
         Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
@@ -141,7 +155,9 @@ public class AiServiceImpl implements AiService {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        LlmResponse llmResponse = llmProvider.generate("COVER_LETTER\n" + prompt);
+        PreferencesEntity preferences = getUserPreferences(user);
+        LlmResponse llmResponse = llmProviderFactory.getProvider(preferences.getAiProviderMode())
+                .generate("COVER_LETTER\n" + prompt, preferences);
         stopWatch.stop();
 
         Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
@@ -163,7 +179,9 @@ public class AiServiceImpl implements AiService {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        LlmResponse llmResponse = llmProvider.generate("INTERVIEW_QUESTIONS\n" + prompt);
+        PreferencesEntity preferences = getUserPreferences(user);
+        LlmResponse llmResponse = llmProviderFactory.getProvider(preferences.getAiProviderMode())
+                .generate("INTERVIEW_QUESTIONS\n" + prompt, preferences);
         stopWatch.stop();
 
         Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
@@ -201,7 +219,9 @@ public class AiServiceImpl implements AiService {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        LlmResponse llmResponse = llmProvider.generate("RESUME_GENERATION\n" + prompt);
+        PreferencesEntity preferences = getUserPreferences(user);
+        LlmResponse llmResponse = llmProviderFactory.getProvider(preferences.getAiProviderMode())
+                .generate("RESUME_GENERATION\n" + prompt, preferences);
         stopWatch.stop();
 
         Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
@@ -266,41 +286,54 @@ public class AiServiceImpl implements AiService {
 
     private String buildVacancyAnalysisPrompt(AiAnalyzeVacancyRequest req, String language) {
         String template = getPromptTemplate("VACANCY_ANALYSIS", language);
-        return template.replace("{{VACANCY_TEXT}}", req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
+        return template.replace("{{VACANCY_TEXT}}",
+                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
     }
 
     private String buildResumeMatchPrompt(AiResumeMatchRequest req, String language) {
         String template = getPromptTemplate("RESUME_MATCH", language);
-        template = template.replace("{{VACANCY_TEXT}}", req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
-        template = template.replace("{{RESUME_TEXT}}", req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
+        template = template.replace("{{VACANCY_TEXT}}",
+                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
+        template = template.replace("{{RESUME_TEXT}}",
+                req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
         return template;
     }
 
     private String buildCoverLetterPrompt(AiCoverLetterRequest req, String language) {
         String template = getPromptTemplate("COVER_LETTER", language);
         template = template.replace("{{TONE}}", req.tone() != null ? req.tone() : "PROFESSIONAL");
-        template = template.replace("{{VACANCY_TEXT}}", req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
-        template = template.replace("{{RESUME_TEXT}}", req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
-        template = template.replace("{{ADDITIONAL_CONTEXT}}", req.additionalContext() != null && !req.additionalContext().isBlank() ? req.additionalContext() : "(None)");
+        template = template.replace("{{VACANCY_TEXT}}",
+                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
+        template = template.replace("{{RESUME_TEXT}}",
+                req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
+        template = template.replace("{{ADDITIONAL_CONTEXT}}",
+                req.additionalContext() != null && !req.additionalContext().isBlank() ? req.additionalContext()
+                        : "(None)");
         return template;
     }
 
     private String buildInterviewQuestionsPrompt(AiInterviewQuestionsRequest req, String language) {
         String template = getPromptTemplate("INTERVIEW_QUESTIONS", language);
         String count = req.count() != null ? String.valueOf(req.count()) : "5";
-        String focusArea = req.focusArea() != null && !req.focusArea().isBlank() ? req.focusArea() : "Provide a balanced mix of technical deep-dives, system design, and behavioral questions tailored to the role.";
-        
+        String focusArea = req.focusArea() != null && !req.focusArea().isBlank() ? req.focusArea()
+                : "Provide a balanced mix of technical deep-dives, system design, and behavioral questions tailored to the role.";
+
         template = template.replace("{{COUNT}}", count);
         template = template.replace("{{FOCUS_AREA}}", focusArea);
-        template = template.replace("{{VACANCY_TEXT}}", req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
+        template = template.replace("{{VACANCY_TEXT}}",
+                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
         return template;
     }
 
     private String buildResumeGenerationPrompt(AiResumeGenerationRequest req, String language) {
         String template = getPromptTemplate("RESUME_GENERATION", language);
-        template = template.replace("{{VACANCY_TEXT}}", req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
-        template = template.replace("{{ADDITIONAL_CONTEXT}}", req.additionalContext() != null && !req.additionalContext().isBlank() ? req.additionalContext() : "(None)");
-        template = template.replace("{{RESUME_TEXT}}", req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
+        template = template.replace("{{VACANCY_TEXT}}",
+                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
+        template = template.replace("{{ADDITIONAL_CONTEXT}}",
+                req.additionalContext() != null && !req.additionalContext().isBlank() ? req.additionalContext()
+                        : "(None)");
+        template = template.replace("{{RESUME_TEXT}}",
+                req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
         return template;
     }
 }

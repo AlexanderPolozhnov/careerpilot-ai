@@ -20,6 +20,10 @@ export interface PreferencesResponse {
     applicationStatusNotifications: boolean
     aiProviderMode: 'LOCAL' | 'CLOUD' | 'BRING_YOUR_OWN_KEY'
     language: string
+    openAiApiKey?: string
+    openAiModel?: string
+    ollamaUrl?: string
+    ollamaModel?: string
 }
 
 export interface PreferencesRequest {
@@ -29,6 +33,10 @@ export interface PreferencesRequest {
     applicationStatusNotifications: boolean
     aiProviderMode: 'LOCAL' | 'CLOUD' | 'BRING_YOUR_OWN_KEY'
     language: string
+    openAiApiKey?: string
+    openAiModel?: string
+    ollamaUrl?: string
+    ollamaModel?: string
 }
 
 export interface DeleteAccountRequest {
@@ -43,6 +51,10 @@ const mockPreferences: PreferencesResponse = {
     applicationStatusNotifications: true,
     aiProviderMode: 'LOCAL',
     language: 'en',
+    openAiApiKey: '',
+    openAiModel: 'gpt-4o',
+    ollamaUrl: 'http://localhost:11434',
+    ollamaModel: 'llama3'
 }
 
 export const settingsService = {
