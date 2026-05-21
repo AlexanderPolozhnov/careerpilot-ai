@@ -61,6 +61,7 @@ Thumbs.db
 
 # AI assistant local rules
 **/.aiassistant/
+.windsurf/
 private-notes/
 docs/tasks/
 backend/.aiassistant/rules/.aiignore

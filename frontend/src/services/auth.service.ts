@@ -65,6 +65,23 @@ export const authService = {
 
   updatePassword: (data: UpdatePasswordRequest): Promise<void> =>
     USE_MOCKS ? Promise.resolve() : api.post<void>('/auth/password', data),
+
+  validateToken: async (token: string): Promise<void> => {
+    if (USE_MOCKS) {
+      return Promise.resolve()
+    }
+    const originalToken = localStorage.getItem('cp_access_token')
+    setToken(token)
+    try {
+      await api.get<User>('/auth/me')
+    } catch (error) {
+      clearToken()
+      if (originalToken) {
+        setToken(originalToken)
+      }
+      throw error
+    }
+  },
 }
 
 

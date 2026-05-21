@@ -13,6 +13,7 @@ export interface AuthContextValue {
   forgotPassword: (email: string) => Promise<void>
   resetPassword: (token: string, password: string) => Promise<void>
   logout: () => void
+  handleOAuthCallback: (token: string) => Promise<void>
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -69,6 +70,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     queryClient.clear()
   }, [queryClient])
 
+  const handleOAuthCallback = useCallback(async (token: string) => {
+    await authService.validateToken(token)
+    setToken(token)
+    const user = await authService.me()
+    queryClient.setQueryData(['auth', 'me'], user)
+  }, [queryClient])
+
 
   return (
     <AuthContext.Provider
@@ -81,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         forgotPassword,
         resetPassword,
         logout,
+        handleOAuthCallback,
       }}
     >
       {children}

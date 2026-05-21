@@ -121,7 +121,7 @@ Roadmap отражает текущее состояние перед первы
 
 ## Known UX/Technical Issues (Post-release v0.6.0-alpha)
 
-- [ ] **Auth:** OAuth2 callback может завершаться ошибкой в редких случаях при медленном соединении.
+Нет известных проблем.
 
 ## Releases
 

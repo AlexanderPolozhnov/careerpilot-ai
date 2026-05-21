@@ -142,6 +142,17 @@
     },
     "footerDetails": "Secure · Your data only · Powered by local AI"
   },
+  "oauth": {
+    "callbackTitle": "Completing authentication",
+    "callbackLoading": "Finishing social network login...",
+    "callbackSuccess": "Login successful! Redirecting...",
+    "errorMissingToken": "Authorization token is missing",
+    "errorInvalidToken": "Authorization token is invalid",
+    "errorSessionExpired": "Session expired. Please try logging in again",
+    "errorNetwork": "Network error. Check your connection",
+    "retryButton": "Try again",
+    "backToLogin": "Back to login page"
+  },
   "auth": {
     "login": "Login",
     "register": "Register",

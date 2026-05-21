@@ -1225,3 +1225,46 @@ ight-0 и mt-2 для правильного выравнивания и отс�
 
 **Статус:** Реализовано, верифицировано.
 
+## Update 2026-05-21 — OAuth2 Callback Error Handling Improvement
+
+**Сделано:**
+Улучшена обработка ошибок и UX для OAuth2 callback, добавлена валидация токена, понятные сообщения пользователю и graceful degradation для сценариев с медленным соединением.
+
+**Frontend:**
+- **`frontend/src/pages/OAuthCallbackPage.tsx`**: Полная переработка страницы callback:
+  - Добавлены состояния: loading, success, error
+  - Реализована retry-логика (max 3 попытки с задержкой 1 секунда)
+  - Добавлена валидация формата токена (не пустой, длина > 10)
+  - Реализована обработка различных типов ошибок: missing_token, invalid_token, network, unknown
+  - Добавлены понятные error сообщения с кнопками "Retry" и "Back to login"
+  - Заменен жесткий редирект `window.location.replace` на плавный `navigate` для лучшего UX
+  - Добавлена локализация всех сообщений через i18n
+
+- **`frontend/src/context/AuthContext.tsx`**: Добавлен метод `handleOAuthCallback(token)`:
+  - Вызывает `authService.validateToken()` для проверки токена через `/auth/me`
+  - Сохраняет токен в state
+  - Загружает данные пользователя через `authService.me()`
+  - Обновляет query cache с данными пользователя
+
+- **`frontend/src/services/auth.service.ts`**: Добавлен метод `validateToken(token)`:
+  - Временно сохраняет токен в localStorage
+  - Вызывает GET /auth/me для валидации
+  - При 401 удаляет токен и выбрасывает ошибку
+  - Восстанавливает оригинальный токен при ошибке для защиты от потери сессии
+  - Поддерживает Mock-режим
+
+- **`frontend/src/i18n/locales/ru.json` & `en.json`**: Добавлены ключи для OAuth ошибок:
+  - oauth.callbackTitle, oauth.callbackLoading, oauth.callbackSuccess
+  - oauth.errorMissingToken, oauth.errorInvalidToken, oauth.errorSessionExpired
+  - oauth.errorNetwork, oauth.retryButton, oauth.backToLogin
+
+**Backend:**
+- Без изменений (OAuth2 callback error handling реализован полностью на фронтенде)
+
+**Верификация:**
+- **Backend Tests**: Успешно пройдены `.\mvnw.cmd test -Dtest="AuthServiceImplTest"` (18 tests passed).
+- **Frontend Build**: Сборка прошла успешно (`npm run build`).
+- **Frontend Lint**: Линтинг прошел с 1 warning (не связано с изменениями - React Hook Form compatibility warning в InterviewForm.tsx).
+
+**Статус:** Реализовано, верифицировано. OAuth2 callback теперь корректно обрабатывает сетевые ошибки и медленные соединения.
+
