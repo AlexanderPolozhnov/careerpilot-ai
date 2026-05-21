@@ -8,9 +8,9 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME}?currentSchema=careerpilot
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:careerpilot_ai}?currentSchema=careerpilot
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -58,8 +58,8 @@ spring:
   mail:
     host: ${MAIL_HOST:smtp.mailtrap.io}
     port: ${MAIL_PORT:2525}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: ${MAIL_USERNAME:placeholder}
+    password: ${MAIL_PASSWORD:placeholder}
     properties:
       mail:
         smtp:

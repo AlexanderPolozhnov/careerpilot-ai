@@ -13,13 +13,16 @@ public class TestcontainersConfiguration {
 	@Bean
 	@ServiceConnection
 	PostgreSQLContainer<?> postgresContainer() {
-		return new PostgreSQLContainer<>(DockerImageName.parse("postgres:16-alpine"));
+		return new PostgreSQLContainer<>(DockerImageName.parse("postgres:16-alpine"))
+				.withStartupTimeout(java.time.Duration.ofMinutes(2));
 	}
 
 	@Bean
 	@ServiceConnection(name = "redis")
 	GenericContainer<?> redisContainer() {
-		return new GenericContainer<>(DockerImageName.parse("redis:7-alpine")).withExposedPorts(6379);
+		return new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
+				.withExposedPorts(6379)
+				.withStartupTimeout(java.time.Duration.ofMinutes(2));
 	}
 
 }

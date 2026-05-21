@@ -1,4 +1,8 @@
 spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/test
+    username: test
+    password: test
   mail:
     host: localhost
     port: 25
