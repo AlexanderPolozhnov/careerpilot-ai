@@ -5,6 +5,8 @@ import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.interview.entity.InterviewEntity;
 import com.alexanderpolozhnov.careerpilot.interview.entity.InterviewType;
 import com.alexanderpolozhnov.careerpilot.interview.repository.InterviewRepository;
+import com.alexanderpolozhnov.careerpilot.notification.entity.NotificationType;
+import com.alexanderpolozhnov.careerpilot.notification.repository.NotificationRepository;
 import com.alexanderpolozhnov.careerpilot.task.entity.TaskEntity;
 import com.alexanderpolozhnov.careerpilot.task.entity.TaskPriority;
 import com.alexanderpolozhnov.careerpilot.task.repository.TaskRepository;
@@ -36,6 +38,9 @@ class ReminderSchedulerTest {
 
     @Mock
     private NotificationCreator notificationCreator;
+
+    @Mock
+    private NotificationRepository notificationRepository;
 
     @InjectMocks
     private ReminderScheduler reminderScheduler;
@@ -73,33 +78,47 @@ class ReminderSchedulerTest {
 
         // Enable scheduler by default in tests
         ReflectionTestUtils.setField(reminderScheduler, "schedulerEnabled", true);
+
+        // Default empty responses for all repository calls to avoid NPEs
+        lenient().when(interviewRepository.findAllByScheduledAtBetweenAndReminderSentFalse(any(), any()))
+                .thenReturn(List.of());
+        lenient().when(taskRepository.findAllByDueAtBetweenAndDoneFalseAndReminderSentFalse(any(), any()))
+                .thenReturn(List.of());
+        lenient().when(interviewRepository.findAllByScheduledAtBetweenAndReminderSentTrue(any(), any()))
+                .thenReturn(List.of());
+        lenient().when(taskRepository.findAllByDueAtBetweenAndDoneFalseAndReminderSentTrue(any(), any()))
+                .thenReturn(List.of());
     }
 
     @Test
     void checkAndSendRemindersProcessesInterviews() {
-        when(interviewRepository.findAllByScheduledAtBetweenAndReminderSentFalse(any(Instant.class),
+        when(interviewRepository.findAllByScheduledAtBetweenAndReminderSentFalse(
+                argThat(t -> t.isAfter(Instant.now().minusSeconds(30))),
                 any(Instant.class)))
                 .thenReturn(List.of(interview));
         when(interviewRepository.save(any(InterviewEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         reminderScheduler.checkAndSendReminders();
 
-        verify(notificationCreator).createNotification(eq(user), any(), any(), any());
-        verify(interviewRepository).save(interview);
+        verify(notificationCreator).createNotification(eq(user), eq(NotificationType.INTERVIEW_REMINDER), 
+                anyString(), anyString(), eq(interview.getId()), eq("INTERVIEW"), eq(false));
+        verify(interviewRepository, times(1)).save(interview);
         assertThat(interview.isReminderSent()).isTrue();
     }
 
     @Test
     void checkAndSendRemindersProcessesTasks() {
-        when(taskRepository.findAllByDueAtBetweenAndDoneFalseAndReminderSentFalse(any(Instant.class),
+        when(taskRepository.findAllByDueAtBetweenAndDoneFalseAndReminderSentFalse(
+                argThat(t -> t.isAfter(Instant.now().minusSeconds(30))),
                 any(Instant.class)))
                 .thenReturn(List.of(task));
         when(taskRepository.save(any(TaskEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         reminderScheduler.checkAndSendReminders();
 
-        verify(notificationCreator).createNotification(eq(user), any(), any(), any());
-        verify(taskRepository).save(task);
+        verify(notificationCreator).createNotification(eq(user), eq(NotificationType.TASK_DUE), 
+                anyString(), anyString(), eq(task.getId()), eq("TASK"), eq(false));
+        verify(taskRepository, times(1)).save(task);
         assertThat(task.isReminderSent()).isTrue();
     }
 
@@ -111,40 +130,71 @@ class ReminderSchedulerTest {
 
         verify(interviewRepository, never()).findAllByScheduledAtBetweenAndReminderSentFalse(any(), any());
         verify(taskRepository, never()).findAllByDueAtBetweenAndDoneFalseAndReminderSentFalse(any(), any());
-        verify(notificationCreator, never()).createNotification(any(), any(), any(), any());
+        verify(notificationCreator, never()).createNotification(any(), any(), any(), any(), any(), any(), anyBoolean());
     }
 
     @Test
     void checkAndSendRemindersHandlesEmptyLists() {
-        when(interviewRepository.findAllByScheduledAtBetweenAndReminderSentFalse(any(Instant.class),
-                any(Instant.class)))
-                .thenReturn(List.of());
-        when(taskRepository.findAllByDueAtBetweenAndDoneFalseAndReminderSentFalse(any(Instant.class),
-                any(Instant.class)))
-                .thenReturn(List.of());
-
+        // Already mocked to return empty lists in setUp
         reminderScheduler.checkAndSendReminders();
 
-        verify(notificationCreator, never()).createNotification(any(), any(), any(), any());
+        verify(notificationCreator, never()).createNotification(any(), any(), any(), any(), any(), any(), anyBoolean());
     }
 
     @Test
     void checkAndSendRemindersContinuesOnError() {
-        when(interviewRepository.findAllByScheduledAtBetweenAndReminderSentFalse(any(Instant.class),
-                any(Instant.class)))
+        // 1. Upcoming interview (will fail save)
+        when(interviewRepository.findAllByScheduledAtBetweenAndReminderSentFalse(
+                argThat(t -> t.isAfter(Instant.now().minusSeconds(30))), any()))
                 .thenReturn(List.of(interview));
         when(interviewRepository.save(any(InterviewEntity.class))).thenThrow(new RuntimeException("Test error"));
 
-        when(taskRepository.findAllByDueAtBetweenAndDoneFalseAndReminderSentFalse(any(Instant.class),
-                any(Instant.class)))
+        // 2. Upcoming task
+        when(taskRepository.findAllByDueAtBetweenAndDoneFalseAndReminderSentFalse(
+                argThat(t -> t.isAfter(Instant.now().minusSeconds(30))), any()))
                 .thenReturn(List.of(task));
         when(taskRepository.save(any(TaskEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         reminderScheduler.checkAndSendReminders();
 
         // Should continue to process tasks even if interview save fails
-        // createNotification is called for both interview (before save fails) and task
-        verify(notificationCreator, times(2)).createNotification(eq(user), any(), any(), any());
+        verify(notificationCreator, atLeast(2)).createNotification(any(), any(), any(), any(), any(), any(), anyBoolean());
+        verify(taskRepository).save(task);
+    }
+
+    @Test
+    void checkAndSendRemindersProcessesOverdueItems() {
+        // Mock overdue interview (start date is before now - 6 days)
+        when(interviewRepository.findAllByScheduledAtBetweenAndReminderSentFalse(
+                argThat(t -> t.isBefore(Instant.now().minus(Duration.ofDays(6)))),
+                any(Instant.class)))
+                .thenReturn(List.of(interview));
+        
+        // Mock overdue task
+        when(taskRepository.findAllByDueAtBetweenAndDoneFalseAndReminderSentFalse(
+                argThat(t -> t.isBefore(Instant.now().minus(Duration.ofDays(6)))),
+                any(Instant.class)))
+                .thenReturn(List.of(task));
+
+        // Mock items with existing reminders that should be marked as read
+        when(interviewRepository.findAllByScheduledAtBetweenAndReminderSentTrue(any(), any()))
+                .thenReturn(List.of(interview));
+        when(taskRepository.findAllByDueAtBetweenAndDoneFalseAndReminderSentTrue(any(), any()))
+                .thenReturn(List.of(task));
+
+        reminderScheduler.checkAndSendReminders();
+
+        // Verify MISSED/OVERDUE notifications created
+        verify(notificationCreator).createNotification(eq(user), eq(NotificationType.INTERVIEW_MISSED), 
+                anyString(), anyString(), eq(interview.getId()), eq("INTERVIEW"), eq(true));
+        verify(notificationCreator).createNotification(eq(user), eq(NotificationType.TASK_OVERDUE), 
+                anyString(), anyString(), eq(task.getId()), eq("TASK"), eq(true));
+        
+        // Verify marked as read in repository
+        verify(notificationRepository).markAsReadByReference(interview.getId(), "INTERVIEW");
+        verify(notificationRepository).markAsReadByReference(task.getId(), "TASK");
+        
+        verify(interviewRepository).save(interview);
         verify(taskRepository).save(task);
     }
 }

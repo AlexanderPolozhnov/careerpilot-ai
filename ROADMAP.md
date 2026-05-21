@@ -131,21 +131,22 @@ Roadmap отражает текущее состояние перед первы
 
 ## Releases
 
-### v0.5.0-alpha — Quality, Testing & Metrics (In Progress)
+### v0.5.0-alpha — Observability & Quality Hardening
 
-**Статус:** В разработке.
+**Статус:** Выпущено.
 
 Что нового:
 - [x] **AI Observability:** сбор метрик (latency, tokens, error tracking) для всех AI-запросов.
 - [x] **AI Assistant UX Polish:** замена ручного ввода ID вакансии на выбор из списка с автозаполнением описания.
-- [x] **Scheduled Notifications:** фоновый процесс для создания напоминаний о дедлайнах задач и времени собеседований (In-app + Email).
+- [x] **Scheduled Notifications:** фоновый процесс для создания напоминаний о дедлайнах задач и собеседований (In-app + Email).
 - [x] **Settings Integration:** полная синхронизация настроек (Preferences) с бэкендом, включая новый тумблер управления напоминаниями о задачах (`taskReminders`).
 - [x] **Vacancy Archive Endpoint:** реализован `PATCH /api/vacancies/{id}/archive` (закрыт последний `TODO` из контракта Vacancies).
 - [x] **Vacancy UI Polish:** добавлена кнопка архивации, кнопка возврата из архива и визуальное "затухание" (dimming) для архивированных вакансий в списке.
 - [x] **Secure Account Deletion:** реализован защищенный процесс удаления аккаунта с подтверждением пароля и email.
-- [ ] Frontend Testing: внедрение Vitest + React Testing Library (в процессе).
-- [ ] Backend IT Stability: стабилизация тестов с Testcontainers (в процессе).
-- [ ] Deployment: полная конфигурация Docker Compose для production-like запуска.
+- [x] **CI/CD Fixes:** исправлены ошибки типизации TS в AuthContext и обновлены тесты ReminderScheduler.
+
+**Тег:** `v0.5.0-alpha`
+**Дата:** 2026-05-21
 
 ### v0.4.0-alpha — Email, Real Analytics & Tags
 
