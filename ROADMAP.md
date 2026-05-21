@@ -125,6 +125,20 @@ Roadmap отражает текущее состояние перед первы
 
 ## Releases
 
+### v0.7.0-alpha — Advanced AI Prompting & Markdown
+
+**Статус:** Выпущено (Текущая версия).
+
+Что нового:
+- [x] **Advanced Prompt Engineering:** Внедрение экспертных персон (recruiter, ATS, coach) и строгих правил форматирования для всех AI-инструментов.
+- [x] **External Prompt Templates:** Перенос промптов в локализованные Markdown-файлы (`prompts/ru/*.md`) для легкого редактирования и 100% перевода заголовков.
+- [x] **Markdown Rendering:** Полноценное отображение форматированных ответов ИИ на фронтенде с помощью `react-markdown`.
+- [x] **Clean History Previews:** Автоматическая очистка Markdown-разметки в компактном списке истории запросов.
+- [x] **Language Integration:** Автоматическое определение языка ответа на основе `Preferences` пользователя.
+
+**Тег:** `v0.7.0-alpha`
+**Дата:** 2026-05-22
+
 ### v0.6.0-alpha — Test Automation & Stability
 
 **Статус:** Выпущено (Текущая версия).

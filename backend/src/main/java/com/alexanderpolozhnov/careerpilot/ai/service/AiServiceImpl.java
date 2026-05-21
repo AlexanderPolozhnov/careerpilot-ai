@@ -14,12 +14,16 @@ import com.alexanderpolozhnov.careerpilot.ai.response.AiResponse;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResultDto;
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
+import com.alexanderpolozhnov.careerpilot.preferences.repository.PreferencesRepository;
 import com.alexanderpolozhnov.careerpilot.resume.response.ResumeResponse;
 import com.alexanderpolozhnov.careerpilot.resume.service.ResumeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,11 +37,19 @@ public class AiServiceImpl implements AiService {
     private final CurrentUserResolver currentUserResolver;
     private final AiResultCacheService aiResultCacheService;
     private final ResumeService resumeService;
+    private final PreferencesRepository preferencesRepository;
+
+    private String getUserLanguage(AuthEntity user) {
+        return preferencesRepository.findByUserId(user.getId())
+                .map(prefs -> prefs.getLanguage())
+                .orElse("en");
+    }
 
     @Override
     public AiResponse analyzeVacancy(AiAnalyzeVacancyRequest request) {
         AuthEntity user = currentUserResolver.resolveRequired();
-        String prompt = buildVacancyAnalysisPrompt(request);
+        String language = getUserLanguage(user);
+        String prompt = buildVacancyAnalysisPrompt(request, language);
         String textHash = Integer.toHexString(prompt.hashCode());
 
         StopWatch stopWatch = new StopWatch();
@@ -63,6 +75,7 @@ public class AiServiceImpl implements AiService {
     @Override
     public AiResponse resumeMatch(AiResumeMatchRequest request) {
         AuthEntity user = currentUserResolver.resolveRequired();
+        String language = getUserLanguage(user);
 
         // Fetch resume text if resumeId is provided and resumeText is not
         String resumeText = request.resumeText();
@@ -79,7 +92,7 @@ public class AiServiceImpl implements AiService {
                 request.resumeId(),
                 resumeText != null ? resumeText : "");
 
-        String prompt = buildResumeMatchPrompt(finalRequest);
+        String prompt = buildResumeMatchPrompt(finalRequest, language);
         String textHash = Integer.toHexString(prompt.hashCode());
 
         StopWatch stopWatch = new StopWatch();
@@ -105,6 +118,7 @@ public class AiServiceImpl implements AiService {
     @Override
     public AiResponse coverLetter(AiCoverLetterRequest request) {
         AuthEntity user = currentUserResolver.resolveRequired();
+        String language = getUserLanguage(user);
 
         // Fetch resume text if resumeId is provided and resumeText is not
         String resumeText = request.resumeText();
@@ -123,7 +137,7 @@ public class AiServiceImpl implements AiService {
                 request.tone(),
                 request.additionalContext());
 
-        String prompt = buildCoverLetterPrompt(finalRequest);
+        String prompt = buildCoverLetterPrompt(finalRequest, language);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -144,7 +158,8 @@ public class AiServiceImpl implements AiService {
     @Override
     public AiResponse interviewQuestions(AiInterviewQuestionsRequest request) {
         AuthEntity user = currentUserResolver.resolveRequired();
-        String prompt = buildInterviewQuestionsPrompt(request);
+        String language = getUserLanguage(user);
+        String prompt = buildInterviewQuestionsPrompt(request, language);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -165,6 +180,7 @@ public class AiServiceImpl implements AiService {
     @Override
     public AiResponse generateResume(AiResumeGenerationRequest request) {
         AuthEntity user = currentUserResolver.resolveRequired();
+        String language = getUserLanguage(user);
 
         // Fetch resume text if resumeId is provided and resumeText is not
         String resumeText = request.resumeText();
@@ -181,7 +197,7 @@ public class AiServiceImpl implements AiService {
                 resumeText != null ? resumeText : "",
                 request.additionalContext());
 
-        String prompt = buildResumeGenerationPrompt(finalRequest);
+        String prompt = buildResumeGenerationPrompt(finalRequest, language);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -236,87 +252,55 @@ public class AiServiceImpl implements AiService {
         return aiRepository.save(entity);
     }
 
-    private String buildVacancyAnalysisPrompt(AiAnalyzeVacancyRequest req) {
-        StringBuilder sb = new StringBuilder("Analyze the following vacancy");
-        if (req.vacancyId() != null)
-            sb.append(" (id: ").append(req.vacancyId()).append(")");
-        sb.append(":\n");
-        if (req.vacancyText() != null && !req.vacancyText().isBlank())
-            sb.append(req.vacancyText());
-        return sb.toString();
+    private String getPromptTemplate(String type, String language) {
+        try {
+            ClassPathResource resource = new ClassPathResource("prompts/" + language + "/" + type + ".md");
+            if (!resource.exists()) {
+                resource = new ClassPathResource("prompts/en/" + type + ".md");
+            }
+            return resource.getContentAsString(StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load prompt template for " + type, e);
+        }
     }
 
-    private String buildResumeMatchPrompt(AiResumeMatchRequest req) {
-        StringBuilder sb = new StringBuilder("Match resume against vacancy");
-        if (req.vacancyId() != null)
-            sb.append(" (id: ").append(req.vacancyId()).append(")");
-        sb.append(":\n");
-        if (req.vacancyText() != null && !req.vacancyText().isBlank()) {
-            sb.append("Vacancy: ").append(req.vacancyText()).append("\n");
-        }
-        if (req.resumeText() != null && !req.resumeText().isBlank()) {
-            sb.append("Resume: ").append(req.resumeText());
-        }
-        return sb.toString();
+    private String buildVacancyAnalysisPrompt(AiAnalyzeVacancyRequest req, String language) {
+        String template = getPromptTemplate("VACANCY_ANALYSIS", language);
+        return template.replace("{{VACANCY_TEXT}}", req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
     }
 
-    private String buildCoverLetterPrompt(AiCoverLetterRequest req) {
-        StringBuilder sb = new StringBuilder("Generate a cover letter");
-        if (req.tone() != null)
-            sb.append(" with ").append(req.tone()).append(" tone");
-        if (req.vacancyId() != null)
-            sb.append(" for vacancy (id: ").append(req.vacancyId()).append(")");
-        sb.append(":\n");
-        if (req.vacancyText() != null && !req.vacancyText().isBlank()) {
-            sb.append("Vacancy: ").append(req.vacancyText()).append("\n");
-        }
-        if (req.resumeText() != null && !req.resumeText().isBlank()) {
-            sb.append("Resume: ").append(req.resumeText()).append("\n");
-        }
-        if (req.additionalContext() != null && !req.additionalContext().isBlank()) {
-            sb.append("Additional context: ").append(req.additionalContext());
-        }
-        return sb.toString();
+    private String buildResumeMatchPrompt(AiResumeMatchRequest req, String language) {
+        String template = getPromptTemplate("RESUME_MATCH", language);
+        template = template.replace("{{VACANCY_TEXT}}", req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
+        template = template.replace("{{RESUME_TEXT}}", req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
+        return template;
     }
 
-    private String buildInterviewQuestionsPrompt(AiInterviewQuestionsRequest req) {
-        int count = req.count() != null ? req.count() : 5;
-        StringBuilder sb = new StringBuilder("Generate ").append(count).append(" interview questions");
-        if (req.focusArea() != null && !req.focusArea().isBlank()) {
-            sb.append(" focused on: ").append(req.focusArea());
-        }
-        if (req.vacancyId() != null)
-            sb.append(" for vacancy (id: ").append(req.vacancyId()).append(")");
-        sb.append(":\n");
-        if (req.vacancyText() != null && !req.vacancyText().isBlank()) {
-            sb.append(req.vacancyText());
-        }
-        return sb.toString();
+    private String buildCoverLetterPrompt(AiCoverLetterRequest req, String language) {
+        String template = getPromptTemplate("COVER_LETTER", language);
+        template = template.replace("{{TONE}}", req.tone() != null ? req.tone() : "PROFESSIONAL");
+        template = template.replace("{{VACANCY_TEXT}}", req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
+        template = template.replace("{{RESUME_TEXT}}", req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
+        template = template.replace("{{ADDITIONAL_CONTEXT}}", req.additionalContext() != null && !req.additionalContext().isBlank() ? req.additionalContext() : "(None)");
+        return template;
     }
 
-    private String buildResumeGenerationPrompt(AiResumeGenerationRequest req) {
-        StringBuilder sb = new StringBuilder("Improve and optimize the following resume");
-        if (req.vacancyId() != null) {
-            sb.append(" to tailor it specifically for vacancy (id: ").append(req.vacancyId()).append(")");
-        }
-        sb.append(":\n\n");
+    private String buildInterviewQuestionsPrompt(AiInterviewQuestionsRequest req, String language) {
+        String template = getPromptTemplate("INTERVIEW_QUESTIONS", language);
+        String count = req.count() != null ? String.valueOf(req.count()) : "5";
+        String focusArea = req.focusArea() != null && !req.focusArea().isBlank() ? req.focusArea() : "Provide a balanced mix of technical deep-dives, system design, and behavioral questions tailored to the role.";
+        
+        template = template.replace("{{COUNT}}", count);
+        template = template.replace("{{FOCUS_AREA}}", focusArea);
+        template = template.replace("{{VACANCY_TEXT}}", req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
+        return template;
+    }
 
-        sb.append("### Original Resume:\n").append(req.resumeText()).append("\n\n");
-
-        if (req.vacancyText() != null && !req.vacancyText().isBlank()) {
-            sb.append("### Target Vacancy Requirements:\n").append(req.vacancyText()).append("\n\n");
-        }
-
-        if (req.additionalContext() != null && !req.additionalContext().isBlank()) {
-            sb.append("### User Instructions & Context:\n").append(req.additionalContext()).append("\n\n");
-        }
-
-        sb.append("### Instructions for AI:\n")
-                .append("1. Rewrite and polish bullet points using high-impact action verbs and measurable metrics.\n")
-                .append("2. Group skills logically and highlight matches with the target vacancy if provided.\n")
-                .append("3. Fix grammatical issues and improve clarity while keeping the original experience truth-based.\n")
-                .append("4. Present the response in beautifully formatted Markdown, highlighting changed sections.\n");
-
-        return sb.toString();
+    private String buildResumeGenerationPrompt(AiResumeGenerationRequest req, String language) {
+        String template = getPromptTemplate("RESUME_GENERATION", language);
+        template = template.replace("{{VACANCY_TEXT}}", req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
+        template = template.replace("{{ADDITIONAL_CONTEXT}}", req.additionalContext() != null && !req.additionalContext().isBlank() ? req.additionalContext() : "(None)");
+        template = template.replace("{{RESUME_TEXT}}", req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
+        return template;
     }
 }

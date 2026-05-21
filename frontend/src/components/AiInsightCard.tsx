@@ -1,7 +1,14 @@
-import { useTranslation } from 'react-i18next'
-import { ChevronRight, Sparkles, Search, FileText, PenLine, MessageSquare, Clock, Zap, FileEdit } from 'lucide-react'
+import { Sparkles, Search, FileText, PenLine, MessageSquare, Clock, Zap, FileEdit } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import { cn, formatRelative } from '@/lib/utils'
 import type { AiResult } from '@/types'
+
+function formatDuration(ms: number): string {
+  if (ms >= 1000) {
+    return `${(ms / 1000).toFixed(2)}с`
+  }
+  return `${ms}мс`
+}
 
 const typeIcons: Record<string, typeof Sparkles> = {
   VACANCY_ANALYSIS: Search,
@@ -26,8 +33,8 @@ interface AiInsightCardProps {
 }
 
 export function AiInsightCard({ result, compact, className }: AiInsightCardProps) {
-  const { t } = useTranslation()
-  const preview = (result.result ?? '').slice(0, compact ? 100 : 400)
+  const cleanText = (result.result ?? '').replace(/[#*`_~]/g, '').trim()
+  const preview = cleanText.slice(0, compact ? 100 : 400)
   const Icon = typeIcons[result.type] || Sparkles
   const colorClass = typeColors[result.type] || 'text-violet-400 bg-violet-500/10'
 
@@ -43,7 +50,7 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
           <Icon className={cn('h-4 w-4', colorClass.split(' ')[0])} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 mb-1">
             <span
               className={cn(
                 'text-[10px] font-semibold uppercase tracking-wider',
@@ -52,23 +59,25 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
             >
               {result.type.replace(/_/g, ' ')}
             </span>
-            <span className="text-[10px] text-white/20 truncate">{formatRelative(result.createdAt)}</span>
-            {(result.latencyMs !== undefined || result.tokensUsed !== undefined) && (
-              <div className="flex items-center gap-1.5 ml-auto text-[10px] font-medium text-white/30">
-                {result.latencyMs !== undefined && (
-                  <span className="flex items-center gap-0.5 text-violet-400">
-                    <Clock className="h-2.5 w-2.5" />
-                    {result.latencyMs}ms
-                  </span>
-                )}
-                {result.tokensUsed !== undefined && result.tokensUsed > 0 && (
-                  <span className="flex items-center gap-0.5 border-l border-white/10 pl-1.5">
-                    <Zap className="h-2.5 w-2.5" />
-                    {result.tokensUsed}
-                  </span>
-                )}
-              </div>
-            )}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              {(result.latencyMs !== undefined || result.tokensUsed !== undefined) && (
+                <div className="flex items-center gap-1.5 text-[10px] font-medium text-white/30">
+                  {result.latencyMs !== undefined && (
+                    <span className="flex items-center gap-0.5 text-violet-400">
+                      <Clock className="h-2.5 w-2.5" />
+                      {formatDuration(result.latencyMs)}
+                    </span>
+                  )}
+                  {result.tokensUsed !== undefined && result.tokensUsed > 0 && (
+                    <span className="flex items-center gap-0.5 border-l border-white/10 pl-1.5">
+                      <Zap className="h-2.5 w-2.5" />
+                      {result.tokensUsed}
+                    </span>
+                  )}
+                </div>
+              )}
+              <span className="text-[10px] text-white/20 whitespace-nowrap">{formatRelative(result.createdAt)}</span>
+            </div>
           </div>
           <p className="text-xs text-white/50 leading-relaxed line-clamp-2">
             {preview}
@@ -100,7 +109,7 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-3 mb-2">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-2">
             <span
               className={cn(
                 'text-xs font-semibold uppercase tracking-wider',
@@ -109,13 +118,13 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
             >
               {result.type.replace(/_/g, ' ')}
             </span>
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               {(result.latencyMs !== undefined || result.tokensUsed !== undefined) && (
                 <div className="flex items-center gap-3 text-[10px] font-medium text-white/20 uppercase tracking-widest">
                   {result.latencyMs !== undefined && (
                     <span className="flex items-center gap-1 text-violet-400">
                       <Clock className="h-3 w-3" />
-                      {result.latencyMs}ms
+                      {formatDuration(result.latencyMs)}
                     </span>
                   )}
                   {result.tokensUsed !== undefined && result.tokensUsed > 0 && (
@@ -126,21 +135,15 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
                   )}
                 </div>
               )}
-              <span className="text-xs text-white/25">
+              <span className="text-xs text-white/25 whitespace-nowrap">
                 {formatRelative(result.createdAt)}
               </span>
             </div>
           </div>
 
-          <p className="text-sm text-white/60 leading-relaxed line-clamp-4">
-            {preview}
-            {(result.result ?? '').length > preview.length ? '...' : ''}
-          </p>
-
-          <button className="mt-4 flex items-center gap-1.5 text-xs font-medium text-violet-400 opacity-0 transition-all duration-200 group-hover:opacity-100 hover:text-violet-300">
-            {t('aiAssistant.viewFullAnalysis')}
-            <ChevronRight className="h-3 w-3" />
-          </button>
+          <div className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap max-h-[260px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&>h1]:text-xl [&>h1]:font-bold [&>h1]:mb-4 [&>h1]:text-white [&>h2]:text-lg [&>h2]:font-bold [&>h2]:mt-6 [&>h2]:mb-3 [&>h2]:text-white [&>h3]:text-base [&>h3]:font-semibold [&>h3]:mt-5 [&>h3]:mb-2 [&>h3]:text-white [&>p]:mb-4 last:[&>p]:mb-0 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-4 last:[&>ul]:mb-0 [&>ul>li]:mb-1.5 last:[&>ul>li]:mb-0 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-4 last:[&>ol]:mb-0 [&>ol>li]:mb-1.5 last:[&>ol>li]:mb-0 [&_strong]:text-white [&_strong]:font-semibold [&_a]:text-violet-400 [&_a]:underline">
+            <ReactMarkdown>{result.result || ''}</ReactMarkdown>
+          </div>
         </div>
       </div>
     </div>

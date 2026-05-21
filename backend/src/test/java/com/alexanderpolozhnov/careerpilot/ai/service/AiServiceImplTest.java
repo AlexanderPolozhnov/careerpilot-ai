@@ -12,6 +12,8 @@ import com.alexanderpolozhnov.careerpilot.ai.response.AiResponse;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResultDto;
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
+import com.alexanderpolozhnov.careerpilot.preferences.repository.PreferencesRepository;
+import com.alexanderpolozhnov.careerpilot.resume.service.ResumeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +45,10 @@ class AiServiceImplTest {
     private CurrentUserResolver currentUserResolver;
     @Mock
     private AiResultCacheService aiResultCacheService;
+    @Mock
+    private ResumeService resumeService;
+    @Mock
+    private PreferencesRepository preferencesRepository;
     @InjectMocks
     private AiServiceImpl aiService;
 

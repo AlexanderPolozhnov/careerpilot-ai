@@ -625,6 +625,7 @@ export default function AiAssistantPage() {
                         key={r.id}
                         className="group relative rounded-xl border border-white/[0.04] bg-white/[0.02] p-4 transition-all duration-200 hover:border-white/[0.08] hover:bg-white/[0.04] cursor-pointer"
                         style={{ animationDelay: `${idx * 80}ms` }}
+                        onClick={() => setResult(r)}
                       >
                         <AiInsightCard result={r} compact />
                         <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/10 transition-all group-hover:text-white/30 group-hover:translate-x-0.5" />

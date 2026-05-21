@@ -249,3 +249,29 @@
 .stagger-children>*:nth-child(6) {
     animation-delay: 250ms;
 }
+
+/* ─── Custom Scrollbar ─────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(76 61 138 / 0.6);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(124 92 191 / 0.9);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(76 61 138 / 0.6) transparent;
+}

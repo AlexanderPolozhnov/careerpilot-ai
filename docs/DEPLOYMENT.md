@@ -31,7 +31,23 @@ docker compose up -d --build
 
 ## AI (Ollama)
 
-Для локального AI через Ollama:
+Есть два способа запустить Ollama:
+
+### Способ 1: Нативная установка (рекомендуется для Windows)
+
+1. Скачайте установщик с https://ollama.com/download
+2. Установите Ollama (автоматически запустится как сервис на `http://localhost:11434`)
+3. Загрузите модель:
+```powershell
+ollama pull llama3
+```
+4. В `backend/.env` убедитесь, что настройки:
+```
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3
+```
+
+### Способ 2: Docker Compose
 
 1. Запустите Ollama сервис:
 ```bash
