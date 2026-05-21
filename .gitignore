@@ -62,6 +62,7 @@ Thumbs.db
 # AI assistant local rules
 **/.aiassistant/
 private-notes/
+tasks/
 backend/.aiassistant/rules/.aiignore
 
 # Test output files

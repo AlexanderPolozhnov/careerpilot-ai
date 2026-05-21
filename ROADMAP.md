@@ -39,7 +39,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] i18n foundation: `ru` и `en` locale files, `LanguageSwitcher`, persistence в `localStorage`.
 - [x] `DashboardPage`: заменить direct mock imports на backend-backed service.
 - [x] `SettingsPage`: заменить mock/local-only поведение на backend-backed settings/preferences service.
-- [ ] Frontend test runner и базовые component/service tests.
+- [x] Frontend test runner и базовые component/service tests.
 
 ## Phase 3 — Backend Foundation
 
@@ -103,7 +103,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Backend validation/error handling finalized.
 - [ ] Testcontainers integration tests stable in local Docker environment.
 - [x] Frontend error boundaries.
-- [ ] Frontend tests.
+- [x] Frontend tests.
 - [x] CI pipeline with GitHub Actions.
 - [x] **Frontend Linting & Build Hardening:** полное устранение ошибок ESLint и предупреждений рендеринга.
 - [x] Full-stack Docker Compose setup.
@@ -116,7 +116,7 @@ Roadmap отражает текущее состояние перед первы
 ## Current Development Focus
 
 - [ ] Стабилизация интеграционных тестов с Testcontainers на бэкенде.
-- [ ] Настройка фреймворка тестирования компонентов и сервисов на фронтенде.
+- [x] Настройка фреймворка тестирования компонентов и сервисов на фронтенде.
 
 ## Known UX/Technical Issues (Post-release v0.2.0-alpha)
 

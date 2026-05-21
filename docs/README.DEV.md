@@ -117,6 +117,18 @@ Lint:
 pnpm run lint
 ```
 
+Тесты:
+
+```bash
+pnpm run test
+```
+
+Интерактивный режим (watch):
+
+```bash
+pnpm run test:watch
+```
+
 Сборка production-версии:
 
 ```bash
@@ -253,9 +265,8 @@ docker compose config
 
 ## Known limitations
 
-- Frontend test runner пока не настроен (только lint/build).
 - Backend интеграционные тесты с Testcontainers требуют доступный Docker runtime.
-- CI через GitHub Actions настроен и работает (frontend lint/build + backend unit-тесты).
+- CI через GitHub Actions настроен и работает (frontend lint/test/build + backend unit-тесты).
 - OAuth2 в Docker требует регистрации `http://localhost/login/oauth2/code/{provider}` в настройках GitHub/Google OAuth App (callback URL через nginx, порт 80).
 
 ## Merge readiness
