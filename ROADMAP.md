@@ -116,7 +116,7 @@ Roadmap отражает текущее состояние перед первы
 ## Current Development Focus
 
 - [ ] Интеграция AI для генерации текстов резюме.
-- [ ] Оптимизация производительности фронтенда (Code Splitting).
+- [x] Оптимизация производительности фронтенда (Code Splitting).
 
 ## Known UX/Technical Issues (Post-release v0.6.0-alpha)
 

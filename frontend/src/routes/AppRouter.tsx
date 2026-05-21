@@ -1,22 +1,25 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AppLayout } from '../components/AppLayout'
 import { useAuth } from '../context/useAuth'
-import LandingPage from '../pages/LandingPage'
-import AuthPages from '../pages/AuthPages'
-import OAuthCallbackPage from '../pages/OAuthCallbackPage'
-import DashboardPage from '../pages/DashboardPage'
-import VacanciesPage from '../pages/VacanciesPage'
-import VacancyDetailPage from '../pages/VacancyDetailPage'
-import ApplicationsPage from '../pages/ApplicationsPage'
-import TasksPage from '../pages/TasksPage'
-import InterviewsPage from '../pages/InterviewsPage'
-import CompaniesPage from '../pages/CompaniesPage'
-import AiAssistantPage from '../pages/AiAssistantPage'
-import AnalyticsPage from '../pages/AnalyticsPage'
-import SettingsPage from '../pages/SettingsPage'
 import { LoadingState } from '@/components/LoadingState'
+
+// Динамические импорты страниц (Code Splitting)
+const LandingPage = lazy(() => import('../pages/LandingPage'))
+const AuthPages = lazy(() => import('../pages/AuthPages'))
+const OAuthCallbackPage = lazy(() => import('../pages/OAuthCallbackPage'))
+const DashboardPage = lazy(() => import('../pages/DashboardPage'))
+const VacanciesPage = lazy(() => import('../pages/VacanciesPage'))
+const VacancyDetailPage = lazy(() => import('../pages/VacancyDetailPage'))
+const ApplicationsPage = lazy(() => import('../pages/ApplicationsPage'))
+const TasksPage = lazy(() => import('../pages/TasksPage'))
+const InterviewsPage = lazy(() => import('../pages/InterviewsPage'))
+const CompaniesPage = lazy(() => import('../pages/CompaniesPage'))
+const AiAssistantPage = lazy(() => import('../pages/AiAssistantPage'))
+const AnalyticsPage = lazy(() => import('../pages/AnalyticsPage'))
+const SettingsPage = lazy(() => import('../pages/SettingsPage'))
 
 function ProtectedRoute({ children }: { children: ReactElement }) {
   const { t } = useTranslation()
@@ -34,37 +37,41 @@ function ProtectedRoute({ children }: { children: ReactElement }) {
 }
 
 export function AppRouter() {
+  const { t } = useTranslation()
+
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/auth/login" element={<AuthPages mode="login" />} />
-      <Route path="/auth/register" element={<AuthPages mode="register" />} />
-      <Route path="/auth/forgot-password" element={<AuthPages mode="forgot-password" />} />
-      <Route path="/auth/reset-password" element={<AuthPages mode="reset-password" />} />
-      <Route path="/auth/callback" element={<OAuthCallbackPage />} />
+    <Suspense fallback={<LoadingState message={t('common.loading')} className="min-h-[50vh] flex items-center justify-center" />}>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/auth/login" element={<AuthPages mode="login" />} />
+        <Route path="/auth/register" element={<AuthPages mode="register" />} />
+        <Route path="/auth/forgot-password" element={<AuthPages mode="forgot-password" />} />
+        <Route path="/auth/reset-password" element={<AuthPages mode="reset-password" />} />
+        <Route path="/auth/callback" element={<OAuthCallbackPage />} />
 
-      <Route
-        path="/app"
-        element={
-          <ProtectedRoute>
-            <AppLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="vacancies" element={<VacanciesPage />} />
-        <Route path="vacancies/:id" element={<VacancyDetailPage />} />
-        <Route path="applications" element={<ApplicationsPage />} />
-        <Route path="tasks" element={<TasksPage />} />
-        <Route path="interviews" element={<InterviewsPage />} />
-        <Route path="companies" element={<CompaniesPage />} />
-        <Route path="ai-assistant" element={<AiAssistantPage />} />
-        <Route path="analytics" element={<AnalyticsPage />} />
-        <Route path="settings" element={<SettingsPage />} />
-      </Route>
+        <Route
+          path="/app"
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="vacancies" element={<VacanciesPage />} />
+          <Route path="vacancies/:id" element={<VacancyDetailPage />} />
+          <Route path="applications" element={<ApplicationsPage />} />
+          <Route path="tasks" element={<TasksPage />} />
+          <Route path="interviews" element={<InterviewsPage />} />
+          <Route path="companies" element={<CompaniesPage />} />
+          <Route path="ai-assistant" element={<AiAssistantPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+        </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   )
 }
