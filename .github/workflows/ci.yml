@@ -47,5 +47,5 @@ jobs:
           distribution: "temurin"
           cache: maven
       - name: Run unit tests
-        run: ./mvnw test -Dtest="!CareerpilotAiApplicationTests"
+        run: ./mvnw test --no-transfer-progress
         working-directory: backend

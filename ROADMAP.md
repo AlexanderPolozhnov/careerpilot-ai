@@ -101,7 +101,7 @@ Roadmap отражает текущее состояние перед первы
 
 - [x] OpenAPI documentation reviewed against the frontend contract.
 - [x] Backend validation/error handling finalized.
-- [ ] Testcontainers integration tests stable in local Docker environment.
+- [x] Testcontainers integration tests stable in local Docker environment.
 - [x] Frontend error boundaries.
 - [x] Frontend tests.
 - [x] CI pipeline with GitHub Actions.
@@ -115,23 +115,27 @@ Roadmap отражает текущее состояние перед первы
 
 ## Current Development Focus
 
-- [ ] Стабилизация интеграционных тестов с Testcontainers на бэкенде.
-- [x] Настройка фреймворка тестирования компонентов и сервисов на фронтенде.
+- [ ] Интеграция AI для генерации текстов резюме.
+- [ ] Оптимизация производительности фронтенда (Code Splitting).
 
-## Known UX/Technical Issues (Post-release v0.2.0-alpha)
+## Known UX/Technical Issues (Post-release v0.6.0-alpha)
 
-- [x] **Analytics:** Нет перевода "Week" в блоке "Активность за неделю".
-- [x] **Analytics:** Отклик может отображаться в неправильной неделе.
-- [x] **Dashboard:** Неактивный dropdown аккаунта в header.
-- [x] **Global Search:** Непонятное назначение глобального поиска в header (рекомендуется убрать до реализации).
-- [x] **Sidebar:** Блок "Совет" показывает статичный текст.
-- [x] **Vacancies:** Неверные названия кнопок действий ("Сохранить" -> "В избранное").
-- [x] **Companies:** Нет UI для создания компании (хотя backend endpoint существует).
-- [x] **AI Assistant:** Новый анализ перезаписывает предыдущий, нет истории.
-- [x] **AI Assistant:** Лишняя кнопка "Сгенерировать" в панели AI на странице вакансии.
-- [x] **Vacancies:** Исправлено отображение компании (теперь приходят полные данные компании в объекте `company`).
+- [ ] **Auth:** OAuth2 callback может завершаться ошибкой в редких случаях при медленном соединении.
 
 ## Releases
+
+### v0.6.0-alpha — Test Automation & Stability
+
+**Статус:** Выпущено (Текущая версия).
+
+Что нового:
+- [x] **Backend Integration Testing:** Полностью стабилизированы интеграционные тесты с использованием Testcontainers (PostgreSQL, Redis).
+- [x] **Frontend Test Runner:** Развернута и настроена среда тестирования для React-приложения (Vitest / Testing Library).
+- [x] **Component & Service Coverage:** Добавлены базовые unit- и интеграционные тесты для критически важных фронтенд-сервисов (Auth, API Client) и UI-компонентов.
+- [x] **CI/CD Hardening:** GitHub Actions теперь полностью запускает весь тестовый сценарий для фронтенда и бэкенда при каждом Pull Request.
+
+**Тег:** `v0.6.0-alpha`
+**Дата:** 2026-05-21
 
 ### v0.5.0-alpha — Observability & Quality Hardening
 

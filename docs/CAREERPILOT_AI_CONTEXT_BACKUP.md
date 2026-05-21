@@ -1112,3 +1112,34 @@ ight-0 и mt-2 для правильного выравнивания и отс�
 - Обновлены ROADMAP.md (Current Development Focus), README.md и README.DEV.md (устаревшие фразы про отсутствие тестов).
 
 **Статус:** Реализовано, верифицировано, code review проведён.
+
+## Update 2026-05-21 — Testcontainers Integration Tests Stabilization
+
+**Сделано:**
+Стабилизированы интеграционные тесты с Testcontainers, устранены корневые причины падений при поднятии Spring-контекста в CI.
+
+**Backend:**
+- **application-test.yaml**: Создан файл `backend/src/test/resources/application-test.yaml` с dummy-настройками mail (localhost:25, test-user/test-pass) и отключенным scheduler (`reminder.scheduler.enabled=false`).
+- **CareerpilotAiApplicationTests**: Добавлены аннотации `@ActiveProfiles("test")` для активации test-профиля и `@MockBean EmailService` для предотвращения вызовов реального email-сервиса при запуске scheduler'а.
+- **TestcontainersConfiguration**: Зафиксированы версии docker-образов: `postgres:latest` → `postgres:16-alpine`, `redis:latest` → `redis:7-alpine` для стабильности в CI.
+
+**CI:**
+- **.github/workflows/ci.yml**: Убрано исключение `-Dtest="!CareerpilotAiApplicationTests"`, добавлен флаг `--no-transfer-progress` для уменьшения шума в логах CI.
+
+**Проверки:**
+- Локально: `.\mvnw.cmd test -Dtest="CareerpilotAiApplicationTests"` — BUILD SUCCESS, 1 test passed.
+- Локально: `.\mvnw.cmd test -Dtest="!CareerpilotAiApplicationTests"` — BUILD SUCCESS, 92 tests passed (no regression).
+
+**Статус:** Готово. Закрыт последний открытый пункт Phase 6 в ROADMAP.md.
+
+## Update 2026-05-21 — Release v0.6.0-alpha (Test Automation & Stability)
+
+**Сделано:**
+Выпущен релиз `v0.6.0-alpha`, сфокусированный на стабилизации инфраструктуры тестирования и внедрении автоматизированных проверок.
+
+**Key Changes:**
+- **Stability:** Полностью стабилизированы интеграционные тесты с Testcontainers (PostgreSQL, Redis).
+- **Testing:** Настроена среда Vitest/Testing Library для фронтенда, добавлены тесты для критических сервисов и компонентов.
+- **CI/CD:** GitHub Actions теперь выполняет полный цикл тестов (Backend + Frontend) для каждого PR.
+
+**Статус:** Выпущено. Текущая версия проекта — `v0.6.0-alpha`.

@@ -1,0 +1,16 @@
+spring:
+  mail:
+    host: localhost
+    port: 25
+    username: test-user
+    password: test-pass
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+reminder:
+  scheduler:
+    enabled: false
