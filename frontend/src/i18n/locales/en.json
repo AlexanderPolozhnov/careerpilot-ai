@@ -321,7 +321,12 @@
     "techInterview": "TECH INTERVIEW",
     "finalRound": "FINAL ROUND",
     "offer": "OFFER",
-    "rejected": "REJECTED"
+    "rejected": "REJECTED",
+    "timeline": {
+      "title": "Status History",
+      "noHistory": "No history recorded yet",
+      "initial": "Initial"
+    }
   },
   "interviews": {
     "title": "Interviews",

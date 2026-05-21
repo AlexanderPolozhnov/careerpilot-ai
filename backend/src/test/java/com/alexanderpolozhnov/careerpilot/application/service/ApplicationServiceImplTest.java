@@ -2,13 +2,18 @@ package com.alexanderpolozhnov.careerpilot.application.service;
 
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationEntity;
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationStatus;
+import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationStatusHistoryEntity;
 import com.alexanderpolozhnov.careerpilot.application.exception.ApplicationNotFoundException;
 import com.alexanderpolozhnov.careerpilot.application.repository.ApplicationRepository;
+import com.alexanderpolozhnov.careerpilot.application.repository.ApplicationStatusHistoryRepository;
 import com.alexanderpolozhnov.careerpilot.application.request.ApplicationRequest;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationResponse;
+import com.alexanderpolozhnov.careerpilot.application.response.ApplicationStatusHistoryResponse;
+import com.alexanderpolozhnov.careerpilot.application.response.ApplicationVacancyResponse;
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
+import com.alexanderpolozhnov.careerpilot.notification.service.NotificationCreator;
 import com.alexanderpolozhnov.careerpilot.vacancy.entity.VacancyEntity;
 import com.alexanderpolozhnov.careerpilot.vacancy.repository.VacancyRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +45,10 @@ class ApplicationServiceImplTest {
     private VacancyRepository vacancyRepository;
     @Mock
     private CurrentUserResolver currentUserResolver;
+    @Mock
+    private ApplicationStatusHistoryRepository historyRepository;
+    @Mock
+    private NotificationCreator notificationCreator;
     @InjectMocks
     private ApplicationServiceImpl applicationService;
 
@@ -76,30 +85,32 @@ class ApplicationServiceImplTest {
     void createApplicationForCurrentUser() {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
         when(vacancyRepository.findByIdAndUserId(vacancy.getId(), currentUser.getId()))
-            .thenReturn(Optional.of(vacancy));
+                .thenReturn(Optional.of(vacancy));
         when(applicationRepository.save(any(ApplicationEntity.class))).thenAnswer(inv -> {
             ApplicationEntity entity = inv.getArgument(0);
-            if (entity.getId() == null) entity.setId(UUID.randomUUID());
+            if (entity.getId() == null)
+                entity.setId(UUID.randomUUID());
             entity.setCreatedAt(Instant.now());
             entity.setUpdatedAt(Instant.now());
             return entity;
         });
 
         ApplicationRequest request = new ApplicationRequest(vacancy.getId(), ApplicationStatus.SAVED,
-            "Interesting role", null, null);
+                "Interesting role", null, null);
         ApplicationResponse response = applicationService.create(request);
 
         assertThat(response.vacancyId()).isEqualTo(vacancy.getId());
         assertThat(response.status()).isEqualTo(ApplicationStatus.SAVED);
         assertThat(response.notes()).isEqualTo("Interesting role");
         verify(applicationRepository).save(any(ApplicationEntity.class));
+        verify(historyRepository).save(any());
     }
 
     @Test
     void listReturnsOnlyOwnApplications() {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
         when(applicationRepository.findAllByUserId(any(UUID.class), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(List.of(application)));
+                .thenReturn(new PageImpl<>(List.of(application)));
 
         PagedResponse<ApplicationResponse> response = applicationService.list(0, 20, null, null);
 
@@ -127,7 +138,7 @@ class ApplicationServiceImplTest {
         when(applicationRepository.findById(application.getId())).thenReturn(Optional.of(application));
 
         assertThatThrownBy(() -> applicationService.getById(application.getId()))
-            .isInstanceOf(ApplicationNotFoundException.class);
+                .isInstanceOf(ApplicationNotFoundException.class);
     }
 
     @Test
@@ -137,7 +148,7 @@ class ApplicationServiceImplTest {
         when(applicationRepository.findById(unknownId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> applicationService.getById(unknownId))
-            .isInstanceOf(ApplicationNotFoundException.class);
+                .isInstanceOf(ApplicationNotFoundException.class);
     }
 
     @Test
@@ -145,11 +156,11 @@ class ApplicationServiceImplTest {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
         when(applicationRepository.findById(application.getId())).thenReturn(Optional.of(application));
         when(vacancyRepository.findByIdAndUserId(vacancy.getId(), currentUser.getId()))
-            .thenReturn(Optional.of(vacancy));
+                .thenReturn(Optional.of(vacancy));
         when(applicationRepository.save(any(ApplicationEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
         ApplicationRequest request = new ApplicationRequest(vacancy.getId(), ApplicationStatus.APPLIED, "Updated notes",
-            null, "resume-1");
+                null, "resume-1");
         ApplicationResponse response = applicationService.update(application.getId(), request);
 
         assertThat(response.status()).isEqualTo(ApplicationStatus.APPLIED);
@@ -165,5 +176,31 @@ class ApplicationServiceImplTest {
         applicationService.delete(application.getId());
 
         verify(applicationRepository).delete(application);
+    }
+
+    @Test
+    void updateStatusRecordsHistory() {
+        when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
+        when(applicationRepository.findById(application.getId())).thenReturn(Optional.of(application));
+        when(applicationRepository.save(any(ApplicationEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        applicationService.updateStatus(application.getId(),
+                new com.alexanderpolozhnov.careerpilot.application.request.UpdateApplicationStatusRequest("APPLIED"));
+
+        assertThat(application.getStatus()).isEqualTo(ApplicationStatus.APPLIED);
+        verify(historyRepository).save(any());
+    }
+
+    @Test
+    void getHistoryReturnsEntries() {
+        when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
+        when(applicationRepository.findById(application.getId())).thenReturn(Optional.of(application));
+        when(historyRepository.findAllByApplicationIdOrderByCreatedAtDesc(application.getId()))
+                .thenReturn(List.of());
+
+        var result = applicationService.getHistory(application.getId());
+
+        assertThat(result).isEmpty();
+        verify(historyRepository).findAllByApplicationIdOrderByCreatedAtDesc(application.getId());
     }
 }

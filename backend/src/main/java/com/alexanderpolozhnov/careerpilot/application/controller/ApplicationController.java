@@ -5,6 +5,7 @@ import com.alexanderpolozhnov.careerpilot.application.request.ApplicationRequest
 import com.alexanderpolozhnov.careerpilot.application.request.UpdateApplicationStatusRequest;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardItemResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationResponse;
+import com.alexanderpolozhnov.careerpilot.application.response.ApplicationStatusHistoryResponse;
 import com.alexanderpolozhnov.careerpilot.application.service.ApplicationService;
 import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import jakarta.validation.Valid;
@@ -35,11 +36,10 @@ public class ApplicationController {
 
     @GetMapping
     public PagedResponse<ApplicationResponse> list(
-        @Min(0) @RequestParam(defaultValue = "0") int page,
-        @Min(1) @Max(1000) @RequestParam(defaultValue = "20") int size,
-        @RequestParam(required = false) ApplicationStatus status,
-        @RequestParam(required = false) UUID vacancyId
-    ) {
+            @Min(0) @RequestParam(defaultValue = "0") int page,
+            @Min(1) @Max(1000) @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) ApplicationStatus status,
+            @RequestParam(required = false) UUID vacancyId) {
         return service.list(page, size, status, vacancyId);
     }
 
@@ -60,7 +60,7 @@ public class ApplicationController {
 
     @PatchMapping("/{id}/status")
     public ApplicationResponse updateStatus(@PathVariable UUID id,
-                                            @Valid @RequestBody UpdateApplicationStatusRequest request) {
+            @Valid @RequestBody UpdateApplicationStatusRequest request) {
         return service.updateStatus(id, request);
     }
 
@@ -68,5 +68,10 @@ public class ApplicationController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
         service.delete(id);
+    }
+
+    @GetMapping("/{id}/history")
+    public List<ApplicationStatusHistoryResponse> getHistory(@PathVariable UUID id) {
+        return service.getHistory(id);
     }
 }

@@ -948,6 +948,25 @@ ight-0 Рё mt-2 РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕРіРѕ РІ�
 
 **Статус:** Готово к публикации.
 
+## Update 2026-05-21 — Application Status History (Timeline)
+
+**Реализовано:**
+Добавлена возможность отслеживания и визуализации истории изменений статуса отклика (Timeline).
+
+**Backend:**
+- **Migration**: Создана миграция V23 для таблицы `application_status_history`.
+- **Domain**: Добавлены ApplicationStatusHistoryEntity, ApplicationStatusHistoryRepository, ApplicationStatusHistoryResponse.
+- **Service**: Обновлен ApplicationServiceImpl — добавлена запись в историю в методах create и updateStatus. Реализован метод getHistory.
+- **Controller**: Добавлен эндпоинт GET /api/applications/{id}/history.
+
+**Frontend:**
+- **Service**: Обновлен application.service.ts.
+- **Component**: Создан компонент ApplicationTimelineModal.tsx.
+- **Integration**: Обновлена страница ApplicationsPage.tsx, добавлена компактная кнопка запуска таймлайна.
+- **i18n**: Добавлены ключи локализации.
+
+**Статус:** Реализовано и верифицировано.
+
 ## Update 2026-05-21 — Application Status Notifications
 
 **Сделано:**

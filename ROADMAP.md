@@ -80,6 +80,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Manual API smoke scenarios documented and verified (`docs/SMOKE_SCENARIOS.md`).
 - [x] **Real Analytics Metrics:** расчет Skill Gaps и среднего времени до интервью на основе реальных данных.
 - [x] **Vacancy Tags UI:** поддержка добавления и редактирования тегов (навыков) в вакансиях.
+- [x] **Application Status History:** запись и визуализация таймлайна изменения статусов отклика (Timeline).
 - [x] **Analytics & UI Bugfixes:** исправлена ошибка LazyInitializationException, устранены React key warnings, оптимизирована загрузка данных (N+1).
 
 ## Phase 5 — AI Features

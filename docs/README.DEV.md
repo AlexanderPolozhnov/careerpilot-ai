@@ -262,7 +262,7 @@ docker compose config
 1. **Auth**: login, register, me, forgot-password, reset-password, refresh, logout, OAuth2 (GitHub, Google).
 2. **Vacancies**: полный CRUD с pagination, фильтрами, архивацией, загрузкой компании.
 3. **Companies**: полный CRUD с pagination, поиском.
-4. **Applications**: полный CRUD, Kanban-борд, status updates.
+4. **Applications**: полный CRUD, Kanban-борд, status updates, **Status History (Timeline)**.
 5. **Tasks**: полный CRUD, pagination, фильтрация, toggle done.
 6. **Interviews**: полный CRUD, pagination, фильтрация по типу/результату.
 7. **Resumes**: полный CRUD, транзакционная логика дефолтного резюме.

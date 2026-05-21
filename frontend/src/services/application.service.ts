@@ -2,6 +2,14 @@ import { api, buildQuery } from '@/lib/api-client'
 import type { Application, ApplicationStatus, PagedResponse } from '@/types'
 import { mockApplications } from '@/mock/data'
 
+export interface ApplicationStatusHistory {
+  id: string
+  fromStatus: ApplicationStatus | null
+  toStatus: ApplicationStatus
+  notes: string | null
+  createdAt: string
+}
+
 const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'false') === 'true'
 
 function toPaged<T>(items: T[], page = 0, size = 20): PagedResponse<T> {
@@ -117,4 +125,9 @@ export const applicationService = {
         }, {} as Record<ApplicationStatus, Application[]>),
       )
       : api.get<Record<ApplicationStatus, Application[]>>('/applications/board'),
+
+  getHistory: (id: string): Promise<ApplicationStatusHistory[]> =>
+    USE_MOCKS
+      ? Promise.resolve([])
+      : api.get<ApplicationStatusHistory[]>(`/applications/${id}/history`),
 }

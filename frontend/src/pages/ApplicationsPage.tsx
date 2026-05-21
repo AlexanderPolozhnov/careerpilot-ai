@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { EmptyState } from '@/components/EmptyState'
 import { LoadingState } from '@/components/LoadingState'
 import { ErrorState } from '@/components/ErrorState'
+import ApplicationTimelineModal from '@/components/ApplicationTimelineModal'
 import { applicationService } from '@/services/application.service'
 import type { Application, ApplicationStatus } from '@/types'
 import { cn } from '@/lib/utils'
@@ -104,7 +105,7 @@ function moveToDifferentStatus(
   }
 }
 
-function ApplicationCardBody({ application, isDragging = false }: { application: Application; isDragging?: boolean }) {
+function ApplicationCardBody({ application, isDragging = false, onTimelineClick }: { application: Application; isDragging?: boolean; onTimelineClick: () => void }) {
   const statusColors = STATUS_COLORS[application.status]
 
   return (
@@ -165,18 +166,35 @@ function ApplicationCardBody({ application, isDragging = false }: { application:
           {application.status.replace('_', ' ')}
         </div>
 
-        {/* Drag handle indicator */}
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-          <svg className="w-4 h-4 text-[#4a4e5a]" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z" />
-          </svg>
+        {/* Action buttons */}
+        <div className="flex items-center gap-2">
+          {/* Timeline button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onTimelineClick()
+            }}
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-[rgba(255,255,255,0.06)] text-[#6b7590] hover:text-[#8b8fa3]"
+            title="View history"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+
+          {/* Drag handle indicator */}
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg className="w-4 h-4 text-[#4a4e5a]" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z" />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
   )
 }
 
-function SortableApplicationCard({ application }: { application: Application }) {
+function SortableApplicationCard({ application, onTimelineClick }: { application: Application; onTimelineClick: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: application.id,
   })
@@ -197,53 +215,47 @@ function SortableApplicationCard({ application }: { application: Application }) 
       {...attributes}
       {...listeners}
     >
-      <ApplicationCardBody application={application} />
+      <ApplicationCardBody application={application} onTimelineClick={onTimelineClick} />
     </div>
   )
 }
 
-function ApplicationColumn({ status, items, label }: { status: ApplicationStatus; items: Application[]; label: string }) {
+function ApplicationColumn({ status, items, label, onTimelineClick }: { status: ApplicationStatus; items: Application[]; label: string; onTimelineClick: (id: string) => void }) {
   const { setNodeRef, isOver } = useDroppable({ id: status })
   const statusColors = STATUS_COLORS[status]
 
   return (
     <div key={status} className="w-[300px] shrink-0 snap-start flex flex-col">
       {/* Column header */}
-      <div className="flex items-center justify-between mb-3 px-1">
-        <div className="flex items-center gap-2">
-          <span className={cn('w-2 h-2 rounded-full', statusColors.dot)} />
-          <h3 className="text-[13px] font-semibold text-[#e8eaed] tracking-tight">{label}</h3>
-        </div>
-        <span className={cn(
-          'min-w-[22px] h-[22px] flex items-center justify-center px-1.5 rounded-md text-[11px] font-medium',
-          items.length > 0 ? 'bg-[rgba(255,255,255,0.06)] text-[#8b8fa3]' : 'text-[#4a4e5a]'
-        )}>
-          {items.length}
-        </span>
+      <div className={cn(
+        'flex items-center gap-2 px-3 py-2 mb-3 rounded-lg border',
+        statusColors.bg, statusColors.border, statusColors.text
+      )}>
+        <span className={cn('w-2 h-2 rounded-full', statusColors.dot)} />
+        <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
+        <span className="ml-auto text-[11px] font-medium opacity-70">{items.length}</span>
       </div>
 
-      {/* Column content */}
-      <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
-        <div
-          ref={setNodeRef}
-          className={cn(
-            'flex-1 space-y-2.5 min-h-[120px] rounded-xl p-2.5',
-            'bg-[rgba(255,255,255,0.01)] border border-[rgba(255,255,255,0.04)]',
-            'transition-all duration-200',
-            isOver && 'border-violet-500/40 bg-violet-500/5 shadow-[0_0_20px_-4px_rgba(139,92,246,0.15)]',
-          )}
-        >
-          {items.length === 0 ? (
-            <div className="flex items-center justify-center h-20 text-[12px] text-[#4a4e5a] italic">
-              Drop here
-            </div>
-          ) : (
-            items.map((application) => (
-              <SortableApplicationCard key={application.id} application={application} />
-            ))
-          )}
-        </div>
-      </SortableContext>
+      {/* Drop zone */}
+      <div
+        ref={setNodeRef}
+        className={cn(
+          'flex-1 rounded-xl border-2 border-dashed transition-colors',
+          isOver ? statusColors.bg : 'border-[rgba(255,255,255,0.08)]'
+        )}
+      >
+        <SortableContext items={items.map((a) => a.id)} strategy={verticalListSortingStrategy}>
+          <div className="space-y-2 p-2">
+            {items.map((application) => (
+              <SortableApplicationCard
+                key={application.id}
+                application={application}
+                onTimelineClick={() => onTimelineClick(application.id)}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </div>
     </div>
   )
 }
@@ -253,6 +265,7 @@ export default function ApplicationsPage() {
   const [query, setQuery] = useState('')
   const [dragError, setDragError] = useState<string | null>(null)
   const [activeApplicationId, setActiveApplicationId] = useState<string | null>(null)
+  const [timelineApplicationId, setTimelineApplicationId] = useState<string | null>(null)
   const queryClient = useQueryClient()
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
   const boardQuery = useQuery({
@@ -498,25 +511,32 @@ export default function ApplicationsPage() {
               {STATUS_ORDER.map((s) => {
                 const col = filteredBoard?.[s] ?? []
                 return (
-                  <ApplicationColumn key={s} status={s} items={col} label={t(STATUS_LABELS[s])} />
+                  <ApplicationColumn key={s} status={s} items={col} label={t(STATUS_LABELS[s])} onTimelineClick={setTimelineApplicationId} />
                 )
               })}
             </div>
           </div>
 
           {/* Drag overlay */}
-          <DragOverlay 
+          <DragOverlay
             modifiers={[snapCenterToCursor]}
             dropAnimation={{ duration: 180, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' }}
           >
             {activeApplication ? (
               <div className="w-[300px] p-3.5 rounded-xl bg-[#18181b] border border-violet-500/40 shadow-2xl shadow-violet-500/20">
-                <ApplicationCardBody application={activeApplication} isDragging />
+                <ApplicationCardBody application={activeApplication} isDragging onTimelineClick={() => { }} />
               </div>
             ) : null}
           </DragOverlay>
         </DndContext>
       )}
+
+      {/* Timeline Modal */}
+      <ApplicationTimelineModal
+        isOpen={!!timelineApplicationId}
+        onClose={() => setTimelineApplicationId(null)}
+        applicationId={timelineApplicationId}
+      />
     </section>
   )
 }

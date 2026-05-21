@@ -2,8 +2,10 @@ package com.alexanderpolozhnov.careerpilot.application.service;
 
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationEntity;
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationStatus;
+import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationStatusHistoryEntity;
 import com.alexanderpolozhnov.careerpilot.application.exception.ApplicationNotFoundException;
 import com.alexanderpolozhnov.careerpilot.application.repository.ApplicationRepository;
+import com.alexanderpolozhnov.careerpilot.application.repository.ApplicationStatusHistoryRepository;
 import com.alexanderpolozhnov.careerpilot.application.request.ApplicationRequest;
 import com.alexanderpolozhnov.careerpilot.application.request.UpdateApplicationStatusRequest;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardCompanyResponse;
@@ -11,6 +13,7 @@ import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardI
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardVacancyResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationCompanyResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationResponse;
+import com.alexanderpolozhnov.careerpilot.application.response.ApplicationStatusHistoryResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationVacancyResponse;
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
@@ -40,6 +43,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final VacancyRepository vacancyRepository;
     private final CurrentUserResolver currentUserResolver;
     private final NotificationCreator notificationCreator;
+    private final ApplicationStatusHistoryRepository historyRepository;
 
     @Override
     @Transactional
@@ -68,6 +72,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         ApplicationEntity saved = applicationRepository.save(entity);
+
+        // Record status change in history
+        recordStatusChange(saved, null, status, null);
+
         log.info("applications.create userId={} vacancyId={} id={}", userId, request.vacancyId(), saved.getId());
 
         // Create notification for application status change (only if status != SAVED)
@@ -189,6 +197,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public ApplicationResponse updateStatus(UUID id, UpdateApplicationStatusRequest request) {
         AuthEntity currentUser = currentUserResolver.resolveRequired();
         ApplicationEntity entity = findOwnedApplication(id);
+        ApplicationStatus oldStatus = entity.getStatus();
         ApplicationStatus newStatus = mapStatusFromFrontend(request.status());
 
         // Если статус становится "интервью" и это происходит впервые
@@ -198,6 +207,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         entity.setStatus(newStatus);
         ApplicationEntity saved = applicationRepository.save(entity);
+
+        // Record status change in history
+        recordStatusChange(saved, oldStatus, newStatus, null);
 
         // Create notification for application status change
         String vacancyTitle = saved.getVacancy().getTitle();
@@ -215,6 +227,31 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional
     public void delete(UUID id) {
         applicationRepository.delete(findOwnedApplication(id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ApplicationStatusHistoryResponse> getHistory(UUID id) {
+        findOwnedApplication(id); // Verify ownership
+        List<ApplicationStatusHistoryEntity> history = historyRepository.findAllByApplicationIdOrderByCreatedAtDesc(id);
+        return history.stream()
+                .map(h -> new ApplicationStatusHistoryResponse(
+                        h.getId(),
+                        h.getFromStatus(),
+                        h.getToStatus(),
+                        h.getNotes(),
+                        h.getCreatedAt()))
+                .toList();
+    }
+
+    private void recordStatusChange(ApplicationEntity application, ApplicationStatus from, ApplicationStatus to,
+            String notes) {
+        ApplicationStatusHistoryEntity history = new ApplicationStatusHistoryEntity();
+        history.setApplication(application);
+        history.setFromStatus(from);
+        history.setToStatus(to);
+        history.setNotes(notes);
+        historyRepository.save(history);
     }
 
     /**

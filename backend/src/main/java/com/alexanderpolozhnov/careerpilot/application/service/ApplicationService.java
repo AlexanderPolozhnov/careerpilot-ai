@@ -5,6 +5,7 @@ import com.alexanderpolozhnov.careerpilot.application.request.ApplicationRequest
 import com.alexanderpolozhnov.careerpilot.application.request.UpdateApplicationStatusRequest;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationBoardItemResponse;
 import com.alexanderpolozhnov.careerpilot.application.response.ApplicationResponse;
+import com.alexanderpolozhnov.careerpilot.application.response.ApplicationStatusHistoryResponse;
 import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 
 import java.util.List;
@@ -26,4 +27,6 @@ public interface ApplicationService {
     ApplicationResponse updateStatus(UUID id, UpdateApplicationStatusRequest request);
 
     void delete(UUID id);
+
+    List<ApplicationStatusHistoryResponse> getHistory(UUID id);
 }

@@ -102,7 +102,7 @@ CareerPilot AI собирает этот процесс в один понятн
 | OAuth2        | Авторизация через GitHub / Google, автоматический маппинг профилей, поддержка приватных email                 | ✅      |
 | Vacancies     | Полный CRUD, pagination, user ownership, загрузка данных компании без N+1                                     | ✅      |
 | Companies     | Полный CRUD, pagination, user ownership                                                                       | ✅      |
-| Applications  | Board, PATCH status, полный CRUD                                                                              | ✅      |
+| Applications  | Board, PATCH status, полный CRUD, **Status History (Timeline)**                                               | ✅      |
 | Tasks         | Полный CRUD, pagination, фильтрация, toggle статуса выполнения, связь с Applications                          | ✅      |
 | Interviews    | Полный CRUD, pagination, фильтрация по типу/результату, связь с Applications                                  | ✅      |
 | Resumes       | Полный CRUD, транзакционная логика установки дефолтного резюме, валидация URL                                 | ✅      |
