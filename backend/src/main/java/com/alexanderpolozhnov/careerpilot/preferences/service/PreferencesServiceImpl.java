@@ -37,6 +37,7 @@ public class PreferencesServiceImpl implements PreferencesService {
         prefs.setWeeklyDigest(request.weeklyDigest());
         prefs.setInterviewReminders(request.interviewReminders());
         prefs.setTaskReminders(request.taskReminders());
+        prefs.setApplicationStatusNotifications(request.applicationStatusNotifications());
         prefs.setAiProviderMode(request.aiProviderMode());
         prefs.setLanguage(request.language());
         return toResponse(preferencesRepository.save(prefs));
@@ -62,6 +63,7 @@ public class PreferencesServiceImpl implements PreferencesService {
                 prefs.isWeeklyDigest(),
                 prefs.isInterviewReminders(),
                 prefs.isTaskReminders(),
+                prefs.isApplicationStatusNotifications(),
                 prefs.getAiProviderMode().name(),
                 prefs.getLanguage());
     }

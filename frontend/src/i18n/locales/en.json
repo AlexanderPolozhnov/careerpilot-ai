@@ -526,6 +526,10 @@
     "interviewRemindersDescription": "Get reminded before scheduled interviews",
     "taskReminders": "Task reminders",
     "taskRemindersDescription": "Get notified when tasks are reaching their deadlines",
+    "notifications": {
+      "applicationStatus": "Application status notifications",
+      "applicationStatusDescription": "Get notified when your application status changes"
+    },
     "aiProvider": "AI Provider",
     "aiProviderMode": "Provider mode",
     "aiProviderSaved": "AI Provider successfully saved",

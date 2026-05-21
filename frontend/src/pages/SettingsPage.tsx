@@ -44,6 +44,7 @@ const preferencesSchema = z.object({
     weeklyDigest: z.boolean(),
     interviewReminders: z.boolean(),
     taskReminders: z.boolean(),
+    applicationStatusNotifications: z.boolean(),
     aiProviderMode: z.enum(['LOCAL', 'CLOUD', 'BRING_YOUR_OWN_KEY']),
     language: z.enum(['ru', 'en']),
 })
@@ -228,6 +229,7 @@ export default function SettingsPage() {
             weeklyDigest: true,
             interviewReminders: true,
             taskReminders: true,
+            applicationStatusNotifications: true,
             aiProviderMode: 'LOCAL',
             language: (i18n.language as 'ru' | 'en') || 'en',
         },
@@ -266,6 +268,7 @@ export default function SettingsPage() {
     const weeklyDigest = useWatch({ control: prefsForm.control, name: 'weeklyDigest' })
     const interviewReminders = useWatch({ control: prefsForm.control, name: 'interviewReminders' })
     const taskReminders = useWatch({ control: prefsForm.control, name: 'taskReminders' })
+    const applicationStatusNotifications = useWatch({ control: prefsForm.control, name: 'applicationStatusNotifications' })
 
     useEffect(() => {
         if (user) {
@@ -283,6 +286,7 @@ export default function SettingsPage() {
                 weeklyDigest: prefsData.weeklyDigest,
                 interviewReminders: prefsData.interviewReminders,
                 taskReminders: prefsData.taskReminders,
+                applicationStatusNotifications: prefsData.applicationStatusNotifications,
                 aiProviderMode: prefsData.aiProviderMode,
                 language: (prefsData.language as 'ru' | 'en') || 'en',
             })
@@ -292,6 +296,7 @@ export default function SettingsPage() {
                 weeklyDigest: true,
                 interviewReminders: true,
                 taskReminders: true,
+                applicationStatusNotifications: true,
                 aiProviderMode: 'LOCAL',
                 language: (i18n.language as 'ru' | 'en') || 'en',
             })
@@ -1182,6 +1187,28 @@ export default function SettingsPage() {
                                         prefsForm.setValue('taskReminders', v)
                                         const current = prefsForm.getValues()
                                         updatePrefsMutation.mutate({ ...current, taskReminders: v })
+                                    }}
+                                />
+                            </div>
+
+                            <div
+                                className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4">
+                                <div className="flex items-center gap-4">
+                                    <div
+                                        className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                        <Bell className="w-5 h-5 text-blue-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-white">{t('settings.notifications.applicationStatus')}</p>
+                                        <p className="text-xs text-white/40 mt-0.5">{t('settings.notifications.applicationStatusDescription')}</p>
+                                    </div>
+                                </div>
+                                <Toggle
+                                    checked={applicationStatusNotifications}
+                                    onChange={(v) => {
+                                        prefsForm.setValue('applicationStatusNotifications', v)
+                                        const current = prefsForm.getValues()
+                                        updatePrefsMutation.mutate({ ...current, applicationStatusNotifications: v })
                                     }}
                                 />
                             </div>

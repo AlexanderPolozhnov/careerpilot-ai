@@ -30,7 +30,8 @@ public class NotificationCreator {
     }
 
     @Transactional
-    public void createNotification(AuthEntity user, NotificationType type, String title, String message, UUID referenceId, String referenceType, boolean read) {
+    public void createNotification(AuthEntity user, NotificationType type, String title, String message,
+            UUID referenceId, String referenceType, boolean read) {
         // Create and save notification entity
         NotificationEntity notification = new NotificationEntity();
         notification.setUser(user);
@@ -42,22 +43,26 @@ public class NotificationCreator {
         notification.setRead(read);
         notification.setReferenceId(referenceId);
         notification.setReferenceType(referenceType);
-        
+
         notificationRepository.save(notification);
-        log.info("Created notification for user {}: type={}, title={}, reference={}:{}", 
+        log.info("Created notification for user {}: type={}, title={}, reference={}:{}",
                 user.getId(), type, title, referenceType, referenceId);
 
         // Check user preferences and send email if enabled
         Optional<PreferencesEntity> preferencesOpt = preferencesRepository.findByUserId(user.getId());
         if (preferencesOpt.isPresent()) {
             PreferencesEntity preferences = preferencesOpt.get();
-            
+
             boolean shouldSendEmail = false;
-            // Emails are only sent for "active" reminders, not for "missed/overdue" history items if they are marked as read
+            // Emails are only sent for "active" reminders, not for "missed/overdue" history
+            // items if they are marked as read
             if (!read) {
                 if (type == NotificationType.INTERVIEW_REMINDER && preferences.isInterviewReminders()) {
                     shouldSendEmail = true;
                 } else if (type == NotificationType.TASK_DUE && preferences.isTaskReminders()) {
+                    shouldSendEmail = true;
+                } else if (type == NotificationType.APPLICATION_STATUS
+                        && preferences.isApplicationStatusNotifications()) {
                     shouldSendEmail = true;
                 }
             }

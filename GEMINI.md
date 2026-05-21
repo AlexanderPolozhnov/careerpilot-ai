@@ -65,7 +65,8 @@ frontend/src/
 ## Реализованные slices (проверены вручную)
 
 Auth, Vacancies, Companies, Applications (Kanban + DnD), Analytics,
-AI (6 endpoints + Ollama + Redis cache), Dashboard, Settings, Notifications.
+AI (6 endpoints + Ollama + Redis cache), Dashboard, Settings, Notifications,
+Application Status Notifications (In-app + Email).
 
 ---
 
@@ -270,6 +271,7 @@ MapStruct для маппинга. GlobalExceptionHandler для доменны�
     - Предотвращать дубликаты (проверять существование уведомления по reference_id + type)
     - Обеспечивать целостность данных при удалении сущности (каскадное удаление связанных уведомлений)
     Для оптимизации запросов используйте составной индекс на `(reference_id, reference_type)`.
+55. **Triggering Application Status Notifications**: При реализации уведомлений об изменении статуса отклика (Application Status Notifications) вызывайте `notificationCreator.createNotification` в методах `create` и `updateStatus`. Рекомендуется игнорировать статус `SAVED` при создании, чтобы не спамить пользователя уведомлениями о черновиках. Для формирования сообщения используйте данные вакансии и компании, убедившись, что они загружены (чтобы избежать `NullPointerException` или лишних запросов).
 
 
 

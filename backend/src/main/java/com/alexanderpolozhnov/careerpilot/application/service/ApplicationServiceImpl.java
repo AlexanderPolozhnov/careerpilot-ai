@@ -15,6 +15,8 @@ import com.alexanderpolozhnov.careerpilot.application.response.ApplicationVacanc
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
+import com.alexanderpolozhnov.careerpilot.notification.entity.NotificationType;
+import com.alexanderpolozhnov.careerpilot.notification.service.NotificationCreator;
 import com.alexanderpolozhnov.careerpilot.vacancy.entity.VacancyEntity;
 import com.alexanderpolozhnov.careerpilot.vacancy.repository.VacancyRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final VacancyRepository vacancyRepository;
     private final CurrentUserResolver currentUserResolver;
+    private final NotificationCreator notificationCreator;
 
     @Override
     @Transactional
@@ -66,6 +69,18 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         ApplicationEntity saved = applicationRepository.save(entity);
         log.info("applications.create userId={} vacancyId={} id={}", userId, request.vacancyId(), saved.getId());
+
+        // Create notification for application status change (only if status != SAVED)
+        if (status != ApplicationStatus.SAVED) {
+            String vacancyTitle = saved.getVacancy().getTitle();
+            String companyName = saved.getVacancy().getCompany() != null ? saved.getVacancy().getCompany().getName()
+                    : "Unknown";
+            String message = String.format("Статус вашего отклика на вакансию %s в %s изменен на %s",
+                    vacancyTitle, companyName, status.name());
+            notificationCreator.createNotification(currentUser, NotificationType.APPLICATION_STATUS,
+                    "Обновление статуса отклика", message, saved.getId(), "APPLICATION", false);
+        }
+
         return toResponse(saved);
     }
 
@@ -172,6 +187,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     @Transactional
     public ApplicationResponse updateStatus(UUID id, UpdateApplicationStatusRequest request) {
+        AuthEntity currentUser = currentUserResolver.resolveRequired();
         ApplicationEntity entity = findOwnedApplication(id);
         ApplicationStatus newStatus = mapStatusFromFrontend(request.status());
 
@@ -181,7 +197,18 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         entity.setStatus(newStatus);
-        return toResponse(applicationRepository.save(entity));
+        ApplicationEntity saved = applicationRepository.save(entity);
+
+        // Create notification for application status change
+        String vacancyTitle = saved.getVacancy().getTitle();
+        String companyName = saved.getVacancy().getCompany() != null ? saved.getVacancy().getCompany().getName()
+                : "Unknown";
+        String message = String.format("Статус вашего отклика на вакансию %s в %s изменен на %s",
+                vacancyTitle, companyName, newStatus.name());
+        notificationCreator.createNotification(currentUser, NotificationType.APPLICATION_STATUS,
+                "Обновление статуса отклика", message, saved.getId(), "APPLICATION", false);
+
+        return toResponse(saved);
     }
 
     @Override

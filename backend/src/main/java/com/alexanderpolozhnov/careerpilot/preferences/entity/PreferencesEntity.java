@@ -31,4 +31,7 @@ public class PreferencesEntity extends BaseAuditableEntity {
 
     @Column(nullable = false, length = 10)
     private String language = "en";
+
+    @Column(name = "application_status_notifications", nullable = false)
+    private boolean applicationStatusNotifications = true;
 }

@@ -17,6 +17,7 @@ export interface PreferencesResponse {
     weeklyDigest: boolean
     interviewReminders: boolean
     taskReminders: boolean
+    applicationStatusNotifications: boolean
     aiProviderMode: 'LOCAL' | 'CLOUD' | 'BRING_YOUR_OWN_KEY'
     language: string
 }
@@ -25,6 +26,7 @@ export interface PreferencesRequest {
     weeklyDigest: boolean
     interviewReminders: boolean
     taskReminders: boolean
+    applicationStatusNotifications: boolean
     aiProviderMode: 'LOCAL' | 'CLOUD' | 'BRING_YOUR_OWN_KEY'
     language: string
 }
@@ -38,6 +40,7 @@ const mockPreferences: PreferencesResponse = {
     weeklyDigest: true,
     interviewReminders: true,
     taskReminders: true,
+    applicationStatusNotifications: true,
     aiProviderMode: 'LOCAL',
     language: 'en',
 }
