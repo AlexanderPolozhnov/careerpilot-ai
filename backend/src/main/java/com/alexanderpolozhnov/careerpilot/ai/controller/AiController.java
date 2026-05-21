@@ -3,6 +3,7 @@ package com.alexanderpolozhnov.careerpilot.ai.controller;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiAnalyzeVacancyRequest;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiCoverLetterRequest;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiInterviewQuestionsRequest;
+import com.alexanderpolozhnov.careerpilot.ai.request.AiResumeGenerationRequest;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiResumeMatchRequest;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResponse;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResultDto;
@@ -49,6 +50,13 @@ public class AiController {
     @PostMapping("/interview-questions")
     public AiResponse interviewQuestions(@Valid @RequestBody AiInterviewQuestionsRequest request) {
         return aiService.interviewQuestions(request);
+    }
+
+    @RateLimit(key = "ai_generation", capacity = 10, refillTokens = 10, refillDurationMinutes = 60)
+    @Auditable(action = "AI_USE", entityType = "AI")
+    @PostMapping("/generate-resume")
+    public AiResponse generateResume(@Valid @RequestBody AiResumeGenerationRequest request) {
+        return aiService.generateResume(request);
     }
 
     @GetMapping("/history")

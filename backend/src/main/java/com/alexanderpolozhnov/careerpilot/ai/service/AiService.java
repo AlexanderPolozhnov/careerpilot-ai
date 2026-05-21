@@ -3,6 +3,7 @@ package com.alexanderpolozhnov.careerpilot.ai.service;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiAnalyzeVacancyRequest;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiCoverLetterRequest;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiInterviewQuestionsRequest;
+import com.alexanderpolozhnov.careerpilot.ai.request.AiResumeGenerationRequest;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiResumeMatchRequest;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResponse;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResultDto;
@@ -19,6 +20,8 @@ public interface AiService {
     AiResponse coverLetter(AiCoverLetterRequest request);
 
     AiResponse interviewQuestions(AiInterviewQuestionsRequest request);
+
+    AiResponse generateResume(AiResumeGenerationRequest request);
 
     List<AiResultDto> history(String type);
 

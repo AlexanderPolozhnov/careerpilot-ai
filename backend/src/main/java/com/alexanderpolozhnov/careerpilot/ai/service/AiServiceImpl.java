@@ -8,11 +8,14 @@ import com.alexanderpolozhnov.careerpilot.ai.repository.AiRepository;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiAnalyzeVacancyRequest;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiCoverLetterRequest;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiInterviewQuestionsRequest;
+import com.alexanderpolozhnov.careerpilot.ai.request.AiResumeGenerationRequest;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiResumeMatchRequest;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResponse;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResultDto;
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
+import com.alexanderpolozhnov.careerpilot.resume.response.ResumeResponse;
+import com.alexanderpolozhnov.careerpilot.resume.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
@@ -29,6 +32,7 @@ public class AiServiceImpl implements AiService {
     private final AiMapper aiMapper;
     private final CurrentUserResolver currentUserResolver;
     private final AiResultCacheService aiResultCacheService;
+    private final ResumeService resumeService;
 
     @Override
     public AiResponse analyzeVacancy(AiAnalyzeVacancyRequest request) {
@@ -59,7 +63,23 @@ public class AiServiceImpl implements AiService {
     @Override
     public AiResponse resumeMatch(AiResumeMatchRequest request) {
         AuthEntity user = currentUserResolver.resolveRequired();
-        String prompt = buildResumeMatchPrompt(request);
+
+        // Fetch resume text if resumeId is provided and resumeText is not
+        String resumeText = request.resumeText();
+        if (request.resumeId() != null && (resumeText == null || resumeText.isBlank())) {
+            UUID resumeUuid = UUID.fromString(request.resumeId());
+            ResumeResponse resume = resumeService.getById(resumeUuid);
+            resumeText = resume.textContent();
+        }
+
+        // Build request with fetched text
+        AiResumeMatchRequest finalRequest = new AiResumeMatchRequest(
+                request.vacancyId(),
+                request.vacancyText(),
+                request.resumeId(),
+                resumeText != null ? resumeText : "");
+
+        String prompt = buildResumeMatchPrompt(finalRequest);
         String textHash = Integer.toHexString(prompt.hashCode());
 
         StopWatch stopWatch = new StopWatch();
@@ -85,7 +105,25 @@ public class AiServiceImpl implements AiService {
     @Override
     public AiResponse coverLetter(AiCoverLetterRequest request) {
         AuthEntity user = currentUserResolver.resolveRequired();
-        String prompt = buildCoverLetterPrompt(request);
+
+        // Fetch resume text if resumeId is provided and resumeText is not
+        String resumeText = request.resumeText();
+        if (request.resumeId() != null && (resumeText == null || resumeText.isBlank())) {
+            UUID resumeUuid = UUID.fromString(request.resumeId());
+            ResumeResponse resume = resumeService.getById(resumeUuid);
+            resumeText = resume.textContent();
+        }
+
+        // Build request with fetched text
+        AiCoverLetterRequest finalRequest = new AiCoverLetterRequest(
+                request.vacancyId(),
+                request.vacancyText(),
+                request.resumeId(),
+                resumeText != null ? resumeText : "",
+                request.tone(),
+                request.additionalContext());
+
+        String prompt = buildCoverLetterPrompt(finalRequest);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -121,6 +159,43 @@ public class AiServiceImpl implements AiService {
                 llmResponse.errorMessage());
 
         AiEntity entity = createAndSave(user, "INTERVIEW_QUESTIONS", prompt, responseWithLatency, request.vacancyId());
+        return new AiResponse(aiMapper.toDto(entity));
+    }
+
+    @Override
+    public AiResponse generateResume(AiResumeGenerationRequest request) {
+        AuthEntity user = currentUserResolver.resolveRequired();
+
+        // Fetch resume text if resumeId is provided and resumeText is not
+        String resumeText = request.resumeText();
+        if (request.resumeId() != null && (resumeText == null || resumeText.isBlank())) {
+            ResumeResponse resume = resumeService.getById(request.resumeId());
+            resumeText = resume.textContent();
+        }
+
+        // Build request with fetched text
+        AiResumeGenerationRequest finalRequest = new AiResumeGenerationRequest(
+                request.vacancyId(),
+                request.vacancyText(),
+                request.resumeId(),
+                resumeText != null ? resumeText : "",
+                request.additionalContext());
+
+        String prompt = buildResumeGenerationPrompt(finalRequest);
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        LlmResponse llmResponse = llmProvider.generate("RESUME_GENERATION\n" + prompt);
+        stopWatch.stop();
+
+        Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
+        LlmResponse responseWithLatency = new LlmResponse(
+                llmResponse.text(),
+                llmResponse.tokens(),
+                latencyMs,
+                llmResponse.errorMessage());
+
+        AiEntity entity = createAndSave(user, "RESUME_GENERATION", prompt, responseWithLatency, request.vacancyId());
         return new AiResponse(aiMapper.toDto(entity));
     }
 
@@ -216,6 +291,32 @@ public class AiServiceImpl implements AiService {
         if (req.vacancyText() != null && !req.vacancyText().isBlank()) {
             sb.append(req.vacancyText());
         }
+        return sb.toString();
+    }
+
+    private String buildResumeGenerationPrompt(AiResumeGenerationRequest req) {
+        StringBuilder sb = new StringBuilder("Improve and optimize the following resume");
+        if (req.vacancyId() != null) {
+            sb.append(" to tailor it specifically for vacancy (id: ").append(req.vacancyId()).append(")");
+        }
+        sb.append(":\n\n");
+
+        sb.append("### Original Resume:\n").append(req.resumeText()).append("\n\n");
+
+        if (req.vacancyText() != null && !req.vacancyText().isBlank()) {
+            sb.append("### Target Vacancy Requirements:\n").append(req.vacancyText()).append("\n\n");
+        }
+
+        if (req.additionalContext() != null && !req.additionalContext().isBlank()) {
+            sb.append("### User Instructions & Context:\n").append(req.additionalContext()).append("\n\n");
+        }
+
+        sb.append("### Instructions for AI:\n")
+                .append("1. Rewrite and polish bullet points using high-impact action verbs and measurable metrics.\n")
+                .append("2. Group skills logically and highlight matches with the target vacancy if provided.\n")
+                .append("3. Fix grammatical issues and improve clarity while keeping the original experience truth-based.\n")
+                .append("4. Present the response in beautifully formatted Markdown, highlighting changed sections.\n");
+
         return sb.toString();
     }
 }

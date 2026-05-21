@@ -161,6 +161,25 @@ public class OllamaLlmProvider implements LlmProvider {
 
                     > *Это автоматически сгенерированный список (fallback-режим)*
                     """;
+        } else if (prompt.contains("RESUME_GENERATION") || prompt.contains("Improve and optimize")) {
+            return new LlmResponse(
+                    "## Improved Resume (Tailored Version)\n\n" +
+                            "### Professional Summary\n" +
+                            "Highly skilled professional with proven impact. Tailored key accomplishments to align with target job requirements.\n\n"
+                            +
+                            "### Key Achievements & Improvements\n" +
+                            "- **Impact Metric:** Optimized slow application bottlenecks, reducing latency by **35%** (originally stated as 'fixed speed issues').\n"
+                            +
+                            "- **Relevance:** Highlighted TypeScript & React design system experiences to match target vacancy requirements.\n\n"
+                            +
+                            "### Polished Experience\n" +
+                            "**Senior Software Engineer** | Tech Corp\n" +
+                            "- Architected reusable component library used by 15+ developers, saving ~200 engineering hours/month.\n"
+                            +
+                            "- Led cross-functional syncs to align engineering deliverables with Product roadmap.",
+                    350,
+                    1500L,
+                    null);
         } else {
             text = """
                     ## Результат обработки

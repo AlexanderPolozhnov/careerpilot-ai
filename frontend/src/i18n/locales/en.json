@@ -426,13 +426,36 @@
       "analyze": "Analyze vacancy",
       "match": "Resume vs vacancy",
       "cover": "Cover letter",
-      "interview": "Interview questions"
+      "interview": "Interview questions",
+      "resumeGen": "Polish Resume"
     },
     "mockMode": "Mock AI",
     "requestTitle": "Request",
     "requestDescription": "Select a tool and fill in the details to get personalized AI recommendations for your job search.",
+    "analyze": {
+      "requestTitle": "Vacancy Analysis Request",
+      "requestDescription": "Select a vacancy from the list or paste a job description to get a detailed analysis of requirements, key skills, and potential opportunities for candidates."
+    },
+    "match": {
+      "requestTitle": "Resume-Vacancy Match Request",
+      "requestDescription": "Select a vacancy and resume to analyze the match. AI will show how well your resume matches the vacancy requirements and provide improvement recommendations."
+    },
+    "cover": {
+      "requestTitle": "Cover Letter Generation Request",
+      "requestDescription": "Select a vacancy and resume to have AI create a personalized cover letter that highlights your strengths and skills matching the employer's requirements."
+    },
+    "interview": {
+      "requestTitle": "Interview Questions Generation Request",
+      "requestDescription": "Select a vacancy to have AI generate relevant questions for interview preparation. You can also specify a specific area to focus the questions on."
+    },
+    "resumeGen": {
+      "requestTitle": "Resume Improvement Request",
+      "requestDescription": "Select a resume and vacancy to have AI analyze and suggest improvements, making your resume more attractive to employers and aligned with vacancy requirements."
+    },
     "relatedVacancy": "Related Vacancy",
     "noVacancy": "No vacancy selected",
+    "selectResume": "Select Resume",
+    "noResume": "No resume selected",
     "questionCount": "Question count",
     "focusAreaOptional": "Focus area (optional)",
     "focusAreaPlaceholder": "React performance, system design, leadership…",
@@ -440,11 +463,11 @@
     "toneProfessional": "Professional",
     "toneFriendly": "Friendly",
     "toneEnthusiastic": "Enthusiastic",
-    "vacancyTextOptional": "Vacancy text (optional if ID is provided)",
-    "vacancyTextPlaceholder": "Paste job description…",
-    "resumeText": "Resume text",
-    "resumeTextOptional": "Resume text (optional)",
-    "resumeTextPlaceholder": "Paste resume content…",
+    "vacancyTextOptional": "Vacancy text (auto-filled on selection)",
+    "vacancyTextPlaceholder": "Paste job description or select from list",
+    "resumeText": "Resume text (auto-filled on selection)",
+    "resumeTextOptional": "Resume text (auto-filled on selection)",
+    "resumeTextPlaceholder": "Paste resume content or select from list",
     "additionalContextOptional": "Additional context (optional)",
     "additionalContextPlaceholder": "What to emphasize, constraints, etc.",
     "fixFields": "Please fix the highlighted fields.",
@@ -458,7 +481,15 @@
     "historyDescription": "Recent AI outputs.",
     "loadingHistory": "Loading history…",
     "noHistoryTitle": "No history",
-    "noHistoryDescription": "Generated outputs will appear here."
+    "noHistoryDescription": "Generated outputs will appear here.",
+    "types": {
+      "VACANCY_ANALYSIS": "Job Analysis",
+      "RESUME_MATCH": "Resume Match",
+      "COVER_LETTER": "Cover Letter",
+      "INTERVIEW_QUESTIONS": "Interview Questions",
+      "SKILL_GAP": "Skill Gaps",
+      "RESUME_GENERATION": "Resume Optimization"
+    }
   },
   "analytics": {
     "title": "Analytics",

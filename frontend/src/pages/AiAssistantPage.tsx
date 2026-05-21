@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { cn } from '@/lib/utils'
 import { aiService } from '@/services/ai.service'
 import { vacancyService } from '@/services/vacancy.service'
+import { resumeService } from '@/services/resume.service'
 import type { AiResult } from '@/types'
 import { AiInsightCard } from '@/components/AiInsightCard'
 import { LoadingState } from '@/components/LoadingState'
@@ -21,13 +22,15 @@ import {
   Clock,
   ChevronRight,
   Zap,
+  FileEdit,
 } from 'lucide-react'
 
-type ToolKey = 'analyze' | 'match' | 'cover' | 'interview'
+type ToolKey = 'analyze' | 'match' | 'cover' | 'interview' | 'resumeGen'
 
 type AiFormValues = {
   vacancyId?: string
   vacancyText?: string
+  resumeId?: string
   resumeText?: string
   tone?: 'PROFESSIONAL' | 'FRIENDLY' | 'ENTHUSIASTIC'
   additionalContext?: string
@@ -59,6 +62,11 @@ const toolConfig: Record<
     gradient: 'from-amber-500/20 via-amber-500/5 to-transparent',
     description: 'Practice with AI-generated interview questions',
   },
+  resumeGen: {
+    icon: FileEdit,
+    gradient: 'from-fuchsia-500/20 via-fuchsia-500/5 to-transparent',
+    description: 'Polish, restructure and tailor your resume for maximum impact',
+  },
 }
 
 export default function AiAssistantPage() {
@@ -72,24 +80,51 @@ export default function AiAssistantPage() {
       analyzeSchema: z.object({
         vacancyId: z.string().optional(),
         vacancyText: z.string().min(30, t('forms.validation.minLength', { length: 30 })).optional(),
+      }).refine((data) => data.vacancyId || data.vacancyText, {
+        message: t('forms.validation.required'),
+        path: ['vacancyId'],
       }),
       matchSchema: z.object({
         vacancyId: z.string().optional(),
         vacancyText: z.string().min(30, t('forms.validation.minLength', { length: 30 })).optional(),
+        resumeId: z.string().optional(),
         resumeText: z.string().min(80, t('forms.validation.minLength', { length: 80 })),
+      }).refine((data) => data.vacancyId || data.vacancyText, {
+        message: t('forms.validation.required'),
+        path: ['vacancyId'],
       }),
       coverLetterSchema: z.object({
         vacancyId: z.string().optional(),
         vacancyText: z.string().min(30, t('forms.validation.minLength', { length: 30 })).optional(),
-        resumeText: z.string().min(80, t('forms.validation.minLength', { length: 80 })).optional(),
+        resumeId: z.string().optional(),
+        resumeText: z.string().min(80, t('forms.validation.minLength', { length: 80 })),
         tone: z.enum(['PROFESSIONAL', 'FRIENDLY', 'ENTHUSIASTIC']).default('PROFESSIONAL'),
         additionalContext: z.string().optional(),
+      }).refine((data) => data.vacancyId || data.vacancyText, {
+        message: t('forms.validation.required'),
+        path: ['vacancyId'],
+      }).refine((data) => data.resumeId || data.resumeText, {
+        message: t('forms.validation.required'),
+        path: ['resumeId'],
       }),
       interviewSchema: z.object({
         vacancyId: z.string().optional(),
         vacancyText: z.string().min(30, t('forms.validation.minLength', { length: 30 })).optional(),
         focusArea: z.string().optional(),
         count: z.coerce.number().int().min(3).max(15).default(5),
+      }).refine((data) => data.vacancyId || data.vacancyText, {
+        message: t('forms.validation.required'),
+        path: ['vacancyId'],
+      }),
+      resumeGenSchema: z.object({
+        vacancyId: z.string().optional(),
+        vacancyText: z.string().optional(),
+        resumeId: z.string().optional(),
+        resumeText: z.string().min(80, t('forms.validation.minLength', { length: 80 })),
+        additionalContext: z.string().optional(),
+      }).refine((data) => data.resumeId || data.resumeText, {
+        message: t('forms.validation.required'),
+        path: ['resumeId'],
       }),
     }
   }, [t])
@@ -98,6 +133,7 @@ export default function AiAssistantPage() {
     if (tool === 'analyze') return schemas.analyzeSchema
     if (tool === 'match') return schemas.matchSchema
     if (tool === 'cover') return schemas.coverLetterSchema
+    if (tool === 'resumeGen') return schemas.resumeGenSchema
     return schemas.interviewSchema
   }, [tool, schemas])
 
@@ -106,6 +142,7 @@ export default function AiAssistantPage() {
     defaultValues: {
       vacancyId: '',
       vacancyText: '',
+      resumeId: '',
       resumeText: '',
       tone: 'PROFESSIONAL',
       additionalContext: '',
@@ -124,9 +161,15 @@ export default function AiAssistantPage() {
     queryFn: () => vacancyService.list({ page: 0, size: 100 }),
   })
 
+  const resumesQuery = useQuery({
+    queryKey: ['resumes', 'list'],
+    queryFn: () => resumeService.list(),
+  })
+
   const history = historyQuery.data ?? []
   const isLoadingHistory = historyQuery.isLoading
   const vacancies = vacanciesQuery.data?.content ?? []
+  const resumes = resumesQuery.data ?? []
 
   const handleVacancySelect = (id: string) => {
     form.setValue('vacancyId', id)
@@ -137,6 +180,28 @@ export default function AiAssistantPage() {
       }
     } else {
       form.setValue('vacancyText', '')
+    }
+  }
+
+  const handleResumeSelect = async (id: string) => {
+    form.setValue('resumeId', id)
+    if (id) {
+      const selected = resumes.find((r) => r.id === id)
+      if (selected && selected.textContent) {
+        form.setValue('resumeText', selected.textContent)
+      } else if (selected) {
+        // Fetch resume details if textContent is not available
+        try {
+          const resumeDetails = await resumeService.getById(id)
+          if (resumeDetails.textContent) {
+            form.setValue('resumeText', resumeDetails.textContent)
+          }
+        } catch (error) {
+          console.error('Failed to fetch resume details:', error)
+        }
+      }
+    } else {
+      form.setValue('resumeText', '')
     }
   }
 
@@ -180,7 +245,12 @@ export default function AiAssistantPage() {
                 <button
                   key={key}
                   type="button"
-                  onClick={() => setTool(key)}
+                  onClick={() => {
+                    setTool(key)
+                    form.clearErrors()
+                    form.reset()
+                    setResult(null)
+                  }}
                   className={cn(
                     'group relative flex items-center gap-2.5 whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-300',
                     isActive
@@ -234,10 +304,10 @@ export default function AiAssistantPage() {
                   </div>
                   <div>
                     <h2 className="text-lg font-medium text-white">
-                      {t('aiAssistant.requestTitle')}
+                      {t(`aiAssistant.${tool}.requestTitle`)}
                     </h2>
                     <p className="text-sm text-white/40 mt-0.5">
-                      {t('aiAssistant.requestDescription')}
+                      {t(`aiAssistant.${tool}.requestDescription`)}
                     </p>
                   </div>
                 </div>
@@ -258,6 +328,7 @@ export default function AiAssistantPage() {
                       response = await aiService.resumeMatch({
                         vacancyId: v.vacancyId || undefined,
                         vacancyText: v.vacancyText || undefined,
+                        resumeId: v.resumeId || undefined,
                         resumeText: v.resumeText,
                       })
                     } else if (tool === 'cover') {
@@ -265,8 +336,18 @@ export default function AiAssistantPage() {
                       response = await aiService.generateCoverLetter({
                         vacancyId: v.vacancyId || undefined,
                         vacancyText: v.vacancyText || undefined,
+                        resumeId: v.resumeId || undefined,
                         resumeText: v.resumeText || undefined,
                         tone: v.tone,
+                        additionalContext: v.additionalContext || undefined,
+                      })
+                    } else if (tool === 'resumeGen') {
+                      const v = values as z.infer<typeof schemas.resumeGenSchema>
+                      response = await aiService.generateResume({
+                        vacancyId: v.vacancyId || undefined,
+                        vacancyText: v.vacancyText || undefined,
+                        resumeId: v.resumeId || undefined,
+                        resumeText: v.resumeText,
                         additionalContext: v.additionalContext || undefined,
                       })
                     } else {
@@ -301,7 +382,41 @@ export default function AiAssistantPage() {
                           </option>
                         ))}
                       </select>
+                      {form.formState.errors.vacancyId && (
+                        <p className="text-xs text-rose-400 flex items-center gap-1.5">
+                          <span className="h-1 w-1 rounded-full bg-rose-400" />
+                          {form.formState.errors.vacancyId.message}
+                        </p>
+                      )}
                     </div>
+
+                    {(tool === 'match' || tool === 'cover' || tool === 'resumeGen') && (
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium uppercase tracking-wider text-white/30">
+                          {t('aiAssistant.selectResume')}
+                        </label>
+                        <select
+                          className="select h-11"
+                          {...form.register('resumeId')}
+                          onChange={(e) => handleResumeSelect(e.target.value)}
+                        >
+                          <option value="" className="select-option">
+                            {t('aiAssistant.noResume')}
+                          </option>
+                          {resumes.map((r) => (
+                            <option key={r.id} value={r.id} className="select-option">
+                              {r.name} {r.isDefault ? `(${t('settings.resumes.defaultBadge')})` : ''}
+                            </option>
+                          ))}
+                        </select>
+                        {form.formState.errors.resumeId && (
+                          <p className="text-xs text-rose-400 flex items-center gap-1.5">
+                            <span className="h-1 w-1 rounded-full bg-rose-400" />
+                            {form.formState.errors.resumeId.message}
+                          </p>
+                        )}
+                      </div>
+                    )}
 
                     {tool === 'interview' && (
                       <div className="space-y-2">
@@ -369,7 +484,7 @@ export default function AiAssistantPage() {
                     )}
                   </div>
 
-                  {(tool === 'match' || tool === 'cover') && (
+                  {(tool === 'match' || tool === 'cover' || tool === 'resumeGen') && (
                     <div className="space-y-2">
                       <label className="text-xs font-medium uppercase tracking-wider text-white/30">
                         {tool === 'match'
@@ -390,7 +505,7 @@ export default function AiAssistantPage() {
                     </div>
                   )}
 
-                  {tool === 'cover' && (
+                  {(tool === 'cover' || tool === 'resumeGen') && (
                     <div className="space-y-2">
                       <label className="text-xs font-medium uppercase tracking-wider text-white/30">
                         {t('aiAssistant.additionalContextOptional')}
@@ -479,8 +594,8 @@ export default function AiAssistantPage() {
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
               <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04]">
-                    <Clock className="h-4 w-4 text-white/40" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10">
+                    <Clock className="h-4 w-4 text-violet-400" />
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-white">

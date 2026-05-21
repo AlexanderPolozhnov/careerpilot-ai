@@ -189,6 +189,7 @@ export type AiResultType =
   | 'COVER_LETTER'
   | 'INTERVIEW_QUESTIONS'
   | 'SKILL_GAP'
+  | 'RESUME_GENERATION'
 
 // ─── Notification ─────────────────────────────────────────────────────────────
 

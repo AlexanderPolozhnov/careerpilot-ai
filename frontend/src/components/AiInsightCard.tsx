@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { ChevronRight, Sparkles, Search, FileText, PenLine, MessageSquare, Clock, Zap } from 'lucide-react'
+import { ChevronRight, Sparkles, Search, FileText, PenLine, MessageSquare, Clock, Zap, FileEdit } from 'lucide-react'
 import { cn, formatRelative } from '@/lib/utils'
 import type { AiResult } from '@/types'
 
@@ -8,6 +8,7 @@ const typeIcons: Record<string, typeof Sparkles> = {
   RESUME_MATCH: FileText,
   COVER_LETTER: PenLine,
   INTERVIEW_QUESTIONS: MessageSquare,
+  RESUME_GENERATION: FileEdit,
 }
 
 const typeColors: Record<string, string> = {
@@ -15,6 +16,7 @@ const typeColors: Record<string, string> = {
   RESUME_MATCH: 'text-blue-400 bg-blue-500/10',
   COVER_LETTER: 'text-emerald-400 bg-emerald-500/10',
   INTERVIEW_QUESTIONS: 'text-amber-400 bg-amber-500/10',
+  RESUME_GENERATION: 'text-violet-400 bg-violet-500/10',
 }
 
 interface AiInsightCardProps {
@@ -50,11 +52,11 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
             >
               {result.type.replace(/_/g, ' ')}
             </span>
-            <span className="text-[10px] text-white/20">{formatRelative(result.createdAt)}</span>
+            <span className="text-[10px] text-white/20 truncate">{formatRelative(result.createdAt)}</span>
             {(result.latencyMs !== undefined || result.tokensUsed !== undefined) && (
               <div className="flex items-center gap-1.5 ml-auto text-[10px] font-medium text-white/30">
                 {result.latencyMs !== undefined && (
-                  <span className="flex items-center gap-0.5">
+                  <span className="flex items-center gap-0.5 text-violet-400">
                     <Clock className="h-2.5 w-2.5" />
                     {result.latencyMs}ms
                   </span>
@@ -111,7 +113,7 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
               {(result.latencyMs !== undefined || result.tokensUsed !== undefined) && (
                 <div className="flex items-center gap-3 text-[10px] font-medium text-white/20 uppercase tracking-widest">
                   {result.latencyMs !== undefined && (
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1 text-violet-400">
                       <Clock className="h-3 w-3" />
                       {result.latencyMs}ms
                     </span>

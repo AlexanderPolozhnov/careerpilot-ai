@@ -1167,3 +1167,61 @@ ight-0 и mt-2 для правильного выравнивания и отс�
 
 **Статус:** Реализовано, верифицировано, code review проведён.
 
+## Update 2026-05-21 — AI Resume Tailoring & Generation
+
+**Сделано:**
+Добавлен полноценный вертикальный слайс для улучшения и кастомизации резюме под требования вакансии при помощи ИИ.
+
+**Backend:**
+- **`AiResumeGenerationRequest.java`**: Новое DTO для запроса улучшения резюме, содержащее поля `vacancyId` (UUID), `vacancyText`, `resumeText` (с валидацией `@Size(min = 80, max = 65536)`) и `additionalContext`.
+- **`AiService.java` & `AiServiceImpl.java`**: Добавлен метод `generateResume()`. Реализована автоматическая сборка подробного системного промпта, учитывающего оригинальный текст резюме, требования выбранной вакансии и инструкции пользователя. Вызов LLM-провайдера замеряется с помощью `StopWatch` для логов производительности. Результат сохраняется в БД (`AiEntity`) с типом `RESUME_GENERATION` и типом связи с вакансией.
+- **`AiController.java`**: Добавлен эндпоинт `POST /api/ai/generate-resume` с аннотациями контроля лимитов `@RateLimit` и аудита действий пользователей `@Auditable`.
+- **`OllamaLlmProvider.java`**: Настроен fallback-генератор, возвращающий качественно отформатированное Markdown-резюме со структурированными ключевыми достижениями, когда в промпте содержится ключевое слово `RESUME_GENERATION`.
+
+**Frontend:**
+- **`frontend/src/types/index.ts`**: В тип `AiResultType` добавлено значение `'RESUME_GENERATION'`.
+- **`frontend/src/services/ai.service.ts`**: Описан интерфейс запроса `AiResumeGenerationDto` и метод `generateResume()`, поддерживающий полноценный Mock-режим.
+- **`frontend/src/pages/AiAssistantPage.tsx`**: Добавлен инструмент `resumeGen` (иконка `FileEdit` из `lucide-react`). Внедрена схема валидации Zod `resumeGenSchema`. Настроены условия отображения форм (ввод исходного резюме, выбор вакансии, дополнительные пожелания) и обработчик отправки формы.
+- **`ru.json` & `en.json`**: Зарегистрированы локализационные ключи для названия инструмента в боковой панели (`tools.resumeGen`) и типа генерируемого инсайта в истории результатов ИИ (`types.RESUME_GENERATION`).
+
+**Верификация:**
+- **Backend Tests**: Успешно пройдены Unit-тесты для сервисов и контроллеров (`AiServiceImplTest`, `AiControllerTest`), все 13 тестов зелёные.
+- **Frontend Build & Lint**: Сборка и линтинг проходят успешно.
+
+**Статус:** Реализовано, верифицировано, code review проведён.
+
+
+## Update 2026-05-21 — AI Assistant UX Polish
+
+**Сделано:**
+Реализованы улучшения UX для AI Assistant: выбор резюме, автозаполнение полей, улучшенная валидация и индивидуальные заголовки для каждого инструмента.
+
+**Frontend:**
+- **`frontend/src/i18n/locales/ru.json` & `en.json`**: Обновлены переводы для полей:
+  - `vacancyTextOptional`: "Текст вакансии (автоматическое заполнение при выборе)" / "Vacancy text (auto-filled on selection)"
+  - `resumeText`: "Текст резюме (автоматическое заполнение при выборе)" / "Resume text (auto-filled on selection)"
+  - `resumeTextOptional`: "Текст резюме (автоматическое заполнение при выборе)" / "Resume text (auto-filled on selection)"
+  - `vacancyTextPlaceholder`: "Вставьте описание вакансии или выберите из списка" / "Paste job description or select from list"
+  - `resumeTextPlaceholder`: "Вставьте содержание резюме или выберите из списка" / "Paste resume content or select from list"
+  - Добавлены индивидуальные заголовки и описания для каждого AI инструмента (analyze, match, cover, interview, resumeGen).
+
+- **`frontend/src/pages/AiAssistantPage.tsx`**:
+  - Добавлен выбор резюме в инструмент `cover` (сопроводительное письмо), аналогично `match` и `resumeGen`.
+  - Обновлен `coverLetterSchema`: добавлено поле `resumeId`, `resumeText` теперь обязателен (мин 80 символов).
+  - Добавлены `.refine()` валидации для всех схем: требуется хотя бы vacancyId ИЛИ vacancyText (для analyze, match, cover, interview), требуется хотя бы resumeId ИЛИ resumeText (для cover, resumeGen).
+  - Добавлены отображения ошибок валидации для полей `vacancyId` и `resumeId`.
+  - При переключении инструментов теперь вызывается `form.clearErrors()` и `form.reset()` для очистки ошибок и состояния формы.
+  - Заголовок и описание формы теперь используют tool-specific переводы через `t('aiAssistant.${tool}.requestTitle')` и `t('aiAssistant.${tool}.requestDescription')`.
+  - Обновлен submit handler для `cover` с передачей `resumeId`.
+
+**Backend:**
+- **`backend/src/main/java/com/alexanderpolozhnov/careerpilot/ai/service/AiServiceImpl.java`**:
+  - Обновлен метод `coverLetter`: добавлена логика получения текста резюме по `resumeId` через `resumeService.getById(UUID.fromString(request.resumeId()))`, если `resumeText` пуст.
+  - Конвертация `resumeId` (String) в UUID перед вызовом `resumeService.getById()`.
+
+**Верификация:**
+- **Backend Tests**: Успешно пройдены `.\mvnw.cmd clean compile` и `.\mvnw.cmd test -Dtest="AiServiceImplTest,AiControllerTest"` (13 tests passed).
+- **Frontend Build & Lint**: Сборка и линтинг проходят успешно.
+
+**Статус:** Реализовано, верифицировано.
+
