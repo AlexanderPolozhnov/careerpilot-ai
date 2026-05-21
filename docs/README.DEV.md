@@ -11,9 +11,15 @@
 ```text
 careerpilot-ai/
 |-- backend/                 Spring Boot backend
+|   |-- Dockerfile           multi-stage Maven + JRE21 build
+|   `-- .env.example         пример env для локального dev
 |-- frontend/                React + TypeScript frontend
+|   |-- Dockerfile           multi-stage pnpm + nginx build
+|   `-- nginx.conf           SPA fallback + /api/ + OAuth2 proxy
 |-- docs/                    публичная документация и API contract
-|-- docker-compose.yml       локальная инфраструктура
+|   `-- DEPLOYMENT.md        руководство по Docker деплою
+|-- docker-compose.yml       полный стек (backend + frontend + infra)
+|-- .env.docker.example      шаблон env для Docker Compose
 |-- README.md                публичная главная страница проекта
 |-- ROADMAP.md               roadmap разработки
 `-- LICENSE
@@ -92,42 +98,42 @@ Frontend находится в `frontend/`.
 - date-fns
 - lucide-react
 
-Установка зависимостей:
+Установка зависимостей (pnpm@9):
 
 ```bash
 cd frontend
-npm install
+pnpm install
 ```
 
 Сервер разработки:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Lint:
 
 ```bash
-npm run lint
+pnpm run lint
 ```
 
 Сборка production-версии:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Preview:
 
 ```bash
-npm run preview
+pnpm run preview
 ```
 
-В PowerShell можно использовать `npm.cmd`, если локальная execution policy блокирует `npm.ps1`:
+В PowerShell можно использовать `pnpm.cmd`, если локальная execution policy блокирует `pnpm.ps1`:
 
 ```powershell
-npm.cmd run lint
-npm.cmd run build
+pnpm.cmd run lint
+pnpm.cmd run build
 ```
 
 ## Переменные окружения
@@ -171,9 +177,18 @@ VITE_USE_MOCKS=false
 
 ## Docker Compose
 
-Корневой `docker-compose.yml` сейчас используется для локальной инфраструктуры.
+### Full-stack запуск (рекомендуется)
 
-Запуск PostgreSQL и Redis:
+```bash
+cp .env.docker.example .env
+docker compose up -d --build
+```
+
+Frontend: `http://localhost` · Backend: `http://localhost:8080`
+
+Подробности, настройка OAuth2, troubleshooting — [docs/DEPLOYMENT.md](./DEPLOYMENT.md)
+
+### Только инфраструктура (локальный dev)
 
 ```bash
 docker compose up -d postgres redis
@@ -196,8 +211,6 @@ docker compose --profile ai up -d ollama
 ```bash
 docker compose config
 ```
-
-В compose пока нет backend/frontend services. Это нормально для текущего этапа: backend и frontend запускаются локально через Maven wrapper и Vite.
 
 ## Frontend-backend contract
 
@@ -243,7 +256,7 @@ docker compose config
 - Frontend test runner пока не настроен (только lint/build).
 - Backend интеграционные тесты с Testcontainers требуют доступный Docker runtime.
 - CI через GitHub Actions настроен и работает (frontend lint/build + backend unit-тесты).
-- Документация по production deployment пока запланирована.
+- OAuth2 в Docker требует регистрации `http://localhost/login/oauth2/code/{provider}` в настройках GitHub/Google OAuth App (callback URL через nginx, порт 80).
 
 ## Merge readiness
 

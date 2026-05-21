@@ -133,7 +133,7 @@ CareerPilot AI собирает этот процесс в один понятн
 - **Refresh Tokens:** Автоматическое продление сессии через HttpOnly Cookies, безопасный выход с очисткой сессий в БД.
 - **Rate Limiting:** Ограничение частоты запросов для AI-эндпоинтов с использованием алгоритма Token Bucket (Bucket4j, HTTP 429).
 - **Audit Trail:** Журналирование критичных действий пользователей (логин, изменения сущностей, AI-запросы) в PostgreSQL.
-- **Docker Compose:** PostgreSQL, Redis, optional MinIO и Ollama.
+- **Full-Stack Docker Compose:** Весь стек (backend + frontend + PostgreSQL + Redis + optional MinIO/Ollama) поднимается одной командой `docker compose up -d --build`. Nginx проксирует API и OAuth2 callbacks.
 - **AI Integration:** Ollama как local provider с автоматическим fallback на mock-ответы.
 - **Redis Cache:** Кэширование AI-результатов (TTL 24ч, с автоматическим обходом при сбоях Redis).
 - **CI Pipeline:** GitHub Actions — frontend lint/build + backend unit-тесты при push и PR в main.
@@ -160,7 +160,7 @@ CareerPilot AI собирает этот процесс в один понятн
 
 ## ⚠️ Известные ограничения
 
-Актуально для `v0.3.0-alpha`:
+Актуально для `v0.5.0-alpha`:
 
 - **Frontend:** Тесты для фронтенд-компонентов пока не настроены.
 - **Backend:** Интеграционные тесты с Testcontainers требуют работающего локального Docker-окружения.
@@ -187,7 +187,20 @@ careerpilot-ai/
 
 ## 🖥️ Локальный запуск
 
-### 1. Инфраструктура
+### 0. Full-stack Docker (рекомендуется)
+
+```bash
+cp .env.docker.example .env   # заполнить секреты
+docker compose up -d --build
+```
+
+Frontend: `http://localhost` · Backend Swagger: `http://localhost:8080/swagger-ui.html`
+
+Подробнее: [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
+
+---
+
+### 1. Инфраструктура (локальный dev)
 
 ```bash
 docker compose up -d postgres redis
@@ -255,6 +268,7 @@ cd backend && ./mvnw test
 |--------------------------------------------------------------------------|--------------------------------|
 | [ROADMAP.md](./ROADMAP.md)                                               | Фазы разработки и статусы      |
 | [docs/README.DEV.md](./docs/README.DEV.md)                               | Руководство разработчика       |
+| [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)                               | Деплой через Docker Compose    |
 | [docs/FRONTEND_BACKEND_CONTRACT.md](./docs/FRONTEND_BACKEND_CONTRACT.md) | API-контракт (source of truth) |
 | [docs/I18N_IMPLEMENTATION.md](./docs/I18N_IMPLEMENTATION.md)             | Реализация i18n                |
 
@@ -263,4 +277,4 @@ cd backend && ./mvnw test
 ## 📝 Примечание
 
 Секреты, `.env`-файлы, build artifacts, IDE configs и dependency folders исключены через `.gitignore`.
-Для публичного репозитория коммитится только `.env.example`.
+Для публичного репозитория коммитятся только `.env.example` и `.env.docker.example`.

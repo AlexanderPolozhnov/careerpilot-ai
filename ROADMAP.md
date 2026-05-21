@@ -106,10 +106,10 @@ Roadmap отражает текущее состояние перед первы
 - [ ] Frontend tests.
 - [x] CI pipeline with GitHub Actions.
 - [x] **Frontend Linting & Build Hardening:** полное устранение ошибок ESLint и предупреждений рендеринга.
-- [ ] Full-stack Docker Compose setup.
+- [x] Full-stack Docker Compose setup.
 - [x] **Global Search:** единый поиск по всем сущностям (Cmd+K).
 - [x] **Scheduled Notifications:** автоматические напоминания о задачах и собеседованиях.
-- [ ] Deployment notes.
+- [x] Deployment notes.
 - [x] Security hardening: refresh/revocation strategy [x], rate limits for AI endpoints [x], audit trail [x], password creation/update for OAuth2 users [x], secure account deletion [x].
 - [x] **Application Status Notifications:** автоматические In-app и Email уведомления при изменении статуса отклика.
 
@@ -117,7 +117,6 @@ Roadmap отражает текущее состояние перед первы
 
 - [ ] Стабилизация интеграционных тестов с Testcontainers на бэкенде.
 - [ ] Настройка фреймворка тестирования компонентов и сервисов на фронтенде.
-- [ ] Подготовка и проверка полноценного Docker Compose окружения для production-like запуска.
 
 ## Known UX/Technical Issues (Post-release v0.2.0-alpha)
 

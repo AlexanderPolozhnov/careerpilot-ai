@@ -6,21 +6,25 @@
 
 Основная локальная инфраструктура запускается из корневого `docker-compose.yml`.
 
-Сейчас compose поднимает:
+Сейчас compose поднимает весь стек:
 
 - PostgreSQL;
 - Redis;
+- Backend (Spring Boot, multi-stage Dockerfile);
+- Frontend (nginx, multi-stage Dockerfile);
 - optional MinIO profile;
 - optional Ollama profile.
 
-Backend и frontend на текущем этапе запускаются локально через Maven wrapper и Vite, без отдельных compose services.
+Быстрый старт: `docker compose up -d --build`. Детали — в `docs/DEPLOYMENT.md`.
 
-## Planned
+## Done
 
-- production-oriented compose override;
-- init scripts и seed data при необходимости;
-- backend/frontend Dockerfile, если понадобится full-stack container setup;
-- deployment notes после стабилизации API contract.
+- ✅ Backend Dockerfile (multi-stage Maven + JRE 21)
+- ✅ Frontend Dockerfile (multi-stage pnpm + nginx)
+- ✅ Frontend nginx.conf with SPA fallback and API reverse proxy
+- ✅ docker-compose.yml updated with backend and frontend services
+- ✅ .env.docker.example for full-stack Docker deployment
+- ✅ docs/DEPLOYMENT.md with deployment guide
 
 ## Ссылка
 

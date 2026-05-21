@@ -1016,3 +1016,69 @@ ight-0 Рё mt-2 РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕРіРѕ РІ�
 **Верификация:** `npm run lint` — без ошибок. `npm run build` — успешно. Бэкенд не затрагивался.
 
 **Статус:** Реализовано, верифицировано, code review проведён.
+
+## Update 2026-05-21 — Full-Stack Docker Compose Setup
+
+**Сделано:**
+Реализована production-like Docker Compose конфигурация, запускающая весь стек одной командой `docker compose up -d --build`.
+
+**Новые файлы:**
+- **`backend/Dockerfile`**: Multi-stage build — Stage 1: `eclipse-temurin:21-jdk-alpine` (Maven + `chmod +x mvnw` + `package -DskipTests`), Stage 2: `eclipse-temurin:21-jre-alpine` (минимальный runtime).
+- **`frontend/Dockerfile`**: Multi-stage build — Stage 1: `node:20-alpine` (corepack pnpm@9, `pnpm install --frozen-lockfile`, `pnpm run build` с ARG VITE_API_BASE_URL=/api), Stage 2: `nginx:alpine` (статика + nginx.conf).
+- **`frontend/nginx.conf`**: SPA fallback (`try_files $uri /index.html`) + reverse proxy `location /api/` → `http://backend:8080/api/`.
+- **`.env.docker.example`**: Шаблон переменных окружения для Docker-запуска (в корне репозитория, whitelisted в `.gitignore`).
+- **`docs/DEPLOYMENT.md`**: Полное руководство по деплою (быстрый старт, OAuth2, Ollama, переменные, troubleshooting).
+
+**Изменённые файлы:**
+- **`backend/src/main/resources/application.yaml`**: Параметризован хост БД: `${DB_HOST:localhost}`. Дефолт `localhost` сохраняет локальный dev без изменений.
+- **`docker-compose.yml`**: Добавлены services `backend` (port 8080, depends_on postgres+redis с healthcheck, start_period 90s для Flyway) и `frontend` (port 80, depends_on backend).
+- **`backend/.env.example`**: Добавлен `DB_HOST=localhost`.
+- **`.gitignore`**: Добавлено `!.env.docker.example` для публикации шаблона.
+- **`backend/docker/README.md`**: Обновлён статус — описание актуального состояния и ссылка на DEPLOYMENT.md.
+- **`ROADMAP.md`**: `[x] Full-stack Docker Compose setup`, `[x] Deployment notes`.
+
+**Code Review (post-implementation):**
+- Обнаружен и исправлен критический баг: отсутствие `RUN chmod +x mvnw` в `backend/Dockerfile`. На Windows (NTFS) Docker COPY теряет Unix execute bit, сборка падала бы с `Permission denied`.
+- Добавлен явный `CMD ["nginx", "-g", "daemon off;"]` в `frontend/Dockerfile`.
+- Добавлен урок 62 в `GEMINI.md` о `mvnw` permissions.
+
+**Верификация:**
+- Frontend lint: ✅ pnpm run lint — без ошибок
+- Frontend build: ✅ pnpm run build — успешно (864.92 kB bundle)
+- Backend compile: ✅ `./mvnw clean compile -DskipTests` — 225 source files
+- Backend tests: ✅ 92 тестов, 5 пропущено (Testcontainers без Docker)
+
+**Статус:** Реализовано, верифицировано, code review проведён.
+
+## Update 2026-05-21 — Docker Deployment Debugging: OAuth2 & nginx
+
+**Контекст:** Первый реальный запуск `docker compose up -d --build` обнаружил три независимых бага, не выявленных при статическом code review.
+
+**Bug 1: Неверное имя свойства в `OAuth2SuccessHandler`**
+- `@Value("${app.frontend.base-url:...}")` — свойство с точкой не существует в `application.yaml`
+- В `application.yaml` прописано `app.frontend-url` (через дефис)
+- Итог: `frontendBaseUrl` всегда = `http://localhost:5173` (дефолт), редирект после OAuth2 уходил не туда
+- Фикс: `@Value("${app.frontend-url:http://localhost:5173}")`
+
+**Bug 2: nginx не проксировал OAuth2-пути Spring Security**
+- nginx маршрутизировал только `/api/`. Пути `/oauth2/` и `/login/oauth2/` отсутствовали.
+- Без `server.forward-headers-strategy: native` Tomcat строил redirect URL с портом 8080; Spring Security генерировал `redirect_uri=http://localhost:8080/login/oauth2/code/github`. Если в OAuth App зарегистрирован `http://localhost/login/oauth2/code/github` (порт 80) — провайдер отклонял callback → Spring Security редиректил на `/login?error` → React Router catchall → `/`.
+- Фикс: добавлены `location /oauth2/` и `location /login/oauth2/` в `frontend/nginx.conf` + `server.forward-headers-strategy: native` в `application.yaml` + `X-Forwarded-Port: $server_port` во все proxy blocks.
+
+**Bug 3: Docker build cache не инвалидировался при изменении файлов (Windows)**
+- `docker compose up -d --build` показывал "Built 0.0s" и поднимал старый образ.
+- Паттерн: всегда использовать `docker compose build --no-cache <service>` + `docker compose up -d --force-recreate` при изменениях конфигов или Java-кода на Windows.
+
+**Изменённые файлы:**
+- `backend/src/main/java/.../auth/oauth2/OAuth2SuccessHandler.java` — исправлен `@Value` ключ
+- `backend/src/main/resources/application.yaml` — добавлен `server.forward-headers-strategy: native`
+- `frontend/nginx.conf` — proxy blocks для `/oauth2/` и `/login/oauth2/`, `X-Forwarded-Port`
+- `README.md` — добавлен раздел "Full-stack Docker (рекомендуется)", ссылка на DEPLOYMENT.md, версия `v0.5.0-alpha`
+- `docs/README.DEV.md` — обновлён Docker Compose раздел, npm→pnpm, Known limitation по OAuth2 redirect URI
+- `GEMINI.md` — добавлены уроки 63–65
+
+**OAuth2 в Docker — требование к настройке провайдеров:**
+- GitHub callback: `http://localhost/login/oauth2/code/github`
+- Google redirect: `http://localhost/login/oauth2/code/google`
+
+**Статус:** Баги исправлены, документация синхронизирована.

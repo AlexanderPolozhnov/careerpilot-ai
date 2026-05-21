@@ -19,11 +19,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final JwtService jwtService;
 
-    @Value("${app.frontend.base-url:http://localhost:5173}")
+    @Value("${app.frontend-url:http://localhost:5173}")
     private String frontendBaseUrl;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException {
         CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
         AuthEntity user = oauthUser.getUserEntity();
 
