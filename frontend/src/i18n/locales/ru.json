@@ -596,6 +596,7 @@
     "aiProviderDescription": "Режимы для интеграции с бэкендом.",
     "aiProviderTodo": "Бэкенд TODO: сохранить в предпочтениях пользователя и применить к AI.",
     "openAiApiKey": "API ключ OpenAI",
+    "apiKeySaved": "Ключ сохранен (начните ввод, чтобы изменить)",
     "openAiModel": "Модель OpenAI",
     "ollamaUrl": "URL Ollama",
     "ollamaModel": "Модель Ollama",

@@ -1,6 +1,7 @@
 package com.alexanderpolozhnov.careerpilot.preferences.entity;
 
 import com.alexanderpolozhnov.careerpilot.common.entity.BaseAuditableEntity;
+import com.alexanderpolozhnov.careerpilot.common.util.EncryptionConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,6 +36,7 @@ public class PreferencesEntity extends BaseAuditableEntity {
     @Column(name = "application_status_notifications", nullable = false)
     private boolean applicationStatusNotifications = true;
 
+    @Convert(converter = EncryptionConverter.class)
     @Column(name = "open_ai_api_key", length = 255)
     private String openAiApiKey;
 

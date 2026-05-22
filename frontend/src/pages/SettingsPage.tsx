@@ -293,6 +293,10 @@ export default function SettingsPage() {
                 applicationStatusNotifications: prefsData.applicationStatusNotifications,
                 aiProviderMode: prefsData.aiProviderMode,
                 language: (prefsData.language as 'ru' | 'en') || 'en',
+                openAiApiKey: prefsData.openAiApiKey || '',
+                openAiModel: prefsData.openAiModel || '',
+                ollamaUrl: prefsData.ollamaUrl || '',
+                ollamaModel: prefsData.ollamaModel || '',
             })
             i18n.changeLanguage(prefsData.language)
         } else {
@@ -303,6 +307,10 @@ export default function SettingsPage() {
                 applicationStatusNotifications: true,
                 aiProviderMode: 'LOCAL',
                 language: (i18n.language as 'ru' | 'en') || 'en',
+                openAiApiKey: '',
+                openAiModel: '',
+                ollamaUrl: '',
+                ollamaModel: '',
             })
         }
     }, [prefsData, prefsForm, i18n])
@@ -1153,7 +1161,11 @@ export default function SettingsPage() {
                                         type="password"
                                         className="input mt-1 w-full"
                                         {...prefsForm.register('openAiApiKey')}
-                                        placeholder="sk-..."
+                                        placeholder={
+                                            prefsForm.watch('openAiApiKey')?.includes('...')
+                                                ? t('settings.apiKeySaved')
+                                                : 'sk-...'
+                                        }
                                     />
                                 </div>
                                 <div className="space-y-2">

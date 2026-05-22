@@ -110,7 +110,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] **Global Search:** единый поиск по всем сущностям (Cmd+K).
 - [x] **Scheduled Notifications:** автоматические напоминания о задачах и собеседованиях.
 - [x] Deployment notes.
-- [x] Security hardening: refresh/revocation strategy [x], rate limits for AI endpoints [x], audit trail [x], password creation/update for OAuth2 users [x], secure account deletion [x].
+- [x] Security hardening: refresh/revocation strategy [x], rate limits for AI endpoints [x], audit trail [x], password creation/update for OAuth2 users [x], secure account deletion [x], secure API key storage (encryption at rest) [x].
 - [x] **Application Status Notifications:** автоматические In-app и Email уведомления при изменении статуса отклика.
 
 ## Current Development Focus

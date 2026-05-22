@@ -40,7 +40,19 @@ public class PreferencesServiceImpl implements PreferencesService {
         prefs.setApplicationStatusNotifications(request.applicationStatusNotifications());
         prefs.setAiProviderMode(request.aiProviderMode());
         prefs.setLanguage(request.language());
-        prefs.setOpenAiApiKey(request.openAiApiKey());
+
+        // Защита от перезаписи маски: если пришло значение с "...", это маска от
+        // фронтенда
+        // Не перезаписываем реальный ключ в БД
+        if (request.openAiApiKey() == null || request.openAiApiKey().isEmpty()) {
+            // Пустое значение - это может быть намеренный сброс ключа
+            prefs.setOpenAiApiKey(null);
+        } else if (!request.openAiApiKey().contains("...")) {
+            // Только если значение не содержит маску, обновляем ключ
+            prefs.setOpenAiApiKey(request.openAiApiKey());
+        }
+        // Если содержит "...", оставляем текущее значение без изменений
+
         prefs.setOpenAiModel(request.openAiModel());
         prefs.setOllamaUrl(request.ollamaUrl());
         prefs.setOllamaModel(request.ollamaModel());
@@ -63,6 +75,7 @@ public class PreferencesServiceImpl implements PreferencesService {
     }
 
     private PreferencesResponse toResponse(PreferencesEntity prefs) {
+        String maskedApiKey = maskApiKey(prefs.getOpenAiApiKey());
         return new PreferencesResponse(
                 prefs.isWeeklyDigest(),
                 prefs.isInterviewReminders(),
@@ -70,9 +83,19 @@ public class PreferencesServiceImpl implements PreferencesService {
                 prefs.isApplicationStatusNotifications(),
                 prefs.getAiProviderMode().name(),
                 prefs.getLanguage(),
-                prefs.getOpenAiApiKey(),
+                maskedApiKey,
                 prefs.getOpenAiModel(),
                 prefs.getOllamaUrl(),
                 prefs.getOllamaModel());
+    }
+
+    private String maskApiKey(String apiKey) {
+        if (apiKey == null || apiKey.isEmpty()) {
+            return null;
+        }
+        if (apiKey.length() < 7) {
+            return "***";
+        }
+        return apiKey.substring(0, 3) + "..." + apiKey.substring(apiKey.length() - 4);
     }
 }

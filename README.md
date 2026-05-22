@@ -133,6 +133,7 @@ CareerPilot AI собирает этот процесс в один понятн
 - **Refresh Tokens:** Автоматическое продление сессии через HttpOnly Cookies, безопасный выход с очисткой сессий в БД.
 - **Rate Limiting:** Ограничение частоты запросов для AI-эндпоинтов с использованием алгоритма Token Bucket (Bucket4j, HTTP 429).
 - **Audit Trail:** Журналирование критичных действий пользователей (логин, изменения сущностей, AI-запросы) в PostgreSQL.
+- **Secure Key Storage:** Прозрачное шифрование (AES-256) OpenAI API ключей пользователей при хранении в базе данных.
 - **Full-Stack Docker Compose:** Весь стек (backend + frontend + PostgreSQL + Redis + optional MinIO/Ollama) поднимается одной командой `docker compose up -d --build`. Nginx проксирует API и OAuth2 callbacks.
 - **AI Integration:** Ollama как local provider с автоматическим fallback на mock-ответы.
 - **Redis Cache:** Кэширование AI-результатов (TTL 24ч, с автоматическим обходом при сбоях Redis).

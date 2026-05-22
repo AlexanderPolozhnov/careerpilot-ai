@@ -592,6 +592,7 @@
     "aiProviderDescription": "Mode placeholders for backend integration.",
     "aiProviderTodo": "Backend TODO: store this in user preferences and apply to AI endpoints.",
     "openAiApiKey": "OpenAI API Key",
+    "apiKeySaved": "Key saved (start typing to change)",
     "openAiModel": "OpenAI Model",
     "ollamaUrl": "Ollama URL",
     "ollamaModel": "Ollama Model",

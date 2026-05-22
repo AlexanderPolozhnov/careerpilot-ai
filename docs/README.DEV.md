@@ -232,9 +232,10 @@ docker compose config
 - **`LlmProviderFactory`**: Фабрика, которая выбирает реализацию `LlmProvider` на основе настроек текущего пользователя (`AiProviderMode`).
 - **`OllamaLlmProvider`**: Локальный провайдер. Параметры (URL и Модель) теперь берутся из `PreferencesEntity` пользователя.
 - **`OpenAiLlmProvider`**: Облачный провайдер. Может использовать либо системный API ключ (из `.env`), либо персональный ключ пользователя (`BRING_YOUR_OWN_KEY`).
+- **`EncryptionConverter`**: JPA AttributeConverter, реализующий AES-256 шифрование для чувствительных полей (например, `openAiApiKey`) в базе данных.
 - **`FallbackLlmGenerator`**: Компонент, обеспечивающий качественные mock-ответы при недоступности внешних сервисов или отсутствии ключей.
 
-Для настройки через UI: `Settings -> AI Assistant Settings`.
+Для настройки через UI: `Settings -> AI Assistant Settings`. Sensitive поля (API ключи) маскируются при передаче на фронтенд.
 
 ## Frontend-backend contract
 

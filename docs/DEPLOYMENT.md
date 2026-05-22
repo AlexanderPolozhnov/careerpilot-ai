@@ -86,6 +86,7 @@ docker exec careerpilot-ollama ollama pull llama3
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth2 Client Secret | `placeholder` |
 | `GOOGLE_CLIENT_ID` | Google OAuth2 Client ID | `placeholder` |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth2 Client Secret | `placeholder` |
+| `ENCRYPTION_MASTER_KEY` | Мастер-ключ для шифрования (AES) | (16, 24 или 32 символа) |
 
 ## Остановка
 
