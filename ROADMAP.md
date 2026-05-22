@@ -91,6 +91,9 @@ Roadmap отражает текущее состояние перед первы
 - [x] AI response caching.
 - [x] Prompt templates.
 - [x] `POST /ai/analyze-vacancy` aligned with frontend contract.
+- [x] **Fallback Mode Indication:** добавлен флаг `isFallback` для визуального отображения mock-данных AI.
+- [x] **Default AI Settings:** инициализация дефолтных значений для Ollama URL/Model для новых пользователей.
+- [x] **Empty Field Handling:** логика использования дефолтов при пустых настройках Ollama.
 - [x] `POST /ai/resume-match` aligned with frontend contract.
 - [x] `POST /ai/cover-letter` aligned with frontend contract.
 - [x] `POST /ai/interview-questions` aligned with frontend contract.
@@ -125,7 +128,7 @@ Roadmap отражает текущее состояние перед первы
 
 ## Releases
 
-### v0.8.0-alpha — Dynamic AI Provider Configuration
+### v0.8.0-alpha — Dynamic AI Provider Configuration & Gemini Integration
 
 **Статус:** Выпущено (Текущая версия).
 
@@ -134,6 +137,11 @@ Roadmap отражает текущее состояние перед первы
 - [x] **Personalized Settings:** сохранение API-ключей и кастомных URL для Ollama в профиле пользователя.
 - [x] **Provider Factory:** архитектурный переход на фабрику провайдеров на бэкенде.
 - [x] **Docker-ready AI:** возможность легко менять URL для Ollama прямо в UI для корректной работы внутри контейнеров.
+- [x] **AI Settings UX Polish:** добавлена явная кнопка сохранения конфигурации для снижения нагрузки на сеть и БД, стилизованный блок с Docker-командой для быстрого запуска Ollama.
+- [x] **Gemini AI Provider:** добавлена поддержка Google Gemini как альтернативного провайдера AI для режима "Свой ключ" (BRING_YOUR_OWN_KEY).
+- [x] **Custom Provider Selection:** возможность выбора между OpenAI и Gemini в настройках AI.
+- [x] **Gemini 3 Support:** проверена и подтверждена работа с моделями серии Gemini 3 (например, `gemini-3-flash-preview`).
+- [x] **CustomSelect Everywhere:** нативные теги `<select>` полностью заменены на кастомный компонент `CustomSelect` во всем приложении (Settings, AI Assistant, Forms).
 
 **Тег:** `v0.8.0-alpha`
 **Дата:** 2026-05-22

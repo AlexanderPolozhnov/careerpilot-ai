@@ -74,7 +74,7 @@ class AiServiceImplTest {
         defaultPreferences.setAiProviderMode(AiProviderMode.LOCAL);
         org.mockito.Mockito.lenient().when(preferencesRepository.findByUserId(currentUser.getId()))
                 .thenReturn(java.util.Optional.of(defaultPreferences));
-        org.mockito.Mockito.lenient().when(llmProviderFactory.getProvider(AiProviderMode.LOCAL)).thenReturn(llmProvider);
+        org.mockito.Mockito.lenient().when(llmProviderFactory.getProvider(defaultPreferences)).thenReturn(llmProvider);
     }
 
     @Test
@@ -83,7 +83,8 @@ class AiServiceImplTest {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
         when(aiResultCacheService.getCachedResult(any(), any(), any(), any()))
                 .thenAnswer(invocation -> ((java.util.function.Supplier<LlmResponse>) invocation.getArgument(3)).get());
-        when(llmProvider.generate(any(), any())).thenReturn(new LlmResponse("## Analysis result", 100, 500L, null));
+        when(llmProvider.generate(any(), any()))
+                .thenReturn(new LlmResponse("## Analysis result", 100, 500L, null, false));
         AiEntity saved = makeEntity(currentUser, "VACANCY_ANALYSIS", vacancyId);
         when(aiRepository.save(any(AiEntity.class))).thenReturn(saved);
         AiResultDto dto = makeDto(saved);
@@ -159,7 +160,7 @@ class AiServiceImplTest {
     @Test
     void interviewQuestionsUsesDefaultCountWhenNull() {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
-        when(llmProvider.generate(any(), any())).thenReturn(new LlmResponse("## Questions", 50, 300L, null));
+        when(llmProvider.generate(any(), any())).thenReturn(new LlmResponse("## Questions", 50, 300L, null, false));
         AiEntity saved = makeEntity(currentUser, "INTERVIEW_QUESTIONS", null);
         when(aiRepository.save(any(AiEntity.class))).thenReturn(saved);
         AiResultDto dto = makeDto(saved);
@@ -175,7 +176,7 @@ class AiServiceImplTest {
     @Test
     void coverLetterDoesNotUseCache() {
         when(currentUserResolver.resolveRequired()).thenReturn(currentUser);
-        when(llmProvider.generate(any(), any())).thenReturn(new LlmResponse("## Cover Letter", 80, 400L, null));
+        when(llmProvider.generate(any(), any())).thenReturn(new LlmResponse("## Cover Letter", 80, 400L, null, false));
         AiEntity saved = makeEntity(currentUser, "COVER_LETTER", null);
         when(aiRepository.save(any(AiEntity.class))).thenReturn(saved);
         AiResultDto dto = makeDto(saved);
@@ -214,6 +215,7 @@ class AiServiceImplTest {
                 e.getCreatedAt(),
                 null,
                 null,
-                null);
+                null,
+                false);
     }
 }

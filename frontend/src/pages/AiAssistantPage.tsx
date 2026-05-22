@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,6 +13,7 @@ import { LoadingState } from '@/components/LoadingState'
 import { EmptyState } from '@/components/EmptyState'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Resolver } from 'react-hook-form'
+import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
 import {
   Sparkles,
   Search,
@@ -170,6 +171,28 @@ export default function AiAssistantPage() {
   const isLoadingHistory = historyQuery.isLoading
   const vacancies = vacanciesQuery.data?.content ?? []
   const resumes = resumesQuery.data ?? []
+
+  const vacancyOptions: SelectOption[] = [
+    { value: '', label: t('aiAssistant.noVacancy') },
+    ...vacancies.map((v) => ({
+      value: v.id,
+      label: `${v.title} @ ${v.company?.name || t('common.unknown')}`,
+    })),
+  ]
+
+  const resumeOptions: SelectOption[] = [
+    { value: '', label: t('aiAssistant.noResume') },
+    ...resumes.map((r) => ({
+      value: r.id,
+      label: `${r.name} ${r.isDefault ? `(${t('settings.resumes.defaultBadge')})` : ''}`,
+    })),
+  ]
+
+  const toneOptions: SelectOption[] = [
+    { value: 'PROFESSIONAL', label: t('aiAssistant.toneProfessional') },
+    { value: 'FRIENDLY', label: t('aiAssistant.toneFriendly') },
+    { value: 'ENTHUSIASTIC', label: t('aiAssistant.toneEnthusiastic') },
+  ]
 
   const handleVacancySelect = (id: string) => {
     form.setValue('vacancyId', id)
@@ -368,20 +391,20 @@ export default function AiAssistantPage() {
                       <label className="text-xs font-medium uppercase tracking-wider text-white/30">
                         {t('aiAssistant.relatedVacancy')}
                       </label>
-                      <select
-                        className="select h-11"
-                        {...form.register('vacancyId')}
-                        onChange={(e) => handleVacancySelect(e.target.value)}
-                      >
-                        <option value="" className="select-option">
-                          {t('aiAssistant.noVacancy')}
-                        </option>
-                        {vacancies.map((v) => (
-                          <option key={v.id} value={v.id} className="select-option">
-                            {v.title} @ {v.company?.name || t('common.unknown')}
-                          </option>
-                        ))}
-                      </select>
+                      <Controller
+                        name="vacancyId"
+                        control={form.control}
+                        render={({ field }) => (
+                          <CustomSelect
+                            value={field.value ?? ''}
+                            onChange={(val) => {
+                              field.onChange(val)
+                              handleVacancySelect(val)
+                            }}
+                            options={vacancyOptions}
+                          />
+                        )}
+                      />
                       {form.formState.errors.vacancyId && (
                         <p className="text-xs text-rose-400 flex items-center gap-1.5">
                           <span className="h-1 w-1 rounded-full bg-rose-400" />
@@ -395,20 +418,20 @@ export default function AiAssistantPage() {
                         <label className="text-xs font-medium uppercase tracking-wider text-white/30">
                           {t('aiAssistant.selectResume')}
                         </label>
-                        <select
-                          className="select h-11"
-                          {...form.register('resumeId')}
-                          onChange={(e) => handleResumeSelect(e.target.value)}
-                        >
-                          <option value="" className="select-option">
-                            {t('aiAssistant.noResume')}
-                          </option>
-                          {resumes.map((r) => (
-                            <option key={r.id} value={r.id} className="select-option">
-                              {r.name} {r.isDefault ? `(${t('settings.resumes.defaultBadge')})` : ''}
-                            </option>
-                          ))}
-                        </select>
+                        <Controller
+                          name="resumeId"
+                          control={form.control}
+                          render={({ field }) => (
+                            <CustomSelect
+                              value={field.value ?? ''}
+                              onChange={(val) => {
+                                field.onChange(val)
+                                handleResumeSelect(val)
+                              }}
+                              options={resumeOptions}
+                            />
+                          )}
+                        />
                         {form.formState.errors.resumeId && (
                           <p className="text-xs text-rose-400 flex items-center gap-1.5">
                             <span className="h-1 w-1 rounded-full bg-rose-400" />
@@ -449,20 +472,17 @@ export default function AiAssistantPage() {
                         <label className="text-xs font-medium uppercase tracking-wider text-white/30">
                           {t('aiAssistant.tone')}
                         </label>
-                        <select
-                          className="select"
-                          {...form.register('tone')}
-                        >
-                          <option value="PROFESSIONAL" className="select-option">
-                            {t('aiAssistant.toneProfessional')}
-                          </option>
-                          <option value="FRIENDLY" className="select-option">
-                            {t('aiAssistant.toneFriendly')}
-                          </option>
-                          <option value="ENTHUSIASTIC" className="select-option">
-                            {t('aiAssistant.toneEnthusiastic')}
-                          </option>
-                        </select>
+                        <Controller
+                          name="tone"
+                          control={form.control}
+                          render={({ field }) => (
+                            <CustomSelect
+                              value={field.value ?? 'PROFESSIONAL'}
+                              onChange={field.onChange}
+                              options={toneOptions}
+                            />
+                          )}
+                        />
                       </div>
                     )}
                   </div>

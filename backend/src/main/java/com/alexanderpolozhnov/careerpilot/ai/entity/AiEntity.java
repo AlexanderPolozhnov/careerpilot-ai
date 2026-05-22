@@ -57,4 +57,7 @@ public class AiEntity extends BaseCreatedAtEntity {
 
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
+
+    @Column(name = "is_fallback")
+    private Boolean isFallback;
 }

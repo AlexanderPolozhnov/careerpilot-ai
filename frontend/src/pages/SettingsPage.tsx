@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/useAuth'
-import { useForm, useWatch, type Resolver } from 'react-hook-form'
+import { useForm, useWatch, type Resolver, Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,6 +17,7 @@ import { ResumeForm } from '@/components/ResumeForm'
 import { ConfirmModal } from '@/components/ConfirmModal'
 import { toast } from '@/lib/toast'
 import type { Profile, Resume, User as UserType } from '@/types'
+import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
 import {
     AlertTriangle,
     Bell,
@@ -51,6 +52,9 @@ const preferencesSchema = z.object({
     openAiModel: z.string().optional(),
     ollamaUrl: z.string().optional(),
     ollamaModel: z.string().optional(),
+    customAiProvider: z.enum(['OPENAI', 'GEMINI']).optional(),
+    geminiApiKey: z.string().optional(),
+    geminiModel: z.string().optional(),
 })
 
 const professionalProfileSchema = z.object({
@@ -236,8 +240,16 @@ export default function SettingsPage() {
             applicationStatusNotifications: true,
             aiProviderMode: 'LOCAL',
             language: (i18n.language as 'ru' | 'en') || 'en',
+            customAiProvider: 'OPENAI',
+            geminiApiKey: '',
+            geminiModel: 'gemini-1.5-flash',
         },
     })
+
+    const customAiProviderOptions: SelectOption[] = [
+        { value: 'OPENAI', label: 'OpenAI' },
+        { value: 'GEMINI', label: 'Google Gemini' },
+    ]
 
     const professionalProfileForm = useForm<ProfessionalProfileValues>({
         resolver: zodResolver(professionalProfileSchema) as unknown as Resolver<ProfessionalProfileValues>,
@@ -297,6 +309,9 @@ export default function SettingsPage() {
                 openAiModel: prefsData.openAiModel || '',
                 ollamaUrl: prefsData.ollamaUrl || '',
                 ollamaModel: prefsData.ollamaModel || '',
+                customAiProvider: prefsData.customAiProvider || 'OPENAI',
+                geminiApiKey: prefsData.geminiApiKey || '',
+                geminiModel: prefsData.geminiModel || 'gemini-1.5-flash',
             })
             i18n.changeLanguage(prefsData.language)
         } else {
@@ -311,6 +326,9 @@ export default function SettingsPage() {
                 openAiModel: '',
                 ollamaUrl: '',
                 ollamaModel: '',
+                customAiProvider: 'OPENAI',
+                geminiApiKey: '',
+                geminiModel: 'gemini-1.5-flash',
             })
         }
     }, [prefsData, prefsForm, i18n])
@@ -513,6 +531,11 @@ export default function SettingsPage() {
         prefsForm.setValue('language', newLanguage)
         const current = prefsForm.getValues()
         updatePrefsMutation.mutate({ ...current, language: newLanguage })
+    }
+
+    const handleAiConfigSave = async () => {
+        const values = prefsForm.getValues()
+        await updateAiProviderMutation.mutateAsync(values)
     }
 
     const handleResumeSubmit = async (values: CreateResumeDto) => {
@@ -1134,6 +1157,7 @@ export default function SettingsPage() {
                                         {...prefsForm.register('ollamaUrl')}
                                         placeholder="http://localhost:11434"
                                     />
+                                    <p className="text-[10px] text-white/30 mt-1">{t('settings.ollamaDefaultsHint')}</p>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
@@ -1144,10 +1168,30 @@ export default function SettingsPage() {
                                         {...prefsForm.register('ollamaModel')}
                                         placeholder="llama3"
                                     />
+                                    <p className="text-[10px] text-white/30 mt-1">{t('settings.ollamaDefaultsHint')}</p>
                                 </div>
-                                <p className="text-xs text-white/40 mt-2">
-                                    {t('settings.ollamaDockerTip')}
-                                </p>
+                                {prefsForm.formState.isDirty && (
+                                    <div className="pt-2">
+                                        <button
+                                            type="button"
+                                            onClick={handleAiConfigSave}
+                                            disabled={updateAiProviderMutation.isPending}
+                                            className={cn(
+                                                'btn-primary px-4 py-2 text-sm',
+                                                updateAiProviderMutation.isPending && 'opacity-70 cursor-not-allowed'
+                                            )}
+                                        >
+                                            {updateAiProviderMutation.isPending ? t('settings.saving') : t('settings.saveAiConfig')}
+                                        </button>
+                                    </div>
+                                )}
+                                <div className="mt-4 p-4 rounded-xl bg-black/40 border border-white/[0.06]">
+                                    <h4 className="text-sm font-medium text-white mb-2">{t('settings.dockerTitle')}</h4>
+                                    <pre className="text-xs text-emerald-400 bg-black/60 p-3 rounded-lg overflow-x-auto">
+                                        <code>docker run -d -p 11434:11434 ollama/ollama && docker exec -it ollama ollama pull llama3</code>
+                                    </pre>
+                                    <p className="text-xs text-white/40 mt-2">{t('settings.dockerExampleNote')}</p>
+                                </div>
                             </div>
                         )}
 
@@ -1155,29 +1199,98 @@ export default function SettingsPage() {
                             <div className="space-y-4 mt-6 pt-6 border-t border-white/[0.06]">
                                 <div className="space-y-2">
                                     <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
-                                        {t('settings.openAiApiKey')}
+                                        {t('settings.aiProviderChoice')}
                                     </label>
-                                    <input
-                                        type="password"
-                                        className="input mt-1 w-full"
-                                        {...prefsForm.register('openAiApiKey')}
-                                        placeholder={
-                                            prefsForm.watch('openAiApiKey')?.includes('...')
-                                                ? t('settings.apiKeySaved')
-                                                : 'sk-...'
-                                        }
+                                    <Controller
+                                        name="customAiProvider"
+                                        control={prefsForm.control}
+                                        render={({ field }) => (
+                                            <CustomSelect
+                                                value={field.value ?? 'OPENAI'}
+                                                onChange={field.onChange}
+                                                options={customAiProviderOptions}
+                                                className="mt-1"
+                                            />
+                                        )}
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
-                                        {t('settings.openAiModel')}
-                                    </label>
-                                    <input
-                                        className="input mt-1 w-full"
-                                        {...prefsForm.register('openAiModel')}
-                                        placeholder="gpt-4o"
-                                    />
-                                </div>
+
+                                {prefsForm.watch('customAiProvider') === 'OPENAI' && (
+                                    <>
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
+                                                {t('settings.openAiApiKey')}
+                                            </label>
+                                            <input
+                                                type="password"
+                                                className="input mt-1 w-full"
+                                                {...prefsForm.register('openAiApiKey')}
+                                                placeholder={
+                                                    prefsForm.watch('openAiApiKey')?.includes('...')
+                                                        ? t('settings.apiKeySaved')
+                                                        : 'sk-...'
+                                                }
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
+                                                {t('settings.openAiModel')}
+                                            </label>
+                                            <input
+                                                className="input mt-1 w-full"
+                                                {...prefsForm.register('openAiModel')}
+                                                placeholder="gpt-4o"
+                                            />
+                                        </div>
+                                    </>
+                                )}
+
+                                {prefsForm.watch('customAiProvider') === 'GEMINI' && (
+                                    <>
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
+                                                {t('settings.geminiApiKey')}
+                                            </label>
+                                            <input
+                                                type="password"
+                                                className="input mt-1 w-full"
+                                                {...prefsForm.register('geminiApiKey')}
+                                                placeholder={
+                                                    prefsForm.watch('geminiApiKey')?.includes('...')
+                                                        ? t('settings.apiKeySaved')
+                                                        : 'AIza...'
+                                                }
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
+                                                {t('settings.geminiModel')}
+                                            </label>
+                                            <input
+                                                className="input mt-1 w-full"
+                                                {...prefsForm.register('geminiModel')}
+                                                placeholder="gemini-1.5-flash"
+                                            />
+                                        </div>
+                                        <p className="text-xs text-white/30 mt-1">{t('settings.geminiDescription')}</p>
+                                    </>
+                                )}
+
+                                {prefsForm.formState.isDirty && (
+                                    <div className="pt-2">
+                                        <button
+                                            type="button"
+                                            onClick={handleAiConfigSave}
+                                            disabled={updateAiProviderMutation.isPending}
+                                            className={cn(
+                                                'btn-primary px-4 py-2 text-sm',
+                                                updateAiProviderMutation.isPending && 'opacity-70 cursor-not-allowed'
+                                            )}
+                                        >
+                                            {updateAiProviderMutation.isPending ? t('settings.saving') : t('settings.saveAiConfig')}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
 

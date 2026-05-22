@@ -504,7 +504,9 @@
       "INTERVIEW_QUESTIONS": "Вопросы на интервью",
       "SKILL_GAP": "Пробелы в навыках",
       "RESUME_GENERATION": "Улучшение резюме"
-    }
+    },
+    "fallbackMode": "Режим заглушки",
+    "fallbackDescription": "Ollama недоступна. Используются mock-данные."
   },
   "analytics": {
     "title": "Аналитика",
@@ -598,9 +600,17 @@
     "openAiApiKey": "API ключ OpenAI",
     "apiKeySaved": "Ключ сохранен (начните ввод, чтобы изменить)",
     "openAiModel": "Модель OpenAI",
+    "aiProviderChoice": "Выбор провайдера AI",
+    "geminiApiKey": "API ключ Gemini",
+    "geminiModel": "Модель Gemini",
+    "geminiDescription": "Google Gemini API. Получите ключ на https://aistudio.google.com/app/apikey",
     "ollamaUrl": "URL Ollama",
     "ollamaModel": "Модель Ollama",
+    "ollamaDefaultsHint": "Оставьте пустым для использования http://localhost:11434 (llama3)",
     "ollamaDockerTip": "Запустите Ollama через Docker: docker run -d -p 11434:11434 ollama/ollama && docker exec -it ollama ollama pull llama3",
+    "saveAiConfig": "Сохранить конфигурацию",
+    "dockerTitle": "Быстрый запуск Ollama",
+    "dockerExampleNote": "Это пример команды для быстрого старта. Вы можете изменить параметры под свои нужды.",
     "cloudModeTip": "Используется системный API ключ. AI функции работают в облачном режиме.",
     "recentNotifications": "Последние уведомления",
     "notificationTypes": {

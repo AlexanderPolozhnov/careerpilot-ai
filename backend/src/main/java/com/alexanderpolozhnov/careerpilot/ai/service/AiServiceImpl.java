@@ -32,308 +32,329 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AiServiceImpl implements AiService {
 
-    private final LlmProviderFactory llmProviderFactory;
-    private final AiRepository aiRepository;
-    private final AiMapper aiMapper;
-    private final CurrentUserResolver currentUserResolver;
-    private final AiResultCacheService aiResultCacheService;
-    private final ResumeService resumeService;
-    private final PreferencesRepository preferencesRepository;
+        private final LlmProviderFactory llmProviderFactory;
+        private final AiRepository aiRepository;
+        private final AiMapper aiMapper;
+        private final CurrentUserResolver currentUserResolver;
+        private final AiResultCacheService aiResultCacheService;
+        private final ResumeService resumeService;
+        private final PreferencesRepository preferencesRepository;
 
-    private String getUserLanguage(AuthEntity user) {
-        return preferencesRepository.findByUserId(user.getId())
-                .map(prefs -> prefs.getLanguage())
-                .orElse("en");
-    }
-
-    private PreferencesEntity getUserPreferences(AuthEntity user) {
-        return preferencesRepository.findByUserId(user.getId())
-                .orElseGet(() -> {
-                    PreferencesEntity prefs = new PreferencesEntity();
-                    prefs.setUserId(user.getId());
-                    return preferencesRepository.save(prefs);
-                });
-    }
-
-    @Override
-    public AiResponse analyzeVacancy(AiAnalyzeVacancyRequest request) {
-        AuthEntity user = currentUserResolver.resolveRequired();
-        String language = getUserLanguage(user);
-        String prompt = buildVacancyAnalysisPrompt(request, language);
-        String textHash = Integer.toHexString(prompt.hashCode());
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        PreferencesEntity preferences = getUserPreferences(user);
-        LlmResponse llmResponse = aiResultCacheService.getCachedResult(
-                "VACANCY_ANALYSIS",
-                request.vacancyId(),
-                textHash,
-                () -> llmProviderFactory.getProvider(preferences.getAiProviderMode())
-                        .generate("VACANCY_ANALYSIS\n" + prompt, preferences));
-        stopWatch.stop();
-
-        Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
-        LlmResponse responseWithLatency = new LlmResponse(
-                llmResponse.text(),
-                llmResponse.tokens(),
-                latencyMs,
-                llmResponse.errorMessage());
-
-        AiEntity entity = createAndSave(user, "VACANCY_ANALYSIS", prompt, responseWithLatency, request.vacancyId());
-        return new AiResponse(aiMapper.toDto(entity));
-    }
-
-    @Override
-    public AiResponse resumeMatch(AiResumeMatchRequest request) {
-        AuthEntity user = currentUserResolver.resolveRequired();
-        String language = getUserLanguage(user);
-
-        // Fetch resume text if resumeId is provided and resumeText is not
-        String resumeText = request.resumeText();
-        if (request.resumeId() != null && (resumeText == null || resumeText.isBlank())) {
-            UUID resumeUuid = UUID.fromString(request.resumeId());
-            ResumeResponse resume = resumeService.getById(resumeUuid);
-            resumeText = resume.textContent();
+        private String getUserLanguage(AuthEntity user) {
+                return preferencesRepository.findByUserId(user.getId())
+                                .map(prefs -> prefs.getLanguage())
+                                .orElse("en");
         }
 
-        // Build request with fetched text
-        AiResumeMatchRequest finalRequest = new AiResumeMatchRequest(
-                request.vacancyId(),
-                request.vacancyText(),
-                request.resumeId(),
-                resumeText != null ? resumeText : "");
-
-        String prompt = buildResumeMatchPrompt(finalRequest, language);
-        String textHash = Integer.toHexString(prompt.hashCode());
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        PreferencesEntity preferences = getUserPreferences(user);
-        LlmResponse llmResponse = aiResultCacheService.getCachedResult(
-                "RESUME_MATCH",
-                request.vacancyId(),
-                textHash,
-                () -> llmProviderFactory.getProvider(preferences.getAiProviderMode())
-                        .generate("RESUME_MATCH\n" + prompt, preferences));
-        stopWatch.stop();
-
-        Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
-        LlmResponse responseWithLatency = new LlmResponse(
-                llmResponse.text(),
-                llmResponse.tokens(),
-                latencyMs,
-                llmResponse.errorMessage());
-
-        AiEntity entity = createAndSave(user, "RESUME_MATCH", prompt, responseWithLatency, request.vacancyId());
-        return new AiResponse(aiMapper.toDto(entity));
-    }
-
-    @Override
-    public AiResponse coverLetter(AiCoverLetterRequest request) {
-        AuthEntity user = currentUserResolver.resolveRequired();
-        String language = getUserLanguage(user);
-
-        // Fetch resume text if resumeId is provided and resumeText is not
-        String resumeText = request.resumeText();
-        if (request.resumeId() != null && (resumeText == null || resumeText.isBlank())) {
-            UUID resumeUuid = UUID.fromString(request.resumeId());
-            ResumeResponse resume = resumeService.getById(resumeUuid);
-            resumeText = resume.textContent();
+        private PreferencesEntity getUserPreferences(AuthEntity user) {
+                return preferencesRepository.findByUserId(user.getId())
+                                .orElseGet(() -> {
+                                        PreferencesEntity prefs = new PreferencesEntity();
+                                        prefs.setUserId(user.getId());
+                                        return preferencesRepository.save(prefs);
+                                });
         }
 
-        // Build request with fetched text
-        AiCoverLetterRequest finalRequest = new AiCoverLetterRequest(
-                request.vacancyId(),
-                request.vacancyText(),
-                request.resumeId(),
-                resumeText != null ? resumeText : "",
-                request.tone(),
-                request.additionalContext());
+        @Override
+        public AiResponse analyzeVacancy(AiAnalyzeVacancyRequest request) {
+                AuthEntity user = currentUserResolver.resolveRequired();
+                String language = getUserLanguage(user);
+                String prompt = buildVacancyAnalysisPrompt(request, language);
+                String textHash = Integer.toHexString(prompt.hashCode());
 
-        String prompt = buildCoverLetterPrompt(finalRequest, language);
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+                PreferencesEntity preferences = getUserPreferences(user);
+                LlmResponse llmResponse = aiResultCacheService.getCachedResult(
+                                "VACANCY_ANALYSIS",
+                                request.vacancyId(),
+                                textHash,
+                                () -> llmProviderFactory.getProvider(preferences)
+                                                .generate("VACANCY_ANALYSIS\n" + prompt, preferences));
+                stopWatch.stop();
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        PreferencesEntity preferences = getUserPreferences(user);
-        LlmResponse llmResponse = llmProviderFactory.getProvider(preferences.getAiProviderMode())
-                .generate("COVER_LETTER\n" + prompt, preferences);
-        stopWatch.stop();
+                Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs()
+                                : stopWatch.getTotalTimeMillis();
+                LlmResponse responseWithLatency = new LlmResponse(
+                                llmResponse.text(),
+                                llmResponse.tokens(),
+                                latencyMs,
+                                llmResponse.errorMessage(),
+                                llmResponse.isFallback());
 
-        Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
-        LlmResponse responseWithLatency = new LlmResponse(
-                llmResponse.text(),
-                llmResponse.tokens(),
-                latencyMs,
-                llmResponse.errorMessage());
-
-        AiEntity entity = createAndSave(user, "COVER_LETTER", prompt, responseWithLatency, request.vacancyId());
-        return new AiResponse(aiMapper.toDto(entity));
-    }
-
-    @Override
-    public AiResponse interviewQuestions(AiInterviewQuestionsRequest request) {
-        AuthEntity user = currentUserResolver.resolveRequired();
-        String language = getUserLanguage(user);
-        String prompt = buildInterviewQuestionsPrompt(request, language);
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        PreferencesEntity preferences = getUserPreferences(user);
-        LlmResponse llmResponse = llmProviderFactory.getProvider(preferences.getAiProviderMode())
-                .generate("INTERVIEW_QUESTIONS\n" + prompt, preferences);
-        stopWatch.stop();
-
-        Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
-        LlmResponse responseWithLatency = new LlmResponse(
-                llmResponse.text(),
-                llmResponse.tokens(),
-                latencyMs,
-                llmResponse.errorMessage());
-
-        AiEntity entity = createAndSave(user, "INTERVIEW_QUESTIONS", prompt, responseWithLatency, request.vacancyId());
-        return new AiResponse(aiMapper.toDto(entity));
-    }
-
-    @Override
-    public AiResponse generateResume(AiResumeGenerationRequest request) {
-        AuthEntity user = currentUserResolver.resolveRequired();
-        String language = getUserLanguage(user);
-
-        // Fetch resume text if resumeId is provided and resumeText is not
-        String resumeText = request.resumeText();
-        if (request.resumeId() != null && (resumeText == null || resumeText.isBlank())) {
-            ResumeResponse resume = resumeService.getById(request.resumeId());
-            resumeText = resume.textContent();
+                AiEntity entity = createAndSave(user, "VACANCY_ANALYSIS", prompt, responseWithLatency,
+                                request.vacancyId());
+                return new AiResponse(aiMapper.toDto(entity));
         }
 
-        // Build request with fetched text
-        AiResumeGenerationRequest finalRequest = new AiResumeGenerationRequest(
-                request.vacancyId(),
-                request.vacancyText(),
-                request.resumeId(),
-                resumeText != null ? resumeText : "",
-                request.additionalContext());
+        @Override
+        public AiResponse resumeMatch(AiResumeMatchRequest request) {
+                AuthEntity user = currentUserResolver.resolveRequired();
+                String language = getUserLanguage(user);
 
-        String prompt = buildResumeGenerationPrompt(finalRequest, language);
+                // Fetch resume text if resumeId is provided and resumeText is not
+                String resumeText = request.resumeText();
+                if (request.resumeId() != null && (resumeText == null || resumeText.isBlank())) {
+                        UUID resumeUuid = UUID.fromString(request.resumeId());
+                        ResumeResponse resume = resumeService.getById(resumeUuid);
+                        resumeText = resume.textContent();
+                }
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        PreferencesEntity preferences = getUserPreferences(user);
-        LlmResponse llmResponse = llmProviderFactory.getProvider(preferences.getAiProviderMode())
-                .generate("RESUME_GENERATION\n" + prompt, preferences);
-        stopWatch.stop();
+                // Build request with fetched text
+                AiResumeMatchRequest finalRequest = new AiResumeMatchRequest(
+                                request.vacancyId(),
+                                request.vacancyText(),
+                                request.resumeId(),
+                                resumeText != null ? resumeText : "");
 
-        Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs() : stopWatch.getTotalTimeMillis();
-        LlmResponse responseWithLatency = new LlmResponse(
-                llmResponse.text(),
-                llmResponse.tokens(),
-                latencyMs,
-                llmResponse.errorMessage());
+                String prompt = buildResumeMatchPrompt(finalRequest, language);
+                String textHash = Integer.toHexString(prompt.hashCode());
 
-        AiEntity entity = createAndSave(user, "RESUME_GENERATION", prompt, responseWithLatency, request.vacancyId());
-        return new AiResponse(aiMapper.toDto(entity));
-    }
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+                PreferencesEntity preferences = getUserPreferences(user);
+                LlmResponse llmResponse = aiResultCacheService.getCachedResult(
+                                "RESUME_MATCH",
+                                request.vacancyId(),
+                                textHash,
+                                () -> llmProviderFactory.getProvider(preferences)
+                                                .generate("RESUME_MATCH\n" + prompt, preferences));
+                stopWatch.stop();
 
-    @Override
-    public List<AiResultDto> history(String type) {
-        AuthEntity user = currentUserResolver.resolveRequired();
-        List<AiEntity> entities;
-        if (type != null && !type.isBlank()) {
-            entities = aiRepository.findAllByUserIdAndTypeOrderByCreatedAtDesc(user.getId(), type);
-        } else {
-            entities = aiRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId());
+                Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs()
+                                : stopWatch.getTotalTimeMillis();
+                LlmResponse responseWithLatency = new LlmResponse(
+                                llmResponse.text(),
+                                llmResponse.tokens(),
+                                latencyMs,
+                                llmResponse.errorMessage(),
+                                llmResponse.isFallback());
+
+                AiEntity entity = createAndSave(user, "RESUME_MATCH", prompt, responseWithLatency, request.vacancyId());
+                return new AiResponse(aiMapper.toDto(entity));
         }
-        return entities.stream().map(aiMapper::toDto).toList();
-    }
 
-    @Override
-    public AiResultDto historyById(UUID id) {
-        AuthEntity user = currentUserResolver.resolveRequired();
-        AiEntity entity = aiRepository.findByIdAndUserId(id, user.getId())
-                .orElseThrow(() -> new AiNotFoundException(id));
-        return aiMapper.toDto(entity);
-    }
+        @Override
+        public AiResponse coverLetter(AiCoverLetterRequest request) {
+                AuthEntity user = currentUserResolver.resolveRequired();
+                String language = getUserLanguage(user);
 
-    private AiEntity createAndSave(AuthEntity user, String type, String prompt, LlmResponse llmResponse,
-            UUID vacancyId) {
-        AiEntity entity = new AiEntity();
-        entity.setUser(user);
-        entity.setType(type);
-        entity.setPrompt(prompt);
-        entity.setResult(llmResponse.text());
-        entity.setVacancyId(vacancyId);
-        entity.setTokensUsed(llmResponse.tokens());
-        entity.setLatencyMs(llmResponse.latencyMs());
-        entity.setErrorMessage(llmResponse.errorMessage());
-        entity.setInputHash(Integer.toHexString(prompt.hashCode()));
-        entity.setInputPayload(prompt);
-        entity.setOutputPayload(llmResponse.text());
-        return aiRepository.save(entity);
-    }
+                // Fetch resume text if resumeId is provided and resumeText is not
+                String resumeText = request.resumeText();
+                if (request.resumeId() != null && (resumeText == null || resumeText.isBlank())) {
+                        UUID resumeUuid = UUID.fromString(request.resumeId());
+                        ResumeResponse resume = resumeService.getById(resumeUuid);
+                        resumeText = resume.textContent();
+                }
 
-    private String getPromptTemplate(String type, String language) {
-        try {
-            ClassPathResource resource = new ClassPathResource("prompts/" + language + "/" + type + ".md");
-            if (!resource.exists()) {
-                resource = new ClassPathResource("prompts/en/" + type + ".md");
-            }
-            return resource.getContentAsString(StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load prompt template for " + type, e);
+                // Build request with fetched text
+                AiCoverLetterRequest finalRequest = new AiCoverLetterRequest(
+                                request.vacancyId(),
+                                request.vacancyText(),
+                                request.resumeId(),
+                                resumeText != null ? resumeText : "",
+                                request.tone(),
+                                request.additionalContext());
+
+                String prompt = buildCoverLetterPrompt(finalRequest, language);
+
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+                PreferencesEntity preferences = getUserPreferences(user);
+                LlmResponse llmResponse = llmProviderFactory.getProvider(preferences)
+                                .generate("COVER_LETTER\n" + prompt, preferences);
+                stopWatch.stop();
+
+                Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs()
+                                : stopWatch.getTotalTimeMillis();
+                LlmResponse responseWithLatency = new LlmResponse(
+                                llmResponse.text(),
+                                llmResponse.tokens(),
+                                latencyMs,
+                                llmResponse.errorMessage(),
+                                llmResponse.isFallback());
+
+                AiEntity entity = createAndSave(user, "COVER_LETTER", prompt, responseWithLatency, request.vacancyId());
+                return new AiResponse(aiMapper.toDto(entity));
         }
-    }
 
-    private String buildVacancyAnalysisPrompt(AiAnalyzeVacancyRequest req, String language) {
-        String template = getPromptTemplate("VACANCY_ANALYSIS", language);
-        return template.replace("{{VACANCY_TEXT}}",
-                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
-    }
+        @Override
+        public AiResponse interviewQuestions(AiInterviewQuestionsRequest request) {
+                AuthEntity user = currentUserResolver.resolveRequired();
+                String language = getUserLanguage(user);
+                String prompt = buildInterviewQuestionsPrompt(request, language);
 
-    private String buildResumeMatchPrompt(AiResumeMatchRequest req, String language) {
-        String template = getPromptTemplate("RESUME_MATCH", language);
-        template = template.replace("{{VACANCY_TEXT}}",
-                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
-        template = template.replace("{{RESUME_TEXT}}",
-                req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
-        return template;
-    }
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+                PreferencesEntity preferences = getUserPreferences(user);
+                LlmResponse llmResponse = llmProviderFactory.getProvider(preferences)
+                                .generate("INTERVIEW_QUESTIONS\n" + prompt, preferences);
+                stopWatch.stop();
 
-    private String buildCoverLetterPrompt(AiCoverLetterRequest req, String language) {
-        String template = getPromptTemplate("COVER_LETTER", language);
-        template = template.replace("{{TONE}}", req.tone() != null ? req.tone() : "PROFESSIONAL");
-        template = template.replace("{{VACANCY_TEXT}}",
-                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
-        template = template.replace("{{RESUME_TEXT}}",
-                req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
-        template = template.replace("{{ADDITIONAL_CONTEXT}}",
-                req.additionalContext() != null && !req.additionalContext().isBlank() ? req.additionalContext()
-                        : "(None)");
-        return template;
-    }
+                Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs()
+                                : stopWatch.getTotalTimeMillis();
+                LlmResponse responseWithLatency = new LlmResponse(
+                                llmResponse.text(),
+                                llmResponse.tokens(),
+                                latencyMs,
+                                llmResponse.errorMessage(),
+                                llmResponse.isFallback());
 
-    private String buildInterviewQuestionsPrompt(AiInterviewQuestionsRequest req, String language) {
-        String template = getPromptTemplate("INTERVIEW_QUESTIONS", language);
-        String count = req.count() != null ? String.valueOf(req.count()) : "5";
-        String focusArea = req.focusArea() != null && !req.focusArea().isBlank() ? req.focusArea()
-                : "Provide a balanced mix of technical deep-dives, system design, and behavioral questions tailored to the role.";
+                AiEntity entity = createAndSave(user, "INTERVIEW_QUESTIONS", prompt, responseWithLatency,
+                                request.vacancyId());
+                return new AiResponse(aiMapper.toDto(entity));
+        }
 
-        template = template.replace("{{COUNT}}", count);
-        template = template.replace("{{FOCUS_AREA}}", focusArea);
-        template = template.replace("{{VACANCY_TEXT}}",
-                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
-        return template;
-    }
+        @Override
+        public AiResponse generateResume(AiResumeGenerationRequest request) {
+                AuthEntity user = currentUserResolver.resolveRequired();
+                String language = getUserLanguage(user);
 
-    private String buildResumeGenerationPrompt(AiResumeGenerationRequest req, String language) {
-        String template = getPromptTemplate("RESUME_GENERATION", language);
-        template = template.replace("{{VACANCY_TEXT}}",
-                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText() : "(None)");
-        template = template.replace("{{ADDITIONAL_CONTEXT}}",
-                req.additionalContext() != null && !req.additionalContext().isBlank() ? req.additionalContext()
-                        : "(None)");
-        template = template.replace("{{RESUME_TEXT}}",
-                req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
-        return template;
-    }
+                // Fetch resume text if resumeId is provided and resumeText is not
+                String resumeText = request.resumeText();
+                if (request.resumeId() != null && (resumeText == null || resumeText.isBlank())) {
+                        ResumeResponse resume = resumeService.getById(request.resumeId());
+                        resumeText = resume.textContent();
+                }
+
+                // Build request with fetched text
+                AiResumeGenerationRequest finalRequest = new AiResumeGenerationRequest(
+                                request.vacancyId(),
+                                request.vacancyText(),
+                                request.resumeId(),
+                                resumeText != null ? resumeText : "",
+                                request.additionalContext());
+
+                String prompt = buildResumeGenerationPrompt(finalRequest, language);
+
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+                PreferencesEntity preferences = getUserPreferences(user);
+                LlmResponse llmResponse = llmProviderFactory.getProvider(preferences)
+                                .generate("RESUME_GENERATION\n" + prompt, preferences);
+                stopWatch.stop();
+
+                Long latencyMs = llmResponse.latencyMs() != null ? llmResponse.latencyMs()
+                                : stopWatch.getTotalTimeMillis();
+                LlmResponse responseWithLatency = new LlmResponse(
+                                llmResponse.text(),
+                                llmResponse.tokens(),
+                                latencyMs,
+                                llmResponse.errorMessage(),
+                                llmResponse.isFallback());
+
+                AiEntity entity = createAndSave(user, "RESUME_GENERATION", prompt, responseWithLatency,
+                                request.vacancyId());
+                return new AiResponse(aiMapper.toDto(entity));
+        }
+
+        @Override
+        public List<AiResultDto> history(String type) {
+                AuthEntity user = currentUserResolver.resolveRequired();
+                List<AiEntity> entities;
+                if (type != null && !type.isBlank()) {
+                        entities = aiRepository.findAllByUserIdAndTypeOrderByCreatedAtDesc(user.getId(), type);
+                } else {
+                        entities = aiRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId());
+                }
+                return entities.stream().map(aiMapper::toDto).toList();
+        }
+
+        @Override
+        public AiResultDto historyById(UUID id) {
+                AuthEntity user = currentUserResolver.resolveRequired();
+                AiEntity entity = aiRepository.findByIdAndUserId(id, user.getId())
+                                .orElseThrow(() -> new AiNotFoundException(id));
+                return aiMapper.toDto(entity);
+        }
+
+        private AiEntity createAndSave(AuthEntity user, String type, String prompt, LlmResponse llmResponse,
+                        UUID vacancyId) {
+                AiEntity entity = new AiEntity();
+                entity.setUser(user);
+                entity.setType(type);
+                entity.setPrompt(prompt);
+                entity.setResult(llmResponse.text());
+                entity.setVacancyId(vacancyId);
+                entity.setTokensUsed(llmResponse.tokens());
+                entity.setLatencyMs(llmResponse.latencyMs());
+                entity.setErrorMessage(llmResponse.errorMessage());
+                entity.setIsFallback(llmResponse.isFallback());
+                entity.setInputHash(Integer.toHexString(prompt.hashCode()));
+                entity.setInputPayload(prompt);
+                entity.setOutputPayload(llmResponse.text());
+                return aiRepository.save(entity);
+        }
+
+        private String getPromptTemplate(String type, String language) {
+                try {
+                        ClassPathResource resource = new ClassPathResource("prompts/" + language + "/" + type + ".md");
+                        if (!resource.exists()) {
+                                resource = new ClassPathResource("prompts/en/" + type + ".md");
+                        }
+                        return resource.getContentAsString(StandardCharsets.UTF_8);
+                } catch (IOException e) {
+                        throw new RuntimeException("Failed to load prompt template for " + type, e);
+                }
+        }
+
+        private String buildVacancyAnalysisPrompt(AiAnalyzeVacancyRequest req, String language) {
+                String template = getPromptTemplate("VACANCY_ANALYSIS", language);
+                return template.replace("{{VACANCY_TEXT}}",
+                                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText()
+                                                : "(None)");
+        }
+
+        private String buildResumeMatchPrompt(AiResumeMatchRequest req, String language) {
+                String template = getPromptTemplate("RESUME_MATCH", language);
+                template = template.replace("{{VACANCY_TEXT}}",
+                                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText()
+                                                : "(None)");
+                template = template.replace("{{RESUME_TEXT}}",
+                                req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
+                return template;
+        }
+
+        private String buildCoverLetterPrompt(AiCoverLetterRequest req, String language) {
+                String template = getPromptTemplate("COVER_LETTER", language);
+                template = template.replace("{{TONE}}", req.tone() != null ? req.tone() : "PROFESSIONAL");
+                template = template.replace("{{VACANCY_TEXT}}",
+                                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText()
+                                                : "(None)");
+                template = template.replace("{{RESUME_TEXT}}",
+                                req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
+                template = template.replace("{{ADDITIONAL_CONTEXT}}",
+                                req.additionalContext() != null && !req.additionalContext().isBlank()
+                                                ? req.additionalContext()
+                                                : "(None)");
+                return template;
+        }
+
+        private String buildInterviewQuestionsPrompt(AiInterviewQuestionsRequest req, String language) {
+                String template = getPromptTemplate("INTERVIEW_QUESTIONS", language);
+                String count = req.count() != null ? String.valueOf(req.count()) : "5";
+                String focusArea = req.focusArea() != null && !req.focusArea().isBlank() ? req.focusArea()
+                                : "Provide a balanced mix of technical deep-dives, system design, and behavioral questions tailored to the role.";
+
+                template = template.replace("{{COUNT}}", count);
+                template = template.replace("{{FOCUS_AREA}}", focusArea);
+                template = template.replace("{{VACANCY_TEXT}}",
+                                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText()
+                                                : "(None)");
+                return template;
+        }
+
+        private String buildResumeGenerationPrompt(AiResumeGenerationRequest req, String language) {
+                String template = getPromptTemplate("RESUME_GENERATION", language);
+                template = template.replace("{{VACANCY_TEXT}}",
+                                req.vacancyText() != null && !req.vacancyText().isBlank() ? req.vacancyText()
+                                                : "(None)");
+                template = template.replace("{{ADDITIONAL_CONTEXT}}",
+                                req.additionalContext() != null && !req.additionalContext().isBlank()
+                                                ? req.additionalContext()
+                                                : "(None)");
+                template = template.replace("{{RESUME_TEXT}}",
+                                req.resumeText() != null && !req.resumeText().isBlank() ? req.resumeText() : "(None)");
+                return template;
+        }
 }

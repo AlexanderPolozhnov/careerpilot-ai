@@ -3,6 +3,8 @@ import { applicationService } from '@/services/application.service'
 import type { Application, TaskPriority } from '@/types'
 import { useQuery } from '@tanstack/react-query'
 import type { TaskRequest } from '@/services/task.service'
+import { useState } from 'react'
+import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
 
 interface TaskFormProps {
   onSubmit: (values: TaskRequest) => void
@@ -11,28 +13,44 @@ interface TaskFormProps {
   isSubmitting?: boolean
 }
 
-const priorityValues: TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH', 'URGENT']
-
 export function TaskForm({ onSubmit, onCancel, initialValues, isSubmitting }: TaskFormProps) {
   const { t } = useTranslation()
   const isEditing = !!initialValues?.title // Title is required, so if it exists, we are editing
+
+  const [priority, setPriority] = useState<TaskPriority>(initialValues?.priority || 'MEDIUM')
+  const [applicationId, setApplicationId] = useState(initialValues?.applicationId || '')
 
   const { data: applications } = useQuery({
     queryKey: ['applications', 'list'],
     queryFn: () => applicationService.list({ page: 0, size: 100 }),
   })
 
+  const priorityOptions: SelectOption[] = [
+    { value: 'LOW', label: t('tasks.priorities.LOW'), color: '#6aafdb' },
+    { value: 'MEDIUM', label: t('tasks.priorities.MEDIUM'), color: '#7dd3b0' },
+    { value: 'HIGH', label: t('tasks.priorities.HIGH'), color: '#a78bfa' },
+    { value: 'URGENT', label: t('tasks.priorities.URGENT'), color: '#e05a5a' },
+  ]
+
+  const applicationOptions: SelectOption[] = [
+    { value: '', label: t('tasks.form.noApplication') },
+    ...(applications?.content?.map((app: Application) => ({
+      value: app.id,
+      label: app.vacancy?.title || t('tasks.form.untitled'),
+    })) || []),
+  ]
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    
+
     const values: TaskRequest = {
       title: formData.get('title') as string,
       description: formData.get('description') as string || undefined,
       dueAt: formData.get('dueAt') as string || undefined,
       done: !!formData.get('done'),
-      priority: formData.get('priority') as TaskPriority,
-      applicationId: formData.get('applicationId') as string || undefined,
+      priority,
+      applicationId: applicationId || undefined,
     }
 
     onSubmit(values)
@@ -90,19 +108,12 @@ export function TaskForm({ onSubmit, onCancel, initialValues, isSubmitting }: Ta
         <label htmlFor="priority" className="text-xs text-ink-dim">
           {t('tasks.form.priority')}
         </label>
-        <select
-          id="priority"
-          name="priority"
-          defaultValue={initialValues?.priority || 'MEDIUM'}
-          required
-          className="select mt-1"
-        >
-          {priorityValues.map(v => (
-            <option key={v} value={v} className="select-option">
-              {t(`tasks.priorities.${v}`)}
-            </option>
-          ))}
-        </select>
+        <CustomSelect
+          value={priority}
+          onChange={(val) => setPriority(val as TaskPriority)}
+          options={priorityOptions}
+          className="mt-1"
+        />
       </div>
 
       {/* Application */}
@@ -110,19 +121,12 @@ export function TaskForm({ onSubmit, onCancel, initialValues, isSubmitting }: Ta
         <label htmlFor="applicationId" className="text-xs text-ink-dim">
           {t('tasks.form.application')}
         </label>
-        <select
-          id="applicationId"
-          name="applicationId"
-          defaultValue={initialValues?.applicationId || ''}
-          className="select mt-1"
-        >
-          <option value="" className="select-option">{t('tasks.form.noApplication')}</option>
-          {applications?.content?.map((app: Application) => (
-            <option key={app.id} value={app.id} className="select-option">
-              {app.vacancy?.title || t('tasks.form.untitled')}
-            </option>
-          ))}
-        </select>
+        <CustomSelect
+          value={applicationId}
+          onChange={setApplicationId}
+          options={applicationOptions}
+          className="mt-1"
+        />
       </div>
 
       {/* Done */}

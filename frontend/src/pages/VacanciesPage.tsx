@@ -11,6 +11,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { VacancyForm, type VacancyFormValues } from '@/components/VacancyForm'
 import { toast } from '@/lib/toast'
 import { cn } from '@/lib/utils'
+import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
 
 // Icons
 function SearchIcon({ className }: { className?: string }) {
@@ -126,6 +127,20 @@ export default function VacanciesPage() {
 
     const visibleItems = useMemo<Vacancy[]>(() => listQuery.data?.content ?? [], [listQuery.data])
 
+    const statusOptions: SelectOption[] = [
+        { value: 'ALL', label: t('vacancies.allStatuses') },
+        { value: 'ACTIVE', label: 'Active' },
+        { value: 'ARCHIVED', label: 'Archived' },
+        { value: 'EXPIRED', label: 'Expired' },
+    ]
+
+    const remoteOptions: SelectOption[] = [
+        { value: 'ALL', label: t('vacancies.allModes') },
+        { value: 'REMOTE', label: 'Remote' },
+        { value: 'HYBRID', label: 'Hybrid' },
+        { value: 'ON_SITE', label: 'On-site' },
+    ]
+
     return (
         <section className="min-h-full">
             {/* Modal */}
@@ -195,26 +210,18 @@ export default function VacanciesPage() {
 
                     {/* Filters */}
                     <div className="flex items-center gap-3 flex-wrap">
-                        <select
-                            className="select w-auto"
+                        <CustomSelect
                             value={status}
-                            onChange={(e) => setStatus(e.target.value as VacancyStatus | 'ALL')}
-                        >
-                            <option value="ALL" className="select-option">{t('vacancies.allStatuses')}</option>
-                            <option value="ACTIVE" className="select-option">Active</option>
-                            <option value="ARCHIVED" className="select-option">Archived</option>
-                            <option value="EXPIRED" className="select-option">Expired</option>
-                        </select>
-                        <select
-                            className="select w-auto"
+                            onChange={(val) => setStatus(val as VacancyStatus | 'ALL')}
+                            options={statusOptions}
+                            className="w-auto"
+                        />
+                        <CustomSelect
                             value={remote}
-                            onChange={(e) => setRemote(e.target.value as RemoteType | 'ALL')}
-                        >
-                            <option value="ALL" className="select-option">{t('vacancies.allModes')}</option>
-                            <option value="REMOTE" className="select-option">Remote</option>
-                            <option value="HYBRID" className="select-option">Hybrid</option>
-                            <option value="ON_SITE" className="select-option">On-site</option>
-                        </select>
+                            onChange={(val) => setRemote(val as RemoteType | 'ALL')}
+                            options={remoteOptions}
+                            className="w-auto"
+                        />
 
                         {/* View toggle */}
                         <div className="flex items-center p-1 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] rounded-lg">

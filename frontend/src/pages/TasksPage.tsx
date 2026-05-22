@@ -11,6 +11,7 @@ import { toast } from '@/lib/toast'
 import { TaskForm } from '@/components/TaskForm'
 import { ConfirmModal } from '@/components/ConfirmModal'
 import { formatDateTime } from '@/lib/utils'
+import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
 
 function SearchIcon({ className }: { className?: string }) {
   return (
@@ -199,8 +200,21 @@ export default function TasksPage() {
     setIsConfirmDeleteOpen(true)
   }
 
-  const priorityValues: TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH', 'URGENT']
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
+
+  const priorityOptions: SelectOption[] = [
+    { value: '', label: t('tasks.allPriorities') },
+    { value: 'LOW', label: t('tasks.priorities.LOW'), color: '#6aafdb' },
+    { value: 'MEDIUM', label: t('tasks.priorities.MEDIUM'), color: '#7dd3b0' },
+    { value: 'HIGH', label: t('tasks.priorities.HIGH'), color: '#a78bfa' },
+    { value: 'URGENT', label: t('tasks.priorities.URGENT'), color: '#e05a5a' },
+  ]
+
+  const statusOptions: SelectOption[] = [
+    { value: '', label: t('tasks.allStatuses') },
+    { value: 'false', label: t('tasks.status.pending') },
+    { value: 'true', label: t('tasks.status.done') },
+  ]
 
   const getPriorityColor = (priority: TaskPriority) => {
     switch (priority) {
@@ -313,27 +327,18 @@ export default function TasksPage() {
 
           {/* Filters */}
           <div className="flex items-center gap-3 flex-wrap">
-            <select
+            <CustomSelect
               value={priorityFilter}
-              onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | '')}
-              className="select w-auto"
-            >
-              <option value="" className="select-option">{t('tasks.allPriorities')}</option>
-              {priorityValues.map(v => (
-                <option key={v} value={v} className="select-option">
-                  {t(`tasks.priorities.${v}`)}
-                </option>
-              ))}
-            </select>
-            <select
+              onChange={(val) => setPriorityFilter(val as TaskPriority | '')}
+              options={priorityOptions}
+              className="w-auto"
+            />
+            <CustomSelect
               value={doneFilter === '' ? '' : String(doneFilter)}
-              onChange={(e) => setDoneFilter(e.target.value === '' ? '' : e.target.value === 'true')}
-              className="select w-auto"
-            >
-              <option value="" className="select-option">{t('tasks.allStatuses')}</option>
-              <option value="false" className="select-option">{t('tasks.status.pending')}</option>
-              <option value="true" className="select-option">{t('tasks.status.done')}</option>
-            </select>
+              onChange={(val) => setDoneFilter(val === '' ? '' : val === 'true')}
+              options={statusOptions}
+              className="w-auto"
+            />
 
             {/* Results count */}
             <span className="px-3 py-1.5 text-xs font-medium text-[#6b7590] bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] rounded-full">

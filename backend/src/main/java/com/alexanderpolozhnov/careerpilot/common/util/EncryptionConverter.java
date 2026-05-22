@@ -28,8 +28,18 @@ public class EncryptionConverter implements AttributeConverter<String, String> {
             return attribute;
         }
 
+        if (masterKey == null || masterKey.isBlank()) {
+            System.err.println("CRITICAL: Encryption master key is not set! Storing in plaintext.");
+            return attribute;
+        }
+
         try {
             byte[] keyBytes = masterKey.getBytes(StandardCharsets.UTF_8);
+            if (keyBytes.length != 16 && keyBytes.length != 24 && keyBytes.length != 32) {
+                System.err.println("CRITICAL: Invalid master key length: " + keyBytes.length + " bytes. Expected 16, 24, or 32.");
+                return attribute;
+            }
+            
             SecretKeySpec secretKey = new SecretKeySpec(keyBytes, TRANSFORMATION);
             
             Cipher cipher = Cipher.getInstance(ALGORITHM);
@@ -38,13 +48,20 @@ public class EncryptionConverter implements AttributeConverter<String, String> {
             byte[] encrypted = cipher.doFinal(attribute.getBytes(StandardCharsets.UTF_8));
             byte[] iv = cipher.getIV();
             
+            if (iv == null) {
+                System.err.println("CRITICAL: Failed to generate IV for encryption.");
+                return attribute;
+            }
+            
             byte[] combined = new byte[iv.length + encrypted.length];
             System.arraycopy(iv, 0, combined, 0, iv.length);
             System.arraycopy(encrypted, 0, combined, iv.length, encrypted.length);
             
             return Base64.getEncoder().encodeToString(combined);
         } catch (Exception e) {
-            throw new RuntimeException("Encryption failed", e);
+            System.err.println("Encryption failed: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Encryption failed: " + e.getMessage(), e);
         }
     }
 
@@ -54,8 +71,16 @@ public class EncryptionConverter implements AttributeConverter<String, String> {
             return dbData;
         }
 
+        if (masterKey == null || masterKey.isBlank()) {
+            return dbData;
+        }
+
         try {
             byte[] combined = Base64.getDecoder().decode(dbData);
+            
+            if (combined.length <= IV_LENGTH) {
+                return dbData;
+            }
             
             byte[] iv = new byte[IV_LENGTH];
             System.arraycopy(combined, 0, iv, 0, iv.length);
@@ -64,6 +89,10 @@ public class EncryptionConverter implements AttributeConverter<String, String> {
             System.arraycopy(combined, iv.length, encrypted, 0, encrypted.length);
             
             byte[] keyBytes = masterKey.getBytes(StandardCharsets.UTF_8);
+            if (keyBytes.length != 16 && keyBytes.length != 24 && keyBytes.length != 32) {
+                return dbData;
+            }
+            
             SecretKeySpec secretKey = new SecretKeySpec(keyBytes, TRANSFORMATION);
             
             Cipher cipher = Cipher.getInstance(ALGORITHM);
@@ -73,7 +102,7 @@ public class EncryptionConverter implements AttributeConverter<String, String> {
             byte[] decrypted = cipher.doFinal(encrypted);
             return new String(decrypted, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            // Если дешифрование не удалось (например, мастер-ключ изменился),
+            // Если дешифрование не удалось (например, мастер-ключ изменился или данные не зашифрованы),
             // возвращаем исходное значение, чтобы не потерять данные
             return dbData;
         }

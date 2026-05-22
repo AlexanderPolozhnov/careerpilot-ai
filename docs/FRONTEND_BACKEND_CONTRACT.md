@@ -643,12 +643,16 @@ Response:
   "openAiApiKey": "sk-...",
   "openAiModel": "gpt-4o",
   "ollamaUrl": "http://localhost:11434",
-  "ollamaModel": "llama3"
+  "ollamaModel": "llama3",
+  "customAiProvider": "OPENAI",
+  "geminiApiKey": "AIza...",
+  "geminiModel": "gemini-1.5-flash"
 }
 ```
 
 Allowed `aiProviderMode`: `LOCAL`, `CLOUD`, `BRING_YOUR_OWN_KEY`.
-New optional fields: `openAiApiKey`, `openAiModel`, `ollamaUrl`, `ollamaModel`.
+Allowed `customAiProvider`: `OPENAI`, `GEMINI`.
+Optional fields: `openAiApiKey`, `openAiModel`, `ollamaUrl`, `ollamaModel`, `customAiProvider`, `geminiApiKey`, `geminiModel`.
 
 ### `PUT /preferences` — USED BY FRONTEND
 

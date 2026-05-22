@@ -112,6 +112,20 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.TOO_MANY_REQUESTS, exception.getMessage(), "TOO_MANY_REQUESTS", request, Map.of());
     }
 
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErrorResponse> handleMessageNotReadable(
+            org.springframework.http.converter.HttpMessageNotReadableException exception,
+            HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, "Invalid request body: " + exception.getMostSpecificCause().getMessage(), "BAD_REQUEST", request, Map.of());
+    }
+
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiErrorResponse> handleTypeMismatch(
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException exception,
+            HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, "Invalid parameter: " + exception.getName(), "BAD_REQUEST", request, Map.of());
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiErrorResponse> handleIllegalArgument(
             IllegalArgumentException exception,
@@ -135,7 +149,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleUnexpected(
             Exception exception,
             HttpServletRequest request) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error", "INTERNAL_ERROR", request, Map.of());
+        // Log the exception details (in a real app we'd use a logger)
+        System.err.println("Unexpected error: " + exception.getMessage());
+        exception.printStackTrace();
+        
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error: " + exception.getMessage(), "INTERNAL_ERROR", request, Map.of());
     }
 
     private ResponseEntity<ApiErrorResponse> build(

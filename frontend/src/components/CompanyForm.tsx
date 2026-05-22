@@ -1,9 +1,10 @@
-import { useForm, type Resolver } from 'react-hook-form'
+import { useForm, type Resolver, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import type { CompanySize } from '@/types'
+import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
 
 const companySizeValues: CompanySize[] = ['STARTUP', 'SMALL', 'MEDIUM', 'LARGE', 'ENTERPRISE']
 
@@ -37,6 +38,11 @@ export function CompanyForm({ onSubmit, onCancel, initialValues, isSubmitting }:
     },
   })
 
+  const sizeOptions: SelectOption[] = [
+    { value: '', label: t('companies.form.selectSize') },
+    ...companySizeValues.map(v => ({ value: v, label: v })),
+  ]
+
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div>
@@ -60,10 +66,18 @@ export function CompanyForm({ onSubmit, onCancel, initialValues, isSubmitting }:
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="size" className="text-xs text-ink-dim">{t('companies.form.size')}</label>
-          <select id="size" {...form.register('size')} className="select mt-1">
-            <option value="" className="select-option">{t('companies.form.selectSize')}</option>
-            {companySizeValues.map(v => <option key={v} value={v} className="select-option">{v}</option>)}
-          </select>
+          <Controller
+            name="size"
+            control={form.control}
+            render={({ field }) => (
+              <CustomSelect
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                options={sizeOptions}
+                className="mt-1"
+              />
+            )}
+          />
         </div>
         <div>
           <label htmlFor="location" className="text-xs text-ink-dim">{t('companies.form.location')}</label>

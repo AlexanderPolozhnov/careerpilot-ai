@@ -181,6 +181,7 @@ export interface AiResult {
   tokensUsed?: number
   latencyMs?: number
   errorMessage?: string
+  isFallback?: boolean
 }
 
 export type AiResultType =

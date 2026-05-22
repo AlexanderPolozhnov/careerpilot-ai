@@ -1,4 +1,4 @@
-import { useForm, type Resolver } from 'react-hook-form'
+import { useForm, type Resolver, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
@@ -7,6 +7,7 @@ import type { InterviewType, InterviewResult } from '@/types'
 import { applicationService } from '@/services/application.service'
 import { useQuery } from '@tanstack/react-query'
 import { useState, useMemo } from 'react'
+import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
 
 const interviewTypeValues: InterviewType[] = ['HR_SCREEN', 'TECH_SCREEN', 'TECH_INTERVIEW', 'FINAL', 'OTHER']
 const interviewResultValues: InterviewResult[] = ['PENDING', 'PASSED', 'FAILED', 'CANCELLED']
@@ -85,49 +86,57 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
     form.setValue('applicationId', applicationId)
   }
 
+  const typeOptions: SelectOption[] = interviewTypeValues.map(v => ({
+    value: v,
+    label: t(`interviews.types.${v}`),
+  }))
+
+  const resultOptions: SelectOption[] = interviewResultValues.map(v => ({
+    value: v,
+    label: t(`interviews.results.${v}`),
+  }))
+
+  const companyOptions: SelectOption[] = [
+    { value: '', label: t('interviews.form.selectCompany') },
+    ...companies.map((company) => ({
+      value: company.id,
+      label: company.name,
+    })),
+  ]
+
+  const vacancyOptions: SelectOption[] = [
+    {
+      value: '',
+      label: selectedCompanyId ? t('interviews.form.selectVacancy') : t('interviews.form.selectCompanyFirst'),
+    },
+    ...filteredVacancies.map((app) => ({
+      value: app.id,
+      label: app.vacancy?.title || t('common.unknown'),
+    })),
+  ]
+
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="company" className="text-xs text-ink-dim">{t('interviews.form.company')}</label>
-          <select
-            id="company"
+          <CustomSelect
             value={selectedCompanyId}
-            onChange={(e) => handleCompanyChange(e.target.value)}
+            onChange={handleCompanyChange}
+            options={companyOptions}
             disabled={!!applicationId}
-            className="select mt-1"
-          >
-            <option value="" className="select-option">
-              {t('interviews.form.selectCompany')}
-            </option>
-            {companies.map((company) => (
-              <option key={company.id} value={company.id} className="select-option">
-                {company.name}
-              </option>
-            ))}
-          </select>
+            className="mt-1"
+          />
         </div>
         <div>
           <label htmlFor="vacancy" className="text-xs text-ink-dim">{t('interviews.form.vacancy')}</label>
-          <select
-            id="vacancy"
+          <CustomSelect
             value={form.watch('applicationId')}
-            onChange={(e) => handleVacancyChange(e.target.value)}
+            onChange={handleVacancyChange}
+            options={vacancyOptions}
             disabled={!selectedCompanyId || !!applicationId}
-            className="select mt-1"
-          >
-            <option value="" className="select-option">
-              {selectedCompanyId ? t('interviews.form.selectVacancy') : t('interviews.form.selectCompanyFirst')}
-            </option>
-            {filteredVacancies.map((app) => {
-              const vacancyTitle = app.vacancy?.title || t('common.unknown');
-              return (
-                <option key={app.id} value={app.id} className="select-option">
-                  {vacancyTitle}
-                </option>
-              );
-            })}
-          </select>
+            className="mt-1"
+          />
           {form.formState.errors.applicationId && <p className="text-xs text-danger mt-1">{form.formState.errors.applicationId.message}</p>}
         </div>
       </div>
@@ -135,31 +144,33 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="type" className="text-xs text-ink-dim">{t('interviews.form.type')}</label>
-          <select
-            id="type"
-            {...form.register('type')}
-            className="select mt-1"
-          >
-            {interviewTypeValues.map(v => (
-              <option key={v} value={v} className="select-option">
-                {t(`interviews.types.${v}`)}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name="type"
+            control={form.control}
+            render={({ field }) => (
+              <CustomSelect
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                options={typeOptions}
+                className="mt-1"
+              />
+            )}
+          />
         </div>
         <div>
           <label htmlFor="result" className="text-xs text-ink-dim">{t('interviews.form.result')}</label>
-          <select
-            id="result"
-            {...form.register('result')}
-            className="select mt-1"
-          >
-            {interviewResultValues.map(v => (
-              <option key={v} value={v} className="select-option">
-                {t(`interviews.results.${v}`)}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name="result"
+            control={form.control}
+            render={({ field }) => (
+              <CustomSelect
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                options={resultOptions}
+                className="mt-1"
+              />
+            )}
+          />
         </div>
       </div>
 

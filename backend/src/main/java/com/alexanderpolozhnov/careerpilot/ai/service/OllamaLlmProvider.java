@@ -23,9 +23,12 @@ public class OllamaLlmProvider implements LlmProvider {
 
     @Override
     public LlmResponse generate(String prompt, PreferencesEntity preferences) {
-        String ollamaBaseUrl = preferences.getOllamaUrl() != null ? preferences.getOllamaUrl()
+        String ollamaBaseUrl = (preferences.getOllamaUrl() != null && !preferences.getOllamaUrl().isBlank())
+                ? preferences.getOllamaUrl()
                 : "http://localhost:11434";
-        String ollamaModel = preferences.getOllamaModel() != null ? preferences.getOllamaModel() : "llama3";
+        String ollamaModel = (preferences.getOllamaModel() != null && !preferences.getOllamaModel().isBlank())
+                ? preferences.getOllamaModel()
+                : "llama3";
 
         try {
             String url = ollamaBaseUrl + "/api/generate";
@@ -43,7 +46,7 @@ public class OllamaLlmProvider implements LlmProvider {
                     String text = responseText.toString();
                     Integer tokens = extractTokens(response.getBody());
                     Long latencyMs = extractLatency(response.getBody());
-                    return new LlmResponse(text, tokens, latencyMs, null);
+                    return new LlmResponse(text, tokens, latencyMs, null, false);
                 }
             }
         } catch (Exception e) {

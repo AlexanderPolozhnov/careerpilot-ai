@@ -24,6 +24,9 @@ export interface PreferencesResponse {
     openAiModel?: string
     ollamaUrl?: string
     ollamaModel?: string
+    customAiProvider?: 'OPENAI' | 'GEMINI'
+    geminiApiKey?: string
+    geminiModel?: string
 }
 
 export interface PreferencesRequest {
@@ -37,6 +40,9 @@ export interface PreferencesRequest {
     openAiModel?: string
     ollamaUrl?: string
     ollamaModel?: string
+    customAiProvider?: 'OPENAI' | 'GEMINI'
+    geminiApiKey?: string
+    geminiModel?: string
 }
 
 export interface DeleteAccountRequest {
@@ -54,7 +60,10 @@ const mockPreferences: PreferencesResponse = {
     openAiApiKey: '',
     openAiModel: 'gpt-4o',
     ollamaUrl: 'http://localhost:11434',
-    ollamaModel: 'llama3'
+    ollamaModel: 'llama3',
+    customAiProvider: 'OPENAI',
+    geminiApiKey: '',
+    geminiModel: 'gemini-1.5-flash'
 }
 
 export const settingsService = {

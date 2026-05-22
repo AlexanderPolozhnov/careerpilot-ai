@@ -4,7 +4,7 @@
 
 ## Статус
 
-Проект находится в активной разработке (v0.6.0-alpha). Архитектура построена как production-like portfolio project с полным frontend-backend интегрированием по документированному контракту.
+Проект находится в активной разработке (v0.8.0-alpha pre-release). Архитектура построена как production-like portfolio project с полным frontend-backend интегрированием по документированному контракту.
 
 ## Monorepo-структура
 
@@ -230,12 +230,14 @@ docker compose config
 
 Ключевые компоненты:
 - **`LlmProviderFactory`**: Фабрика, которая выбирает реализацию `LlmProvider` на основе настроек текущего пользователя (`AiProviderMode`).
-- **`OllamaLlmProvider`**: Локальный провайдер. Параметры (URL и Модель) теперь берутся из `PreferencesEntity` пользователя.
+- **`OllamaLlmProvider`**: Локальный провайдер. Параметры (URL и Модель) берутся из `PreferencesEntity` пользователя. При пустых полях используются дефолтные значения (`http://localhost:11434`, `llama3`).
 - **`OpenAiLlmProvider`**: Облачный провайдер. Может использовать либо системный API ключ (из `.env`), либо персональный ключ пользователя (`BRING_YOUR_OWN_KEY`).
 - **`EncryptionConverter`**: JPA AttributeConverter, реализующий AES-256 шифрование для чувствительных полей (например, `openAiApiKey`) в базе данных.
-- **`FallbackLlmGenerator`**: Компонент, обеспечивающий качественные mock-ответы при недоступности внешних сервисов или отсутствии ключей.
+- **`FallbackLlmGenerator`**: Компонент, обеспечивающий качественные mock-ответы при недоступности внешних сервисов или отсутствии ключей. Всегда возвращает `isFallback = true`.
+- **`LlmResponse`**: DTO с полем `isFallback` для индикации использования mock-данных.
+- **`AiEntity`**: JPA сущность с полем `isFallback` для хранения в базе данных.
 
-Для настройки через UI: `Settings -> AI Assistant Settings`. Sensitive поля (API ключи) маскируются при передаче на фронтенд.
+Для настройки через UI: `Settings -> AI Assistant Settings`. Sensitive поля (API ключи) маскируются при передаче на фронтенд. Новые пользователи получают дефолтные значения Ollama URL и Model. В интерфейсе отображается бейдж "Fallback Mode" при использовании mock-данных.
 
 ## Frontend-backend contract
 

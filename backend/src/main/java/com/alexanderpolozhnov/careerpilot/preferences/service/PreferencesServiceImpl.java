@@ -31,37 +31,71 @@ public class PreferencesServiceImpl implements PreferencesService {
     @Override
     @Transactional
     public PreferencesResponse updatePreferences(PreferencesRequest request) {
-        AuthEntity user = currentUser();
-        PreferencesEntity prefs = preferencesRepository.findByUserId(user.getId())
-                .orElseGet(() -> createDefaults(user.getId()));
-        prefs.setWeeklyDigest(request.weeklyDigest());
-        prefs.setInterviewReminders(request.interviewReminders());
-        prefs.setTaskReminders(request.taskReminders());
-        prefs.setApplicationStatusNotifications(request.applicationStatusNotifications());
-        prefs.setAiProviderMode(request.aiProviderMode());
-        prefs.setLanguage(request.language());
+        try {
+            AuthEntity user = currentUser();
+            PreferencesEntity prefs = preferencesRepository.findByUserId(user.getId())
+                    .orElseGet(() -> {
+                        PreferencesEntity newPrefs = new PreferencesEntity();
+                        newPrefs.setUserId(user.getId());
+                        return newPrefs;
+                    });
+            
+            prefs.setWeeklyDigest(request.weeklyDigest());
+            prefs.setInterviewReminders(request.interviewReminders());
+            prefs.setTaskReminders(request.taskReminders());
+            prefs.setApplicationStatusNotifications(request.applicationStatusNotifications());
+            
+            if (request.aiProviderMode() != null) {
+                prefs.setAiProviderMode(request.aiProviderMode());
+            }
+            
+            if (request.language() != null && !request.language().isBlank()) {
+                prefs.setLanguage(request.language());
+            }
 
-        // Защита от перезаписи маски: если пришло значение с "...", это маска от
-        // фронтенда
-        // Не перезаписываем реальный ключ в БД
-        if (request.openAiApiKey() == null || request.openAiApiKey().isEmpty()) {
-            // Пустое значение - это может быть намеренный сброс ключа
-            prefs.setOpenAiApiKey(null);
-        } else if (!request.openAiApiKey().contains("...")) {
-            // Только если значение не содержит маску, обновляем ключ
-            prefs.setOpenAiApiKey(request.openAiApiKey());
+            // Защита от перезаписи маски: если пришло значение с "...", это маска от фронтенда
+            if (request.openAiApiKey() == null || request.openAiApiKey().isEmpty()) {
+                prefs.setOpenAiApiKey(null);
+            } else if (!request.openAiApiKey().contains("...")) {
+                prefs.setOpenAiApiKey(request.openAiApiKey());
+            }
+
+            prefs.setOpenAiModel(request.openAiModel());
+            prefs.setOllamaUrl(request.ollamaUrl());
+            prefs.setOllamaModel(request.ollamaModel());
+
+            // Custom AI Provider settings
+            if (request.customAiProvider() != null) {
+                prefs.setCustomAiProvider(request.customAiProvider());
+            }
+
+            // Защита от перезаписи маски для Gemini API key
+            if (request.geminiApiKey() == null || request.geminiApiKey().isEmpty()) {
+                prefs.setGeminiApiKey(null);
+            } else if (!request.geminiApiKey().contains("...")) {
+                prefs.setGeminiApiKey(request.geminiApiKey());
+            }
+
+            if (request.geminiModel() != null) {
+                prefs.setGeminiModel(request.geminiModel());
+            }
+
+            PreferencesEntity saved = preferencesRepository.save(prefs);
+            return toResponse(saved);
+        } catch (Exception e) {
+            System.err.println("Error updating preferences: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-        // Если содержит "...", оставляем текущее значение без изменений
-
-        prefs.setOpenAiModel(request.openAiModel());
-        prefs.setOllamaUrl(request.ollamaUrl());
-        prefs.setOllamaModel(request.ollamaModel());
-        return toResponse(preferencesRepository.save(prefs));
     }
 
     private PreferencesEntity createDefaults(java.util.UUID userId) {
         PreferencesEntity prefs = new PreferencesEntity();
         prefs.setUserId(userId);
+        prefs.setOllamaUrl("http://localhost:11434");
+        prefs.setOllamaModel("llama3");
+        prefs.setCustomAiProvider(com.alexanderpolozhnov.careerpilot.preferences.entity.CustomAiProvider.OPENAI);
+        prefs.setGeminiModel("gemini-1.5-flash");
         return preferencesRepository.save(prefs);
     }
 
@@ -76,6 +110,7 @@ public class PreferencesServiceImpl implements PreferencesService {
 
     private PreferencesResponse toResponse(PreferencesEntity prefs) {
         String maskedApiKey = maskApiKey(prefs.getOpenAiApiKey());
+        String maskedGeminiApiKey = maskApiKey(prefs.getGeminiApiKey());
         return new PreferencesResponse(
                 prefs.isWeeklyDigest(),
                 prefs.isInterviewReminders(),
@@ -86,7 +121,10 @@ public class PreferencesServiceImpl implements PreferencesService {
                 maskedApiKey,
                 prefs.getOpenAiModel(),
                 prefs.getOllamaUrl(),
-                prefs.getOllamaModel());
+                prefs.getOllamaModel(),
+                prefs.getCustomAiProvider() != null ? prefs.getCustomAiProvider().name() : null,
+                maskedGeminiApiKey,
+                prefs.getGeminiModel());
     }
 
     private String maskApiKey(String apiKey) {

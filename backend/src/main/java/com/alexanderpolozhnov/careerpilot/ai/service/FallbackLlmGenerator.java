@@ -107,7 +107,8 @@ public class FallbackLlmGenerator {
                             "- Led cross-functional syncs to align engineering deliverables with Product roadmap.",
                     350,
                     1500L,
-                    null);
+                    null,
+                    true);
         } else {
             text = """
                     ## Результат обработки
@@ -117,6 +118,6 @@ public class FallbackLlmGenerator {
                     > *Ollama недоступен — используется fallback-режим*
                     """;
         }
-        return new LlmResponse(text, 0, 0L, null);
+        return new LlmResponse(text, 0, 0L, null, true);
     }
 }

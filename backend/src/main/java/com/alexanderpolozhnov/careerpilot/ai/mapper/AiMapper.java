@@ -18,6 +18,7 @@ public class AiMapper {
                 entity.getCreatedAt(),
                 entity.getTokensUsed(),
                 entity.getLatencyMs(),
-                entity.getErrorMessage());
+                entity.getErrorMessage(),
+                entity.getIsFallback());
     }
 }

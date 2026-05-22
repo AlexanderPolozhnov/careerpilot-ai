@@ -1,7 +1,8 @@
-import { Sparkles, Search, FileText, PenLine, MessageSquare, Clock, Zap, FileEdit } from 'lucide-react'
+import { Sparkles, Search, FileText, PenLine, MessageSquare, Clock, Zap, FileEdit, AlertTriangle } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { cn, formatRelative } from '@/lib/utils'
 import type { AiResult } from '@/types'
+import { useTranslation } from 'react-i18next'
 
 function formatDuration(ms: number): string {
   if (ms >= 1000) {
@@ -30,15 +31,22 @@ interface AiInsightCardProps {
   result: AiResult
   compact?: boolean
   className?: string
+  dashboard?: boolean
 }
 
-export function AiInsightCard({ result, compact, className }: AiInsightCardProps) {
+export function AiInsightCard({ result, compact, className, dashboard }: AiInsightCardProps) {
+  const { t } = useTranslation()
   const cleanText = (result.result ?? '').replace(/[#*`_~]/g, '').trim()
-  const preview = cleanText.slice(0, compact ? 100 : 400)
   const Icon = typeIcons[result.type] || Sparkles
   const colorClass = typeColors[result.type] || 'text-violet-400 bg-violet-500/10'
 
-  if (compact) {
+  const cardClasses = cn(
+    'group relative rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.04]',
+    dashboard ? 'h-[260px] flex flex-col' : '',
+    className
+  )
+
+  if (compact && !dashboard) {
     return (
       <div className={cn('flex items-start gap-3', className)}>
         <div
@@ -51,26 +59,34 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 mb-1">
-            <span
-              className={cn(
-                'text-[10px] font-semibold uppercase tracking-wider',
-                colorClass.split(' ')[0]
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  'text-[10px] font-semibold uppercase tracking-wider',
+                  colorClass.split(' ')[0]
+                )}
+              >
+                {t(`aiAssistant.types.${result.type}`)}
+              </span>
+              {result.isFallback && (
+                <span className="flex items-center gap-1 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 uppercase tracking-tighter">
+                  <AlertTriangle className="h-2.5 w-2.5" />
+                  {t('aiAssistant.fallbackMode')}
+                </span>
               )}
-            >
-              {result.type.replace(/_/g, ' ')}
-            </span>
+            </div>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               {(result.latencyMs !== undefined || result.tokensUsed !== undefined) && (
                 <div className="flex items-center gap-1.5 text-[10px] font-medium text-white/30">
                   {result.latencyMs !== undefined && (
-                    <span className="flex items-center gap-0.5 text-violet-400">
-                      <Clock className="h-2.5 w-2.5" />
-                      {formatDuration(result.latencyMs)}
+                    <span className="flex items-center gap-0.5">
+                      <Clock className="h-3 w-3 animate-clock-spin" />
+                      <span className="text-violet-400">{formatDuration(result.latencyMs)}</span>
                     </span>
                   )}
                   {result.tokensUsed !== undefined && result.tokensUsed > 0 && (
-                    <span className="flex items-center gap-0.5 border-l border-white/10 pl-1.5">
-                      <Zap className="h-2.5 w-2.5" />
+                    <span className="flex items-center gap-0.5 border-l border-white/10 pl-1.5 text-violet-400/80">
+                      <Zap className="h-2 w-2 animate-zap-glow" />
                       {result.tokensUsed}
                     </span>
                   )}
@@ -80,8 +96,8 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
             </div>
           </div>
           <p className="text-xs text-white/50 leading-relaxed line-clamp-2">
-            {preview}
-            {(result.result ?? '').length > preview.length ? '...' : ''}
+            {cleanText.slice(0, 100)}
+            {cleanText.length > 100 ? '...' : ''}
           </p>
         </div>
       </div>
@@ -89,14 +105,11 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
   }
 
   return (
-    <div
-      className={cn(
-        'group relative rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.04]',
-        className
-      )}
-    >
+    <div className={cardClasses}>
       {/* Subtle glow */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
+      {!dashboard && (
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
+      )}
 
       <div className="flex items-start gap-4">
         <div
@@ -108,43 +121,52 @@ export function AiInsightCard({ result, compact, className }: AiInsightCardProps
           <Icon className={cn('h-5 w-5', colorClass.split(' ')[0])} />
         </div>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-2">
-            <span
-              className={cn(
-                'text-xs font-semibold uppercase tracking-wider',
-                colorClass.split(' ')[0]
+        <div className="flex-1 min-w-0 flex items-center h-11">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 w-full">
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  'text-xs font-semibold uppercase tracking-wider',
+                  colorClass.split(' ')[0]
+                )}
+              >
+                {t(`aiAssistant.types.${result.type}`)}
+              </span>
+              {result.isFallback && (
+                <span className="flex items-center gap-1 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 uppercase tracking-tighter">
+                  <AlertTriangle className="h-2.5 w-2.5" />
+                  {t('aiAssistant.fallbackMode')}
+                </span>
               )}
-            >
-              {result.type.replace(/_/g, ' ')}
-            </span>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              {(result.latencyMs !== undefined || result.tokensUsed !== undefined) && (
-                <div className="flex items-center gap-3 text-[10px] font-medium text-white/20 uppercase tracking-widest">
-                  {result.latencyMs !== undefined && (
-                    <span className="flex items-center gap-1 text-violet-400">
-                      <Clock className="h-3 w-3" />
-                      {formatDuration(result.latencyMs)}
-                    </span>
-                  )}
-                  {result.tokensUsed !== undefined && result.tokensUsed > 0 && (
-                    <span className="flex items-center gap-1">
-                      <Zap className="h-3 w-3" />
-                      {result.tokensUsed}
-                    </span>
-                  )}
-                </div>
+            </div>
+            <div className="flex items-center gap-3 text-[10px] font-medium text-white/20 uppercase tracking-widest">
+              {result.latencyMs !== undefined && (
+                <span className="flex items-center gap-1">
+                  <Clock className="h-4 w-4 animate-clock-spin" />
+                  <span className="text-violet-400">{formatDuration(result.latencyMs)}</span>
+                </span>
               )}
-              <span className="text-xs text-white/25 whitespace-nowrap">
+              {result.tokensUsed !== undefined && result.tokensUsed > 0 && (
+                <span className="flex items-center gap-1 text-violet-400/80">
+                  <Zap className="h-3 w-3 animate-zap-glow" />
+                  {result.tokensUsed}
+                </span>
+              )}
+              <span className="text-xs text-white/25 whitespace-nowrap lowercase tracking-normal">
                 {formatRelative(result.createdAt)}
               </span>
             </div>
           </div>
-
-          <div className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap max-h-[260px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&>h1]:text-xl [&>h1]:font-bold [&>h1]:mb-4 [&>h1]:text-white [&>h2]:text-lg [&>h2]:font-bold [&>h2]:mt-6 [&>h2]:mb-3 [&>h2]:text-white [&>h3]:text-base [&>h3]:font-semibold [&>h3]:mt-5 [&>h3]:mb-2 [&>h3]:text-white [&>p]:mb-4 last:[&>p]:mb-0 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-4 last:[&>ul]:mb-0 [&>ul>li]:mb-1.5 last:[&>ul>li]:mb-0 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-4 last:[&>ol]:mb-0 [&>ol>li]:mb-1.5 last:[&>ol>li]:mb-0 [&_strong]:text-white [&_strong]:font-semibold [&_a]:text-violet-400 [&_a]:underline">
-            <ReactMarkdown>{result.result || ''}</ReactMarkdown>
-          </div>
         </div>
+      </div>
+
+      <div className="mt-4 mb-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+
+      <div className={cn(
+        "text-sm text-white/70 leading-snug whitespace-pre-wrap overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-violet-500/10 [&::-webkit-scrollbar-thumb]:rounded-full [&>h1]:text-xl [&>h1]:font-bold [&>h1]:mb-1 [&>h1]:text-white [&>h2]:text-lg [&>h2]:font-bold [&>h2]:mt-3 [&>h2]:mb-1 [&>h2]:text-white [&>h3]:text-base [&>h3]:font-semibold [&>h3]:mt-2 [&>h3]:mb-0.5 [&>h3]:text-white [&>p]:mb-4 last:[&>p]:mb-0 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-2 last:[&>ul]:mb-0 [&>ul>li]:mb-0.5 last:[&>ul>li]:mb-0 [&>ul]:mt-0 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-2 last:[&>ol]:mb-0 [&>ol>li]:mb-0.5 last:[&>ol>li]:mb-0 [&>ol]:mt-0 [&_strong]:text-white [&_strong]:font-semibold [&_a]:text-violet-400 [&_a]:underline",
+        dashboard ? "flex-1 mt-2" : "max-h-[280px] mt-1"
+      )}>
+        <ReactMarkdown>{result.result || ''}</ReactMarkdown>
       </div>
     </div>
   )

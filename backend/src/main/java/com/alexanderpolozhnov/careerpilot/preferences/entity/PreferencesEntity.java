@@ -48,4 +48,15 @@ public class PreferencesEntity extends BaseAuditableEntity {
 
     @Column(name = "ollama_model", length = 50)
     private String ollamaModel = "llama3";
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "custom_ai_provider", length = 50)
+    private CustomAiProvider customAiProvider = CustomAiProvider.OPENAI;
+
+    @Convert(converter = EncryptionConverter.class)
+    @Column(name = "gemini_api_key", length = 255)
+    private String geminiApiKey;
+
+    @Column(name = "gemini_model", length = 50)
+    private String geminiModel = "gemini-1.5-flash";
 }

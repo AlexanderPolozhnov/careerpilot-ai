@@ -55,7 +55,7 @@ class AiControllerTest {
         UUID userId = UUID.randomUUID();
         UUID resultId = UUID.randomUUID();
         AiResultDto dto = new AiResultDto(resultId, userId, "VACANCY_ANALYSIS",
-                "Analyze vacancy", "## Analysis", vacancyId, Instant.now(), 100, 500L, null);
+                "Analyze vacancy", "## Analysis", vacancyId, Instant.now(), 100, 500L, null, false);
         when(aiService.analyzeVacancy(any())).thenReturn(new AiResponse(dto));
 
         mockMvc.perform(post("/api/ai/analyze-vacancy")
@@ -72,7 +72,7 @@ class AiControllerTest {
     void historyReturnsListForCurrentUser() throws Exception {
         UUID userId = UUID.randomUUID();
         AiResultDto dto = new AiResultDto(UUID.randomUUID(), userId, "RESUME_MATCH",
-                "Match resume", "## Match", null, Instant.now(), null, null, null);
+                "Match resume", "## Match", null, Instant.now(), null, null, null, false);
         when(aiService.history(null)).thenReturn(List.of(dto));
 
         mockMvc.perform(get("/api/ai/history"))
@@ -85,7 +85,7 @@ class AiControllerTest {
     void historyWithTypeFilterPassesTypeToService() throws Exception {
         UUID userId = UUID.randomUUID();
         AiResultDto dto = new AiResultDto(UUID.randomUUID(), userId, "VACANCY_ANALYSIS",
-                "Analyze", "## Analysis", null, Instant.now(), null, null, null);
+                "Analyze", "## Analysis", null, Instant.now(), null, null, null, false);
         when(aiService.history(eq("VACANCY_ANALYSIS"))).thenReturn(List.of(dto));
 
         mockMvc.perform(get("/api/ai/history").param("type", "VACANCY_ANALYSIS"))
@@ -98,7 +98,7 @@ class AiControllerTest {
         UUID id = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         AiResultDto dto = new AiResultDto(id, userId, "COVER_LETTER",
-                "Cover letter", "## Letter", null, Instant.now(), null, null, null);
+                "Cover letter", "## Letter", null, Instant.now(), null, null, null, false);
         when(aiService.historyById(id)).thenReturn(dto);
 
         mockMvc.perform(get("/api/ai/history/" + id))

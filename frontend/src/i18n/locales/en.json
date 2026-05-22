@@ -494,13 +494,15 @@
     "noHistoryTitle": "No history",
     "noHistoryDescription": "Generated outputs will appear here.",
     "types": {
-      "VACANCY_ANALYSIS": "Job Analysis",
+      "VACANCY_ANALYSIS": "Vacancy Analysis",
       "RESUME_MATCH": "Resume Match",
       "COVER_LETTER": "Cover Letter",
       "INTERVIEW_QUESTIONS": "Interview Questions",
       "SKILL_GAP": "Skill Gaps",
       "RESUME_GENERATION": "Resume Optimization"
-    }
+    },
+    "fallbackMode": "Fallback Mode",
+    "fallbackDescription": "Ollama unavailable. Using mock data."
   },
   "analytics": {
     "title": "Analytics",
@@ -594,9 +596,17 @@
     "openAiApiKey": "OpenAI API Key",
     "apiKeySaved": "Key saved (start typing to change)",
     "openAiModel": "OpenAI Model",
+    "aiProviderChoice": "AI Provider Choice",
+    "geminiApiKey": "Gemini API Key",
+    "geminiModel": "Gemini Model",
+    "geminiDescription": "Google Gemini API. Get your key at https://aistudio.google.com/app/apikey",
     "ollamaUrl": "Ollama URL",
     "ollamaModel": "Ollama Model",
+    "ollamaDefaultsHint": "Leave blank to use http://localhost:11434 (llama3)",
     "ollamaDockerTip": "Run Ollama via Docker: docker run -d -p 11434:11434 ollama/ollama && docker exec -it ollama ollama pull llama3",
+    "saveAiConfig": "Save configuration",
+    "dockerTitle": "Quick Ollama setup",
+    "dockerExampleNote": "This is an example command for quick start. You can customize parameters to fit your needs.",
     "cloudModeTip": "Using system API key. AI features run in cloud mode.",
     "recentNotifications": "Recent notifications",
     "notificationTypes": {

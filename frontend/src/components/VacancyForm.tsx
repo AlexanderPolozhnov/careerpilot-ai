@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useForm, type Resolver } from 'react-hook-form'
+import { useForm, type Resolver, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 import { companyService } from '@/services/company.service'
 import { LoadingState } from './LoadingState'
 import type { TFunction } from 'i18next'
+import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
 
 const remoteTypeValues = ['REMOTE', 'HYBRID', 'ON_SITE'] as const
 const contractTypeValues = ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'FREELANCE', 'INTERNSHIP'] as const
@@ -61,6 +62,15 @@ export function VacancyForm({ onSubmit, onCancel, initialValues, isSubmitting }:
 
   const companies = companiesQuery.data?.content ?? []
 
+  const companyOptions: SelectOption[] = [
+    { value: '', label: t('vacancies.form.selectCompany') },
+    ...companies.map(c => ({ value: c.id, label: c.name })),
+  ]
+
+  const remoteOptions: SelectOption[] = remoteTypeValues.map(v => ({ value: v, label: v }))
+
+  const contractTypeOptions: SelectOption[] = contractTypeValues.map(v => ({ value: v, label: v }))
+
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       <div>
@@ -71,12 +81,18 @@ export function VacancyForm({ onSubmit, onCancel, initialValues, isSubmitting }:
 
       <div>
         <label htmlFor="companyId" className="text-xs text-ink-dim">{t('vacancies.form.company')}</label>
-        <select id="companyId" {...form.register('companyId')} className="select mt-1">
-          <option value="" className="select-option">{t('vacancies.form.selectCompany')}</option>
-          {companies.map(c => (
-            <option key={c.id} value={c.id} className="select-option">{c.name}</option>
-          ))}
-        </select>
+        <Controller
+          name="companyId"
+          control={form.control}
+          render={({ field }) => (
+            <CustomSelect
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              options={companyOptions}
+              className="mt-1"
+            />
+          )}
+        />
         {form.formState.errors.companyId && <p className="text-xs text-danger mt-1">{form.formState.errors.companyId.message}</p>}
       </div>
 
@@ -116,15 +132,33 @@ export function VacancyForm({ onSubmit, onCancel, initialValues, isSubmitting }:
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="remote" className="text-xs text-ink-dim">{t('vacancies.form.remote')}</label>
-          <select id="remote" {...form.register('remote')} className="select mt-1">
-            {remoteTypeValues.map(v => <option key={v} value={v} className="select-option">{v}</option>)}
-          </select>
+          <Controller
+            name="remote"
+            control={form.control}
+            render={({ field }) => (
+              <CustomSelect
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                options={remoteOptions}
+                className="mt-1"
+              />
+            )}
+          />
         </div>
         <div>
           <label htmlFor="contractType" className="text-xs text-ink-dim">{t('vacancies.form.contractType')}</label>
-          <select id="contractType" {...form.register('contractType')} className="select mt-1">
-            {contractTypeValues.map(v => <option key={v} value={v} className="select-option">{v}</option>)}
-          </select>
+          <Controller
+            name="contractType"
+            control={form.control}
+            render={({ field }) => (
+              <CustomSelect
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                options={contractTypeOptions}
+                className="mt-1"
+              />
+            )}
+          />
         </div>
       </div>
 

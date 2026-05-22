@@ -10,6 +10,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from '@/lib/toast'
 import { InterviewForm } from '@/components/InterviewForm'
 import { ConfirmModal } from '@/components/ConfirmModal'
+import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
 
 function SearchIcon({ className }: { className?: string }) {
   return (
@@ -162,6 +163,16 @@ export default function InterviewsPage() {
   const interviewTypeValues: InterviewType[] = ['HR_SCREEN', 'TECH_SCREEN', 'TECH_INTERVIEW', 'FINAL', 'OTHER']
   const interviewResultValues: InterviewResult[] = ['PENDING', 'PASSED', 'FAILED', 'CANCELLED']
 
+  const typeOptions: SelectOption[] = [
+    { value: '', label: t('interviews.allTypes') },
+    ...interviewTypeValues.map(v => ({ value: v, label: t(`interviews.types.${v}`) })),
+  ]
+
+  const resultOptions: SelectOption[] = [
+    { value: '', label: t('interviews.allResults') },
+    ...interviewResultValues.map(v => ({ value: v, label: t(`interviews.results.${v}`) })),
+  ]
+
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
 
   return (
@@ -267,30 +278,18 @@ export default function InterviewsPage() {
 
           {/* Filters */}
           <div className="flex items-center gap-3 flex-wrap">
-            <select
+            <CustomSelect
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value as InterviewType | '')}
-              className="select w-auto"
-            >
-              <option value="" className="select-option">{t('interviews.allTypes')}</option>
-              {interviewTypeValues.map(v => (
-                <option key={v} value={v} className="select-option">
-                  {t(`interviews.types.${v}`)}
-                </option>
-              ))}
-            </select>
-            <select
+              onChange={(val) => setTypeFilter(val as InterviewType | '')}
+              options={typeOptions}
+              className="w-auto"
+            />
+            <CustomSelect
               value={resultFilter}
-              onChange={(e) => setResultFilter(e.target.value as InterviewResult | '')}
-              className="select w-auto"
-            >
-              <option value="" className="select-option">{t('interviews.allResults')}</option>
-              {interviewResultValues.map(v => (
-                <option key={v} value={v} className="select-option">
-                  {t(`interviews.results.${v}`)}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setResultFilter(val as InterviewResult | '')}
+              options={resultOptions}
+              className="w-auto"
+            />
 
             {/* Results count */}
             <span className="px-3 py-1.5 text-xs font-medium text-[#6b7590] bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] rounded-full">

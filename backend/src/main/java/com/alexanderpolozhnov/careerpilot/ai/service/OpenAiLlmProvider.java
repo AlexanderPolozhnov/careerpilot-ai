@@ -53,8 +53,7 @@ public class OpenAiLlmProvider implements LlmProvider {
             Map<String, Object> body = Map.of(
                     "model", model,
                     "messages", Map.of("role", "user", "content", prompt),
-                    "temperature", 0.7
-            );
+                    "temperature", 0.7);
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
             ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
@@ -77,7 +76,7 @@ public class OpenAiLlmProvider implements LlmProvider {
                                     tokens = ((Number) totalTokens).intValue();
                                 }
                             }
-                            return new LlmResponse(text, tokens, null, null);
+                            return new LlmResponse(text, tokens, null, null, false);
                         }
                     }
                 }
