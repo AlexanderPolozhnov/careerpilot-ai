@@ -36,19 +36,43 @@
 
 ---
 
+### Вакансии
+
+![Vacancies](./docs/assets/screenshot-vacancies.png)
+
+---
+
 ### Вакансии — детальная страница
 
 ![Vacancy Detail](./docs/assets/screenshot-vacancy-detail.png)
 
 ---
 
-### Отклики — Kanban-борд
+### Заявки — Kanban-борд
 
 ![Applications Kanban](./docs/assets/screenshot-kanban.png)
 
 ---
 
-### AI-ассистент
+### Задачи
+
+![Tasks](./docs/assets/screenshot-tasks.png)
+
+---
+
+### Собеседования
+
+![Interviews](./docs/assets/screenshot-interviews.png)
+
+---
+
+### Компании
+
+![Companies](./docs/assets/screenshot-companies.png)
+
+---
+
+### AI-помощник
 
 ![AI Assistant](./docs/assets/screenshot-ai.png)
 
@@ -57,6 +81,12 @@
 ### Аналитика
 
 ![Analytics](./docs/assets/screenshot-analytics.png)
+
+---
+
+### Настройки
+
+![Settings](./docs/assets/screenshot-settings.png)
 
 ---
 
