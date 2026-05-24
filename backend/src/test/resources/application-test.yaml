@@ -18,3 +18,7 @@ spring:
 reminder:
   scheduler:
     enabled: false
+
+telegram:
+  bot:
+    enabled: false

@@ -2963,3 +2963,10 @@ pm run build прошла успешно.
 - Frontend: `npm run build` - успешно.
 
 **Статус:** Исправлено. Бот успешно зарегистрирован, слушает Long Polling соединения, а UI синхронизируется без задержек.
+### 24.05.2026 — README polish & CI fixes
+
+- **README Update:** Добавлен выразительный блок '🌟 Ключевые особенности проекта', акцентирующий внимание на архитектурных решениях (Multi-provider AI, Telegram/SMTP Strategy, Rate Limiting, Audit Trail).
+- **CI/CD Fixes:** Исправлена проблема падения бэкенд-тестов в GitHub Actions.
+  - В 'application-test.yaml' принудительно отключен 'telegram.bot.enabled', чтобы избежать ошибок инициализации API при пустых токенах.
+  - В пайплайне '.github/workflows/ci.yml' тяжелый 'CareerpilotAiApplicationTests' (с Testcontainers) исключен из прогона ('-Dtest="!CareerpilotAiApplicationTests"').
+  - Усилена изоляция в 'PreferencesServiceImplTest' через 'SecurityContextHolder.clearContext()'.

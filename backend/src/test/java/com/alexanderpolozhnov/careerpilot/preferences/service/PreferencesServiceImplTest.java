@@ -4,10 +4,12 @@ import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.auth.repository.AuthRepository;
 import com.alexanderpolozhnov.careerpilot.preferences.entity.AiProviderMode;
 import com.alexanderpolozhnov.careerpilot.preferences.entity.CustomAiProvider;
+import com.alexanderpolozhnov.careerpilot.preferences.entity.NotificationProvider;
 import com.alexanderpolozhnov.careerpilot.preferences.entity.PreferencesEntity;
 import com.alexanderpolozhnov.careerpilot.preferences.repository.PreferencesRepository;
 import com.alexanderpolozhnov.careerpilot.preferences.request.PreferencesRequest;
 import com.alexanderpolozhnov.careerpilot.preferences.response.PreferencesResponse;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,6 +58,11 @@ class PreferencesServiceImplTest {
         SecurityContextHolder.setContext(securityContext);
     }
 
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
+
     @Test
     void updatePreferences_WithNullCustomAiProvider_ShouldWork() {
         // Arrange
@@ -75,7 +82,8 @@ class PreferencesServiceImplTest {
                 AiProviderMode.LOCAL, "ru",
                 null, "gpt-4", "http://localhost:11434", "llama3",
                 null, // customAiProvider is null
-                null, "gemini-1.5-flash", null
+                null, "gemini-1.5-flash", 
+                NotificationProvider.EMAIL
         );
 
         // Act
@@ -87,67 +95,69 @@ class PreferencesServiceImplTest {
         assertEquals(CustomAiProvider.OPENAI.name(), response.customAiProvider());
         verify(preferencesRepository).save(any(PreferencesEntity.class));
     }
-@Test
-void updatePreferences_WithAllOptionalFieldsNull_ShouldWork() {
-    // Arrange
-    when(securityContext.getAuthentication()).thenReturn(authentication);
-    when(authentication.getName()).thenReturn(user.getEmail());
-    when(authRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
-    PreferencesEntity existingPrefs = new PreferencesEntity();
-    existingPrefs.setUserId(userId);
+    @Test
+    void updatePreferences_WithAllOptionalFieldsNull_ShouldWork() {
+        // Arrange
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(user.getEmail());
+        when(authRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
-    when(preferencesRepository.findByUserId(userId)).thenReturn(Optional.of(existingPrefs));
-    when(preferencesRepository.save(any(PreferencesEntity.class))).thenAnswer(i -> i.getArguments()[0]);
+        PreferencesEntity existingPrefs = new PreferencesEntity();
+        existingPrefs.setUserId(userId);
 
-    // Request with all optional fields as null
-    PreferencesRequest request = new PreferencesRequest(
-            true, true, true, true,
-            AiProviderMode.LOCAL, "en",
-            null, null, null, null,
-            null, null, null, null
-    );
+        when(preferencesRepository.findByUserId(userId)).thenReturn(Optional.of(existingPrefs));
+        when(preferencesRepository.save(any(PreferencesEntity.class))).thenAnswer(i -> i.getArguments()[0]);
 
-    // Act
-    PreferencesResponse response = preferencesService.updatePreferences(request);
+        // Request with all optional fields as null
+        PreferencesRequest request = new PreferencesRequest(
+                true, true, true, true,
+                AiProviderMode.LOCAL, "en",
+                null, null, null, null,
+                null, null, null, 
+                NotificationProvider.EMAIL
+        );
 
-    // Assert
-    assertNotNull(response);
-    assertEquals(AiProviderMode.LOCAL.name(), response.aiProviderMode());
-    assertNull(response.openAiApiKey());
-    assertNull(response.geminiApiKey());
-    verify(preferencesRepository).save(any(PreferencesEntity.class));
+        // Act
+        PreferencesResponse response = preferencesService.updatePreferences(request);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(AiProviderMode.LOCAL.name(), response.aiProviderMode());
+        assertNull(response.openAiApiKey());
+        assertNull(response.geminiApiKey());
+        verify(preferencesRepository).save(any(PreferencesEntity.class));
+    }
+
+    @Test
+    void updatePreferences_WithGemini_ShouldUpdateCorrectly() {
+        // Arrange
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(user.getEmail());
+        when(authRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+
+        PreferencesEntity existingPrefs = new PreferencesEntity();
+        existingPrefs.setUserId(userId);
+
+        when(preferencesRepository.findByUserId(userId)).thenReturn(Optional.of(existingPrefs));
+        when(preferencesRepository.save(any(PreferencesEntity.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        PreferencesRequest request = new PreferencesRequest(
+                true, true, true, true,
+                AiProviderMode.BRING_YOUR_OWN_KEY, "en",
+                null, "gpt-4", "http://localhost:11434", "llama3",
+                CustomAiProvider.GEMINI,
+                "new-gemini-key", "gemini-2.0-flash-exp", 
+                NotificationProvider.EMAIL
+        );
+
+        // Act
+        PreferencesResponse response = preferencesService.updatePreferences(request);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(CustomAiProvider.GEMINI.name(), response.customAiProvider());
+        assertEquals("gemini-2.0-flash-exp", response.geminiModel());
+        assertTrue(response.geminiApiKey().contains("..."));
+    }
 }
-
-@Test
-void updatePreferences_WithGemini_ShouldUpdateCorrectly() {
-    // Arrange
-    when(securityContext.getAuthentication()).thenReturn(authentication);
-    when(authentication.getName()).thenReturn(user.getEmail());
-    when(authRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-
-    PreferencesEntity existingPrefs = new PreferencesEntity();
-    existingPrefs.setUserId(userId);
-
-    when(preferencesRepository.findByUserId(userId)).thenReturn(Optional.of(existingPrefs));
-    when(preferencesRepository.save(any(PreferencesEntity.class))).thenAnswer(i -> i.getArguments()[0]);
-
-    PreferencesRequest request = new PreferencesRequest(
-            true, true, true, true,
-            AiProviderMode.BRING_YOUR_OWN_KEY, "en",
-            null, "gpt-4", "http://localhost:11434", "llama3",
-            CustomAiProvider.GEMINI,
-            "new-gemini-key", "gemini-2.0-flash-exp", null
-    );
-
-    // Act
-    PreferencesResponse response = preferencesService.updatePreferences(request);
-
-    // Assert
-    assertNotNull(response);
-    assertEquals(CustomAiProvider.GEMINI.name(), response.customAiProvider());
-    assertEquals("gemini-2.0-flash-exp", response.geminiModel());
-    assertTrue(response.geminiApiKey().contains("..."));
-}
-}
-
