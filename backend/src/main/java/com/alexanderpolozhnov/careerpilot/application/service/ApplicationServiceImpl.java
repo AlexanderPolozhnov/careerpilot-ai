@@ -3,6 +3,7 @@ package com.alexanderpolozhnov.careerpilot.application.service;
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationEntity;
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationStatus;
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationStatusHistoryEntity;
+import com.alexanderpolozhnov.careerpilot.application.event.ApplicationStatusChangedEvent;
 import com.alexanderpolozhnov.careerpilot.application.exception.ApplicationNotFoundException;
 import com.alexanderpolozhnov.careerpilot.application.repository.ApplicationRepository;
 import com.alexanderpolozhnov.careerpilot.application.repository.ApplicationStatusHistoryRepository;
@@ -19,11 +20,11 @@ import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
 import com.alexanderpolozhnov.careerpilot.notification.entity.NotificationType;
-import com.alexanderpolozhnov.careerpilot.notification.service.NotificationCreator;
 import com.alexanderpolozhnov.careerpilot.vacancy.entity.VacancyEntity;
 import com.alexanderpolozhnov.careerpilot.vacancy.repository.VacancyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +43,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final VacancyRepository vacancyRepository;
     private final CurrentUserResolver currentUserResolver;
-    private final NotificationCreator notificationCreator;
+    private final ApplicationEventPublisher eventPublisher;
     private final ApplicationStatusHistoryRepository historyRepository;
 
     @Override
@@ -78,16 +79,8 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         log.info("applications.create userId={} vacancyId={} id={}", userId, request.vacancyId(), saved.getId());
 
-        // Create notification for application status change (only if status != SAVED)
-        if (status != ApplicationStatus.SAVED) {
-            String vacancyTitle = saved.getVacancy().getTitle();
-            String companyName = saved.getVacancy().getCompany() != null ? saved.getVacancy().getCompany().getName()
-                    : "Unknown";
-            String message = String.format("Статус вашего отклика на вакансию %s в %s изменен на %s",
-                    vacancyTitle, companyName, status.name());
-            notificationCreator.createNotification(currentUser, NotificationType.APPLICATION_STATUS,
-                    "Обновление статуса отклика", message, saved.getId(), "APPLICATION", false);
-        }
+        // Publish status change event
+        eventPublisher.publishEvent(new ApplicationStatusChangedEvent(this, saved, null, status));
 
         return toResponse(saved);
     }
@@ -211,14 +204,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         // Record status change in history
         recordStatusChange(saved, oldStatus, newStatus, null);
 
-        // Create notification for application status change
-        String vacancyTitle = saved.getVacancy().getTitle();
-        String companyName = saved.getVacancy().getCompany() != null ? saved.getVacancy().getCompany().getName()
-                : "Unknown";
-        String message = String.format("Статус вашего отклика на вакансию %s в %s изменен на %s",
-                vacancyTitle, companyName, newStatus.name());
-        notificationCreator.createNotification(currentUser, NotificationType.APPLICATION_STATUS,
-                "Обновление статуса отклика", message, saved.getId(), "APPLICATION", false);
+        // Publish status change event
+        eventPublisher.publishEvent(new ApplicationStatusChangedEvent(this, saved, oldStatus, newStatus));
 
         return toResponse(saved);
     }

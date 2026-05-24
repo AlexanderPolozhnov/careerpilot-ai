@@ -91,7 +91,7 @@ class AiServiceImplTest {
         when(aiMapper.toDto(saved)).thenReturn(dto);
 
         AiAnalyzeVacancyRequest request = new AiAnalyzeVacancyRequest(vacancyId, "Senior Java Developer");
-        AiResponse response = aiService.analyzeVacancy(request);
+        AiResponse response = aiService.analyzeVacancy(request).join();
 
         assertThat(response.result().userId()).isEqualTo(currentUser.getId());
         assertThat(response.result().type()).isEqualTo("VACANCY_ANALYSIS");
@@ -167,7 +167,7 @@ class AiServiceImplTest {
         when(aiMapper.toDto(saved)).thenReturn(dto);
 
         AiInterviewQuestionsRequest request = new AiInterviewQuestionsRequest(null, null, "Java", null);
-        AiResponse response = aiService.interviewQuestions(request);
+        AiResponse response = aiService.interviewQuestions(request).join();
 
         assertThat(response.result().type()).isEqualTo("INTERVIEW_QUESTIONS");
         verify(aiResultCacheService, org.mockito.Mockito.never()).getCachedResult(any(), any(), any(), any());
@@ -183,7 +183,7 @@ class AiServiceImplTest {
         when(aiMapper.toDto(saved)).thenReturn(dto);
 
         AiCoverLetterRequest request = new AiCoverLetterRequest(null, "job", null, "me", "prof", "more");
-        AiResponse response = aiService.coverLetter(request);
+        AiResponse response = aiService.coverLetter(request).join();
 
         assertThat(response.result().type()).isEqualTo("COVER_LETTER");
         verify(aiResultCacheService, org.mockito.Mockito.never()).getCachedResult(any(), any(), any(), any());

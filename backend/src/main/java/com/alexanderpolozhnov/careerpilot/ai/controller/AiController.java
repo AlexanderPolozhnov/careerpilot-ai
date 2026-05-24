@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -27,35 +28,35 @@ public class AiController {
     @RateLimit(key = "ai_generation", capacity = 10, refillTokens = 10, refillDurationMinutes = 60)
     @Auditable(action = "AI_USE", entityType = "AI")
     @PostMapping("/analyze-vacancy")
-    public AiResponse analyzeVacancy(@Valid @RequestBody AiAnalyzeVacancyRequest request) {
+    public CompletableFuture<AiResponse> analyzeVacancy(@Valid @RequestBody AiAnalyzeVacancyRequest request) {
         return aiService.analyzeVacancy(request);
     }
 
     @RateLimit(key = "ai_generation", capacity = 10, refillTokens = 10, refillDurationMinutes = 60)
     @Auditable(action = "AI_USE", entityType = "AI")
     @PostMapping("/resume-match")
-    public AiResponse resumeMatch(@Valid @RequestBody AiResumeMatchRequest request) {
+    public CompletableFuture<AiResponse> resumeMatch(@Valid @RequestBody AiResumeMatchRequest request) {
         return aiService.resumeMatch(request);
     }
 
     @RateLimit(key = "ai_generation", capacity = 10, refillTokens = 10, refillDurationMinutes = 60)
     @Auditable(action = "AI_USE", entityType = "AI")
     @PostMapping("/cover-letter")
-    public AiResponse coverLetter(@Valid @RequestBody AiCoverLetterRequest request) {
+    public CompletableFuture<AiResponse> coverLetter(@Valid @RequestBody AiCoverLetterRequest request) {
         return aiService.coverLetter(request);
     }
 
     @RateLimit(key = "ai_generation", capacity = 10, refillTokens = 10, refillDurationMinutes = 60)
     @Auditable(action = "AI_USE", entityType = "AI")
     @PostMapping("/interview-questions")
-    public AiResponse interviewQuestions(@Valid @RequestBody AiInterviewQuestionsRequest request) {
+    public CompletableFuture<AiResponse> interviewQuestions(@Valid @RequestBody AiInterviewQuestionsRequest request) {
         return aiService.interviewQuestions(request);
     }
 
     @RateLimit(key = "ai_generation", capacity = 10, refillTokens = 10, refillDurationMinutes = 60)
     @Auditable(action = "AI_USE", entityType = "AI")
     @PostMapping("/generate-resume")
-    public AiResponse generateResume(@Valid @RequestBody AiResumeGenerationRequest request) {
+    public CompletableFuture<AiResponse> generateResume(@Valid @RequestBody AiResumeGenerationRequest request) {
         return aiService.generateResume(request);
     }
 

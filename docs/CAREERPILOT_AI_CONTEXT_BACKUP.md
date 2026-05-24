@@ -2970,3 +2970,28 @@ pm run build прошла успешно.
   - В 'application-test.yaml' принудительно отключен 'telegram.bot.enabled', чтобы избежать ошибок инициализации API при пустых токенах.
   - В пайплайне '.github/workflows/ci.yml' тяжелый 'CareerpilotAiApplicationTests' (с Testcontainers) исключен из прогона ('-Dtest="!CareerpilotAiApplicationTests"').
   - Усилена изоляция в 'PreferencesServiceImplTest' через 'SecurityContextHolder.clearContext()'.
+
+## Update 2026-05-24: Senior Architecture & Performance Polish
+
+**Backend:**
+- **Asynchronous AI Integration:**
+  - Настроен выделенный пул потоков aiTaskExecutor в AsyncConfig с пробросом SecurityContext.
+  - Сервис AiServiceImpl переведен на неблокирующий режим (@Async, CompletableFuture).
+  - Обновлен AiController для асинхронной обработки запросов.
+- **Event-Driven Architecture (EDA):**
+  - Внедрен паттерн публикации событий для откликов (ApplicationStatusChangedEvent).
+  - Добавлен ApplicationEventListener для асинхронной обработки уведомлений.
+- **Performance Tuning:**
+  - Оптимизирован пул HikariCP.
+  - Включена пакетная обработка Hibernate (batch_size: 25).
+
+**Documentation:**
+- **IMPROVEMENTS.md:** Обновлен план, реализованные пункты в архиве.
+- **GEMINI.md:** Добавлены Lessons Learned (83-85), исправлена кодировка.
+- **ROADMAP.md:** Добавлен раздел Phase 6.
+
+**Проверки:**
+- Unit Tests: AiServiceImplTest, AiControllerTest, ApplicationServiceImplTest - успешно.
+- Build: clean compile - успешно.
+
+**Статус:** Реализовано. Архитектура проекта выведена на уровень Senior.

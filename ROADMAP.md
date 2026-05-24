@@ -114,6 +114,17 @@ Roadmap отражает текущее состояние перед первы
   - [x] Оптимизированы unit-тесты Preferences (изоляция SecurityContext).
   - [x] Интеграционные тесты (SpringBootTest) исключены из быстрого CI.
 
+## Phase 6 — Architecture & Quality Polish
+
+- [x] **Asynchronous AI Integration:** Переход на `@Async` и `CompletableFuture` для неблокирующей генерации ответов ИИ.
+- [x] **Event-Driven Architecture:** Внедрение Spring Events для развязки бизнес-логики и уведомлений.
+- [x] **Performance Optimization:** Настройка пула соединений HikariCP и пакетной обработки Hibernate.
+- [x] **Security Propagation:** Настройка передачи контекста безопасности (`SecurityContext`) в асинхронные потоки.
+- [x] **Full-stack Docker Compose setup.**
+- [x] **Deployment notes.**
+- [x] **Frontend test framework и базовые тесты.**
+- [x] **Stability:** Стабилизация интеграционных тестов с Testcontainers.
+
 ## 📅 Ближайшие планы (v1.0.0-beta)
 
 - [ ] Расширенная аналитика по компаниям.

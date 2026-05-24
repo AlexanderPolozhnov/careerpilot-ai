@@ -3,6 +3,7 @@ package com.alexanderpolozhnov.careerpilot.application.service;
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationEntity;
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationStatus;
 import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationStatusHistoryEntity;
+import com.alexanderpolozhnov.careerpilot.application.event.ApplicationStatusChangedEvent;
 import com.alexanderpolozhnov.careerpilot.application.exception.ApplicationNotFoundException;
 import com.alexanderpolozhnov.careerpilot.application.repository.ApplicationRepository;
 import com.alexanderpolozhnov.careerpilot.application.repository.ApplicationStatusHistoryRepository;
@@ -13,7 +14,6 @@ import com.alexanderpolozhnov.careerpilot.application.response.ApplicationVacanc
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
-import com.alexanderpolozhnov.careerpilot.notification.service.NotificationCreator;
 import com.alexanderpolozhnov.careerpilot.vacancy.entity.VacancyEntity;
 import com.alexanderpolozhnov.careerpilot.vacancy.repository.VacancyRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -48,7 +49,7 @@ class ApplicationServiceImplTest {
     @Mock
     private ApplicationStatusHistoryRepository historyRepository;
     @Mock
-    private NotificationCreator notificationCreator;
+    private ApplicationEventPublisher eventPublisher;
     @InjectMocks
     private ApplicationServiceImpl applicationService;
 
@@ -104,6 +105,7 @@ class ApplicationServiceImplTest {
         assertThat(response.notes()).isEqualTo("Interesting role");
         verify(applicationRepository).save(any(ApplicationEntity.class));
         verify(historyRepository).save(any());
+        verify(eventPublisher).publishEvent(any(ApplicationStatusChangedEvent.class));
     }
 
     @Test
@@ -189,6 +191,7 @@ class ApplicationServiceImplTest {
 
         assertThat(application.getStatus()).isEqualTo(ApplicationStatus.APPLIED);
         verify(historyRepository).save(any());
+        verify(eventPublisher).publishEvent(any(ApplicationStatusChangedEvent.class));
     }
 
     @Test

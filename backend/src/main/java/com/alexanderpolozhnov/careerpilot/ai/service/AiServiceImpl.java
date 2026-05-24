@@ -20,6 +20,7 @@ import com.alexanderpolozhnov.careerpilot.resume.response.ResumeResponse;
 import com.alexanderpolozhnov.careerpilot.resume.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -55,8 +57,9 @@ public class AiServiceImpl implements AiService {
                                 });
         }
 
+        @Async("aiTaskExecutor")
         @Override
-        public AiResponse analyzeVacancy(AiAnalyzeVacancyRequest request) {
+        public CompletableFuture<AiResponse> analyzeVacancy(AiAnalyzeVacancyRequest request) {
                 AuthEntity user = currentUserResolver.resolveRequired();
                 String language = getUserLanguage(user);
                 String prompt = buildVacancyAnalysisPrompt(request, language);
@@ -84,11 +87,12 @@ public class AiServiceImpl implements AiService {
 
                 AiEntity entity = createAndSave(user, "VACANCY_ANALYSIS", prompt, responseWithLatency,
                                 request.vacancyId());
-                return new AiResponse(aiMapper.toDto(entity));
+                return CompletableFuture.completedFuture(new AiResponse(aiMapper.toDto(entity)));
         }
 
+        @Async("aiTaskExecutor")
         @Override
-        public AiResponse resumeMatch(AiResumeMatchRequest request) {
+        public CompletableFuture<AiResponse> resumeMatch(AiResumeMatchRequest request) {
                 AuthEntity user = currentUserResolver.resolveRequired();
                 String language = getUserLanguage(user);
 
@@ -131,11 +135,12 @@ public class AiServiceImpl implements AiService {
                                 llmResponse.isFallback());
 
                 AiEntity entity = createAndSave(user, "RESUME_MATCH", prompt, responseWithLatency, request.vacancyId());
-                return new AiResponse(aiMapper.toDto(entity));
+                return CompletableFuture.completedFuture(new AiResponse(aiMapper.toDto(entity)));
         }
 
+        @Async("aiTaskExecutor")
         @Override
-        public AiResponse coverLetter(AiCoverLetterRequest request) {
+        public CompletableFuture<AiResponse> coverLetter(AiCoverLetterRequest request) {
                 AuthEntity user = currentUserResolver.resolveRequired();
                 String language = getUserLanguage(user);
 
@@ -175,11 +180,12 @@ public class AiServiceImpl implements AiService {
                                 llmResponse.isFallback());
 
                 AiEntity entity = createAndSave(user, "COVER_LETTER", prompt, responseWithLatency, request.vacancyId());
-                return new AiResponse(aiMapper.toDto(entity));
+                return CompletableFuture.completedFuture(new AiResponse(aiMapper.toDto(entity)));
         }
 
+        @Async("aiTaskExecutor")
         @Override
-        public AiResponse interviewQuestions(AiInterviewQuestionsRequest request) {
+        public CompletableFuture<AiResponse> interviewQuestions(AiInterviewQuestionsRequest request) {
                 AuthEntity user = currentUserResolver.resolveRequired();
                 String language = getUserLanguage(user);
                 String prompt = buildInterviewQuestionsPrompt(request, language);
@@ -202,11 +208,12 @@ public class AiServiceImpl implements AiService {
 
                 AiEntity entity = createAndSave(user, "INTERVIEW_QUESTIONS", prompt, responseWithLatency,
                                 request.vacancyId());
-                return new AiResponse(aiMapper.toDto(entity));
+                return CompletableFuture.completedFuture(new AiResponse(aiMapper.toDto(entity)));
         }
 
+        @Async("aiTaskExecutor")
         @Override
-        public AiResponse generateResume(AiResumeGenerationRequest request) {
+        public CompletableFuture<AiResponse> generateResume(AiResumeGenerationRequest request) {
                 AuthEntity user = currentUserResolver.resolveRequired();
                 String language = getUserLanguage(user);
 
@@ -245,7 +252,7 @@ public class AiServiceImpl implements AiService {
 
                 AiEntity entity = createAndSave(user, "RESUME_GENERATION", prompt, responseWithLatency,
                                 request.vacancyId());
-                return new AiResponse(aiMapper.toDto(entity));
+                return CompletableFuture.completedFuture(new AiResponse(aiMapper.toDto(entity)));
         }
 
         @Override

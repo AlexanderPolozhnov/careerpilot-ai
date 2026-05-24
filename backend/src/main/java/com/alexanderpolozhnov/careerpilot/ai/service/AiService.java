@@ -10,18 +10,19 @@ import com.alexanderpolozhnov.careerpilot.ai.response.AiResultDto;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public interface AiService {
 
-    AiResponse analyzeVacancy(AiAnalyzeVacancyRequest request);
+    CompletableFuture<AiResponse> analyzeVacancy(AiAnalyzeVacancyRequest request);
 
-    AiResponse resumeMatch(AiResumeMatchRequest request);
+    CompletableFuture<AiResponse> resumeMatch(AiResumeMatchRequest request);
 
-    AiResponse coverLetter(AiCoverLetterRequest request);
+    CompletableFuture<AiResponse> coverLetter(AiCoverLetterRequest request);
 
-    AiResponse interviewQuestions(AiInterviewQuestionsRequest request);
+    CompletableFuture<AiResponse> interviewQuestions(AiInterviewQuestionsRequest request);
 
-    AiResponse generateResume(AiResumeGenerationRequest request);
+    CompletableFuture<AiResponse> generateResume(AiResumeGenerationRequest request);
 
     List<AiResultDto> history(String type);
 

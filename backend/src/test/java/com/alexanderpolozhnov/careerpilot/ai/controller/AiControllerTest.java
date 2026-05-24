@@ -20,14 +20,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class AiControllerTest {
@@ -56,12 +57,16 @@ class AiControllerTest {
         UUID resultId = UUID.randomUUID();
         AiResultDto dto = new AiResultDto(resultId, userId, "VACANCY_ANALYSIS",
                 "Analyze vacancy", "## Analysis", vacancyId, Instant.now(), 100, 500L, null, false);
-        when(aiService.analyzeVacancy(any())).thenReturn(new AiResponse(dto));
+        when(aiService.analyzeVacancy(any())).thenReturn(CompletableFuture.completedFuture(new AiResponse(dto)));
 
-        mockMvc.perform(post("/api/ai/analyze-vacancy")
+        var mvcResult = mockMvc.perform(post("/api/ai/analyze-vacancy")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(
                         new AiAnalyzeVacancyRequest(vacancyId, "Senior Java Developer"))))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(mvcResult))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.type").value("VACANCY_ANALYSIS"))
                 .andExpect(jsonPath("$.result.userId").value(userId.toString()))
