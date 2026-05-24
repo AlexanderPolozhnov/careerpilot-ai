@@ -75,7 +75,7 @@ class PreferencesServiceImplTest {
                 AiProviderMode.LOCAL, "ru",
                 null, "gpt-4", "http://localhost:11434", "llama3",
                 null, // customAiProvider is null
-                null, "gemini-1.5-flash"
+                null, "gemini-1.5-flash", null
         );
 
         // Act
@@ -105,7 +105,7 @@ void updatePreferences_WithAllOptionalFieldsNull_ShouldWork() {
             true, true, true, true,
             AiProviderMode.LOCAL, "en",
             null, null, null, null,
-            null, null, null
+            null, null, null, null
     );
 
     // Act
@@ -137,7 +137,7 @@ void updatePreferences_WithGemini_ShouldUpdateCorrectly() {
             AiProviderMode.BRING_YOUR_OWN_KEY, "en",
             null, "gpt-4", "http://localhost:11434", "llama3",
             CustomAiProvider.GEMINI,
-            "new-gemini-key", "gemini-2.0-flash-exp"
+            "new-gemini-key", "gemini-2.0-flash-exp", null
     );
 
     // Act

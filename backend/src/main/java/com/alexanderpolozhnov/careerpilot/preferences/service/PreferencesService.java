@@ -7,4 +7,6 @@ public interface PreferencesService {
     PreferencesResponse getPreferences();
 
     PreferencesResponse updatePreferences(PreferencesRequest request);
+
+    String generateTelegramConnectToken();
 }

@@ -59,4 +59,14 @@ public class PreferencesEntity extends BaseAuditableEntity {
 
     @Column(name = "gemini_model", length = 50)
     private String geminiModel = "gemini-1.5-flash";
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_provider", nullable = false, length = 50)
+    private NotificationProvider notificationProvider = NotificationProvider.EMAIL;
+
+    @Column(name = "telegram_chat_id", length = 100)
+    private String telegramChatId;
+
+    @Column(name = "telegram_connect_token")
+    private java.util.UUID telegramConnectToken;
 }

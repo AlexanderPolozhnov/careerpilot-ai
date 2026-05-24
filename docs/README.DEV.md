@@ -43,6 +43,7 @@ Backend находится в `backend/`.
 - MapStruct
 - Bean Validation
 - OpenAPI / Swagger
+- Telegram Bots API
 - JUnit 5
 - Mockito
 - Testcontainers
@@ -170,6 +171,18 @@ pnpm.cmd run build
 - `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET`
 - `REDIS_HOST`
 - `REDIS_PORT`
+- `MAIL_HOST`
+- `MAIL_PORT`
+- `MAIL_USERNAME`
+- `MAIL_PASSWORD`
+- `FRONTEND_URL`
+- `SPRING_PROFILES_ACTIVE`
+- `OLLAMA_BASE_URL`
+- `OLLAMA_MODEL`
+- `ENCRYPTION_MASTER_KEY` (AES-256, ровно 16/24/32 символа)
+- `TELEGRAM_BOT_ENABLED` (true/false, по умолчанию false)
+- `TELEGRAM_BOT_TOKEN` (токен бота от @BotFather)
+- `TELEGRAM_BOT_USERNAME` (username бота без @)
 
 Файлы `.env` и `.env.*` не должны попадать в Git. Для публичного репозитория коммитится только `.env.example`.
 
@@ -309,8 +322,9 @@ docker compose config
 9. **AI Assistant**: analyze-vacancy, resume-match, cover-letter, interview-questions, history с Redis-кэшированием.
 10. **Analytics**: summary с воронкой, недельной активностью, skill gaps.
 11. **Dashboard**: summary с KPI, интервью, задачами.
-12. **Settings**: preferences, notifications, управление резюме.
+12. **Settings**: preferences, управление резюме, смена пароля, удаление аккаунта.
 13. **Search**: агрегированный поиск по вакансиям, компаниям, задачам, собеседованиям.
+14. **Notifications**: In-app уведомления, Email (SMTP), Telegram Bot (Strategy/Factory паттерн). Scheduled напоминания о задачах и собеседованиях. Уведомления при смене статуса отклика.
 
 ## Безопасность
 
@@ -319,3 +333,5 @@ docker compose config
 - **Audit Trail**: журналирование критичных действий в PostgreSQL.
 - **OAuth2**: социальная авторизация через GitHub и Google.
 - **Secure Account Deletion**: удаление аккаунта с проверкой пароля и подтверждением Email.
+- **Encryption at Rest**: AES-256 шифрование чувствительных полей (OpenAI API ключи) через JPA `AttributeConverter`.
+- **Telegram Bot**: уведомления через Telegram, привязка через deep link (`/start {token}`), условный запуск через `@ConditionalOnProperty`.

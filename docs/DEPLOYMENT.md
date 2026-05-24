@@ -18,6 +18,8 @@ cp .env.docker.example .env
 - `MAIL_USERNAME` и `MAIL_PASSWORD` — учетные данные SMTP (рекомендуется Mailtrap для тестирования)
 - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` — для OAuth2 через GitHub (опционально)
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` — для OAuth2 через Google (опционально)
+- `TELEGRAM_BOT_TOKEN` — токен Telegram бота для уведомлений (опционально)
+- `TELEGRAM_BOT_USERNAME` — имя пользователя Telegram бота (опционально)
 
 3. Запустите весь стек:
 ```bash
@@ -93,6 +95,8 @@ docker exec careerpilot-ollama ollama pull llama3
 | `GOOGLE_CLIENT_ID` | Google OAuth2 Client ID | `placeholder` |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth2 Client Secret | `placeholder` |
 | `ENCRYPTION_MASTER_KEY` | Мастер-ключ для шифрования (AES) | (16, 24 или 32 символа) |
+| `TELEGRAM_BOT_TOKEN` | Токен Telegram бота для уведомлений | (опционально) |
+| `TELEGRAM_BOT_USERNAME` | Имя пользователя Telegram бота | (опционально) |
 
 ## Остановка
 

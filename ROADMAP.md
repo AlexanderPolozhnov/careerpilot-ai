@@ -115,6 +115,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Deployment notes.
 - [x] Security hardening: refresh/revocation strategy [x], rate limits for AI endpoints [x], audit trail [x], password creation/update for OAuth2 users [x], secure account deletion [x], secure API key storage (encryption at rest) [x].
 - [x] **Application Status Notifications:** автоматические In-app и Email уведомления при изменении статуса отклика.
+- [x] **Telegram Notifications:** интеграция Telegram бота для отправки уведомлений, Strategy/Factory паттерн для провайдеров уведомлений (Email/Telegram), возможность привязки Telegram аккаунта через deep link (Включая явную регистрацию бота, авто-переключение провайдера и фиксы синхронизации UI).
 
 ## Current Development Focus
 

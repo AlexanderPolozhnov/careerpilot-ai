@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Фирменный градиент CareerPilot (violet-500 -> violet-600) -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    
+    <!-- Мягкая тень для молнии, чтобы придать глубину -->
+    <filter id="iconShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#4c1d95" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Идеальный круг (кругляшок) для фона -->
+  <circle cx="256" cy="256" r="256" fill="url(#bgGradient)" />
+
+  <!-- Иконка молнии, отцентрированная и отмасштабированная под 512x512 -->
+  <g transform="translate(128, 128) scale(10.666)" filter="url(#iconShadow)">
+    <path fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+  </g>
+</svg>

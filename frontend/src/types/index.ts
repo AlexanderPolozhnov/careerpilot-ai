@@ -214,6 +214,8 @@ export type NotificationType =
   | 'INTERVIEW_MISSED'
   | 'TASK_OVERDUE'
 
+export type NotificationProvider = 'EMAIL' | 'TELEGRAM'
+
 // ─── API Pagination ───────────────────────────────────────────────────────────
 
 export interface PagedResponse<T> {

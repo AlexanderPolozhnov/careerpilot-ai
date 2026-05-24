@@ -142,7 +142,7 @@ CareerPilot AI собирает этот процесс в один понятн
 | Dashboard     | `GET /dashboard/summary` (KPI, предстоящие интервью, AI инсайты, список задач)                                | ✅      |
 | Profile       | `GET /profiles/me`, `PUT /profiles/me` с JSONB-полем скиллов                                                  | ✅      |
 | Settings      | `GET/PUT /users/me`, `GET/PUT /preferences`, `DELETE /users/me` (Secure Deletion)                              | ✅      |
-| Notifications | `GET /notifications` (pagination, read filter), `PATCH /{id}/read`                                            | ✅      |
+| Notifications | `GET /notifications` (pagination, read filter), `PATCH /{id}/read`, **Telegram Integration** (Strategy/Factory pattern) | ✅      |
 
 ### Frontend
 

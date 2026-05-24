@@ -2847,12 +2847,119 @@ pm run build прошла успешно.
   - Добавлен импорт `Controller` из `react-hook-form`.
 - Обновлен `CompanyForm.tsx`:
   - Заменен нативный `<select>` для size на `CustomSelect` через `Controller`.
-  - Добавлен импорт `Controller` из `react-hook-form`.
-- `ResumeForm.tsx` не содержит select элементов, изменений не требуется.
+
+---
+
+## Update 2026-05-24: Telegram Notifications Implementation
+
+**Backend:**
+
+- Добавлена зависимость `telegrambots` (версия 6.9.0) в `pom.xml`.
+- Создана миграция Flyway `V28__add_telegram_provider.sql`:
+  - Добавлены колонки `notification_provider` (VARCHAR(50), default 'EMAIL'), `telegram_chat_id` (VARCHAR(100)), `telegram_connect_token` (UUID) в таблицу `user_preferences`.
+- Создан enum `NotificationProvider` со значениями `EMAIL` и `TELEGRAM`.
+- Обновлена `PreferencesEntity`:
+  - Добавлены поля `notificationProvider`, `telegramChatId`, `telegramConnectToken`.
+- Обновлены DTO:
+  - `PreferencesRequest`: добавлено поле `notificationProvider`.
+  - `PreferencesResponse`: добавлены поля `notificationProvider` и `telegramConnected`.
+- Обновлен `PreferencesServiceImpl`:
+  - Добавлен метод `generateTelegramConnectToken()` для генерации UUID токена привязки.
+  - Обновлен метод `toResponse()` для включения новых полей.
+  - Обновлен метод `updatePreferences()` для сохранения `notificationProvider`.
+- Создан интерфейс `NotificationSender` (Strategy pattern) с методами `getProvider()` и `send()`.
+- Создана реализация `EmailNotificationSender` для отправки уведомлений по email.
+- Создана реализация `TelegramNotificationSender` для отправки уведомлений в Telegram (наследует `TelegramLongPollingBot`).
+- Создана фабрика `NotificationSenderFactory` для получения сендеров по провайдеру.
+- Рефакторинг `NotificationCreator`:
+  - Заменен прямой вызов `emailService` на использование `NotificationSenderFactory`.
+  - Добавлена логика выбора адресата в зависимости от провайдера (email или telegramChatId).
+- Обновлен `PreferencesController`:
+  - Добавлен эндпоинт `GET /api/preferences/telegram-link` для генерации ссылки привязки Telegram.
+- Создан `TelegramBotHandler` (наследует `TelegramLongPollingBot`):
+  - Обработчик команды `/start {token}` для привязки чата.
+  - Валидация токена, поиск пользователя по токену, сохранение chatId.
+- Обновлен `PreferencesRepository`:
+  - Добавлен метод `findByTelegramConnectToken(UUID token)`.
+- Обновлен `application.yaml`:
+  - Добавлены настройки Telegram: `telegram.bot.enabled`, `telegram.bot.token`, `telegram.bot.username`.
+
+**Frontend:**
+
+- Обновлен `types/index.ts`:
+  - Добавлен тип `NotificationProvider` ('EMAIL' | 'TELEGRAM').
+- Обновлен `settings.service.ts`:
+  - Обновлены интерфейсы `PreferencesRequest` и `PreferencesResponse` с новыми полями.
+  - Добавлен метод `getTelegramLink()` для получения ссылки привязки.
+  - Обновлен mockPreferences с новыми полями.
+- Обновлен `SettingsPage.tsx`:
+  - Обновлен `preferencesSchema` с полем `notificationProvider`.
+  - Добавлены state для модалки Telegram и ссылки.
+  - Добавлена мутация `getTelegramLinkMutation`.
+  - Добавлен обработчик `handleNotificationProviderChange`.
+  - Добавлен обработчик `handleTelegramConnected`.
+  - Добавлен UI переключатель провайдера уведомлений (Email/Telegram) с индикатором подключения.
+  - Добавлена модалка для привязки Telegram с инструкциями.
+- Обновлена локализация:
+  - `ru.json`: добавлены ключи для Telegram (notificationProvider, telegramConnectTitle, telegramStep1-3 и др.).
+  - `en.json`: добавлены ключи для Telegram (аналогично ru.json).
 
 **Проверки:**
 
+- Backend: `.\mvnw.cmd clean compile` - успешно.
 - Frontend: `npm.cmd run lint` - успешно (с предупреждениями React Compiler, не критично).
 - Frontend: `npm.cmd run build` - успешно.
 
-**Статус:** Реализовано, верифицировано. Все нативные `<select>` в проекте заменены на кастомный компонент `CustomSelect` — как в фильтрах страниц, так и внутри форм React Hook Form через `Controller`.
+**Статус:** Реализовано, верифицировано. Интеграция Telegram бота для уведомлений с использованием Strategy/Factory паттерна.
+
+---
+
+## Update 2026-05-24: Telegram Bot Commands Implementation
+
+**Backend:**
+
+- Обновлен `TelegramBotHandler`:
+  - Добавлена команда `/help` с HTML-форматированным текстом (описание бота, список команд, инструкция по привязке).
+  - Улучшен `/start` без токена — три сценария:
+    - Уже привязан: "Ваш Telegram уже привязан" (проверяет `existsByTelegramChatId`).
+    - Не привязан: приветствие с пошаговой инструкцией.
+    - С токеном: существующая логика привязки аккаунта.
+  - Все сообщения переведены на `parseMode("HTML")` для форматирования (жирный текст, структура).
+  - Рефакторинг: единый приватный метод `sendHtml()`, guard-return в `onUpdateReceived`, `split(" ", 2)` для корректного разбора токена.
+- Обновлен `PreferencesRepository`:
+  - Добавлен метод `existsByTelegramChatId(String telegramChatId)` для проверки уже привязанного аккаунта.
+
+**Документация:**
+
+- `README.DEV.md`: обновлён список переменных окружения (добавлены Telegram, Mail, Encryption, Ollama), обновлён список вертикальных срезов (добавлен Notifications), обновлён раздел Безопасность.
+
+**Статус:** Реализовано. Бот полностью отвечает на `/start` и `/help` с информативными HTML-сообщениями.
+
+## Update 2026-05-24: Telegram Integration Fixes
+
+**Backend:**
+- В `backend/.env` параметр `TELEGRAM_BOT_ENABLED` изменен на `true` (для локального dev-окружения). Это позволяет `TelegramBotHandler` запускаться и слушать команды.
+
+**Frontend:**
+- В `SettingsPage.tsx` исправлена логика подтверждения привязки бота. Метод `handleTelegramConnected` теперь явно скачивает актуальные настройки (`fetchQuery`), проверяет флаг `telegramConnected` и автоматически переключает провайдер уведомлений на `TELEGRAM` с сохранением на бэкенд, обновляя UI.
+
+**Проверки:**
+- Backend: `.\mvnw.cmd test` - успешно (95 тестов пройдено).
+- Frontend: `npm run build` - успешно.
+
+**Статус:** Исправлено. Интеграция Telegram бота полностью работоспособна.
+
+## Update 2026-05-24: Telegram Bot Registration & Robustness Fixes
+
+**Backend:**
+- Создан класс `TelegramConfig` для явной регистрации `TelegramBotHandler` в `TelegramBotsApi`, так как базовая библиотека `org.telegram:telegrambots` не делает это автоматически для Spring-бинов.
+- В `TelegramBotHandler` добавлено автоматическое переключение `notificationProvider` пользователя на `TELEGRAM` сразу после успешной привязки по команде `/start`.
+
+**Frontend:**
+- В `SettingsPage.tsx` улучшена функция `handleTelegramConnected`: теперь используется прямой вызов `settingsService.getPreferences()` с блоком `try...finally` для обхода кэша React Query, чтобы гарантированно получить свежий статус `telegramConnected` и автоматически переключить UI.
+
+**Проверки:**
+- Backend: `.\mvnw.cmd clean compile` - успешно.
+- Frontend: `npm run build` - успешно.
+
+**Статус:** Исправлено. Бот успешно зарегистрирован, слушает Long Polling соединения, а UI синхронизируется без задержек.

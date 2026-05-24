@@ -30,6 +30,24 @@ public class PreferencesServiceImpl implements PreferencesService {
 
     @Override
     @Transactional
+    public String generateTelegramConnectToken() {
+        AuthEntity user = currentUser();
+        PreferencesEntity prefs = preferencesRepository.findByUserId(user.getId())
+                .orElseGet(() -> {
+                    PreferencesEntity newPrefs = new PreferencesEntity();
+                    newPrefs.setUserId(user.getId());
+                    return newPrefs;
+                });
+
+        java.util.UUID token = java.util.UUID.randomUUID();
+        prefs.setTelegramConnectToken(token);
+        preferencesRepository.save(prefs);
+
+        return token.toString();
+    }
+
+    @Override
+    @Transactional
     public PreferencesResponse updatePreferences(PreferencesRequest request) {
         try {
             AuthEntity user = currentUser();
@@ -39,21 +57,22 @@ public class PreferencesServiceImpl implements PreferencesService {
                         newPrefs.setUserId(user.getId());
                         return newPrefs;
                     });
-            
+
             prefs.setWeeklyDigest(request.weeklyDigest());
             prefs.setInterviewReminders(request.interviewReminders());
             prefs.setTaskReminders(request.taskReminders());
             prefs.setApplicationStatusNotifications(request.applicationStatusNotifications());
-            
+
             if (request.aiProviderMode() != null) {
                 prefs.setAiProviderMode(request.aiProviderMode());
             }
-            
+
             if (request.language() != null && !request.language().isBlank()) {
                 prefs.setLanguage(request.language());
             }
 
-            // Защита от перезаписи маски: если пришло значение с "...", это маска от фронтенда
+            // Защита от перезаписи маски: если пришло значение с "...", это маска от
+            // фронтенда
             if (request.openAiApiKey() == null || request.openAiApiKey().isEmpty()) {
                 prefs.setOpenAiApiKey(null);
             } else if (!request.openAiApiKey().contains("...")) {
@@ -78,6 +97,10 @@ public class PreferencesServiceImpl implements PreferencesService {
 
             if (request.geminiModel() != null) {
                 prefs.setGeminiModel(request.geminiModel());
+            }
+
+            if (request.notificationProvider() != null) {
+                prefs.setNotificationProvider(request.notificationProvider());
             }
 
             PreferencesEntity saved = preferencesRepository.save(prefs);
@@ -124,7 +147,9 @@ public class PreferencesServiceImpl implements PreferencesService {
                 prefs.getOllamaModel(),
                 prefs.getCustomAiProvider() != null ? prefs.getCustomAiProvider().name() : null,
                 maskedGeminiApiKey,
-                prefs.getGeminiModel());
+                prefs.getGeminiModel(),
+                prefs.getNotificationProvider().name(),
+                prefs.getTelegramChatId() != null);
     }
 
     private String maskApiKey(String apiKey) {

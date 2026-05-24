@@ -29,6 +29,7 @@ import {
     Key,
     Mail,
     MapPin,
+    MessageCircle,
     Shield,
     Sparkles,
     Trash2,
@@ -55,6 +56,7 @@ const preferencesSchema = z.object({
     customAiProvider: z.enum(['OPENAI', 'GEMINI']).optional(),
     geminiApiKey: z.string().optional(),
     geminiModel: z.string().optional(),
+    notificationProvider: z.enum(['EMAIL', 'TELEGRAM']),
 })
 
 const professionalProfileSchema = z.object({
@@ -185,6 +187,8 @@ export default function SettingsPage() {
     const [editingResume, setEditingResume] = useState<Resume | null>(null)
     const [resumeToDeleteId, setResumeToDeleteId] = useState<string | null>(null)
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
+    const [showTelegramModal, setShowTelegramModal] = useState(false)
+    const [telegramLink, setTelegramLink] = useState<string | null>(null)
 
     useEffect(() => {
         if (location.hash === '#notifications') {
@@ -243,6 +247,7 @@ export default function SettingsPage() {
             customAiProvider: 'OPENAI',
             geminiApiKey: '',
             geminiModel: 'gemini-1.5-flash',
+            notificationProvider: 'EMAIL',
         },
     })
 
@@ -285,6 +290,7 @@ export default function SettingsPage() {
     const interviewReminders = useWatch({ control: prefsForm.control, name: 'interviewReminders' })
     const taskReminders = useWatch({ control: prefsForm.control, name: 'taskReminders' })
     const applicationStatusNotifications = useWatch({ control: prefsForm.control, name: 'applicationStatusNotifications' })
+    const notificationProvider = useWatch({ control: prefsForm.control, name: 'notificationProvider' })
 
     useEffect(() => {
         if (user) {
@@ -312,6 +318,7 @@ export default function SettingsPage() {
                 customAiProvider: prefsData.customAiProvider || 'OPENAI',
                 geminiApiKey: prefsData.geminiApiKey || '',
                 geminiModel: prefsData.geminiModel || 'gemini-1.5-flash',
+                notificationProvider: prefsData.notificationProvider,
             })
             i18n.changeLanguage(prefsData.language)
         } else {
@@ -329,6 +336,7 @@ export default function SettingsPage() {
                 customAiProvider: 'OPENAI',
                 geminiApiKey: '',
                 geminiModel: 'gemini-1.5-flash',
+                notificationProvider: 'EMAIL',
             })
         }
     }, [prefsData, prefsForm, i18n])
@@ -398,6 +406,17 @@ export default function SettingsPage() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['preferences'] })
         },
+    })
+
+    const getTelegramLinkMutation = useMutation({
+        mutationFn: () => settingsService.getTelegramLink(),
+        onSuccess: (data) => {
+            setTelegramLink(data.link)
+            setShowTelegramModal(true)
+        },
+        onError: () => {
+            toast.error(t('settings.telegramLinkError'))
+        }
     })
 
     const deleteAccountMutation = useMutation({
@@ -536,6 +555,34 @@ export default function SettingsPage() {
     const handleAiConfigSave = async () => {
         const values = prefsForm.getValues()
         await updateAiProviderMutation.mutateAsync(values)
+    }
+
+    const handleNotificationProviderChange = (provider: 'EMAIL' | 'TELEGRAM') => {
+        if (provider === 'TELEGRAM' && !prefsData?.telegramConnected) {
+            getTelegramLinkMutation.mutate()
+        } else {
+            prefsForm.setValue('notificationProvider', provider)
+            const current = prefsForm.getValues()
+            updatePrefsMutation.mutate({ ...current, notificationProvider: provider })
+        }
+    }
+
+    const handleTelegramConnected = async () => {
+        setShowTelegramModal(false)
+        setTelegramLink(null)
+        
+        // Directly call the service to bypass any query cache issues
+        try {
+            const updatedPrefs = await settingsService.getPreferences()
+            
+            if (updatedPrefs.telegramConnected) {
+                prefsForm.setValue('notificationProvider', 'TELEGRAM')
+                const current = prefsForm.getValues()
+                await updatePrefsMutation.mutateAsync({ ...current, notificationProvider: 'TELEGRAM' })
+            }
+        } finally {
+            queryClient.invalidateQueries({ queryKey: ['preferences'] })
+        }
     }
 
     const handleResumeSubmit = async (values: CreateResumeDto) => {
@@ -1320,6 +1367,55 @@ export default function SettingsPage() {
                             <div className="mb-5"><StatusToast type="error" message={t('settings.saveError')} /></div>}
 
                         <form onSubmit={handlePrefsSubmit} className="space-y-3">
+                            {/* Notification Provider */}
+                            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
+                                        <Bell className="w-5 h-5 text-violet-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-white">{t('settings.notificationProvider')}</p>
+                                        <p className="text-xs text-white/40 mt-0.5">{t('settings.notificationProviderDescription')}</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleNotificationProviderChange('EMAIL')}
+                                        className={cn(
+                                            'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all',
+                                            notificationProvider === 'EMAIL'
+                                                ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20'
+                                                : 'bg-white/[0.03] text-white/60 hover:bg-white/[0.06] border border-white/[0.06]'
+                                        )}
+                                    >
+                                        <Mail className="w-4 h-4" />
+                                        {t('settings.email')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleNotificationProviderChange('TELEGRAM')}
+                                        className={cn(
+                                            'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all',
+                                            notificationProvider === 'TELEGRAM'
+                                                ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20'
+                                                : 'bg-white/[0.03] text-white/60 hover:bg-white/[0.06] border border-white/[0.06]'
+                                        )}
+                                    >
+                                        <MessageCircle className="w-4 h-4" />
+                                        {t('settings.telegram')}
+                                        {prefsData?.telegramConnected && (
+                                            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                                        )}
+                                    </button>
+                                </div>
+                                {notificationProvider === 'TELEGRAM' && !prefsData?.telegramConnected && (
+                                    <div className="mt-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                                        <p className="text-xs text-amber-300">{t('settings.telegramNotConnected')}</p>
+                                    </div>
+                                )}
+                            </div>
+
                             <div
                                 className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4">
                                 <div className="flex items-center gap-4">
@@ -1582,6 +1678,55 @@ export default function SettingsPage() {
                                     } : undefined}
                                     isSubmitting={createResumeMutation.isPending || updateResumeMutation.isPending}
                                 />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Telegram Connect Modal */}
+                    {showTelegramModal && telegramLink && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                            <div
+                                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                                onClick={() => setShowTelegramModal(false)}
+                            />
+                            <div className="relative w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#0a0b0f] p-6 shadow-2xl">
+                                <div className="flex items-start gap-4 mb-6">
+                                    <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                                        <MessageCircle className="w-5 h-5 text-violet-400" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-white">{t('settings.telegramConnectTitle')}</h3>
+                                        <p className="text-sm text-white/40 mt-0.5">{t('settings.telegramConnectDescription')}</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/20">
+                                        <p className="text-sm text-white/80 mb-3">{t('settings.telegramConnectInstructions')}</p>
+                                        <ol className="text-sm text-white/60 space-y-2 list-decimal list-inside">
+                                            <li>{t('settings.telegramStep1')}</li>
+                                            <li>{t('settings.telegramStep2')}</li>
+                                            <li>{t('settings.telegramStep3')}</li>
+                                        </ol>
+                                    </div>
+
+                                    <a
+                                        href={telegramLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="block w-full px-4 py-3 rounded-lg bg-violet-600 text-sm font-medium text-white text-center hover:bg-violet-700 transition-colors"
+                                    >
+                                        {t('settings.openTelegram')}
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleTelegramConnected}
+                                        className="block w-full px-4 py-3 rounded-lg border border-white/10 text-sm font-medium text-white text-center hover:bg-white/[0.02] transition-colors"
+                                    >
+                                        {t('settings.telegramConnected')}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}

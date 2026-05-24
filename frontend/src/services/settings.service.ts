@@ -1,5 +1,5 @@
 import { api } from '@/lib/api-client'
-import type { User } from '@/types'
+import type { User, NotificationProvider } from '@/types'
 
 const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'false') === 'true'
 
@@ -27,6 +27,8 @@ export interface PreferencesResponse {
     customAiProvider?: 'OPENAI' | 'GEMINI'
     geminiApiKey?: string
     geminiModel?: string
+    notificationProvider: NotificationProvider
+    telegramConnected: boolean
 }
 
 export interface PreferencesRequest {
@@ -43,6 +45,7 @@ export interface PreferencesRequest {
     customAiProvider?: 'OPENAI' | 'GEMINI'
     geminiApiKey?: string
     geminiModel?: string
+    notificationProvider: NotificationProvider
 }
 
 export interface DeleteAccountRequest {
@@ -63,7 +66,9 @@ const mockPreferences: PreferencesResponse = {
     ollamaModel: 'llama3',
     customAiProvider: 'OPENAI',
     geminiApiKey: '',
-    geminiModel: 'gemini-1.5-flash'
+    geminiModel: 'gemini-1.5-flash',
+    notificationProvider: 'EMAIL',
+    telegramConnected: false
 }
 
 export const settingsService = {
@@ -98,8 +103,13 @@ export const settingsService = {
 
     updatePreferences: (data: PreferencesRequest): Promise<PreferencesResponse> =>
         USE_MOCKS
-            ? Promise.resolve(data)
+            ? Promise.resolve({ ...mockPreferences, ...data })
             : api.put<PreferencesResponse>('/preferences', data),
+
+    getTelegramLink: (): Promise<{ link: string }> =>
+        USE_MOCKS
+            ? Promise.resolve({ link: 'https://t.me/CareerPilotBot?start=mock-token' })
+            : api.get<{ link: string }>('/preferences/telegram-link'),
 
     deleteAccount: (data: DeleteAccountRequest): Promise<void> =>
         USE_MOCKS

@@ -8,4 +8,8 @@ import java.util.UUID;
 
 public interface PreferencesRepository extends JpaRepository<PreferencesEntity, UUID> {
     Optional<PreferencesEntity> findByUserId(UUID userId);
+
+    Optional<PreferencesEntity> findByTelegramConnectToken(UUID token);
+
+    boolean existsByTelegramChatId(String telegramChatId);
 }
