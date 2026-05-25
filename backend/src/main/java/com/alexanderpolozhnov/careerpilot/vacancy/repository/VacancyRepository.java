@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface VacancyRepository extends JpaRepository<VacancyEntity, UUID>, JpaSpecificationExecutor<VacancyEntity> {
+    @EntityGraph(attributePaths = { "company", "tags" })
     List<VacancyEntity> findAllByUserId(UUID userId);
 
     List<VacancyEntity> findAllByUserIdAndStatus(UUID userId, VacancyStatus status);
