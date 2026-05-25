@@ -11,6 +11,7 @@ import { settingsService } from '@/services/settings.service'
 import { profileService } from '@/services/profile.service'
 import { resumeService, type CreateResumeDto } from '@/services/resume.service'
 import { authService, type UpdatePasswordRequest } from '@/services/auth.service'
+import { exportService } from '@/services/export.service'
 import { cn, formatRelative, translateStatusInText } from '@/lib/utils'
 import { notificationService } from '@/services/notification.service'
 import { ResumeForm } from '@/components/ResumeForm'
@@ -24,6 +25,7 @@ import {
     Check,
     Cloud,
     Cpu,
+    Download,
     FileText,
     Globe,
     Key,
@@ -511,6 +513,16 @@ export default function SettingsPage() {
         }
     })
 
+    const exportDataMutation = useMutation({
+        mutationFn: () => exportService.exportToExcel(),
+        onSuccess: () => {
+            toast.success(t('settings.exportSuccess'))
+        },
+        onError: () => {
+            toast.error(t('settings.exportFailed'))
+        }
+    })
+
     const handleProfileSubmit = profileForm.handleSubmit(async (values) => {
         await updateUserMutation.mutateAsync({
             name: values.name,
@@ -570,11 +582,11 @@ export default function SettingsPage() {
     const handleTelegramConnected = async () => {
         setShowTelegramModal(false)
         setTelegramLink(null)
-        
+
         // Directly call the service to bypass any query cache issues
         try {
             const updatedPrefs = await settingsService.getPreferences()
-            
+
             if (updatedPrefs.telegramConnected) {
                 prefsForm.setValue('notificationProvider', 'TELEGRAM')
                 const current = prefsForm.getValues()
@@ -1548,6 +1560,52 @@ export default function SettingsPage() {
                                 </div>
                             </div>
                         )}
+                    </section>
+
+                    {/* Export Data */}
+                    <section className="rounded-2xl border border-violet-500/20 bg-violet-500/[0.02] p-6">
+                        <div className="flex items-start gap-4 mb-6">
+                            <div
+                                className="flex-shrink-0 w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                                <Download className="w-5 h-5 text-violet-400" />
+                            </div>
+                            <div>
+                                <h2 className="text-base font-semibold text-white">{t('settings.exportData')}</h2>
+                                <p className="text-sm text-white/40 mt-0.5">{t('settings.exportDataDescription')}</p>
+                            </div>
+                        </div>
+
+                        <div
+                            className="flex items-center justify-between rounded-xl border border-violet-500/10 bg-violet-500/[0.03] px-4 py-4">
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
+                                    <Download className="w-5 h-5 text-violet-400" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-white">{t('settings.downloadExcel')}</p>
+                                    <p className="text-xs text-white/40 mt-0.5">{t('settings.exportDataDescription')}</p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => exportDataMutation.mutate()}
+                                disabled={exportDataMutation.isPending}
+                                className={cn(
+                                    'px-4 py-2 rounded-lg border border-violet-500/30 text-sm font-medium text-violet-400 hover:bg-violet-500/10 transition-colors',
+                                    exportDataMutation.isPending && 'opacity-70 cursor-not-allowed'
+                                )}
+                            >
+                                {exportDataMutation.isPending ? (
+                                    <span className="flex items-center gap-2">
+                                        <span
+                                            className="w-4 h-4 border-2 border-violet-400/30 border-t-violet-400 rounded-full animate-spin" />
+                                        {t('common.loading')}
+                                    </span>
+                                ) : (
+                                    t('settings.download')
+                                )}
+                            </button>
+                        </div>
                     </section>
 
                     {/* Danger Zone */}

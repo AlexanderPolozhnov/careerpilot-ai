@@ -759,6 +759,20 @@ Frontend source: `frontend/src/services/resume.service.ts`.
 
 Response: `204 No Content`.
 
+## Export
+
+### `GET /export/excel` — USED BY FRONTEND
+
+Frontend source: `frontend/src/services/export.service.ts`.
+
+Response: Binary Excel file (XLSX).
+
+Headers:
+- `Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
+- `Content-Disposition: attachment; filename="careerpilot-export.xlsx"`
+
+Description: Exports all user data (vacancies, applications, companies, interviews, tasks) to an Excel file with separate sheets for each entity type.
+
 ## Search
 
 ### `GET /search` — USED BY FRONTEND

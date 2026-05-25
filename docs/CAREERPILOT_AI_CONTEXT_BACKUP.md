@@ -3026,3 +3026,55 @@ pm run build прошла успешно.
 - Frontend: `npm.cmd run build` - успешно.
 
 **Статус:** Реализовано. Расширенная аналитика по компаниям доступна на странице Analytics.
+
+## Update 2026-05-25: Data Export to Excel Implementation
+
+**Backend:**
+- **Dependencies:** Добавлены зависимости в `pom.xml`:
+  - `org.apache.poi:poi-ooxml:5.2.5` - для генерации Excel файлов
+  - `commons-io:2.15.1` - для совместимости с Apache POI
+  - `commons-compress:1.26.0` - для работы с ZIP архивами (требуется Apache POI)
+- **Packages:** Создана структура пакетов `export/controller` и `export/service`.
+- **Service:**
+  - Создан интерфейс `ExportService` с методом `exportUserDataToExcel()`.
+  - Реализован `ExportServiceImpl`:
+    - Использует `CurrentUserResolver.resolveRequired().getId()` для получения текущего пользователя.
+    - Аннотация `@Transactional(readOnly = true)` для избежания LazyInitializationException.
+    - Создает Excel файл с 5 листами: Vacancies, Applications, Companies, Interviews, Tasks.
+    - Использует Apache POI (XSSFWorkbook) для генерации XLSX файла.
+    - Форматирует даты через DateTimeFormatter с UTC.
+    - Обрабатывает IOException, выбрасывая RuntimeException.
+- **Controller:** Создан `ExportController` с эндпоинтом `GET /api/export/excel`:
+  - Content-Type: `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
+  - Content-Disposition: `attachment; filename="careerpilot-export.xlsx"`
+  - Аннотация `@Auditable(action = "DATA_EXPORT", entityType = "USER")` для аудита.
+  - Swagger документация через `@Operation` и `@Tag`.
+- **Repository:** Добавлен метод `findAllByApplication_User_Id` в `InterviewRepository` с `@EntityGraph` для загрузки связанных сущностей.
+- **Tests:** Создан `ExportServiceImplTest` с unit-тестами для проверки генерации Excel файла.
+
+**Frontend:**
+- **Service:** Создан `frontend/src/services/export.service.ts`:
+  - Функция `exportToExcel()` выполняет нативный `fetch` запрос.
+  - Читает `VITE_API_BASE_URL` из `import.meta.env`.
+  - Получает JWT токен из `localStorage` (`cp_access_token`).
+  - GET запрос на `/api/export/excel` с заголовком `Authorization: Bearer <token>`.
+  - Читает ответ как `.blob()` и создает временную ссылку для скачивания файла.
+- **i18n:** Обновлены ключи в `ru.json` и `en.json`:
+  - `settings.exportData`, `settings.exportDataDescription`
+  - `settings.downloadExcel`, `settings.exportSuccess`, `settings.exportFailed`
+- **UI (SettingsPage):**
+  - Добавлена секция "Экспорт данных" перед "Опасная зона".
+  - Кнопка для скачивания Excel файла с индикатором загрузки.
+  - Использование `useMutation` для отслеживания состояния и toast уведомлений.
+  - Иконка Download из lucide-react.
+
+**Documentation:**
+- **FRONTEND_BACKEND_CONTRACT.md:** Добавлена секция "Export" с документацией эндпоинта `GET /export/excel`.
+
+**Проверки:**
+- Backend: `.\mvnw.cmd clean compile` - успешно.
+- Backend: `.\mvnw.cmd test -Dtest="ExportServiceImplTest"` - успешно (2 теста).
+- Frontend: `npm.cmd run lint` - успешно (2 предупреждения React Compiler, не критично).
+- Frontend: `npm.cmd run build` - успешно.
+
+**Статус:** Реализовано. Пользователи могут экспортировать все свои данные в Excel файл со страницы настроек.

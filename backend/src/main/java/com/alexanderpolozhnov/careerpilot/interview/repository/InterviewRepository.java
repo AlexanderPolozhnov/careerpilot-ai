@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface InterviewRepository extends JpaRepository<InterviewEntity, UUID> {
+    @EntityGraph(attributePaths = { "application", "application.vacancy", "application.vacancy.company" })
+    List<InterviewEntity> findAllByApplication_User_Id(UUID userId);
+
     List<InterviewEntity> findAllByApplicationId(UUID applicationId);
 
     List<InterviewEntity> findAllByScheduledAtBetween(Instant from, Instant to);
