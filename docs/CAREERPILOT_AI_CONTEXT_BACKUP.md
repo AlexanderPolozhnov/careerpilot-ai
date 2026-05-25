@@ -3078,3 +3078,54 @@ pm run build прошла успешно.
 - Frontend: `npm.cmd run build` - успешно.
 
 **Статус:** Реализовано. Пользователи могут экспортировать все свои данные в Excel файл со страницы настроек.
+
+## Update 2026-05-25 — Interview ICS Export Implementation
+
+**Сделано:**
+
+Реализован экспорт собеседования в .ics файл для добавления в личные календари пользователей (Google Calendar, Outlook, Apple Calendar).
+
+**Backend:**
+
+- **Service:** В `InterviewService` добавлен метод `byte[] exportToIcs(UUID id)`.
+- **ServiceImpl:** Реализована генерация ICS контента в формате RFC 5545:
+  - Даты форматируются в UTC (yyyyMMdd'T'HHmmss'Z').
+  - DTEND = DTSTART + 1 час.
+  - SUMMARY содержит тип собеседования.
+  - DESCRIPTION объединяет notes и meeting link.
+  - LOCATION содержит meeting link если есть.
+- **Controller:** Добавлен эндпоинт `GET /api/interviews/{id}/export/ics`:
+  - `produces = "text/calendar"`.
+  - Возвращает ResponseEntity с заголовком Content-Disposition для скачивания файла.
+  - Аннотация `@Auditable(action = "INTERVIEW_EXPORT_ICS", entityType = "INTERVIEW")`.
+- **Tests:** Создан `InterviewServiceImplTest` с unit-тестами для проверки:
+  - Корректности формирования ICS строки.
+  - Формата даты в UTC.
+  - Обработки null значений в notes и meeting link.
+
+**Frontend:**
+
+- **Service:** В `interview.service.ts` добавлен метод `exportIcs`:
+  - Использует нативный `fetch` для blob ответа (api.get не поддерживает responseType).
+  - Получает JWT токен из `localStorage` (`cp_access_token`).
+  - Читает ответ как `.blob()` и создает временную ссылку для скачивания файла.
+  - Имя файла: `interview-{id}.ics`.
+- **UI (InterviewsPage):**
+  - Добавлена иконка CalendarIcon.
+  - Добавлена кнопка экспорта на карточке собеседования рядом с Edit/Delete.
+  - Использован `e.stopPropagation()` для предотвращения конфликтов с кликами.
+  - Кнопка имеет tooltip с локализованным текстом.
+- **i18n:** Обновлены ключи в `ru.json` и `en.json`:
+  - `interviews.exportIcs`: "В календарь (.ics)" / "Add to Calendar (.ics)".
+
+**Documentation:**
+
+- **FRONTEND_BACKEND_CONTRACT.md:** Добавлен эндпоинт `GET /interviews/{id}/export/ics` в секцию Interviews.
+
+**Проверки:**
+
+- Backend: `.\mvnw.cmd clean compile` - успешно.
+- Frontend: `npm.cmd run lint` - успешно (2 предупреждения React Compiler, не критично).
+- Frontend: `npm.cmd run build` - успешно.
+
+**Статус:** Реализовано. Пользователи могут скачивать .ics файлы собеседований для добавления в личные календари.

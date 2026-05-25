@@ -16,4 +16,6 @@ public interface InterviewService {
     InterviewResponse update(UUID id, InterviewRequest request);
 
     void delete(UUID id);
+
+    byte[] exportToIcs(UUID id);
 }

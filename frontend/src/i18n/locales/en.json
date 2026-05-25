@@ -351,6 +351,7 @@
     "notes": "Notes",
     "searchPlaceholder": "Search across interviews...",
     "addInterview": "Add interview",
+    "exportIcs": "Add to Calendar (.ics)",
     "form": {
       "createTitle": "Schedule Interview",
       "editTitle": "Edit Interview",

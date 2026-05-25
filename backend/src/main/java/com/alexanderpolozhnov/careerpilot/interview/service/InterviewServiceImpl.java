@@ -10,6 +10,7 @@ import com.alexanderpolozhnov.careerpilot.interview.response.InterviewResponse;
 import com.alexanderpolozhnov.careerpilot.interview.repository.InterviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.util.Comparator;
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class InterviewServiceImpl implements InterviewService {
 
     private final InterviewRepository interviewRepository;
@@ -26,6 +28,7 @@ public class InterviewServiceImpl implements InterviewService {
     private final CurrentUserResolver currentUserResolver;
 
     @Override
+    @Transactional
     public InterviewResponse create(InterviewRequest request) {
         InterviewEntity entity = new InterviewEntity();
         applyRequest(entity, request);
@@ -57,8 +60,7 @@ public class InterviewServiceImpl implements InterviewService {
                 safeSize,
                 safePage,
                 safePage == 0,
-                safePage >= Math.max(totalPages - 1, 0)
-        );
+                safePage >= Math.max(totalPages - 1, 0));
     }
 
     @Override
@@ -67,6 +69,7 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     @Override
+    @Transactional
     public InterviewResponse update(UUID id, InterviewRequest request) {
         InterviewEntity entity = findOwnedInterview(id);
         applyRequest(entity, request);
@@ -74,8 +77,59 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     @Override
+    @Transactional
     public void delete(UUID id) {
         interviewRepository.delete(findOwnedInterview(id));
+    }
+
+    @Override
+    public byte[] exportToIcs(UUID id) {
+        InterviewEntity entity = findOwnedInterview(id);
+        StringBuilder icsContent = new StringBuilder();
+
+        // Format dates for ICS (UTC format: yyyyMMdd'T'HHmmss'Z')
+        java.time.format.DateTimeFormatter icsFormatter = java.time.format.DateTimeFormatter
+                .ofPattern("yyyyMMdd'T'HHmmss'Z'")
+                .withZone(java.time.ZoneOffset.UTC);
+
+        String now = icsFormatter.format(java.time.Instant.now());
+        String start = icsFormatter.format(entity.getScheduledAt());
+        String end = icsFormatter.format(entity.getScheduledAt().plus(java.time.Duration.ofHours(1)));
+
+        // Build ICS content
+        icsContent.append("BEGIN:VCALENDAR\n");
+        icsContent.append("VERSION:2.0\n");
+        icsContent.append("PRODID:-//CareerPilot AI//EN\n");
+        icsContent.append("CALSCALE:GREGORIAN\n");
+        icsContent.append("BEGIN:VEVENT\n");
+        icsContent.append("UID:").append(entity.getId()).append("@careerpilot.ai\n");
+        icsContent.append("DTSTAMP:").append(now).append("\n");
+        icsContent.append("DTSTART:").append(start).append("\n");
+        icsContent.append("DTEND:").append(end).append("\n");
+        icsContent.append("SUMMARY:Собеседование (")
+                .append(entity.getType() != null ? entity.getType().name() : "Interview").append(")\n");
+
+        // Combine notes and meeting link for description
+        String description = "";
+        if (entity.getNotes() != null && !entity.getNotes().isBlank()) {
+            description = entity.getNotes().replace("\n", "\\n");
+        }
+        if (entity.getMeetingLink() != null && !entity.getMeetingLink().isBlank()) {
+            if (!description.isEmpty()) {
+                description += "\\n\\n";
+            }
+            description += "Meeting Link: " + entity.getMeetingLink();
+        }
+        icsContent.append("DESCRIPTION:").append(description).append("\n");
+
+        if (entity.getMeetingLink() != null && !entity.getMeetingLink().isBlank()) {
+            icsContent.append("LOCATION:").append(entity.getMeetingLink()).append("\n");
+        }
+
+        icsContent.append("END:VEVENT\n");
+        icsContent.append("END:VCALENDAR");
+
+        return icsContent.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
 
     private InterviewEntity findOwnedInterview(UUID id) {

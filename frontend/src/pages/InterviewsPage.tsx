@@ -44,6 +44,22 @@ function TrashIcon({ className }: { className?: string }) {
   )
 }
 
+function CalendarIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+    </svg>
+  )
+}
+
+function EditIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+    </svg>
+  )
+}
+
 export default function InterviewsPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -114,6 +130,17 @@ export default function InterviewsPage() {
     onError: (error) => {
       console.error(error)
       toast.error(t('common.error'))
+    },
+  })
+
+  const exportMutation = useMutation({
+    mutationFn: (id: string) => interviewService.exportIcs(id),
+    onSuccess: () => {
+      toast.success(t('common.success'))
+    },
+    onError: (error) => {
+      console.error(error)
+      toast.error(error instanceof Error ? error.message : t('common.error'))
     },
   })
 
@@ -396,10 +423,26 @@ export default function InterviewsPage() {
               {/* Actions */}
               <div className="flex items-center justify-end gap-2 pt-4 mt-auto">
                 <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    exportMutation.mutate(interview.id)
+                  }}
+                  disabled={exportMutation.isPending}
+                  className="px-3 py-1.5 text-xs font-medium text-[#6b7590] hover:text-[#e8eaed] hover:bg-[rgba(255,255,255,0.06)] rounded-lg transition-all duration-200 disabled:opacity-50"
+                  title={t('interviews.exportIcs')}
+                >
+                  {exportMutation.isPending && exportMutation.variables === interview.id ? (
+                    <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <CalendarIcon className="w-3.5 h-3.5" />
+                  )}
+                </button>
+                <button
                   onClick={() => handleEdit(interview)}
                   className="px-3 py-1.5 text-xs font-medium text-[#6b7590] hover:text-[#e8eaed] hover:bg-[rgba(255,255,255,0.06)] rounded-lg transition-all duration-200"
+                  title={t('common.edit')}
                 >
-                  {t('common.edit')}
+                  <EditIcon className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => handleDelete(interview.id)}

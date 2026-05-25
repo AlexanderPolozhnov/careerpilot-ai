@@ -560,6 +560,16 @@ Response: `Interview`.
 
 Response: `204 No Content`.
 
+### `GET /interviews/{id}/export/ics` — USED BY FRONTEND
+
+Response: Binary ICS file (text/calendar).
+
+Headers:
+- `Content-Type: text/calendar`
+- `Content-Disposition: attachment; filename="interview-{id}.ics"`
+
+Description: Exports a specific interview to ICS calendar file format for adding to personal calendars (Google Calendar, Outlook, Apple Calendar).
+
 ## Tasks — USED BY FRONTEND
 
 Frontend source: `frontend/src/services/task.service.ts`.

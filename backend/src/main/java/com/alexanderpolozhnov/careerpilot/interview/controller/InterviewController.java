@@ -1,12 +1,16 @@
 package com.alexanderpolozhnov.careerpilot.interview.controller;
 
+import com.alexanderpolozhnov.careerpilot.audit.annotation.Auditable;
 import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.interview.request.InterviewRequest;
 import com.alexanderpolozhnov.careerpilot.interview.response.InterviewResponse;
 import com.alexanderpolozhnov.careerpilot.interview.service.InterviewService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -48,5 +52,16 @@ public class InterviewController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable UUID id) {
         service.delete(id);
+    }
+
+    @GetMapping(value = "/{id}/export/ics", produces = "text/calendar")
+    @Operation(summary = "Export interview to ICS calendar file")
+    @Auditable(action = "INTERVIEW_EXPORT_ICS", entityType = "INTERVIEW")
+    public ResponseEntity<byte[]> exportToIcs(@PathVariable UUID id) {
+        byte[] data = service.exportToIcs(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"interview-" + id + ".ics\"")
+                .body(data);
     }
 }
