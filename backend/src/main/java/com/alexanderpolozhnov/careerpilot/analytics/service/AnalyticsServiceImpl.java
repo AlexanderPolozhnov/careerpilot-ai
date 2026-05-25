@@ -6,6 +6,7 @@ import com.alexanderpolozhnov.careerpilot.application.repository.ApplicationRepo
 import com.alexanderpolozhnov.careerpilot.analytics.request.AnalyticsRequest;
 import com.alexanderpolozhnov.careerpilot.analytics.response.AnalyticsResponse;
 import com.alexanderpolozhnov.careerpilot.analytics.response.AnalyticsSummaryResponse;
+import com.alexanderpolozhnov.careerpilot.analytics.response.CompanyAnalyticsItem;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
 import com.alexanderpolozhnov.careerpilot.profile.entity.ProfileEntity;
 import com.alexanderpolozhnov.careerpilot.profile.repository.ProfileRepository;
@@ -222,5 +223,57 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .mapToLong(Long::longValue)
                 .average()
                 .orElse(0.0);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CompanyAnalyticsItem> getCompanyAnalytics() {
+        UUID userId = currentUserResolver.resolveRequired().getId();
+        List<ApplicationEntity> applications = applicationRepository.findAllByUserId(userId);
+
+        // Группируем по companyId (исключая отклики без компании)
+        Map<UUID, List<ApplicationEntity>> byCompany = applications.stream()
+                .filter(a -> a.getVacancy() != null && a.getVacancy().getCompany() != null)
+                .collect(Collectors.groupingBy(a -> a.getVacancy().getCompany().getId()));
+
+        List<CompanyAnalyticsItem> result = new ArrayList<>();
+
+        for (Map.Entry<UUID, List<ApplicationEntity>> entry : byCompany.entrySet()) {
+            UUID companyId = entry.getKey();
+            List<ApplicationEntity> apps = entry.getValue();
+
+            // Первый элемент берем для извлечения данных о компании
+            var company = apps.get(0).getVacancy().getCompany();
+
+            int total = apps.size();
+            int interviews = (int) apps.stream()
+                    .filter(a -> isInterviewStatus(a.getStatus()))
+                    .count();
+            int offers = (int) apps.stream()
+                    .filter(a -> a.getStatus() == ApplicationStatus.OFFER)
+                    .count();
+            int responded = (int) apps.stream()
+                    .filter(a -> a.getStatus() != ApplicationStatus.NEW && a.getStatus() != ApplicationStatus.SAVED)
+                    .count();
+
+            double responseRate = total == 0 ? 0.0 : (double) responded / total;
+            double avgTimeToInterview = calculateAvgTimeToInterview(apps);
+
+            result.add(new CompanyAnalyticsItem(
+                    companyId,
+                    company.getName(),
+                    company.getLogoUrl(),
+                    total,
+                    interviews,
+                    offers,
+                    responseRate,
+                    avgTimeToInterview));
+        }
+
+        // Сортировка: сначала по количеству откликов (по убыванию), затем по алфавиту
+        result.sort(Comparator.comparingInt(CompanyAnalyticsItem::applicationCount).reversed()
+                .thenComparing(CompanyAnalyticsItem::companyName));
+
+        return result;
     }
 }

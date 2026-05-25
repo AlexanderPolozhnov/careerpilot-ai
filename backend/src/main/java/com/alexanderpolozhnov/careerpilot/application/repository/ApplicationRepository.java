@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public interface ApplicationRepository extends JpaRepository<ApplicationEntity, UUID> {
 
-    @EntityGraph(attributePaths = { "vacancy", "vacancy.tags" })
+    @EntityGraph(attributePaths = { "vacancy", "vacancy.tags", "vacancy.company" })
     List<ApplicationEntity> findAllByUserId(UUID userId);
 
     @EntityGraph(attributePaths = { "vacancy", "vacancy.company" })
@@ -28,7 +28,7 @@ public interface ApplicationRepository extends JpaRepository<ApplicationEntity, 
 
     @EntityGraph(attributePaths = { "vacancy", "vacancy.company" })
     Page<ApplicationEntity> findAllByUserIdAndStatusAndVacancyId(UUID userId, ApplicationStatus status, UUID vacancyId,
-                                                                 Pageable pageable);
+            Pageable pageable);
 
     List<ApplicationEntity> findAllByUserIdAndStatus(UUID userId, ApplicationStatus status);
 

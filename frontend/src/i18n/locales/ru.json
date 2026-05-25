@@ -538,7 +538,20 @@
     "skillsCount": "Навыков {{count}}",
     "appliedCount": "Откликов {{count}}",
     "interviewsCount": "Интервью {{count}}",
-    "offersCount": "Офферов {{count}}"
+    "offersCount": "Офферов {{count}}",
+    "tabs": {
+      "overview": "Обзор",
+      "companies": "Компании"
+    },
+    "companies": {
+      "name": "Компания",
+      "applications": "Отклики",
+      "interviews": "Интервью",
+      "offers": "Офферы",
+      "responseRate": "Процент ответов",
+      "avgTimeToInterview": "Сред. время до интервью",
+      "description": "Статистика по компаниям"
+    }
   },
   "search": {
     "placeholder": "Поиск везде...",

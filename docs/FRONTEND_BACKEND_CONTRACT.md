@@ -469,6 +469,25 @@ Response `AnalyticsSummary`:
 }
 ```
 
+### `GET /analytics/companies` — USED BY FRONTEND
+
+Response `CompanyAnalyticsItem[]`:
+
+```json
+[
+  {
+    "companyId": "uuid",
+    "companyName": "Stripe",
+    "logoUrl": "https://example.com/logo.png",
+    "applicationCount": 5,
+    "interviewCount": 2,
+    "offerCount": 1,
+    "responseRate": 0.8,
+    "avgTimeToInterview": 7.5
+  }
+]
+```
+
 ## Dashboard тАФ USED BY FRONTEND
 
 Frontend source:

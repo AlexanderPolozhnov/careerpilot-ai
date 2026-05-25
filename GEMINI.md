@@ -119,7 +119,7 @@ MapStruct для маппинга. GlobalExceptionHandler для доменны�
 - Риски и edge cases
 
 ### Шаг 3 — создание TASK_PLAN.md
-Сохрани в `docs/tasks/TASK_{FEATURE_NAME}.md` по шаблону ниже.
+Сохрани в `docs/tasks/new_tasks/TASK_{FEATURE_NAME}.md` по шаблону ниже.
 
 ---
 
@@ -340,6 +340,7 @@ MapStruct для маппинга. GlobalExceptionHandler для доменны�
 83. **SecurityContext Propagation in Async Tasks**: Spring `@Async` методы выполняются в отдельных потоках, где `SecurityContext` (и текущий пользователь) недоступен по умолчанию. Для корректной работы `CurrentUserResolver` в фоновых задачах необходимо оборачивать `ThreadPoolTaskExecutor` в `DelegatingSecurityContextAsyncTaskExecutor` в `AsyncConfig`. Без этого вызов `SecurityContextHolder.getContext().getAuthentication()` вернет `null`, что приведет к ошибкам "Unauthorized".
 84. **PowerShell Command Separators**: В некоторых средах (особенно при работе через CLI инструменты) оператор `&&` может не распознаваться PowerShell как допустимый разделитель команд. В таких случаях используйте `;` (точка с запятой) для последовательного выполнения команд в одной строке.
 85. **Testing CompletableFuture in Unit Tests**: При изменении возвращаемого типа сервиса на `CompletableFuture<T>`, в Unit-тестах (JUnit/Mockito) необходимо вызывать метод `.join()` у результата вызова сервиса. Это блокирует выполнение теста до завершения асинхронной задачи и позволяет корректно проверить возвращаемое значение через `assertThat`.
+86. **Hardcoded UI Strings in React**: Запрещено хардкодить пользовательские тексты (включая русскоязычные) напрямую в разметке React-компонентов (например, `<p>Статистика</p>`). Абсолютно все текстовые элементы интерфейса должны использовать хук `useTranslation` и i18n ключи из `ru.json` и `en.json` (например, `{t('analytics.companies.description')}`). Это правило действует даже если язык по умолчанию — русский.
 
 
 ---
@@ -369,7 +370,7 @@ MapStruct для маппинга. GlobalExceptionHandler для доменны�
 1. Прочитай все существующие слайсы похожего типа для понимания паттернов
 2. Проверь docs/FRONTEND_BACKEND_CONTRACT.md на наличие этого endpoint
 3. Найди последнюю Flyway миграцию в backend/src/main/resources/db/migration/
-4. Создай docs/tasks/TASK_{FEATURE_NAME}.md по шаблону из GEMINI.md
+4. Создай docs/tasks/new_tasks/TASK_{FEATURE_NAME}.md по шаблону из GEMINI.md
 
 Не пиши код реализации. Только план с точными сигнатурами и структурой.
 ```

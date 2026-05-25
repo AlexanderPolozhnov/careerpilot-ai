@@ -2995,3 +2995,34 @@ pm run build прошла успешно.
 - Build: clean compile - успешно.
 
 **Статус:** Реализовано. Архитектура проекта выведена на уровень Senior.
+
+## Update 2026-05-25: Company Analytics Implementation
+
+**Backend:**
+- **DTO:** Создан `CompanyAnalyticsItem` с полями: companyId, companyName, logoUrl, applicationCount, interviewCount, offerCount, responseRate, avgTimeToInterview.
+- **Repository:** Обновлен `ApplicationRepository.findAllByUserId` - добавлен `vacancy.company` в `@EntityGraph` для избежания N+1 проблемы.
+- **Service:** Добавлен метод `getCompanyAnalytics()` в интерфейс `AnalyticsService` и реализован в `AnalyticsServiceImpl`:
+  - Группировка откликов по companyId (исключая null компании)
+  - Расчет метрик: количество откликов, интервью, офферов, response rate, avgTimeToInterview
+  - Сортировка по количеству откликов (убывание), затем по алфавиту
+- **Controller:** Добавлен эндпоинт `GET /api/analytics/companies` в `AnalyticsController`.
+- **Contract:** Обновлен `docs/FRONTEND_BACKEND_CONTRACT.md` с документацией нового эндпоинта.
+
+**Frontend:**
+- **Types:** Добавлен тип `CompanyAnalyticsItem` в `frontend/src/types/index.ts`.
+- **Service:** Добавлен метод `getCompanyAnalytics()` в `frontend/src/services/analytics.service.ts` с поддержкой mock-режима.
+- **i18n:** Обновлены ключи в `ru.json` и `en.json`:
+  - `analytics.tabs.overview`, `analytics.tabs.companies`
+  - `analytics.companies.name`, `applications`, `interviews`, `offers`, `responseRate`, `avgTimeToInterview`
+- **UI (AnalyticsPage):**
+  - Реализовано переключение вкладок (overview / companies)
+  - При `activeTab === 'companies'` - useQuery для данных и таблица с CompanyAnalyticsItem
+  - Таблица отображает: компания (с логотипом), отклики, интервью, офферы, response rate, среднее время до интервью
+  - Обработка пустого состояния с иконкой и сообщением
+
+**Проверки:**
+- Backend: `.\mvnw.cmd clean compile` - успешно.
+- Frontend: `npm.cmd run lint` - успешно (2 предупреждения React Compiler, не критично).
+- Frontend: `npm.cmd run build` - успешно.
+
+**Статус:** Реализовано. Расширенная аналитика по компаниям доступна на странице Analytics.

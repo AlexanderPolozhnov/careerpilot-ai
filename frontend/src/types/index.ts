@@ -269,3 +269,14 @@ export interface AnalyticsSummary {
   weeklyActivity: WeeklyActivity[]
   topSkillGaps: SkillGap[]
 }
+
+export interface CompanyAnalyticsItem {
+  companyId: string
+  companyName: string
+  logoUrl?: string | null
+  applicationCount: number
+  interviewCount: number
+  offerCount: number
+  responseRate: number
+  avgTimeToInterview: number
+}

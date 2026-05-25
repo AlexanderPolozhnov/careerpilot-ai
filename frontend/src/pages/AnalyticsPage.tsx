@@ -1,8 +1,9 @@
-import { useMemo, Fragment } from 'react'
+import { useMemo, Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
     Activity,
     BarChart3,
+    Building2,
     Check,
     Clock,
     Layers,
@@ -16,7 +17,7 @@ import {
 import { LoadingState } from '@/components/LoadingState'
 import { ErrorState } from '@/components/ErrorState'
 import { analyticsService } from '@/services/analytics.service'
-import type { AnalyticsSummary, ApplicationFunnel } from '@/types'
+import type { AnalyticsSummary, ApplicationFunnel, CompanyAnalyticsItem } from '@/types'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 
@@ -46,7 +47,25 @@ const statusColors: Record<string, { bar: string; bg: string; text: string }> = 
     'REJECTED': { bar: 'bg-red-500', bg: 'bg-red-500/10', text: 'text-red-400' },
 }
 
-// KPI Card Component
+function CompanyLogo({ url, name }: { url?: string | null; name: string }) {
+    const [error, setError] = useState(false)
+    if (!url || error) {
+        return (
+            <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center shrink-0">
+                <Building2 className="w-4 h-4 text-white/40" />
+            </div>
+        )
+    }
+    return (
+        <img
+            src={url}
+            alt={name}
+            onError={() => setError(true)}
+            className="w-8 h-8 rounded-lg object-cover shrink-0 bg-white/[0.02]"
+        />
+    )
+}
+
 function KPICard({
     label,
     value,
@@ -102,7 +121,6 @@ function KPICard({
             )}
             style={{ animationDelay: `${delay}ms` }}
         >
-            {/* Subtle glow on hover */}
             <div className={cn(
                 'absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500',
                 `shadow-2xl ${styles.glow}`
@@ -143,7 +161,6 @@ function KPICard({
     )
 }
 
-// Funnel Bar Component
 function FunnelBar({
     label,
     count,
@@ -183,7 +200,6 @@ function FunnelBar({
                         style={{ width: `${width}%` }}
                     />
                 </div>
-                {/* Sparkline overlay effect */}
                 <div
                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
@@ -196,7 +212,6 @@ function FunnelBar({
     )
 }
 
-// Skill Gap Item Component
 function SkillGapItem({
     skill,
     frequency,
@@ -243,7 +258,6 @@ function SkillGapItem({
     )
 }
 
-// Weekly Activity Mini Chart
 function WeeklyActivityChart({
     data
 }: {
@@ -254,7 +268,6 @@ function WeeklyActivityChart({
 
     return (
         <div className="space-y-4">
-            {/* Legend */}
             <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full bg-violet-500" />
@@ -270,12 +283,10 @@ function WeeklyActivityChart({
                 </div>
             </div>
 
-            {/* Chart */}
             <div className="flex items-end justify-between gap-2 h-32">
                 {data.map((week, i) => (
                     <div key={week.week} className="flex-1 flex flex-col items-center gap-1 group">
                         <div className="relative w-full flex items-end justify-center gap-0.5 h-24">
-                            {/* Applied bar */}
                             <div
                                 className="w-2 bg-violet-500/80 rounded-t transition-all duration-500 group-hover:bg-violet-500"
                                 style={{
@@ -283,7 +294,6 @@ function WeeklyActivityChart({
                                     animationDelay: `${i * 100}ms`
                                 }}
                             />
-                            {/* Interviews bar */}
                             <div
                                 className="w-2 bg-cyan-500/80 rounded-t transition-all duration-500 group-hover:bg-cyan-500"
                                 style={{
@@ -291,7 +301,6 @@ function WeeklyActivityChart({
                                     animationDelay: `${i * 100 + 50}ms`
                                 }}
                             />
-                            {/* Offers bar */}
                             <div
                                 className="w-2 bg-emerald-500/80 rounded-t transition-all duration-500 group-hover:bg-emerald-500"
                                 style={{
@@ -307,7 +316,6 @@ function WeeklyActivityChart({
                 ))}
             </div>
 
-            {/* Summary row */}
             <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/[0.04]">
                 {data.slice(-1).map(w => (
                     <Fragment key={`summary-${w.week}`}>
@@ -332,11 +340,18 @@ function WeeklyActivityChart({
 
 export default function AnalyticsPage() {
     const { t } = useTranslation()
+    const [activeTab, setActiveTab] = useState<'overview' | 'companies'>('overview')
+
     const summaryQuery = useQuery({
         queryKey: ['analytics', 'summary'],
         queryFn: () => analyticsService.getSummary(),
     })
+    const companiesQuery = useQuery({
+        queryKey: ['analytics', 'companies'],
+        queryFn: () => analyticsService.getCompanyAnalytics(),
+    })
     const data: AnalyticsSummary | undefined = summaryQuery.data
+    const companiesData: CompanyAnalyticsItem[] | undefined = companiesQuery.data
 
     const maxFunnel = useMemo(() => {
         const f = data?.funnel ?? []
@@ -347,19 +362,27 @@ export default function AnalyticsPage() {
         return t(statusKeyMap[status] || `applications.${status.toLowerCase()}`)
     }
 
-    if (summaryQuery.isLoading) return <LoadingState message={t('analytics.overview')} />
-    if (summaryQuery.error)
+    if (summaryQuery.isLoading && activeTab === 'overview') return <LoadingState message={t('analytics.overview')} />
+    if (companiesQuery.isLoading && activeTab === 'companies') return <LoadingState message={t('analytics.tabs.companies')} />
+    if (summaryQuery.error && activeTab === 'overview')
         return (
             <ErrorState
                 title={t('analytics.title')}
                 message={summaryQuery.error instanceof Error ? summaryQuery.error.message : t('messages.errorMessage')}
             />
         )
-    if (!data) return null
+    if (companiesQuery.error && activeTab === 'companies')
+        return (
+            <ErrorState
+                title={t('analytics.title')}
+                message={companiesQuery.error instanceof Error ? companiesQuery.error.message : t('messages.errorMessage')}
+            />
+        )
+    if (!data && activeTab === 'overview') return null
+    if (!companiesData && activeTab === 'companies') return null
 
     return (
         <div className="space-y-8">
-            {/* Page Header */}
             <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between mb-6">
                 <div className="flex items-start gap-4">
                     <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500/20 via-violet-500/10 to-purple-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 shrink-0">
@@ -375,163 +398,224 @@ export default function AnalyticsPage() {
                     </div>
                 </div>
 
-                {/* Time range selector (visual only) */}
                 <div className="flex items-center gap-2">
                     <button
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-white/40 hover:text-white/60 transition-colors">
-                        7d
+                        type="button"
+                        onClick={() => setActiveTab('overview')}
+                        className={cn(
+                            'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
+                            activeTab === 'overview'
+                                ? 'bg-white/[0.06] text-white border border-white/[0.08]'
+                                : 'text-white/40 hover:text-white/60'
+                        )}
+                    >
+                        {t('analytics.tabs.overview')}
                     </button>
                     <button
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.06] text-white border border-white/[0.08]">
-                        30d
-                    </button>
-                    <button
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-white/40 hover:text-white/60 transition-colors">
-                        90d
+                        type="button"
+                        onClick={() => setActiveTab('companies')}
+                        className={cn(
+                            'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
+                            activeTab === 'companies'
+                                ? 'bg-white/[0.06] text-white border border-white/[0.08]'
+                                : 'text-white/40 hover:text-white/60'
+                        )}
+                    >
+                        {t('analytics.tabs.companies')}
                     </button>
                 </div>
             </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                <KPICard
-                    label={t('analytics.responseRate')}
-                    value={pct(data.responseRate)}
-                    icon={MessageCircle}
-                    color="violet"
-                    trend={{ value: 12, positive: true }}
-                    delay={0}
-                />
-                <KPICard
-                    label={t('analytics.interviewRate')}
-                    value={pct(data.interviewRate)}
-                    icon={Target}
-                    color="blue"
-                    trend={{ value: 8, positive: true }}
-                    delay={50}
-                />
-                <KPICard
-                    label={t('analytics.offerRate')}
-                    value={pct(data.offerRate)}
-                    icon={BarChart3}
-                    color="emerald"
-                    trend={{ value: 3, positive: false }}
-                    delay={100}
-                />
-                <KPICard
-                    label={t('analytics.avgDaysToInterview')}
-                    value={`${data.avgTimeToInterview}d`}
-                    icon={Clock}
-                    color="amber"
-                    delay={150}
-                />
-            </div>
+            {activeTab === 'overview' && data && (
+                <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                        <KPICard
+                            label={t('analytics.responseRate')}
+                            value={pct(data.responseRate)}
+                            icon={MessageCircle}
+                            color="violet"
+                            trend={{ value: 12, positive: true }}
+                            delay={0}
+                        />
+                        <KPICard
+                            label={t('analytics.interviewRate')}
+                            value={pct(data.interviewRate)}
+                            icon={Target}
+                            color="blue"
+                            trend={{ value: 8, positive: true }}
+                            delay={50}
+                        />
+                        <KPICard
+                            label={t('analytics.offerRate')}
+                            value={pct(data.offerRate)}
+                            icon={BarChart3}
+                            color="emerald"
+                            trend={{ value: 3, positive: false }}
+                            delay={100}
+                        />
+                        <KPICard
+                            label={t('analytics.avgDaysToInterview')}
+                            value={`${data.avgTimeToInterview}d`}
+                            icon={Clock}
+                            color="amber"
+                            delay={150}
+                        />
+                    </div>
+                </>
+            )}
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Application Funnel - Large */}
-                <div className="lg:col-span-7">
-                    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
-                        {/* Card Header */}
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-3">
+            {activeTab === 'overview' && data ? (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div className="lg:col-span-7">
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center">
+                                        <Layers className="w-5 h-5 text-violet-400" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-base font-semibold text-white">
+                                            {t('analytics.funnelTitle')}
+                                        </h2>
+                                        <p className="text-xs text-white/40">
+                                            {t('analytics.funnelDescription')}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span
+                                        className="px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs font-medium text-violet-400">
+                                        {t('analytics.totalApplications', { count: data.totalApplications })}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                {data.funnel.map((f: ApplicationFunnel, i: number) => (
+                                    <FunnelBar
+                                        key={f.status}
+                                        label={getStatusLabel(f.status)}
+                                        count={f.count}
+                                        percentage={f.percentage}
+                                        max={maxFunnel}
+                                        status={f.status}
+                                        delay={i * 50}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="lg:col-span-5 space-y-6">
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+                            <div className="flex items-center gap-3 mb-6">
                                 <div
-                                    className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center">
-                                    <Layers className="w-5 h-5 text-violet-400" />
+                                    className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 flex items-center justify-center">
+                                    <Activity className="w-5 h-5 text-cyan-400" />
                                 </div>
                                 <div>
                                     <h2 className="text-base font-semibold text-white">
-                                        {t('analytics.funnelTitle')}
+                                        {t('analytics.weeklyActivityTitle')}
                                     </h2>
                                     <p className="text-xs text-white/40">
-                                        {t('analytics.funnelDescription')}
+                                        {t('analytics.weeklyActivityDescription')}
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
+
+                            <WeeklyActivityChart data={data.weeklyActivity} />
+                        </div>
+
+                        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center">
+                                        <Zap className="w-5 h-5 text-amber-400" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-base font-semibold text-white">
+                                            {t('analytics.skillGapsTitle')}
+                                        </h2>
+                                        <p className="text-xs text-white/40">
+                                            {t('analytics.skillGapsDescription')}
+                                        </p>
+                                    </div>
+                                </div>
                                 <span
-                                    className="px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs font-medium text-violet-400">
-                                    {t('analytics.totalApplications', { count: data.totalApplications })}
+                                    className="px-2.5 py-1 rounded-full bg-white/[0.06] text-xs font-medium text-white/50">
+                                    {t('analytics.skillsCount', { count: data.topSkillGaps.length })}
                                 </span>
                             </div>
-                        </div>
 
-                        {/* Funnel Bars */}
-                        <div className="space-y-3">
-                            {data.funnel.map((f: ApplicationFunnel, i: number) => (
-                                <FunnelBar
-                                    key={f.status}
-                                    label={getStatusLabel(f.status)}
-                                    count={f.count}
-                                    percentage={f.percentage}
-                                    max={maxFunnel}
-                                    status={f.status}
-                                    delay={i * 50}
-                                />
-                            ))}
+                            <div className="max-h-64 overflow-y-auto scrollbar-hide">
+                                {data.topSkillGaps.map((g, i) => (
+                                    <SkillGapItem
+                                        key={g.skill}
+                                        skill={g.skill}
+                                        frequency={g.frequency}
+                                        hasSkill={g.hasSkill}
+                                        delay={i * 50}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                {/* Right Column */}
-                <div className="lg:col-span-5 space-y-6">
-                    {/* Weekly Activity */}
-                    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div
-                                className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 flex items-center justify-center">
-                                <Activity className="w-5 h-5 text-cyan-400" />
-                            </div>
-                            <div>
-                                <h2 className="text-base font-semibold text-white">
-                                    {t('analytics.weeklyActivityTitle')}
-                                </h2>
-                                <p className="text-xs text-white/40">
-                                    {t('analytics.weeklyActivityDescription')}
-                                </p>
-                            </div>
+            ) : (
+                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-blue-400" />
                         </div>
-
-                        <WeeklyActivityChart data={data.weeklyActivity} />
-                    </div>
-
-                    {/* Skill Gaps */}
-                    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                                <div
-                                    className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 flex items-center justify-center">
-                                    <Zap className="w-5 h-5 text-amber-400" />
-                                </div>
-                                <div>
-                                    <h2 className="text-base font-semibold text-white">
-                                        {t('analytics.skillGapsTitle')}
-                                    </h2>
-                                    <p className="text-xs text-white/40">
-                                        {t('analytics.skillGapsDescription')}
-                                    </p>
-                                </div>
-                            </div>
-                            <span
-                                className="px-2.5 py-1 rounded-full bg-white/[0.06] text-xs font-medium text-white/50">
-                                {t('analytics.skillsCount', { count: data.topSkillGaps.length })}
-                            </span>
-                        </div>
-
-                        <div className="max-h-64 overflow-y-auto scrollbar-hide">
-                            {data.topSkillGaps.map((g, i) => (
-                                <SkillGapItem
-                                    key={g.skill}
-                                    skill={g.skill}
-                                    frequency={g.frequency}
-                                    hasSkill={g.hasSkill}
-                                    delay={i * 50}
-                                />
-                            ))}
+                        <div>
+                            <h2 className="text-base font-semibold text-white">
+                                {t('analytics.tabs.companies')}
+                            </h2>
+                            <p className="text-xs text-white/40">
+                                {t('analytics.companies.description')}
+                            </p>
                         </div>
                     </div>
+
+                    {companiesData && companiesData.length > 0 ? (
+                        <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl overflow-hidden">
+                            <div className="grid grid-cols-12 gap-4 px-5 py-3 text-[11px] font-semibold text-[#6b7590] uppercase tracking-wider border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
+                                <div className="col-span-4">{t('analytics.companies.name')}</div>
+                                <div className="col-span-2">{t('analytics.companies.applications')}</div>
+                                <div className="col-span-2">{t('analytics.companies.interviews')}</div>
+                                <div className="col-span-2">{t('analytics.companies.offers')}</div>
+                                <div className="col-span-1 text-right">{t('analytics.companies.responseRate')}</div>
+                                <div className="col-span-1 text-right">{t('analytics.companies.avgTimeToInterview')}</div>
+                            </div>
+                            <div className="divide-y divide-[rgba(255,255,255,0.04)]">
+                                {companiesData.map((company) => (
+                                    <div
+                                        key={company.companyId}
+                                        className="grid grid-cols-12 gap-4 px-5 py-4 hover:bg-[rgba(255,255,255,0.03)] transition-colors"
+                                    >
+                                        <div className="col-span-4 flex items-center gap-3">
+                                            <CompanyLogo url={company.logoUrl} name={company.companyName} />
+                                            <span className="text-sm text-white font-medium">{company.companyName}</span>
+                                        </div>
+                                        <div className="col-span-2 text-sm text-white/60">{company.applicationCount}</div>
+                                        <div className="col-span-2 text-sm text-white/60">{company.interviewCount}</div>
+                                        <div className="col-span-2 text-sm text-white/60">{company.offerCount}</div>
+                                        <div className="col-span-1 text-sm text-right text-white/60">{pct(company.responseRate)}</div>
+                                        <div className="col-span-1 text-sm text-right text-white/60">{company.avgTimeToInterview.toFixed(1)}d</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            <Building2 className="w-12 h-12 text-white/20 mx-auto mb-4" />
+                            <p className="text-sm text-white/40">{t('analytics.noData')}</p>
+                        </div>
+                    )}
                 </div>
-            </div>
+            )}
         </div>
     )
 }

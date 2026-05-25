@@ -534,7 +534,20 @@
     "skillsCount": "{{count}} skills",
     "appliedCount": "Applied {{count}}",
     "interviewsCount": "Interviews {{count}}",
-    "offersCount": "Offers {{count}}"
+    "offersCount": "Offers {{count}}",
+    "tabs": {
+      "overview": "Overview",
+      "companies": "Companies"
+    },
+    "companies": {
+      "name": "Company",
+      "applications": "Applications",
+      "interviews": "Interviews",
+      "offers": "Offers",
+      "responseRate": "Response Rate",
+      "avgTimeToInterview": "Avg time to interview",
+      "description": "Statistics by companies"
+    }
   },
   "search": {
     "placeholder": "Search everywhere...",
