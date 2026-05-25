@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
-import { LogOut, ExternalLink, ChevronDown, Bell, Settings, Search } from 'lucide-react'
+import { LogOut, ExternalLink, ChevronDown, Bell, Settings, Search, FileSpreadsheet, Sparkles, Send } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './LanguageSwitcher'
@@ -89,7 +89,7 @@ export function Topbar({ title }: TopbarProps) {
           type="button"
           onClick={() => setIsSearchOpen(true)}
           className={cn(
-            "group flex items-center gap-2 h-9 px-2 md:px-3 rounded-lg",
+            "group relative flex items-center gap-2 h-9 px-2 md:px-3 rounded-lg",
             "bg-white/[0.03] border border-white/[0.06]",
             "hover:bg-white/[0.06] hover:border-white/[0.1] transition-all duration-200",
             "text-white/40 hover:text-white/70"
@@ -104,11 +104,47 @@ export function Topbar({ title }: TopbarProps) {
           </span>
         </button>
 
+        {/* Excel Data */}
+        <button
+          type="button"
+          onClick={() => navigate('/app/settings#export-data')}
+          className="group relative w-9 h-9 rounded-lg flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all duration-150"
+        >
+          <FileSpreadsheet className="w-[18px] h-[18px]" />
+          <span className="absolute top-full right-0 mt-2 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-[#1a1a1e] border border-white/10 text-white whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[100] shadow-xl">
+            {t('settings.exportData')}
+          </span>
+        </button>
+
+        {/* AI Provider */}
+        <button
+          type="button"
+          onClick={() => navigate('/app/settings#ai-provider')}
+          className="group relative w-9 h-9 rounded-lg flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all duration-150"
+        >
+          <Sparkles className="w-[18px] h-[18px]" />
+          <span className="absolute top-full right-0 mt-2 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-[#1a1a1e] border border-white/10 text-white whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[100] shadow-xl">
+            {t('settings.aiProvider')}
+          </span>
+        </button>
+
+        {/* Telegram */}
+        <button
+          type="button"
+          onClick={() => navigate('/app/settings#telegram')}
+          className="group relative w-9 h-9 rounded-lg flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all duration-150"
+        >
+          <Send className="w-[18px] h-[18px]" />
+          <span className="absolute top-full right-0 mt-2 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-[#1a1a1e] border border-white/10 text-white whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[100] shadow-xl">
+            {t('settings.telegram')}
+          </span>
+        </button>
+
         {/* Notifications - subtle bell */}
         <button
           type="button"
           onClick={() => navigate('/app/settings#notifications')}
-          className="relative w-9 h-9 rounded-lg flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all duration-150"
+          className="group relative w-9 h-9 rounded-lg flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all duration-150"
         >
           <Bell className="w-[18px] h-[18px]" />
           {unreadCount > 0 && (
@@ -116,6 +152,9 @@ export function Topbar({ title }: TopbarProps) {
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
+          <span className="absolute top-full right-0 mt-2 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-[#1a1a1e] border border-white/10 text-white whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[100] shadow-xl">
+            {t('settings.notifications')}
+          </span>
         </button>
         {/* Language Switcher */}
         <LanguageSwitcher />

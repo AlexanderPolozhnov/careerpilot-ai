@@ -31,7 +31,7 @@ import {
     Key,
     Mail,
     MapPin,
-    MessageCircle,
+    Send,
     Shield,
     Sparkles,
     Trash2,
@@ -193,9 +193,10 @@ export default function SettingsPage() {
     const [telegramLink, setTelegramLink] = useState<string | null>(null)
 
     useEffect(() => {
-        if (location.hash === '#notifications') {
+        if (location.hash) {
             setTimeout(() => {
-                const element = document.getElementById('notifications')
+                const id = location.hash.replace('#', '')
+                const element = document.getElementById(id)
                 if (element) {
                     element.scrollIntoView({ behavior: 'smooth' })
                 }
@@ -1147,7 +1148,7 @@ export default function SettingsPage() {
                     </section>
 
                     {/* AI Provider Section */}
-                    <section className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm">
+                    <section id="ai-provider" className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm scroll-mt-24">
                         <SectionHeader
                             icon={Sparkles}
                             title={t('settings.aiProvider')}
@@ -1380,7 +1381,7 @@ export default function SettingsPage() {
 
                         <form onSubmit={handlePrefsSubmit} className="space-y-3">
                             {/* Notification Provider */}
-                            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4">
+                            <div id="telegram" className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4 scroll-mt-24">
                                 <div className="flex items-center gap-4 mb-4">
                                     <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
                                         <Bell className="w-5 h-5 text-violet-400" />
@@ -1414,7 +1415,7 @@ export default function SettingsPage() {
                                                 : 'bg-white/[0.03] text-white/60 hover:bg-white/[0.06] border border-white/[0.06]'
                                         )}
                                     >
-                                        <MessageCircle className="w-4 h-4" />
+                                        <Send className="w-4 h-4" />
                                         {t('settings.telegram')}
                                         {prefsData?.telegramConnected && (
                                             <span className="w-2 h-2 rounded-full bg-emerald-400" />
@@ -1563,7 +1564,7 @@ export default function SettingsPage() {
                     </section>
 
                     {/* Export Data */}
-                    <section className="rounded-2xl border border-violet-500/20 bg-violet-500/[0.02] p-6">
+                    <section id="export-data" className="rounded-2xl border border-violet-500/20 bg-violet-500/[0.02] p-6 scroll-mt-24">
                         <div className="flex items-start gap-4 mb-6">
                             <div
                                 className="flex-shrink-0 w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
@@ -1750,7 +1751,7 @@ export default function SettingsPage() {
                             <div className="relative w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#0a0b0f] p-6 shadow-2xl">
                                 <div className="flex items-start gap-4 mb-6">
                                     <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-                                        <MessageCircle className="w-5 h-5 text-violet-400" />
+                                        <Send className="w-5 h-5 text-violet-400" />
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-semibold text-white">{t('settings.telegramConnectTitle')}</h3>
