@@ -69,3 +69,4 @@ backend/.aiassistant/rules/.aiignore
 
 # Test output files
 backend/test_compile_output.txt
+docs/logs/validation/
