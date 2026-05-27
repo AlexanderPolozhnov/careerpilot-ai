@@ -45,7 +45,7 @@ jobs:
       - name: Build and Push Backend Docker Image
         run: |
           IMAGE_TAG="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/careerpilot-docker-repo/backend:latest"
-          docker build -t $IMAGE_TAG -f backend/Dockerfile .
+          docker build -t $IMAGE_TAG -f backend/Dockerfile backend
           docker push $IMAGE_TAG
 
       - name: Deploy Backend to Cloud Run
