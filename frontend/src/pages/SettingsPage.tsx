@@ -150,7 +150,7 @@ function SectionHeader({
     description,
     helpKey
 }: { 
-    icon: any; 
+    icon: React.ElementType; 
     title: string; 
     description: string;
     helpKey?: string;
@@ -289,6 +289,19 @@ export default function SettingsPage() {
             geminiModel: 'gemini-1.5-flash',
             notificationProvider: 'EMAIL',
         },
+    })
+
+    const watchedCustomAiProvider = useWatch({
+        control: prefsForm.control,
+        name: 'customAiProvider',
+    })
+    const watchedOpenAiApiKey = useWatch({
+        control: prefsForm.control,
+        name: 'openAiApiKey',
+    })
+    const watchedGeminiApiKey = useWatch({
+        control: prefsForm.control,
+        name: 'geminiApiKey',
     })
 
     const customAiProviderOptions: SelectOption[] = [
@@ -1323,7 +1336,7 @@ export default function SettingsPage() {
                                     />
                                 </div>
 
-                                {prefsForm.watch('customAiProvider') === 'OPENAI' && (
+                                {watchedCustomAiProvider === 'OPENAI' && (
                                     <>
                                         <div className="space-y-2">
                                             <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
@@ -1334,7 +1347,7 @@ export default function SettingsPage() {
                                                 className="input mt-1 w-full"
                                                 {...prefsForm.register('openAiApiKey')}
                                                 placeholder={
-                                                    prefsForm.watch('openAiApiKey')?.includes('...')
+                                                    watchedOpenAiApiKey?.includes('...')
                                                         ? t('settings.apiKeySaved')
                                                         : 'sk-...'
                                                 }
@@ -1353,7 +1366,7 @@ export default function SettingsPage() {
                                     </>
                                 )}
 
-                                {prefsForm.watch('customAiProvider') === 'GEMINI' && (
+                                {watchedCustomAiProvider === 'GEMINI' && (
                                     <>
                                         <div className="space-y-2">
                                             <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
@@ -1364,9 +1377,9 @@ export default function SettingsPage() {
                                                 className="input mt-1 w-full"
                                                 {...prefsForm.register('geminiApiKey')}
                                                 placeholder={
-                                                    prefsForm.watch('geminiApiKey')?.includes('...')
+                                                    watchedGeminiApiKey?.includes('...')
                                                         ? t('settings.apiKeySaved')
-                                                        : 'AIza...'
+                                                        : 'sk-...'
                                                 }
                                             />
                                         </div>

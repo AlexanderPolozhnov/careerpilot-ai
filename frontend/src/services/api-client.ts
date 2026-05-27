@@ -124,7 +124,7 @@ async function request<T>(
       message = i18n.t('errors.backendOffline')
     }
     
-    throw new Error(message)
+    throw new Error(message, { cause: error })
   }
 }
 

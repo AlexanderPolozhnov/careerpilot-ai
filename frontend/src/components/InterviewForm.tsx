@@ -1,4 +1,4 @@
-import { useForm, type Resolver, Controller } from 'react-hook-form'
+import { useForm, useWatch, type Resolver, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
@@ -6,7 +6,7 @@ import type { TFunction } from 'i18next'
 import type { InterviewType, InterviewResult } from '@/types'
 import { applicationService } from '@/services/application.service'
 import { useQuery } from '@tanstack/react-query'
-import { useState, useMemo, useEffect } from 'react'
+import { useState } from 'react'
 import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
 
 const interviewTypeValues: InterviewType[] = ['HR_SCREEN', 'TECH_SCREEN', 'TECH_INTERVIEW', 'FINAL', 'OTHER']
@@ -51,13 +51,13 @@ interface InterviewFormProps {
 export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting, applicationId }: InterviewFormProps) {
   const { t } = useTranslation()
   const interviewSchema = getInterviewSchema(t)
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('')
+  const [manualCompanyId, setManualCompanyId] = useState<string | null>(null)
 
   // Default to browser timezone if not provided
-  const browserTimezone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, [])
+  const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
   // Combine common timezones with initial or browser timezone
-  const timezoneOptions = useMemo(() => {
+  const timezoneOptions = (() => {
     const zones = new Set(commonTimezones)
     if (initialValues?.timezone) zones.add(initialValues.timezone)
     zones.add(browserTimezone)
@@ -65,7 +65,7 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
     return Array.from(zones)
       .sort()
       .map(tz => ({ value: tz, label: tz }))
-  }, [initialValues?.timezone, browserTimezone])
+  })()
 
   // Fetch active applications for the dropdown
   const applicationsQuery = useQuery({
@@ -73,8 +73,17 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
     queryFn: () => applicationService.list({ page: 0, size: 100 }),
   })
 
+  // Derive selectedCompanyId
+  let selectedCompanyId = ''
+  if (manualCompanyId !== null) {
+    selectedCompanyId = manualCompanyId
+  } else if (initialValues?.applicationId && applicationsQuery.data?.content) {
+    const app = applicationsQuery.data.content.find(a => a.id === initialValues.applicationId)
+    selectedCompanyId = app?.vacancy?.company?.id || ''
+  }
+
   // Extract unique companies from applications
-  const companies = useMemo(() => {
+  const companies = (() => {
     if (!applicationsQuery.data?.content) return []
     const companyMap = new Map<string, { id: string; name: string }>()
     applicationsQuery.data.content.forEach((app) => {
@@ -84,16 +93,16 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
       }
     })
     return Array.from(companyMap.values()).sort((a, b) => a.name.localeCompare(b.name))
-  }, [applicationsQuery.data?.content])
+  })()
 
   // Filter vacancies by selected company
-  const filteredVacancies = useMemo(() => {
+  const filteredVacancies = (() => {
     if (!applicationsQuery.data?.content || !selectedCompanyId) return []
     return applicationsQuery.data.content.filter((app) => {
       const company = app.vacancy?.company
       return company?.id === selectedCompanyId
     })
-  }, [applicationsQuery.data?.content, selectedCompanyId])
+  })()
 
   const form = useForm<InterviewFormValues>({
     resolver: zodResolver(interviewSchema) as unknown as Resolver<InterviewFormValues>,
@@ -106,19 +115,14 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
     },
   })
 
-  // Pre-select company when editing
-  useEffect(() => {
-    if (initialValues?.applicationId && applicationsQuery.data?.content) {
-      const app = applicationsQuery.data.content.find(a => a.id === initialValues.applicationId)
-      if (app?.vacancy?.company?.id) {
-        setSelectedCompanyId(app.vacancy.company.id)
-      }
-    }
-  }, [initialValues?.applicationId, applicationsQuery.data?.content])
+  const watchedApplicationId = useWatch({
+    control: form.control,
+    name: 'applicationId',
+  })
 
   // Handle company selection - reset vacancy selection
   const handleCompanyChange = (companyId: string) => {
-    setSelectedCompanyId(companyId)
+    setManualCompanyId(companyId)
     form.setValue('applicationId', '')
   }
 
@@ -172,7 +176,7 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
         <div>
           <label htmlFor="vacancy" className="text-xs text-ink-dim">{t('interviews.form.vacancy')}</label>
           <CustomSelect
-            value={form.watch('applicationId')}
+            value={watchedApplicationId}
             onChange={handleVacancyChange}
             options={vacancyOptions}
             disabled={!selectedCompanyId || !!applicationId}
