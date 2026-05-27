@@ -57,7 +57,7 @@ jobs:
             --platform=managed \
             --allow-unauthenticated \
             --add-cloudsql-instances=${{ secrets.GCP_PROJECT_ID }}:${{ secrets.GCP_REGION }}:careerpilot-db \
-            --set-env-vars="SPRING_PROFILES_ACTIVE=prod,SERVER_PORT=8080,SPRING_DATASOURCE_URL=${{ secrets.DATABASE_URL }},SPRING_DATASOURCE_USERNAME=${{ secrets.DATABASE_USERNAME }},SPRING_DATASOURCE_PASSWORD=${{ secrets.DATABASE_PASSWORD }},SPRING_DATA_REDIS_HOST=${{ secrets.REDIS_HOST }},ENCRYPTION_MASTER_KEY=${{ secrets.ENCRYPTION_MASTER_KEY }},JWT_SECRET=${{ secrets.JWT_SECRET }}" \
+            --set-env-vars="SPRING_PROFILES_ACTIVE=prod,SERVER_PORT=8080,TELEGRAM_BOT_ENABLED=false,SPRING_DATASOURCE_URL=jdbc:postgresql:///careerpilot_ai?socketFactory=com.google.cloud.sql.postgres.SocketFactory&cloudSqlInstance=${{ secrets.GCP_PROJECT_ID }}:${{ secrets.GCP_REGION }}:careerpilot-db&currentSchema=careerpilot,SPRING_DATASOURCE_USERNAME=${{ secrets.DATABASE_USERNAME }},SPRING_DATASOURCE_PASSWORD=${{ secrets.DATABASE_PASSWORD }},SPRING_DATA_REDIS_HOST=${{ secrets.REDIS_HOST }},ENCRYPTION_MASTER_KEY=${{ secrets.ENCRYPTION_MASTER_KEY }},JWT_SECRET=${{ secrets.JWT_SECRET }}" \
             --format="value(status.url)" > backend_url.txt
           echo "BACKEND_URL=$(cat backend_url.txt)" >> $GITHUB_ENV
 
