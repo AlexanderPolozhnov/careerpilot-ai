@@ -418,7 +418,7 @@ MapStruct для маппинга. GlobalExceptionHandler для доменны�
 git status --short
 ```
 3. Убедиться что нет: `.env`, `backend/target/`, `frontend/node_modules/`, `frontend/dist/`, `.idea/`
-4. Не коммитить без явной просьбы.
+4. Не коммитить без явной просьбы..
 
 ## Финальный отчёт (после создания TASK_PLAN)
 
