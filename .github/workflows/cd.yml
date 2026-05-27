@@ -39,7 +39,7 @@ jobs:
           cache: maven
 
       - name: Build Backend JAR
-        run: ./mvnw clean package -DskipTests
+        run: ./mvnw clean package -Dmaven.test.skip=true
         working-directory: backend
 
       - name: Build and Push Backend Docker Image
