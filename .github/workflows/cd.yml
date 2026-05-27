@@ -1,0 +1,98 @@
+# Пояснения моего CD для проекта ниже
+
+name: CD Pipeline (Google Cloud Run)
+
+on:
+  push:
+    branches: [main] # Триггер только при слиянии/пуше в ветку main
+
+jobs:
+  deploy:
+    name: Build & Deploy to Cloud Run
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 1. Аутентификация в Google Cloud Platform
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      # 2. Установка gcloud CLI для работы с командами gcloud
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      # 3. Настройка аутентификации Docker для Artifact Registry
+      - name: Configure Docker Auth for GCP
+        run: |
+          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
+
+      # === СБОРКА И ДЕПЛОЙ БЭКЕНДА ===
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Build Backend JAR
+        run: ./mvnw clean package -DskipTests
+        working-directory: backend
+
+      - name: Build and Push Backend Docker Image
+        run: |
+          IMAGE_TAG="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/careerpilot-docker-repo/backend:latest"
+          docker build -t $IMAGE_TAG -f backend/Dockerfile .
+          docker push $IMAGE_TAG
+
+      - name: Deploy Backend to Cloud Run
+        id: deploy-backend
+        run: |
+          gcloud run deploy careerpilot-backend \
+            --image=${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/careerpilot-docker-repo/backend:latest \
+            --region=${{ secrets.GCP_REGION }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --set-env-vars="SPRING_PROFILES_ACTIVE=prod,SPRING_DATASOURCE_URL=${{ secrets.DATABASE_URL }},SPRING_DATASOURCE_USERNAME=${{ secrets.DATABASE_USERNAME }},SPRING_DATASOURCE_PASSWORD=${{ secrets.DATABASE_PASSWORD }},SPRING_DATA_REDIS_HOST=${{ secrets.REDIS_HOST }},ENCRYPTION_MASTER_KEY=${{ secrets.ENCRYPTION_MASTER_KEY }},JWT_SECRET=${{ secrets.JWT_SECRET }}" \
+            --format="value(status.url)" > backend_url.txt
+          echo "BACKEND_URL=$(cat backend_url.txt)" >> $GITHUB_ENV
+
+      # === СБОРКА И ДЕПЛОЙ ФРОНТЕНДА ===
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install Frontend Dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: frontend
+
+      # Мы собираем фронтенд, передавая URL бэкенда в качестве аргумента сборки
+      - name: Build and Push Frontend Docker Image
+        run: |
+          IMAGE_TAG="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/careerpilot-docker-repo/frontend:latest"
+          docker build \
+            --build-arg VITE_API_BASE_URL=${{ env.BACKEND_URL }} \
+            -t $IMAGE_TAG \
+            -f frontend/Dockerfile \
+            frontend/
+          docker push $IMAGE_TAG
+
+      - name: Deploy Frontend to Cloud Run
+        run: |
+          gcloud run deploy careerpilot-frontend \
+            --image=${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/careerpilot-docker-repo/frontend:latest \
+            --region=${{ secrets.GCP_REGION }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=80
