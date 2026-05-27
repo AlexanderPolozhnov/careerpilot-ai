@@ -6,17 +6,33 @@ import type { TFunction } from 'i18next'
 import type { InterviewType, InterviewResult } from '@/types'
 import { applicationService } from '@/services/application.service'
 import { useQuery } from '@tanstack/react-query'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
 
 const interviewTypeValues: InterviewType[] = ['HR_SCREEN', 'TECH_SCREEN', 'TECH_INTERVIEW', 'FINAL', 'OTHER']
 const interviewResultValues: InterviewResult[] = ['PENDING', 'PASSED', 'FAILED', 'CANCELLED']
 
+const commonTimezones = [
+  'UTC',
+  'Europe/Moscow',
+  'Europe/London',
+  'Europe/Berlin',
+  'Europe/Paris',
+  'America/New_York',
+  'America/Los_Angeles',
+  'Asia/Dubai',
+  'Asia/Tbilisi',
+  'Asia/Yerevan',
+  'Asia/Almaty',
+  'Asia/Singapore',
+  'Asia/Tokyo',
+]
+
 const getInterviewSchema = (t: TFunction) => z.object({
   applicationId: z.string().min(1, t('forms.validation.required')),
   type: z.enum(interviewTypeValues),
   scheduledAt: z.string().min(1, t('forms.validation.required')),
-  timezone: z.string().optional(),
+  timezone: z.string().min(1, t('forms.validation.required')),
   meetingLink: z.string().url(t('forms.validation.invalidUrl')).optional().or(z.literal('')),
   notes: z.string().optional(),
   result: z.enum(interviewResultValues).optional(),
@@ -36,6 +52,20 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
   const { t } = useTranslation()
   const interviewSchema = getInterviewSchema(t)
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('')
+
+  // Default to browser timezone if not provided
+  const browserTimezone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, [])
+
+  // Combine common timezones with initial or browser timezone
+  const timezoneOptions = useMemo(() => {
+    const zones = new Set(commonTimezones)
+    if (initialValues?.timezone) zones.add(initialValues.timezone)
+    zones.add(browserTimezone)
+    
+    return Array.from(zones)
+      .sort()
+      .map(tz => ({ value: tz, label: tz }))
+  }, [initialValues?.timezone, browserTimezone])
 
   // Fetch active applications for the dropdown
   const applicationsQuery = useQuery({
@@ -71,9 +101,20 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
       applicationId: applicationId || '',
       type: 'TECH_INTERVIEW',
       result: 'PENDING',
+      timezone: browserTimezone,
       ...initialValues,
     },
   })
+
+  // Pre-select company when editing
+  useEffect(() => {
+    if (initialValues?.applicationId && applicationsQuery.data?.content) {
+      const app = applicationsQuery.data.content.find(a => a.id === initialValues.applicationId)
+      if (app?.vacancy?.company?.id) {
+        setSelectedCompanyId(app.vacancy.company.id)
+      }
+    }
+  }, [initialValues?.applicationId, applicationsQuery.data?.content])
 
   // Handle company selection - reset vacancy selection
   const handleCompanyChange = (companyId: string) => {
@@ -187,7 +228,19 @@ export function InterviewForm({ onSubmit, onCancel, initialValues, isSubmitting,
         </div>
         <div>
           <label htmlFor="timezone" className="text-xs text-ink-dim">{t('interviews.form.timezone')}</label>
-          <input id="timezone" {...form.register('timezone')} className="input mt-1" placeholder="Europe/Moscow" />
+          <Controller
+            name="timezone"
+            control={form.control}
+            render={({ field }) => (
+              <CustomSelect
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                options={timezoneOptions}
+                className="mt-1"
+              />
+            )}
+          />
+          {form.formState.errors.timezone && <p className="text-xs text-danger mt-1">{form.formState.errors.timezone.message}</p>}
         </div>
       </div>
 

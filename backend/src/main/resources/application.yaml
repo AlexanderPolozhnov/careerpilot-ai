@@ -84,6 +84,8 @@ app:
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
   encryption:
     master-key: ${ENCRYPTION_MASTER_KEY:your-super-secret-master-key-32}
+  google:
+    redirect-uri: ${GOOGLE_CALENDAR_REDIRECT_URI:http://localhost:8080/api/integrations/google-calendar/callback}
 
 reminder:
   scheduler:

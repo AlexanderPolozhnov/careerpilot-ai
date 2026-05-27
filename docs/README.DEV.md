@@ -4,7 +4,7 @@
 
 ## Статус
 
-Проект находится в активной разработке (v0.8.0-alpha pre-release). Архитектура построена как production-like portfolio project с полным frontend-backend интегрированием по документированному контракту.
+Проект находится в активной разработке (v1.0.0-beta pre-release). Архитектура построена как production-like portfolio project с полным frontend-backend интегрированием по документированному контракту.
 
 ## Monorepo-структура
 
@@ -37,6 +37,7 @@ Backend находится в `backend/`.
 - PostgreSQL
 - Spring Security
 - OAuth 2.0 (GitHub, Google)
+- Google Calendar API (OAuth2)
 - JWT
 - Spring Data JPA
 - Flyway
@@ -44,6 +45,7 @@ Backend находится в `backend/`.
 - Bean Validation
 - OpenAPI / Swagger
 - Telegram Bots API
+- Apache POI (Excel Export)
 - JUnit 5
 - Mockito
 - Testcontainers
@@ -169,6 +171,8 @@ pnpm.cmd run build
 - `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_SECRET`
 - `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID`
 - `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET`
+- `GOOGLE_CALENDAR_CLIENT_ID` (из Google Console для интеграции)
+- `GOOGLE_CALENDAR_CLIENT_SECRET` (из Google Console для интеграции)
 - `REDIS_HOST`
 - `REDIS_PORT`
 - `MAIL_HOST`
@@ -320,11 +324,12 @@ docker compose config
 7. **Resumes**: полный CRUD, транзакционная логика дефолтного резюме.
 8. **Profile**: GET/PUT me с JSONB-полем скиллов.
 9. **AI Assistant**: analyze-vacancy, resume-match, cover-letter, interview-questions, history с Redis-кэшированием.
-10. **Analytics**: summary с воронкой, недельной активностью, skill gaps.
+10. **Analytics**: summary с воронкой, недельной активностью, skill gaps, **статистика по компаниям**.
 11. **Dashboard**: summary с KPI, интервью, задачами.
-12. **Settings**: preferences, управление резюме, смена пароля, удаление аккаунта.
+12. **Settings**: preferences, управление резюме, смена пароля, удаление аккаунта, **Contextual Help**.
 13. **Search**: агрегированный поиск по вакансиям, компаниям, задачам, собеседованиям.
 14. **Notifications**: In-app уведомления, Email (SMTP), Telegram Bot (Strategy/Factory паттерн). Scheduled напоминания о задачах и собеседованиях. Уведомления при смене статуса отклика.
+15. **Integrations**: Прямая синхронизация с **Google Calendar (OAuth2)**, экспорт в **Excel**, экспорт собеседований в **ICS**.
 
 ## Безопасность
 

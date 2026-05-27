@@ -533,6 +533,22 @@ Response: `PagedResponse<Interview>`.
 
 Response: `Interview`.
 
+```json
+{
+  "id": "uuid",
+  "applicationId": "app1",
+  "type": "TECHNICAL",
+  "scheduledAt": "2024-05-20T10:00:00Z",
+  "timezone": "Europe/Moscow",
+  "meetingLink": "https://zoom.us/j/123",
+  "notes": "Preparation: study system design",
+  "result": "PENDING",
+  "isSyncedWithGoogleCalendar": false,
+  "vacancyTitle": "Senior Frontend Engineer",
+  "companyName": "Stripe"
+}
+```
+
 ### `POST /interviews` — USED BY FRONTEND
 
 Request `InterviewRequest`:
@@ -569,6 +585,30 @@ Headers:
 - `Content-Disposition: attachment; filename="interview-{id}.ics"`
 
 Description: Exports a specific interview to ICS calendar file format for adding to personal calendars (Google Calendar, Outlook, Apple Calendar).
+
+### `POST /interviews/{id}/sync/google` — USED BY FRONTEND
+
+Response: `Interview`.
+
+Description: Creates an event in the user's connected Google Calendar. Requires `googleCalendarConnected` to be true in user preferences.
+
+## Integrations — USED BY FRONTEND
+
+Frontend source: `frontend/src/services/integration.service.ts`.
+
+### `GET /integrations/google-calendar/auth-url` — USED BY FRONTEND
+
+Response: 
+```json
+{
+  "url": "https://accounts.google.com/o/oauth2/v2/auth..."
+}
+```
+
+### `DELETE /integrations/google-calendar` — USED BY FRONTEND
+
+Response: `204 No Content`.
+Description: Disconnects the user's Google Calendar.
 
 ## Tasks — USED BY FRONTEND
 

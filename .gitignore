@@ -64,6 +64,7 @@ Thumbs.db
 .windsurf/
 private-notes/
 docs/tasks/
+docs/releases/
 backend/.aiassistant/rules/.aiignore
 
 # Test output files

@@ -64,4 +64,11 @@ public class InterviewController {
                         "attachment; filename=\"interview-" + id + ".ics\"")
                 .body(data);
     }
+
+    @PostMapping("/{id}/sync/google")
+    @Operation(summary = "Sync interview with Google Calendar")
+    @Auditable(action = "INTERVIEW_SYNC_GOOGLE", entityType = "INTERVIEW")
+    public InterviewResponse syncWithGoogle(@PathVariable UUID id) {
+        return service.syncWithGoogle(id);
+    }
 }

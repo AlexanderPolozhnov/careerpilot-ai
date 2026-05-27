@@ -149,7 +149,8 @@ public class PreferencesServiceImpl implements PreferencesService {
                 maskedGeminiApiKey,
                 prefs.getGeminiModel(),
                 prefs.getNotificationProvider().name(),
-                prefs.getTelegramChatId() != null);
+                prefs.getTelegramChatId() != null,
+                prefs.isGoogleCalendarConnected());
     }
 
     private String maskApiKey(String apiKey) {

@@ -43,4 +43,7 @@ public class InterviewEntity extends BaseAuditableEntity {
 
     @Column(name = "reminder_sent", nullable = false)
     private boolean reminderSent = false;
+
+    @Column(name = "google_calendar_event_id", length = 255)
+    private String googleCalendarEventId;
 }

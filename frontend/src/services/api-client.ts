@@ -117,8 +117,14 @@ async function request<T>(
     }
 
     // Handle network or unexpected errors
-    toast.error(i18n.t('errors.networkError'))
-    throw error
+    let message = error instanceof Error ? error.message : String(error)
+    
+    // "Failed to fetch" is a standard browser error when server is unreachable
+    if (message === 'Failed to fetch') {
+      message = i18n.t('errors.backendOffline')
+    }
+    
+    throw new Error(message)
   }
 }
 

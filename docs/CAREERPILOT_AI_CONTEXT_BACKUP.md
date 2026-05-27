@@ -3129,3 +3129,58 @@ pm run build прошла успешно.
 - Frontend: `npm.cmd run build` - успешно.
 
 **Статус:** Реализовано. Пользователи могут скачивать .ics файлы собеседований для добавления в личные календари.
+
+## Update 2026-05-27 — Google Calendar Direct Sync Implementation
+
+**Сделано:**
+
+Реализована прямая синхронизация собеседований с Google Calendar через OAuth2 API.
+
+**Backend:**
+- Добавлена Flyway миграция `V29__add_google_calendar_integration.sql`.
+- Добавлены зависимости `google-api-client` и `google-api-services-calendar` в `pom.xml`.
+- Добавлены поля `googleCalendarRefreshToken` и `googleCalendarConnected` в `PreferencesEntity`.
+- Добавлено поле `googleCalendarEventId` в `InterviewEntity`.
+- Реализованы `GoogleCalendarService` и `GoogleCalendarIntegrationController` для обработки OAuth2 flow (auth-url, callback, disconnect) и создания событий (`createEvent`). Используется `setApprovalPrompt("force")` вместо `setPrompt("consent")` из-за версии API клиента.
+- В `InterviewService` добавлен метод `syncWithGoogle(UUID id)` и соответствующий эндпоинт `POST /api/interviews/{id}/sync/google`.
+
+**Frontend:**
+- Создан `integration.service.ts` для взаимодействия с API интеграций.
+- Обновлен `interview.service.ts` с мутацией `syncWithGoogle`.
+- Обновлен `SettingsPage.tsx`: добавлена секция "Интеграции" с возможностью подключения и отключения Google Calendar.
+- Обновлен `InterviewsPage.tsx`: добавлена кнопка синхронизации рядом с экспортом ICS. При успешной синхронизации кнопка меняется на зеленую галочку.
+- Добавлены i18n ключи для ru и en локалей.
+
+**Документация:**
+- Обновлен `FRONTEND_BACKEND_CONTRACT.md` с описанием новых эндпоинтов.
+
+**Проверки:**
+- Backend успешно скомпилирован.
+- Frontend успешно собран.
+
+**Статус:** Реализовано.
+
+## Update 2026-05-27 — Google Calendar Fixes & UI Improvements
+
+**Сделано:**
+
+Серия исправлений и улучшений для стабилизации синхронизации с Google Calendar и улучшения UX в разделе собеседований.
+
+**Backend:**
+- **Google Calendar NPE Fix:** В `GoogleCalendarServiceImpl` добавлена проверка на null для компании при создании события. Теперь, если у вакансии не указана компания, используется заглушка "No Company".
+- **Localization:** Заголовки событий в Google Calendar теперь локализуются (RU/EN) на основе настроек пользователя. Сами названия компании и вакансии не переводятся.
+- **Bean Initialization Fix:** Устранен сбой запуска приложения `NoSuchBeanDefinitionException`. В `GoogleCalendarServiceImpl` и `GoogleCalendarIntegrationController` внедрены явные конструкторы вместо Lombok `@RequiredArgsConstructor`, добавлена аннотация `@Primary` для сервиса.
+- **Interview Details:** В `InterviewResponse` и `InterviewMapper` добавлены поля `companyName` и `vacancyTitle`. Теперь эти данные передаются фронтенду вместе с объектом собеседования.
+- **Dependency Upgrade:** Flyway обновлен до версии `12.6.2` для обеспечения полной совместимости с PostgreSQL 18.3 и устранения предупреждений в логах.
+
+**Frontend:**
+- **Interview UI:** На карточке собеседования под названием компании теперь отображается название вакансии (уменьшенным и приглушенным текстом).
+- **Form Persistence:** В `InterviewForm` добавлена логика автоматического выбора компании и подгрузки соответствующих вакансий при открытии формы на редактирование.
+- **Error Handling:** Стандартная браузерная ошибка "Failed to fetch" (возникающая при выключенном бэкенде) теперь перехватывается и переводится через i18n (`errors.backendOffline`). Текст кнопки "Try again" в `ErrorState` (используемом в `ErrorBoundary`) теперь также локализован через ключ `common.retry`.
+- **UI (Topbar):** Добавлена иконка Google Calendar в верхнюю панель управления. Иконка подсвечивается синим, если интеграция активна, и ведет в настройки интеграций.
+- **Form UX:** В `InterviewForm` текстовое поле ввода часового пояса заменено на выпадающий список `CustomSelect` с поиском и предустановленными популярными зонами. Автоматически определяется и подставляется часовой пояс пользователя.
+- **Fix:** Исправлена ошибка `ReferenceError: useEffect is not defined` в компоненте `InterviewForm`.
+- **UI (Settings Help):** Внедрена система контекстных подсказок. В каждом блоке настроек добавлена иконка вопроса в верхнем правом углу. При наведении отображается стилизованная подсказка с подробным объяснением на языке пользователя (RU/EN) о том, как данный раздел влияет на работу программы.
+
+**Статус:** Все критические ошибки синхронизации устранены, UI обновлен для лучшей наглядности и удобства использования.
+

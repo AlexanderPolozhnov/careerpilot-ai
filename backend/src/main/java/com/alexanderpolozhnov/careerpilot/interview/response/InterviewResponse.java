@@ -14,5 +14,8 @@ public record InterviewResponse(
         String timezone,
         String meetingLink,
         InterviewResult result,
-        String notes) {
+        String notes,
+        boolean isSyncedWithGoogleCalendar,
+        String vacancyTitle,
+        String companyName) {
 }

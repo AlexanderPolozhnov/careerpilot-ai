@@ -1,6 +1,17 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
-import { LogOut, ExternalLink, ChevronDown, Bell, Settings, Search, FileSpreadsheet, Sparkles, Send } from 'lucide-react'
+import { 
+  LogOut, 
+  ExternalLink, 
+  ChevronDown, 
+  Bell, 
+  Settings, 
+  Search, 
+  FileSpreadsheet, 
+  Sparkles, 
+  Send,
+  Calendar
+} from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './LanguageSwitcher'
@@ -8,6 +19,7 @@ import { GlobalSearch } from './GlobalSearch'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import { notificationService } from '@/services/notification.service'
+import { settingsService } from '@/services/settings.service'
 
 interface TopbarProps {
   title: string
@@ -15,18 +27,23 @@ interface TopbarProps {
 
 export function Topbar({ title }: TopbarProps) {
   const { user, logout } = useAuth()
-  const { t } = useTranslation()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const { data: preferences } = useQuery({
+    queryKey: ['preferences'],
+    queryFn: () => settingsService.getPreferences(),
+  })
 
   const { data: unreadData } = useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: () => notificationService.getUnreadCount(),
     refetchInterval: 60000, // Poll every minute
   })
-  
+
   const unreadCount = unreadData?.count || 0
 
   // Handle click outside to close dropdown
@@ -104,23 +121,19 @@ export function Topbar({ title }: TopbarProps) {
           </span>
         </button>
 
-        {/* Excel Data */}
-        <button
-          type="button"
-          onClick={() => navigate('/app/settings#export-data')}
-          className="group relative w-9 h-9 rounded-lg flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all duration-150"
-        >
-          <FileSpreadsheet className="w-[18px] h-[18px]" />
-          <span className="absolute top-full right-0 mt-2 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-[#1a1a1e] border border-white/10 text-white whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[100] shadow-xl">
-            {t('settings.exportData')}
-          </span>
-        </button>
+        {/* Divider */}
+        <div className="w-px h-5 bg-white/[0.08] mx-1" />
 
         {/* AI Provider */}
         <button
           type="button"
           onClick={() => navigate('/app/settings#ai-provider')}
-          className="group relative w-9 h-9 rounded-lg flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all duration-150"
+          className={cn(
+            "group relative w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-150",
+            preferences?.aiProviderMode !== 'LOCAL' || preferences?.customAiProvider
+              ? "text-violet-400 hover:text-violet-300 bg-violet-500/5 hover:bg-violet-500/10 border border-violet-500/20"
+              : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"
+          )}
         >
           <Sparkles className="w-[18px] h-[18px]" />
           <span className="absolute top-full right-0 mt-2 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-[#1a1a1e] border border-white/10 text-white whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[100] shadow-xl">
@@ -128,11 +141,33 @@ export function Topbar({ title }: TopbarProps) {
           </span>
         </button>
 
+        {/* Google Calendar */}
+        <button
+          type="button"
+          onClick={() => navigate('/app/settings#integrations')}
+          className={cn(
+            "group relative w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-150",
+            preferences?.googleCalendarConnected 
+              ? "text-blue-400 hover:text-blue-300 bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/20" 
+              : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"
+          )}
+        >
+          <Calendar className="w-[18px] h-[18px]" />
+          <span className="absolute top-full right-0 mt-2 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-[#1a1a1e] border border-white/10 text-white whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[100] shadow-xl">
+            {t('settings.googleCalendar')}
+          </span>
+        </button>
+
         {/* Telegram */}
         <button
           type="button"
           onClick={() => navigate('/app/settings#telegram')}
-          className="group relative w-9 h-9 rounded-lg flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all duration-150"
+          className={cn(
+            "group relative w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-150",
+            preferences?.telegramConnected && preferences?.notificationProvider === 'TELEGRAM'
+              ? "text-sky-400 hover:text-sky-300 bg-sky-500/5 hover:bg-sky-500/10 border border-sky-500/20"
+              : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"
+          )}
         >
           <Send className="w-[18px] h-[18px]" />
           <span className="absolute top-full right-0 mt-2 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-[#1a1a1e] border border-white/10 text-white whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[100] shadow-xl">
@@ -140,15 +175,23 @@ export function Topbar({ title }: TopbarProps) {
           </span>
         </button>
 
+        {/* Divider */}
+        <div className="w-px h-5 bg-white/[0.08] mx-1" />
+
         {/* Notifications - subtle bell */}
         <button
           type="button"
           onClick={() => navigate('/app/settings#notifications')}
-          className="group relative w-9 h-9 rounded-lg flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all duration-150"
+          className={cn(
+            "group relative w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-150",
+            unreadCount > 0
+              ? "text-rose-400 hover:text-rose-300 bg-rose-500/5 hover:bg-rose-500/10 border border-rose-500/20"
+              : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"
+          )}
         >
           <Bell className="w-[18px] h-[18px]" />
           {unreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-violet-500 text-[9px] font-bold text-white border-2 border-[#08060d]">
+            <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-[10px] font-bold text-white border-2 border-[#0a0a0b] shadow-lg shadow-rose-500/20">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -158,22 +201,6 @@ export function Topbar({ title }: TopbarProps) {
         </button>
         {/* Language Switcher */}
         <LanguageSwitcher />
-
-        {/* Landing link */}
-        <Link
-          to="/"
-          className={cn(
-            'hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg',
-            'text-[13px] font-medium text-white/50 hover:text-white/80',
-            'hover:bg-white/[0.04] transition-all duration-150'
-          )}
-        >
-          <ExternalLink className="w-3.5 h-3.5" />
-          <span>{t('navigation.landing')}</span>
-        </Link>
-
-        {/* Divider */}
-        <div className="w-px h-6 bg-white/[0.08] mx-1 hidden md:block" />
 
         {/* User menu */}
         <div className="relative" ref={dropdownRef}>
@@ -233,6 +260,24 @@ export function Topbar({ title }: TopbarProps) {
 
               {/* Menu Items */}
               <div className="space-y-0.5">
+                <button
+                  onClick={() => { navigate('/'); setIsDropdownOpen(false); }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-white/70 hover:text-white hover:bg-white/[0.06] transition-all duration-150"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>{t('navigation.landing')}</span>
+                </button>
+
+                <button
+                  onClick={() => { navigate('/app/settings#export-data'); setIsDropdownOpen(false); }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-white/70 hover:text-white hover:bg-white/[0.06] transition-all duration-150"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span>{t('settings.exportData')}</span>
+                </button>
+
+                <div className="h-px bg-white/[0.06] my-1 mx-2" />
+
                 <button
                   onClick={handleSettings}
                   className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-white/70 hover:text-white hover:bg-white/[0.06] transition-all duration-150"

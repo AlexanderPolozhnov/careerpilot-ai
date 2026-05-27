@@ -84,6 +84,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] **Timeline UI Polish:** i18n для всех статусов ApplicationStatus, мгновенные CSS-тултипы с i18n ключом, стилизация кнопки истории в фиолетовом акценте проекта.
 - [x] **Analytics & UI Bugfixes:** исправлена ошибка LazyInitializationException, устранены React key warnings, оптимизирована загрузка данных (N+1).
 - [x] **Interview Calendar Export:** экспорт собеседований в формат .ics для добавления в личные календари.
+- [x] **Google Calendar Direct Sync:** возможность прямой синхронизации через Google API (OAuth2).
 
 ## Phase 5 — AI Features
 
@@ -99,21 +100,22 @@ Roadmap отражает текущее состояние перед первы
 - [x] `POST /ai/cover-letter` aligned with frontend contract.
 - [x] `POST /ai/interview-questions` aligned with frontend contract.
 - [x] AI history endpoints (`GET /ai/history`, `GET /ai/history/{id}`).
+- [x] **Unified Contextual Help:** система всплывающих подсказок в настройках для объяснения работы AI и других модулей.
 
-## 🚀 v0.9.0-alpha — Telegram & UX Polish (Текущая версия)
+## 🚀 v1.0.0-beta — Product Readiness & Stability (Текущая версия)
 
-- **Telegram Integration:**
-  - [x] Реализован TelegramBotHandler на базе `TelegramLongPollingBot`.
-  - [x] Привязка аккаунта через deep link `/start {token}`.
-  - [x] Интеграция TelegramNotificationSender в общую систему уведомлений.
-  - [x] Автоматическое переключение NotificationProvider в Preferences.
+- **Advanced Integrations:**
+  - [x] Прямая синхронизация с Google Calendar (OAuth2).
+  - [x] Расширенная аналитика эффективности по компаниям.
+  - [x] Экспорт всех пользовательских данных в Excel (.xlsx).
 - **UX & Branding:**
-  - [x] Добавлен блок ключевых особенностей в README.md.
-  - [x] Обновлена презентация проекта для работодателей.
+  - [x] Полный редизайн Topbar: группировка статусов интеграций, очистка от лишнего шума.
+  - [x] Контекстная справка (Help System) во всех разделах настроек.
+  - [x] Стандартизация локализации (EN/RU) и форматов времени (24h для RU).
 - **Reliability:**
   - [x] Исправлены падения Backend CI из-за инициализации Telegram бота в тестах.
   - [x] Оптимизированы unit-тесты Preferences (изоляция SecurityContext).
-  - [x] Интеграционные тесты (SpringBootTest) исключены из быстрого CI.
+  - [x] Стабилизация работы с Google API (обработка Refresh Tokens).
 
 ## Phase 6 — Architecture & Quality Polish
 
@@ -126,11 +128,9 @@ Roadmap отражает текущее состояние перед первы
 - [x] **Frontend test framework и базовые тесты.**
 - [x] **Stability:** Стабилизация интеграционных тестов с Testcontainers.
 
-## 📅 Ближайшие планы (v1.0.0-beta)
+## 📅 Ближайшие планы (v1.1.0)
 
 - [ ] Настройка CD (Continuous Deployment) пайплайна перед production деплоем на сервер.
-- [x] Расширенная аналитика по компаниям.
-- [x] Экспорт данных в Excel.
-- [ ] Оптимизация производительности фронтенда.
+- [ ] Оптимизация производительности фронтенда (Code Splitting, React.lazy).
 - [ ] Улучшение мобильной версии.
-- [ ] **Google Calendar Direct Sync:** возможность выбора между скачиванием .ics и прямой синхронизацией через Google API (OAuth2).
+- [ ] Поддержка файлов (PDF/DOCX) для загрузки резюме напрямую.

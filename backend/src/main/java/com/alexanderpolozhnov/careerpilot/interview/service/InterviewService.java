@@ -18,4 +18,6 @@ public interface InterviewService {
     void delete(UUID id);
 
     byte[] exportToIcs(UUID id);
+
+    InterviewResponse syncWithGoogle(UUID id);
 }

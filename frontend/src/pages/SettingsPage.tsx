@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { PreferencesRequest, UserUpdateRequest, DeleteAccountRequest } from '@/services/settings.service'
 import { settingsService } from '@/services/settings.service'
+import { integrationService } from '@/services/integration.service'
 import { profileService } from '@/services/profile.service'
 import { resumeService, type CreateResumeDto } from '@/services/resume.service'
 import { authService, type UpdatePasswordRequest } from '@/services/auth.service'
@@ -28,6 +29,7 @@ import {
     Download,
     FileText,
     Globe,
+    HelpCircle,
     Key,
     Mail,
     MapPin,
@@ -142,17 +144,52 @@ function Toggle({ checked, onChange, disabled = false }: {
 }
 
 // Section Header Component
-function SectionHeader({ icon: Icon, title, description }: { icon: typeof User | typeof Shield | typeof Globe | typeof Sparkles | typeof Bell | typeof Key; title: string; description: string }) {
+function SectionHeader({ 
+    icon: Icon, 
+    title, 
+    description,
+    helpKey
+}: { 
+    icon: any; 
+    title: string; 
+    description: string;
+    helpKey?: string;
+}) {
+    const { t } = useTranslation()
+
     return (
-        <div className="flex items-start gap-4 mb-6">
-            <div
-                className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20 flex items-center justify-center">
-                <Icon className="w-5 h-5 text-violet-400" />
+        <div className="flex items-start justify-between mb-6 group/header">
+            <div className="flex items-start gap-4">
+                <div
+                    className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20 flex items-center justify-center">
+                    <Icon className="w-5 h-5 text-violet-400" />
+                </div>
+                <div>
+                    <h2 className="text-base font-semibold text-white">{title}</h2>
+                    <p className="text-sm text-white/40 mt-0.5">{description}</p>
+                </div>
             </div>
-            <div>
-                <h2 className="text-base font-semibold text-white">{title}</h2>
-                <p className="text-sm text-white/40 mt-0.5">{description}</p>
-            </div>
+
+            {helpKey && (
+                <div className="relative group/help">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white/20 hover:text-white/60 hover:bg-white/5 transition-all cursor-help border border-transparent hover:border-white/10">
+                        <HelpCircle className="w-4 h-4" />
+                    </div>
+                    
+                    {/* Tooltip */}
+                    <div className="absolute top-0 right-full mr-3 w-64 p-3 rounded-xl bg-[#1a1a1e] border border-white/10 text-white shadow-2xl opacity-0 invisible group-hover/help:opacity-100 group-hover/help:visible transition-all duration-200 z-[110]">
+                        <div className="text-[11px] font-medium text-violet-400 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
+                            <HelpCircle className="w-3 h-3" />
+                            {t('common.toNavigate').includes('навигировать') ? 'Справка' : 'Help'}
+                        </div>
+                        <p className="text-xs text-white/70 leading-relaxed">
+                            {t(`settings.help.${helpKey}`)}
+                        </p>
+                        {/* Arrow */}
+                        <div className="absolute top-3.5 -right-1 w-2 h-2 bg-[#1a1a1e] border-t border-r border-white/10 rotate-45" />
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
@@ -412,14 +449,21 @@ export default function SettingsPage() {
     })
 
     const getTelegramLinkMutation = useMutation({
-        mutationFn: () => settingsService.getTelegramLink(),
+        mutationFn: settingsService.getTelegramLink,
         onSuccess: (data) => {
             setTelegramLink(data.link)
             setShowTelegramModal(true)
         },
-        onError: () => {
-            toast.error(t('settings.telegramLinkError'))
-        }
+        onError: () => toast.error(t('settings.telegramConnectError'))
+    })
+
+    const disconnectGoogleCalendarMutation = useMutation({
+        mutationFn: integrationService.disconnectGoogleCalendar,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['preferences'] })
+            toast.success(t('settings.disconnectGoogleCalendarSuccess'))
+        },
+        onError: () => toast.error(t('settings.disconnectGoogleCalendarError'))
     })
 
     const deleteAccountMutation = useMutation({
@@ -689,6 +733,7 @@ export default function SettingsPage() {
                             icon={User}
                             title={t('settings.profile')}
                             description={t('settings.profileDescription')}
+                            helpKey="profile"
                         />
 
                         {profileSuccess &&
@@ -782,6 +827,7 @@ export default function SettingsPage() {
                             icon={Shield}
                             title={user?.hasPassword ? t('settings.changePassword') : t('settings.createPassword')}
                             description={user?.hasPassword ? t('settings.changePasswordDescription') : t('settings.createPasswordDescription')}
+                            helpKey="security"
                         />
 
                         {updatePasswordMutation.isSuccess && (
@@ -876,6 +922,7 @@ export default function SettingsPage() {
                             icon={User}
                             title={t('settings.professionalProfile')}
                             description={t('settings.professionalProfileDescription') || 'Manage your professional information'}
+                            helpKey="professionalProfile"
                         />
 
                         {professionalProfileSuccess &&
@@ -1153,6 +1200,7 @@ export default function SettingsPage() {
                             icon={Sparkles}
                             title={t('settings.aiProvider')}
                             description={t('settings.aiProviderDescription')}
+                            helpKey="aiProvider"
                         />
 
                         {aiProviderSuccess &&
@@ -1372,6 +1420,7 @@ export default function SettingsPage() {
                             icon={Bell}
                             title={t('settings.notifications')}
                             description={t('settings.notificationsDescription')}
+                            helpKey="notifications"
                         />
 
                         {prefsSuccess &&
@@ -1563,18 +1612,61 @@ export default function SettingsPage() {
                         )}
                     </section>
 
+                    {/* Integrations */}
+                    <section id="integrations" className="rounded-2xl border border-violet-500/20 bg-violet-500/[0.02] p-6 scroll-mt-24">
+                        <SectionHeader
+                            icon={Globe}
+                            title={t('settings.integrations')}
+                            description={t('settings.integrationsDescription')}
+                            helpKey="integrations"
+                        />
+
+                        <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4">
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                    <Globe className="w-5 h-5 text-blue-400" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-white">{t('settings.googleCalendar')}</p>
+                                    <p className="text-xs text-white/40 mt-0.5">{t('settings.googleCalendarDescription')}</p>
+                                </div>
+                            </div>
+                            {prefsData?.googleCalendarConnected ? (
+                                <button
+                                    type="button"
+                                    onClick={() => disconnectGoogleCalendarMutation.mutate()}
+                                    disabled={disconnectGoogleCalendarMutation.isPending}
+                                    className="px-4 py-2 rounded-lg border border-red-500/30 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {disconnectGoogleCalendarMutation.isPending ? t('common.loading') : t('settings.disconnectGoogleCalendar')}
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={async () => {
+                                        try {
+                                            const { url } = await integrationService.getGoogleCalendarAuthUrl()
+                                            window.location.href = url
+                                        } catch {
+                                            toast.error(t('settings.connectGoogleCalendarError'))
+                                        }
+                                    }}
+                                    className="px-4 py-2 rounded-lg bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+                                >
+                                    {t('settings.connectGoogleCalendar')}
+                                </button>
+                            )}
+                        </div>
+                    </section>
+
                     {/* Export Data */}
                     <section id="export-data" className="rounded-2xl border border-violet-500/20 bg-violet-500/[0.02] p-6 scroll-mt-24">
-                        <div className="flex items-start gap-4 mb-6">
-                            <div
-                                className="flex-shrink-0 w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-                                <Download className="w-5 h-5 text-violet-400" />
-                            </div>
-                            <div>
-                                <h2 className="text-base font-semibold text-white">{t('settings.exportData')}</h2>
-                                <p className="text-sm text-white/40 mt-0.5">{t('settings.exportDataDescription')}</p>
-                            </div>
-                        </div>
+                        <SectionHeader
+                            icon={Download}
+                            title={t('settings.exportData')}
+                            description={t('settings.exportDataDescription')}
+                            helpKey="export"
+                        />
 
                         <div
                             className="flex items-center justify-between rounded-xl border border-violet-500/10 bg-violet-500/[0.03] px-4 py-4">

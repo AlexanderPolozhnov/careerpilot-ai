@@ -4,7 +4,9 @@ import com.alexanderpolozhnov.careerpilot.application.entity.ApplicationEntity;
 import com.alexanderpolozhnov.careerpilot.application.repository.ApplicationRepository;
 import com.alexanderpolozhnov.careerpilot.common.pagination.PagedResponse;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
+import com.alexanderpolozhnov.careerpilot.integration.google.GoogleCalendarService;
 import com.alexanderpolozhnov.careerpilot.interview.entity.InterviewEntity;
+import com.alexanderpolozhnov.careerpilot.interview.mapper.InterviewMapper;
 import com.alexanderpolozhnov.careerpilot.interview.request.InterviewRequest;
 import com.alexanderpolozhnov.careerpilot.interview.response.InterviewResponse;
 import com.alexanderpolozhnov.careerpilot.interview.repository.InterviewRepository;
@@ -26,13 +28,15 @@ public class InterviewServiceImpl implements InterviewService {
     private final InterviewRepository interviewRepository;
     private final ApplicationRepository applicationRepository;
     private final CurrentUserResolver currentUserResolver;
+    private final GoogleCalendarService googleCalendarService;
+    private final InterviewMapper interviewMapper;
 
     @Override
     @Transactional
     public InterviewResponse create(InterviewRequest request) {
         InterviewEntity entity = new InterviewEntity();
         applyRequest(entity, request);
-        return toResponse(interviewRepository.save(entity));
+        return interviewMapper.toResponse(interviewRepository.save(entity));
     }
 
     @Override
@@ -49,7 +53,7 @@ public class InterviewServiceImpl implements InterviewService {
                 .filter(entity -> query.isBlank() || asSearchableText(entity).contains(query))
                 .sorted(comparator)
                 .toList();
-        List<InterviewResponse> content = paginate(filtered, page, size).stream().map(this::toResponse).toList();
+        List<InterviewResponse> content = paginate(filtered, page, size).stream().map(interviewMapper::toResponse).toList();
         int safePage = Math.max(page, 0);
         int safeSize = Math.max(size, 1);
         int totalPages = filtered.isEmpty() ? 0 : (int) Math.ceil((double) filtered.size() / safeSize);
@@ -65,7 +69,7 @@ public class InterviewServiceImpl implements InterviewService {
 
     @Override
     public InterviewResponse getById(UUID id) {
-        return toResponse(findOwnedInterview(id));
+        return interviewMapper.toResponse(findOwnedInterview(id));
     }
 
     @Override
@@ -73,7 +77,7 @@ public class InterviewServiceImpl implements InterviewService {
     public InterviewResponse update(UUID id, InterviewRequest request) {
         InterviewEntity entity = findOwnedInterview(id);
         applyRequest(entity, request);
-        return toResponse(interviewRepository.save(entity));
+        return interviewMapper.toResponse(interviewRepository.save(entity));
     }
 
     @Override
@@ -132,6 +136,18 @@ public class InterviewServiceImpl implements InterviewService {
         return icsContent.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
 
+    @Override
+    @Transactional
+    public InterviewResponse syncWithGoogle(UUID id) {
+        InterviewEntity entity = findOwnedInterview(id);
+        if (entity.getGoogleCalendarEventId() != null) {
+            return interviewMapper.toResponse(entity); // Already synced
+        }
+        String eventId = googleCalendarService.createEvent(entity);
+        entity.setGoogleCalendarEventId(eventId);
+        return interviewMapper.toResponse(interviewRepository.save(entity));
+    }
+
     private InterviewEntity findOwnedInterview(UUID id) {
         UUID userId = currentUserResolver.resolveOrCreate().getId();
         InterviewEntity entity = interviewRepository.findById(id)
@@ -149,18 +165,6 @@ public class InterviewServiceImpl implements InterviewService {
                 .filter(application -> application.getId().equals(applicationId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
-    }
-
-    private InterviewResponse toResponse(InterviewEntity entity) {
-        return new InterviewResponse(
-                entity.getId(),
-                entity.getApplication().getId(),
-                entity.getType(),
-                entity.getScheduledAt(),
-                entity.getTimezone(),
-                entity.getMeetingLink(),
-                entity.getResult(),
-                entity.getNotes());
     }
 
     private void applyRequest(InterviewEntity entity, InterviewRequest request) {

@@ -29,6 +29,7 @@ export interface PreferencesResponse {
     geminiModel?: string
     notificationProvider: NotificationProvider
     telegramConnected: boolean
+    googleCalendarConnected: boolean
 }
 
 export interface PreferencesRequest {
@@ -68,7 +69,8 @@ const mockPreferences: PreferencesResponse = {
     geminiApiKey: '',
     geminiModel: 'gemini-1.5-flash',
     notificationProvider: 'EMAIL',
-    telegramConnected: false
+    telegramConnected: false,
+    googleCalendarConnected: false
 }
 
 export const settingsService = {

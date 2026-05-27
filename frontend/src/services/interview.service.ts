@@ -126,4 +126,5 @@ export const interviewService = {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
   },
+  syncWithGoogle: (id: string): Promise<Interview> => api.post<Interview>(`/interviews/${id}/sync/google`),
 }

@@ -69,4 +69,11 @@ public class PreferencesEntity extends BaseAuditableEntity {
 
     @Column(name = "telegram_connect_token")
     private java.util.UUID telegramConnectToken;
+
+    @Convert(converter = EncryptionConverter.class)
+    @Column(name = "google_calendar_refresh_token", length = 255)
+    private String googleCalendarRefreshToken;
+
+    @Column(name = "google_calendar_connected", nullable = false)
+    private boolean googleCalendarConnected = false;
 }

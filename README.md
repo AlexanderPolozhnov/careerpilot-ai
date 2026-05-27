@@ -5,7 +5,7 @@
 **Управление поиском работы как структурированным workflow — с AI-ассистентом, Kanban-бордом, задачами, собеседованиями и аналитикой.**
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-careerpilot--ai-violet?style=for-the-badge&logo=vercel)](https://careerpilot-ai-sigma.vercel.app)
-[![Release](https://img.shields.io/badge/Release-v0.9.0--alpha-orange?style=for-the-badge)](https://github.com/AlexanderPolozhnov/careerpilot-ai/releases)
+[![Release](https://img.shields.io/badge/Release-v1.0.0--beta-orange?style=for-the-badge)](https://github.com/AlexanderPolozhnov/careerpilot-ai/releases)
 [![Java](https://img.shields.io/badge/Java-21-red?style=for-the-badge&logo=openjdk)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-green?style=for-the-badge&logo=springboot)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-TypeScript-blue?style=for-the-badge&logo=react)](https://react.dev/)
@@ -19,6 +19,7 @@
 CareerPilot AI — это не просто базовое CRUD-приложение, а полноценный продукт с продуманной архитектурой.
 
 * 🤖 **Мультипровайдерный AI-ассистент:** Интеграция с локальными моделями (**Ollama**) и облачными API (**OpenAI, Google Gemini 3**). Поддержка динамического переключения провайдеров (Bring Your Own Key) «на лету», продвинутый Prompt Engineering на базе Markdown-шаблонов и кэширование ответов через **Redis**.
+* 🗓️ **Двусторонняя синхронизация календарей:** Поддержка прямой интеграции с **Google Calendar (OAuth2)** для мгновенного резервирования слотов собеседований и экспорт в универсальный формат **.ics** для любых других планировщиков.
 * 🔔 **Омниканальные уведомления:** Фоновые планировщики (Spring `@Scheduled`) отправляют красивые HTML-письма через **SMTP** и мгновенные пуши через интегрированного **Telegram-бота** (на базе паттернов Strategy/Factory) для напоминаний о собеседованиях и изменениях статусов откликов.
 * 📊 **Smart Аналитика и Skill Gaps:** Алгоритмическое вычисление «пробелов» в навыках путем пересечения профиля пользователя и парсинга агрегированных тегов из реальных вакансий, на которые отправлены отклики.
 * 🔐 **Enterprise-Grade Безопасность:** Авторизация **OAuth2** (GitHub/Google) с бесшовным слиянием аккаунтов, безопасные сессии через **JWT** с HttpOnly Refresh токенами, Rate Limiting для AI-запросов (алгоритм Token Bucket на базе **Bucket4j**) и AOP-аудит (Audit Trail) критических действий.
@@ -160,7 +161,7 @@ CareerPilot AI собирает этот процесс в один понятн
 - World-class UI redesign в стиле **Linear / Vercel / Clerk** — тёмная тема, glassmorphism, violet-акценты.
 - **Kanban-борд** с drag-and-drop (dnd-kit), DragOverlay-preview, optimistic update.
 - **Интерактивные задачи & Собеседования** — полноценный CRUD, фильтрация, приведение к стандартам дизайн-системы.
-- **Экспорт в Календарь** — поддержка скачивания `.ics` файлов и запланированная прямая синхронизация с **Google Calendar** через API.
+- **Экспорт в Календарь** — поддержка скачивания `.ics` файлов и прямая синхронизация с **Google Calendar** через OAuth2.
 - **Глобальный поиск (Cmd+K / Ctrl+K)** — модальное окно с дебаунсом и быстрым переходом к любой сущности.
 - **AI-ассистент** — 5 инструментов с динамическими формами, выбором резюме/вакансий с автозаполнением, улучшенной валидацией и индивидуальными заголовками, автообновление истории запросов.
 - **Analytics** — KPI-карточки, воронка (funnel), график активности по реальным неделям, skill gaps.

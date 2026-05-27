@@ -144,6 +144,18 @@ export default function InterviewsPage() {
     },
   })
 
+  const syncGoogleMutation = useMutation({
+    mutationFn: (id: string) => interviewService.syncWithGoogle(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['interviews'] })
+      toast.success(t('common.success'))
+    },
+    onError: (error) => {
+      console.error(error)
+      toast.error(error instanceof Error ? error.message : t('common.error'))
+    },
+  })
+
   // Filter interviews
   const filteredInterviews = useMemo(() => {
     const interviews = interviewsQuery.data?.content ?? []
@@ -363,10 +375,15 @@ export default function InterviewsPage() {
                   <h3
                     className="text-[15px] font-semibold text-[#e8eaed] truncate group-hover:text-white transition-colors"
                     style={{ fontFamily: 'Onest, system-ui, sans-serif' }}
-                    title={interview.companyName || interview.vacancyTitle || t('interviews.single')}
+                    title={interview.companyName || t('interviews.single')}
                   >
-                    {interview.companyName || interview.vacancyTitle || t('interviews.single')}
+                    {interview.companyName || t('interviews.single')}
                   </h3>
+                  {interview.vacancyTitle && (
+                    <p className="text-[13px] text-[#6b7590] truncate mt-0.5">
+                      {interview.vacancyTitle}
+                    </p>
+                  )}
                   <div className="flex items-center gap-2 mt-1 text-xs text-[#6b7590]">
                     <span className="px-2 py-0.5 rounded-md bg-violet-500/10 border border-violet-500/20 text-xs font-medium text-violet-400">
                       {t(`interviews.types.${interview.type}`)}
@@ -425,9 +442,27 @@ export default function InterviewsPage() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    exportMutation.mutate(interview.id)
+                    syncGoogleMutation.mutate(interview.id)
                   }}
-                  disabled={exportMutation.isPending}
+                  disabled={syncGoogleMutation.isPending || interview.isSyncedWithGoogleCalendar}
+                  className="px-3 py-1.5 text-xs font-medium text-[#6b7590] hover:text-[#e8eaed] hover:bg-[rgba(255,255,255,0.06)] rounded-lg transition-all duration-200 disabled:opacity-50"
+                  title={interview.isSyncedWithGoogleCalendar ? t('interviews.syncedGoogle') : t('interviews.syncGoogle')}
+                >
+                  {syncGoogleMutation.isPending && syncGoogleMutation.variables === interview.id ? (
+                    <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : interview.isSyncedWithGoogleCalendar ? (
+                    <span className="w-3.5 h-3.5 flex items-center justify-center">✓</span>
+                  ) : (
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                  )}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    exportMutation.mutate(interview.id)
+                  }}                  disabled={exportMutation.isPending}
                   className="px-3 py-1.5 text-xs font-medium text-[#6b7590] hover:text-[#e8eaed] hover:bg-[rgba(255,255,255,0.06)] rounded-lg transition-all duration-200 disabled:opacity-50"
                   title={t('interviews.exportIcs')}
                 >

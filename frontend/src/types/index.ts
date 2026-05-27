@@ -140,6 +140,7 @@ export interface Interview {
   meetingLink?: string
   result?: InterviewResult
   notes?: string
+  isSyncedWithGoogleCalendar?: boolean
   // Additional fields from DashboardSummaryDto if needed
   companyName?: string
   vacancyTitle?: string
