@@ -219,8 +219,8 @@
 			<version>v3-rev20220715-2.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.google.cloud</groupId>
-			<artifactId>google-cloud-sql-jdbc-postgres</artifactId>
+			<groupId>com.google.cloud.sql</groupId>
+			<artifactId>postgres-socket-factory</artifactId>
 			<version>1.18.0</version>
 		</dependency>
 	</dependencies>
