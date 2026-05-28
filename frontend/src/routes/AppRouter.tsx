@@ -20,6 +20,8 @@ const CompaniesPage = lazy(() => import('../pages/CompaniesPage'))
 const AiAssistantPage = lazy(() => import('../pages/AiAssistantPage'))
 const AnalyticsPage = lazy(() => import('../pages/AnalyticsPage'))
 const SettingsPage = lazy(() => import('../pages/SettingsPage'))
+const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicyPage'))
+const TermsOfServicePage = lazy(() => import('../pages/TermsOfServicePage'))
 
 function ProtectedRoute({ children }: { children: ReactElement }) {
   const { t } = useTranslation()
@@ -43,6 +45,8 @@ export function AppRouter() {
     <Suspense fallback={<LoadingState message={t('common.loading')} className="min-h-[50vh] flex items-center justify-center" />}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsOfServicePage />} />
         <Route path="/auth/login" element={<AuthPages mode="login" />} />
         <Route path="/auth/register" element={<AuthPages mode="register" />} />
         <Route path="/auth/forgot-password" element={<AuthPages mode="forgot-password" />} />
