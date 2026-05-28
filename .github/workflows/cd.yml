@@ -83,7 +83,7 @@ jobs:
         run: |
           IMAGE_TAG="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/careerpilot-docker-repo/frontend:latest"
           docker build \
-            --build-arg VITE_API_BASE_URL=${{ env.BACKEND_URL }} \
+            --build-arg VITE_API_BASE_URL=https://careerpilot-backend-213199819151.europe-west1.run.app \
             -t $IMAGE_TAG \
             -f frontend/Dockerfile \
             frontend/
