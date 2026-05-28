@@ -301,6 +301,43 @@ docker compose config
 - CI через GitHub Actions настроен и работает (frontend lint/test/build + backend unit-тесты).
 - OAuth2 в Docker требует регистрации `http://localhost/login/oauth2/code/{provider}` в настройках GitHub/Google OAuth App (callback URL через nginx, порт 80).
 
+## Production Deploy (Google Cloud Run)
+
+Проект задеплоен на [careerpilot-ai.ru](https://careerpilot-ai.ru) через CD-пайплайн GitHub Actions.
+
+**Инфраструктура:**
+- Frontend: Google Cloud Run `careerpilot-frontend` (nginx + React SPA, `europe-west1`)
+- Backend: Google Cloud Run `careerpilot-backend` (Spring Boot, `europe-west1`)
+- База данных: Cloud SQL PostgreSQL `careerpilot-db` (`europe-west3`)
+- Docker-образы: Google Artifact Registry `careerpilot-docker-repo` (`europe-west1`)
+- CD: `.github/workflows/cd.yml` — автодеплой при push в `main`
+
+**Ключевые особенности Cloud Run конфига:**
+- Backend подключается к Cloud SQL через `--add-cloudsql-instances` + JDBC Socket Factory (без открытых портов).
+- Redis НЕ используется в production (`SPRING_CACHE_TYPE=none`) — Cloud Run не имеет доступа к VPC без VPC Connector.
+- `VITE_API_BASE_URL` статически задан в `cd.yml` как `https://careerpilot-backend-213199819151.europe-west1.run.app/api`.
+- Nginx требует `resolver 169.254.169.254 valid=30s;` для работы с переменными при запуске в Cloud Run.
+- CORS origins включают оба адреса: Cloud Run URL (`*.run.app`) и кастомный домен (`careerpilot-ai.ru`).
+
+**GitHub Secrets, необходимые для CD:**
+
+| Secret | Описание |
+|---|---|
+| `GCP_PROJECT_ID` | ID GCP проекта |
+| `GCP_SA_KEY` | JSON ключ Service Account |
+| `GCP_REGION` | `europe-west1` |
+| `DATABASE_USERNAME` | Пользователь Cloud SQL |
+| `DATABASE_PASSWORD` | Пароль Cloud SQL |
+| `REDIS_HOST` | IP Redis (не используется, `SPRING_CACHE_TYPE=none`) |
+| `ENCRYPTION_MASTER_KEY` | AES мастер-ключ (32 символа) |
+| `JWT_SECRET` | Секрет JWT подписи |
+| `GH_CLIENT_ID` / `GH_CLIENT_SECRET` | GitHub OAuth App (НЕ `GITHUB_*` — зарезервированный префикс!) |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth Client |
+| `TELEGRAM_BOT_TOKEN` | Токен Telegram бота |
+| `MAIL_USERNAME` / `MAIL_PASSWORD` | SMTP credentials |
+
+Подробный пошаговый гайд: `private-notes/info-by-project/CLOUD_RUN_CD_DEPLOYMENT_GUIDE.md`
+
 ## Merge readiness
 
 Проект готов к публичному review как portfolio project, если явно сохранять текущие ограничения:

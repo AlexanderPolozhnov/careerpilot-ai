@@ -127,10 +127,12 @@ Roadmap отражает текущее состояние перед первы
 - [x] **Deployment notes.**
 - [x] **Frontend test framework и базовые тесты.**
 - [x] **Stability:** Стабилизация интеграционных тестов с Testcontainers.
+- [x] **Оптимизация производительности фронтенда:** Code Splitting (через `React.lazy` + `Suspense`) + `manualChunks` в Vite. Сокращение первоначального бандла.
+- [x] **CD Pipeline (Google Cloud Run):** GitHub Actions → Google Artifact Registry → Cloud Run. Автодеплой при push в main.
+- [x] **Production деплой:** Проект задеплоен на [careerpilot-ai.ru](https://careerpilot-ai.ru). Frontend + Backend — Google Cloud Run (`europe-west1`), БД — Cloud SQL PostgreSQL (`europe-west3`). Google OAuth Consent Screen верифицирован.
 
 ## 📅 Ближайшие планы (v1.1.0)
 
-- [ ] Настройка CD (Continuous Deployment) пайплайна перед production деплоем на сервер.
-- [ ] Оптимизация производительности фронтенда (Code Splitting, React.lazy).
 - [ ] Улучшение мобильной версии.
 - [ ] Поддержка файлов (PDF/DOCX) для загрузки резюме напрямую.
+- [ ] Redis в production через GCP Memorystore + VPC Connector (AI кэширование в Cloud Run).

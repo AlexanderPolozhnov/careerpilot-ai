@@ -4,13 +4,14 @@
 
 **Управление поиском работы как структурированным workflow — с AI-ассистентом, Kanban-бордом, задачами, собеседованиями и аналитикой.**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-careerpilot--ai-violet?style=for-the-badge&logo=vercel)](https://careerpilot-ai-sigma.vercel.app)
+[![Production](https://img.shields.io/badge/Production-careerpilot--ai.ru-brightgreen?style=for-the-badge&logo=googlecloud)](https://careerpilot-ai.ru)
+[![Live Demo](https://img.shields.io/badge/Mock%20Demo-Vercel-violet?style=for-the-badge&logo=vercel)](https://careerpilot-ai-sigma.vercel.app)
 [![Release](https://img.shields.io/badge/Release-v1.0.0--beta-orange?style=for-the-badge)](https://github.com/AlexanderPolozhnov/careerpilot-ai/releases)
 [![Java](https://img.shields.io/badge/Java-21-red?style=for-the-badge&logo=openjdk)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-green?style=for-the-badge&logo=springboot)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-TypeScript-blue?style=for-the-badge&logo=react)](https://react.dev/)
 
-> **Статус:** В активной разработке · Portfolio project с production-like архитектурой · Не production-ready
+> **Статус:** В активной разработке · Portfolio project · Задеплоен на [careerpilot-ai.ru](https://careerpilot-ai.ru) (Google Cloud Run)
 
 </div>
 
@@ -102,7 +103,18 @@ CareerPilot AI — это не просто базовое CRUD-приложен
 
 ---
 
-## 🚀 Live Demo
+## 🚀 Production & Demo
+
+### 🌐 Production (полный функционал)
+
+**[careerpilot-ai.ru](https://careerpilot-ai.ru)**
+
+- Деплой: Google Cloud Run (фронтенд + бэкенд)
+- База данных: Cloud SQL PostgreSQL (Google Cloud)
+- CD-пайплайн: GitHub Actions → Google Artifact Registry → Cloud Run
+- Полный функционал: регистрация, AI-ассистент, Google Calendar, Telegram-бот
+
+### 🎭 Mock Demo (без регистрации)
 
 **[careerpilot-ai-sigma.vercel.app](https://careerpilot-ai-sigma.vercel.app)**
 
@@ -113,9 +125,8 @@ Demo-аккаунт для входа:
 | Email  | `sofia.horak@demo.dev` |
 | Пароль | `Demo123!@#`           |
 
-> ⚠️ Live demo работает в режиме **mock data** — backend не подключён к Vercel-деплою.
-> Данные сбрасываются при перезагрузке страницы, изменения не сохраняются.
-> Для полного функционала с PostgreSQL — локальный запуск (см. ниже).
+> ⚠️ Mock demo работает в режиме **mock data** — backend не подключён.
+> Данные сбрасываются при перезагрузке страницы. Для полного функционала — [careerpilot-ai.ru](https://careerpilot-ai.ru).
 
 ---
 
@@ -181,6 +192,8 @@ CareerPilot AI собирает этот процесс в один понятн
 - **AI Integration:** Ollama как local provider с автоматическим fallback на mock-ответы.
 - **Redis Cache:** Кэширование AI-результатов (TTL 24ч, с автоматическим обходом при сбоях Redis).
 - **CI Pipeline:** GitHub Actions — frontend lint/build + backend unit-тесты при push и PR в main.
+- **CD Pipeline:** GitHub Actions → Docker → Google Artifact Registry → Google Cloud Run (автодеплой при push в main).
+- **Production Hosting:** Google Cloud Run (`europe-west1`). Frontend — nginx-контейнер, Backend — Spring Boot. БД — Cloud SQL PostgreSQL (`europe-west3`). Домен: [careerpilot-ai.ru](https://careerpilot-ai.ru).
 
 ---
 
@@ -198,15 +211,16 @@ CareerPilot AI собирает этот процесс в один понятн
 
 ### Инфраструктура
 
-`Docker` · `Docker Compose` · `PostgreSQL` · `Redis` · `GitHub Actions`
+`Docker` · `Docker Compose` · `PostgreSQL` · `Redis` · `GitHub Actions CI/CD` · `Google Cloud Run` · `Google Artifact Registry` · `Cloud SQL`
 
 ---
 
 ## ⚠️ Известные ограничения
 
-Актуально для `v0.6.0-alpha`:
+Актуально для `v1.0.0-beta`:
 
 - **Backend:** Интеграционные тесты с Testcontainers требуют работающего локального Docker-окружения.
+- **Redis:** В production (Cloud Run) Redis не используется (`SPRING_CACHE_TYPE=none`) — требуется VPC Connector для подключения к Google Memorystore.
 
 Полный список и статус задач: [ROADMAP.md](./ROADMAP.md).
 
@@ -220,6 +234,10 @@ careerpilot-ai/
 ├── frontend/         React + TypeScript frontend
 ├── docs/             Документация и API-контракт
 │   └── assets/       Скриншоты для README
+├── .github/
+│   └── workflows/
+│       ├── ci.yml    CI — lint, build, unit-тесты
+│       └── cd.yml    CD — Docker build + Cloud Run deploy
 ├── docker-compose.yml
 ├── README.md
 ├── ROADMAP.md
@@ -311,7 +329,7 @@ cd backend && ./mvnw test
 |--------------------------------------------------------------------------|--------------------------------|
 | [ROADMAP.md](./ROADMAP.md)                                               | Фазы разработки и статусы      |
 | [docs/README.DEV.md](./docs/README.DEV.md)                               | Руководство разработчика       |
-| [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)                               | Деплой через Docker Compose    |
+| [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)                               | Деплой через Docker Compose и Cloud Run |
 | [docs/FRONTEND_BACKEND_CONTRACT.md](./docs/FRONTEND_BACKEND_CONTRACT.md) | API-контракт (source of truth) |
 | [docs/I18N_IMPLEMENTATION.md](./docs/I18N_IMPLEMENTATION.md)             | Реализация i18n                |
 

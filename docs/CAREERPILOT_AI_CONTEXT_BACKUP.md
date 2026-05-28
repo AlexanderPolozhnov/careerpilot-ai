@@ -3184,3 +3184,61 @@ pm run build прошла успешно.
 
 **Статус:** Все критические ошибки синхронизации устранены, UI обновлен для лучшей наглядности и удобства использования.
 
+## Update 2026-05-28 — CD Pipeline & Production Deployment (Google Cloud Run)
+
+**Сделано:**
+
+Настроен полноценный CD-пайплайн и выполнен production-деплой проекта на домен `careerpilot-ai.ru`.
+
+**CD Pipeline (`github/workflows/cd.yml`):**
+- Создан workflow GitHub Actions: при push в `main` → сборка Docker-образов → push в Google Artifact Registry → деплой в Google Cloud Run.
+- Backend собирается из корня проекта (`backend/Dockerfile`), Frontend — из `frontend/`.
+- Backend деплоится как сервис `careerpilot-backend` (`europe-west1`), Frontend — `careerpilot-frontend` (`europe-west1`).
+- Backend подключается к Cloud SQL через `--add-cloudsql-instances` + `socketFactory`.
+- `VITE_API_BASE_URL` хардкодится в `cd.yml` как статический URL backend в europe-west1.
+
+**Исправления в процессе отладки CD (12 итераций):**
+1. Docker build context для backend исправлен с `backend/` на `.` (корень проекта).
+2. Добавлены зависимость `google-cloud-sql-connector` и флаг `--add-cloudsql-instances` для Cloud SQL.
+3. Исправлены Maven координаты Cloud SQL Socket Factory.
+4. Отключена Redis-проверка при старте (`SPRING_CACHE_TYPE=none`) — Redis недоступен в Cloud Run без VPC Connector.
+5. Добавлен динамический DNS-резолвер `169.254.169.254` в `nginx.conf` для корректной работы переменных в nginx.
+6. Исправлена сборка тестов backend (упрощена конфигурация `maven-compiler-plugin`).
+7. Исправлен регион Cloud SQL в JDBC URL — должен совпадать с регионом инстанса (`europe-west3`), а не Cloud Run сервиса.
+8. `VITE_API_BASE_URL` обновлен со статическим URL europe-west1 и обязательным суффиксом `/api`.
+9. Добавлены CORS origins для Cloud Run URL и кастомного домена в `SecurityConfig`.
+10. Добавлены все env vars для backend: OAuth2 (GitHub/Google), Email, `FRONTEND_URL`, Telegram, `GOOGLE_CALENDAR_REDIRECT_URI`.
+11. Telegram-бот включен в production (`TELEGRAM_BOT_ENABLED=true`).
+12. GitHub Actions секрет переименован с `GITHUB_CLIENT_ID` → `GH_CLIENT_ID` (резервированный префикс).
+
+**Инфраструктура Production:**
+- Frontend: Google Cloud Run `careerpilot-frontend` (nginx, `europe-west1`)
+- Backend: Google Cloud Run `careerpilot-backend` (Spring Boot, `europe-west1`)
+- База данных: Cloud SQL PostgreSQL `careerpilot-db` (`europe-west3`)
+- Docker-образы: Google Artifact Registry `careerpilot-docker-repo`
+- Домен: `https://careerpilot-ai.ru` (кастомный домен через Cloud Run)
+
+**Google OAuth Consent Screen:**
+- Настроен и верифицирован для продакшн.
+- Application home page: `https://careerpilot-ai.ru`
+- Privacy Policy URL: `https://careerpilot-ai.ru/privacy`
+- Terms of Service URL: `https://careerpilot-ai.ru/terms`
+
+**Статус:** CD настроен, production работает на `careerpilot-ai.ru`.
+
+## Update 2026-05-28 — Privacy Policy, Terms of Service, SEO
+
+**Сделано:**
+
+**Frontend:**
+- Созданы страницы `PrivacyPolicyPage.tsx` (`/privacy`) и `TermsOfServicePage.tsx` (`/terms`) — полноценные публичные страницы с хедером, контентом и футером.
+- Добавлены lazy-импорты и роуты в `AppRouter.tsx`.
+- В футере `LandingPage.tsx` добавлены ссылки на `/privacy` и `/terms`.
+- Добавлены i18n ключи `landing.privacyPolicy` и `landing.termsOfService` в `ru.json` ("Политика конфиденциальности" / "Условия использования") и `en.json`.
+
+**SEO:**
+- Создан `frontend/public/sitemap.xml` с публичными страницами (`/`, `/auth/login`, `/auth/register`, `/privacy`, `/terms`).
+- Создан `frontend/public/robots.txt` — разрешён краулинг публичных страниц, закрыт `/app/`.
+
+**Статус:** Страницы задеплоены, доступны на production.
+
