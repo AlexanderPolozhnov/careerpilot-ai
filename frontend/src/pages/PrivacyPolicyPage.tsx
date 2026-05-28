@@ -1,8 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 export default function PrivacyPolicyPage() {
     const { t } = useTranslation();
+    const email = 'polozhnov.alex@gmail.com';
+    const url = 'careerpilot-ai.ru';
+    const scope = 'calendar.events';
+    const policy = 'Google API Services User Data Policy';
+    const settings = 'Settings → Integrations';
+
     return (
         <div className="min-h-dvh bg-[#08080a] text-[#e8eaed]">
             {/* Header */}
@@ -18,115 +25,99 @@ export default function PrivacyPolicyPage() {
                             CareerPilot AI
                         </span>
                     </Link>
-                    <Link to="/" className="text-sm text-[#6b7590] hover:text-[#e8eaed] transition-colors">
-                        ← Back to Home
-                    </Link>
+                    <div className="flex items-center gap-4">
+                        <LanguageSwitcher />
+                        <Link to="/" className="text-sm text-[#6b7590] hover:text-[#e8eaed] transition-colors">
+                            {t('privacyPolicy.backToHome')}
+                        </Link>
+                    </div>
                 </div>
             </header>
 
             {/* Content */}
             <main className="mx-auto max-w-3xl px-5 md:px-8 py-16">
                 <h1 className="text-3xl font-bold text-[#e8eaed] mb-2" style={{ fontFamily: 'Onest, system-ui, sans-serif' }}>
-                    Privacy Policy
+                    {t('privacyPolicy.title')}
                 </h1>
-                <p className="text-sm text-[#6b7590] mb-12">Last updated: May 28, 2025</p>
+                <p className="text-sm text-[#6b7590] mb-12">{t('privacyPolicy.lastUpdated')}</p>
 
                 <div className="space-y-10 text-[#a0a8bc] leading-relaxed">
 
                     <section>
-                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">1. Introduction</h2>
+                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('privacyPolicy.sections.introduction.title')}</h2>
                         <p>
-                            CareerPilot AI ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy
-                            explains how we collect, use, and safeguard your personal information when you use our job search
-                            management platform at <span className="text-violet-400">careerpilot-ai.ru</span>.
+                            {t('privacyPolicy.sections.introduction.content', { url })}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">2. Information We Collect</h2>
+                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('privacyPolicy.sections.informationWeCollect.title')}</h2>
                         <ul className="space-y-2 list-disc list-inside">
-                            <li><span className="text-[#e8eaed] font-medium">Account information:</span> email address, name, and password (stored as a secure hash).</li>
-                            <li><span className="text-[#e8eaed] font-medium">Job search data:</span> vacancies, applications, interviews, companies, and tasks you create within the app.</li>
-                            <li><span className="text-[#e8eaed] font-medium">OAuth credentials:</span> when you sign in via Google or GitHub, we receive your public profile and email only.</li>
-                            <li><span className="text-[#e8eaed] font-medium">Google Calendar tokens:</span> if you connect Google Calendar, we store a refresh token to create interview events on your behalf. We only use the <code className="bg-[rgba(255,255,255,0.06)] px-1.5 py-0.5 rounded text-sm">calendar.events</code> scope.</li>
-                            <li><span className="text-[#e8eaed] font-medium">Usage data:</span> technical logs such as timestamps and error reports, used solely for debugging.</li>
+                            <li><span className="text-[#e8eaed] font-medium">{t('privacyPolicy.sections.informationWeCollect.items.account')}</span></li>
+                            <li><span className="text-[#e8eaed] font-medium">{t('privacyPolicy.sections.informationWeCollect.items.jobSearch')}</span></li>
+                            <li><span className="text-[#e8eaed] font-medium">{t('privacyPolicy.sections.informationWeCollect.items.oauth')}</span></li>
+                            <li><span className="text-[#e8eaed] font-medium">{t('privacyPolicy.sections.informationWeCollect.items.googleCalendar', { scope })}</span></li>
+                            <li><span className="text-[#e8eaed] font-medium">{t('privacyPolicy.sections.informationWeCollect.items.usage')}</span></li>
                         </ul>
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">3. How We Use Your Information</h2>
+                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('privacyPolicy.sections.howWeUseInformation.title')}</h2>
                         <ul className="space-y-2 list-disc list-inside">
-                            <li>To provide and operate the CareerPilot AI service.</li>
-                            <li>To create Google Calendar events for your scheduled interviews (only when you explicitly connect your calendar).</li>
-                            <li>To send transactional emails (e.g., password reset, email verification).</li>
-                            <li>To improve the application based on aggregated, anonymised usage patterns.</li>
+                            {t('privacyPolicy.sections.howWeUseInformation.items', { returnObjects: true }).map((item: string, index: number) => (
+                                <li key={index}>{item}</li>
+                            ))}
                         </ul>
-                        <p className="mt-3">We do <span className="text-[#e8eaed] font-medium">not</span> sell, rent, or share your personal data with third parties for marketing purposes.</p>
+                        <p className="mt-3">{t('privacyPolicy.sections.howWeUseInformation.note', { not: <span className="text-[#e8eaed] font-medium">not</span> })}</p>
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">4. Google API Services</h2>
+                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('privacyPolicy.sections.googleApiServices.title')}</h2>
                         <p>
-                            CareerPilot AI's use of information received from Google APIs adheres to the{' '}
-                            <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300 transition-colors">
-                                Google API Services User Data Policy
-                            </a>
-                            , including the Limited Use requirements.
+                            {t('privacyPolicy.sections.googleApiServices.content', { policy })}
                         </p>
                         <p className="mt-3">
-                            Specifically, the Google Calendar refresh token stored for your account is used exclusively to create,
-                            update, or delete calendar events related to your interviews within CareerPilot AI. This data is not
-                            transferred to any third party or used for any other purpose.
+                            {t('privacyPolicy.sections.googleApiServices.specific')}
                         </p>
                         <p className="mt-3">
-                            You can disconnect Google Calendar at any time from <span className="text-[#e8eaed]">Settings → Integrations</span>, which
-                            immediately deletes your stored token.
+                            {t('privacyPolicy.sections.googleApiServices.disconnect', { settings })}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">5. Data Storage and Security</h2>
+                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('privacyPolicy.sections.dataStorageAndSecurity.title')}</h2>
                         <p>
-                            Your data is stored in a PostgreSQL database hosted on Google Cloud (Europe region). Sensitive values
-                            such as API keys and OAuth tokens are encrypted at rest using AES encryption. We apply industry-standard
-                            security practices including HTTPS-only transport and JWT-based authentication.
+                            {t('privacyPolicy.sections.dataStorageAndSecurity.content')}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">6. Data Retention</h2>
+                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('privacyPolicy.sections.dataRetention.title')}</h2>
                         <p>
-                            We retain your data for as long as your account is active. You may request deletion of your account
-                            and all associated data at any time by contacting us at the email below. Upon deletion, all personal
-                            data is permanently removed within 30 days.
+                            {t('privacyPolicy.sections.dataRetention.content')}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">7. Your Rights</h2>
+                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('privacyPolicy.sections.yourRights.title')}</h2>
                         <ul className="space-y-2 list-disc list-inside">
-                            <li>Access or export your personal data.</li>
-                            <li>Correct inaccurate information.</li>
-                            <li>Request deletion of your account and data.</li>
-                            <li>Revoke Google Calendar access at any time via the app or your Google Account settings.</li>
+                            {t('privacyPolicy.sections.yourRights.items', { returnObjects: true }).map((item: string, index: number) => (
+                                <li key={index}>{item}</li>
+                            ))}
                         </ul>
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">8. Changes to This Policy</h2>
+                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('privacyPolicy.sections.changesToPolicy.title')}</h2>
                         <p>
-                            We may update this Privacy Policy from time to time. We will notify you of significant changes by
-                            updating the date at the top of this page.
+                            {t('privacyPolicy.sections.changesToPolicy.content')}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">9. Contact</h2>
+                        <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('privacyPolicy.sections.contact.title')}</h2>
                         <p>
-                            If you have any questions about this Privacy Policy, please contact us at:{' '}
-                            <a href="mailto:polozhnov.alex@gmail.com" className="text-violet-400 hover:text-violet-300 transition-colors">
-                                polozhnov.alex@gmail.com
-                            </a>
+                            {t('privacyPolicy.sections.contact.content', { email })}
                         </p>
                     </section>
                 </div>

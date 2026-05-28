@@ -847,5 +847,130 @@
       "untitled": "Untitled",
       "done": "Done"
     }
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: May 28, 2025",
+    "backToHome": "← Back to Home",
+    "sections": {
+      "introduction": {
+        "title": "1. Introduction",
+        "content": "CareerPilot AI (\"we\", \"our\", or \"us\") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your personal information when you use our job search management platform at {{url}}."
+      },
+      "informationWeCollect": {
+        "title": "2. Information We Collect",
+        "items": {
+          "account": "Account information: email address, name, and password (stored as a secure hash).",
+          "jobSearch": "Job search data: vacancies, applications, interviews, companies, and tasks you create within the app.",
+          "oauth": "OAuth credentials: when you sign in via Google or GitHub, we receive your public profile and email only.",
+          "googleCalendar": "Google Calendar tokens: if you connect Google Calendar, we store a refresh token to create interview events on your behalf. We only use the {{scope}} scope.",
+          "usage": "Usage data: technical logs such as timestamps and error reports, used solely for debugging."
+        }
+      },
+      "howWeUseInformation": {
+        "title": "3. How We Use Your Information",
+        "items": [
+          "To provide and operate the CareerPilot AI service.",
+          "To create Google Calendar events for your scheduled interviews (only when you explicitly connect your calendar).",
+          "To send transactional emails (e.g., password reset, email verification).",
+          "To improve the application based on aggregated, anonymised usage patterns."
+        ],
+        "note": "We do {{not}} sell, rent, or share your personal data with third parties for marketing purposes."
+      },
+      "googleApiServices": {
+        "title": "4. Google API Services",
+        "content": "CareerPilot AI's use of information received from Google APIs adheres to the {{policy}}, including the Limited Use requirements.",
+        "specific": "Specifically, the Google Calendar refresh token stored for your account is used exclusively to create, update, or delete calendar events related to your interviews within CareerPilot AI. This data is not transferred to any third party or used for any other purpose.",
+        "disconnect": "You can disconnect Google Calendar at any time from {{settings}}, which immediately deletes your stored token."
+      },
+      "dataStorageAndSecurity": {
+        "title": "5. Data Storage and Security",
+        "content": "Your data is stored in a PostgreSQL database hosted on Google Cloud (Europe region). Sensitive values such as API keys and OAuth tokens are encrypted at rest using AES encryption. We apply industry-standard security practices including HTTPS-only transport and JWT-based authentication."
+      },
+      "dataRetention": {
+        "title": "6. Data Retention",
+        "content": "We retain your data for as long as your account is active. You may request deletion of your account and all associated data at any time by contacting us at the email below. Upon deletion, all personal data is permanently removed within 30 days."
+      },
+      "yourRights": {
+        "title": "7. Your Rights",
+        "items": [
+          "Access or export your personal data.",
+          "Correct inaccurate information.",
+          "Request deletion of your account and data.",
+          "Revoke Google Calendar access at any time via the app or your Google Account settings."
+        ]
+      },
+      "changesToPolicy": {
+        "title": "8. Changes to This Policy",
+        "content": "We may update this Privacy Policy from time to time. We will notify you of significant changes by updating the date at the top of this page."
+      },
+      "contact": {
+        "title": "9. Contact",
+        "content": "If you have any questions about this Privacy Policy, please contact us at: {{email}}"
+      }
+    }
+  },
+  "termsOfService": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: May 28, 2025",
+    "backToHome": "← Back to Home",
+    "sections": {
+      "acceptanceOfTerms": {
+        "title": "1. Acceptance of Terms",
+        "content": "By accessing or using CareerPilot AI (\"the Service\") at {{url}}, you agree to be bound by these Terms of Service. If you do not agree, please do not use the Service."
+      },
+      "descriptionOfService": {
+        "title": "2. Description of Service",
+        "content": "CareerPilot AI is a personal job search management tool that helps you track vacancies, applications, interviews, and tasks. It may integrate with third-party services such as Google Calendar to enhance your workflow."
+      },
+      "userAccounts": {
+        "title": "3. User Accounts",
+        "items": [
+          "You must provide accurate and complete information when registering.",
+          "You are responsible for maintaining the confidentiality of your account credentials.",
+          "You are responsible for all activity that occurs under your account.",
+          "You must be at least 16 years old to use the Service."
+        ]
+      },
+      "acceptableUse": {
+        "title": "4. Acceptable Use",
+        "intro": "You agree not to:",
+        "items": [
+          "Use the Service for any unlawful purpose.",
+          "Attempt to gain unauthorised access to the Service or other users' accounts.",
+          "Transmit harmful, offensive, or malicious content.",
+          "Reverse engineer, copy, or redistribute the Service without permission.",
+          "Use automated tools to scrape or overload the Service."
+        ]
+      },
+      "thirdPartyIntegrations": {
+        "title": "5. Third-Party Integrations",
+        "content": "The Service may connect to third-party APIs (e.g., Google Calendar, GitHub). Your use of those integrations is also governed by the respective third-party terms of service. We are not responsible for the availability or content of third-party services."
+      },
+      "intellectualProperty": {
+        "title": "6. Intellectual Property",
+        "content": "All content, design, and code comprising the Service are the property of CareerPilot AI or its licensors. You retain ownership of the data you create within the Service."
+      },
+      "disclaimerOfWarranties": {
+        "title": "7. Disclaimer of Warranties",
+        "content": "The Service is provided \"as is\" without warranties of any kind, either express or implied. We do not guarantee that the Service will be uninterrupted, error-free, or meet your specific requirements."
+      },
+      "limitationOfLiability": {
+        "title": "8. Limitation of Liability",
+        "content": "To the fullest extent permitted by law, CareerPilot AI shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service."
+      },
+      "termination": {
+        "title": "9. Termination",
+        "content": "We reserve the right to suspend or terminate your access to the Service at our discretion if you violate these Terms. You may delete your account at any time from the Settings page."
+      },
+      "changesToTerms": {
+        "title": "10. Changes to Terms",
+        "content": "We may update these Terms from time to time. Continued use of the Service after changes constitutes acceptance of the updated Terms."
+      },
+      "contact": {
+        "title": "11. Contact",
+        "content": "For questions about these Terms, please contact: {{email}}"
+      }
+    }
   }
 }

@@ -9,3 +9,7 @@ reminder:
   scheduler:
     enabled: true
     cron: "*/30 * * * * *"
+
+telegram:
+  bot:
+    enabled: false
