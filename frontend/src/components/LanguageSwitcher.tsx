@@ -27,16 +27,16 @@ export function LanguageSwitcher() {
       onClick={toggleLanguage}
       className={cn(
         'group relative w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-150',
-        'text-amber-400/60 hover:text-amber-300 bg-amber-500/5 hover:bg-amber-500/10 border border-amber-500/10 hover:border-amber-500/20'
+        'text-white/60 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20'
       )}
     >
       <div className="relative">
         <Globe className="w-[18px] h-[18px]" />
-        <span className="absolute -top-1.5 -right-1.5 text-[8px] font-bold bg-amber-500/10 px-1 rounded border border-amber-500/20 text-amber-400/80">
+        <span className="absolute -top-1.5 -right-1.5 text-[8px] font-bold bg-white/10 px-1 rounded border border-white/20 text-white/80">
           {currentLanguage.toUpperCase()}
         </span>
       </div>
-      
+
       {/* Tooltip */}
       <span className="absolute top-full right-0 mt-2 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-[#1a1a1e] border border-white/10 text-white whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-[100] shadow-xl">
         {t('common.language')}: {currentLanguage === 'ru' ? t('common.russian') : t('common.english')}
