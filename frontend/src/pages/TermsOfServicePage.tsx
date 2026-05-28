@@ -57,7 +57,7 @@ export default function TermsOfServicePage() {
                     <section>
                         <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('termsOfService.sections.userAccounts.title')}</h2>
                         <ul className="space-y-2 list-disc list-inside">
-                            {t('termsOfService.sections.userAccounts.items', { returnObjects: true }).map((item: string, index: number) => (
+                            {(t('termsOfService.sections.userAccounts.items', { returnObjects: true }) as string[]).map((item: string, index: number) => (
                                 <li key={index}>{item}</li>
                             ))}
                         </ul>
@@ -67,7 +67,7 @@ export default function TermsOfServicePage() {
                         <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('termsOfService.sections.acceptableUse.title')}</h2>
                         <p>{t('termsOfService.sections.acceptableUse.intro')}</p>
                         <ul className="space-y-2 list-disc list-inside mt-3">
-                            {t('termsOfService.sections.acceptableUse.items', { returnObjects: true }).map((item: string, index: number) => (
+                            {(t('termsOfService.sections.acceptableUse.items', { returnObjects: true }) as string[]).map((item: string, index: number) => (
                                 <li key={index}>{item}</li>
                             ))}
                         </ul>

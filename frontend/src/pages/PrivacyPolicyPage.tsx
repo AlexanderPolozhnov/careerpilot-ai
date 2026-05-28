@@ -64,7 +64,7 @@ export default function PrivacyPolicyPage() {
                     <section>
                         <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('privacyPolicy.sections.howWeUseInformation.title')}</h2>
                         <ul className="space-y-2 list-disc list-inside">
-                            {t('privacyPolicy.sections.howWeUseInformation.items', { returnObjects: true }).map((item: string, index: number) => (
+                            {(t('privacyPolicy.sections.howWeUseInformation.items', { returnObjects: true }) as string[]).map((item: string, index: number) => (
                                 <li key={index}>{item}</li>
                             ))}
                         </ul>
@@ -101,7 +101,7 @@ export default function PrivacyPolicyPage() {
                     <section>
                         <h2 className="text-xl font-semibold text-[#e8eaed] mb-3">{t('privacyPolicy.sections.yourRights.title')}</h2>
                         <ul className="space-y-2 list-disc list-inside">
-                            {t('privacyPolicy.sections.yourRights.items', { returnObjects: true }).map((item: string, index: number) => (
+                            {(t('privacyPolicy.sections.yourRights.items', { returnObjects: true }) as string[]).map((item: string, index: number) => (
                                 <li key={index}>{item}</li>
                             ))}
                         </ul>
