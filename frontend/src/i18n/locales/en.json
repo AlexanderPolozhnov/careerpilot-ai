@@ -141,7 +141,9 @@
       "title": "Start managing your job search today",
       "button": "Register for free"
     },
-    "footerDetails": "Secure · Your data only · Powered by local AI"
+    "footerDetails": "Secure · Your data only · Powered by local AI",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
   },
   "oauth": {
     "callbackTitle": "Completing authentication",
@@ -627,7 +629,8 @@
       "integrations": "Sync with external services like Google Calendar for your interviews.",
       "export": "Export all your data in Excel format for backup or personal analysis."
     },
-    "aiProvider": "AI Provider",    "aiProviderMode": "Provider mode",
+    "aiProvider": "AI Provider",
+    "aiProviderMode": "Provider mode",
     "aiProviderSaved": "AI Provider successfully saved",
     "aiProviderSaveError": "Failed to save AI Provider settings",
     "aiProviderLocal": "Local",

@@ -553,8 +553,8 @@ export default function LandingPage() {
                     {/* Links */}
                     <div className="flex items-center gap-6 text-sm text-[#6b7590]">
                         <span>{t('landing.footerDetails')}</span>
-                        <Link to="/privacy" className="hover:text-[#e8eaed] transition-colors">Privacy Policy</Link>
-                        <Link to="/terms" className="hover:text-[#e8eaed] transition-colors">Terms of Service</Link>
+                        <Link to="/privacy" className="hover:text-[#e8eaed] transition-colors">{t('landing.privacyPolicy')}</Link>
+                        <Link to="/terms" className="hover:text-[#e8eaed] transition-colors">{t('landing.termsOfService')}</Link>
                     </div>
                 </div>
             </footer>

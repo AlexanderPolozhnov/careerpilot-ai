@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function PrivacyPolicyPage() {
+    const { t } = useTranslation();
     return (
         <div className="min-h-dvh bg-[#08080a] text-[#e8eaed]">
             {/* Header */}
@@ -135,8 +137,8 @@ export default function PrivacyPolicyPage() {
                 <div className="mx-auto max-w-3xl px-5 md:px-8 py-8 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
                     <span className="text-sm text-[#6b7590]">© {new Date().getFullYear()} CareerPilot AI</span>
                     <div className="flex items-center gap-6 text-sm text-[#6b7590]">
-                        <Link to="/privacy" className="hover:text-[#e8eaed] transition-colors">Privacy Policy</Link>
-                        <Link to="/terms" className="hover:text-[#e8eaed] transition-colors">Terms of Service</Link>
+                        <Link to="/privacy" className="hover:text-[#e8eaed] transition-colors">{t('landing.privacyPolicy')}</Link>
+                        <Link to="/terms" className="hover:text-[#e8eaed] transition-colors">{t('landing.termsOfService')}</Link>
                     </div>
                 </div>
             </footer>
