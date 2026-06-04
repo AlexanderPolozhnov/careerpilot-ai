@@ -1,8 +1,12 @@
 # CareerPilot AI
 
+<p align="center">
+  <b>🇺🇸 English</b> | <a href="./README.ru.md">🇷🇺 Русский</a>
+</p>
+
 <div align="center">
 
-**Управление поиском работы как структурированным workflow — с AI-ассистентом, Kanban-бордом, задачами, собеседованиями и аналитикой.**
+**Manage your job search as a structured workflow — with an AI assistant, Kanban board, tasks, interviews, and analytics.**
 
 [![Production](https://img.shields.io/badge/Production-careerpilot--ai.ru-brightgreen?style=for-the-badge&logo=googlecloud)](https://careerpilot-ai.ru)
 [![Live Demo](https://img.shields.io/badge/Mock%20Demo-Vercel-violet?style=for-the-badge&logo=vercel)](https://careerpilot-ai-sigma.vercel.app)
@@ -11,33 +15,33 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-green?style=for-the-badge&logo=springboot)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-TypeScript-blue?style=for-the-badge&logo=react)](https://react.dev/)
 
-> **Статус:** В активной разработке · Portfolio project · Задеплоен на [careerpilot-ai.ru](https://careerpilot-ai.ru) (Google Cloud Run)
+> **Status:** Active development · Portfolio project · Deployed at [careerpilot-ai.ru](https://careerpilot-ai.ru) (Google Cloud Run)
 
 </div>
 
-## 🌟 Ключевые особенности проекта
+## 🌟 Key Features
 
-CareerPilot AI — это не просто базовое CRUD-приложение, а полноценный продукт с продуманной архитектурой.
+CareerPilot AI is not just a basic CRUD application, but a full-fledged product with a well-thought-out architecture.
 
-* 🤖 **Мультипровайдерный AI-ассистент:** Интеграция с локальными моделями (**Ollama**) и облачными API (**OpenAI, Google Gemini 3**). Поддержка динамического переключения провайдеров (Bring Your Own Key) «на лету», продвинутый Prompt Engineering на базе Markdown-шаблонов и кэширование ответов через **Redis**.
-* 🗓️ **Двусторонняя синхронизация календарей:** Поддержка прямой интеграции с **Google Calendar (OAuth2)** для мгновенного резервирования слотов собеседований и экспорт в универсальный формат **.ics** для любых других планировщиков.
-* 🔔 **Омниканальные уведомления:** Фоновые планировщики (Spring `@Scheduled`) отправляют красивые HTML-письма через **SMTP** и мгновенные пуши через интегрированного **Telegram-бота** (на базе паттернов Strategy/Factory) для напоминаний о собеседованиях и изменениях статусов откликов.
-* 📊 **Smart Аналитика и Skill Gaps:** Алгоритмическое вычисление «пробелов» в навыках путем пересечения профиля пользователя и парсинга агрегированных тегов из реальных вакансий, на которые отправлены отклики.
-* 🔐 **Enterprise-Grade Безопасность:** Авторизация **OAuth2** (GitHub/Google) с бесшовным слиянием аккаунтов, безопасные сессии через **JWT** с HttpOnly Refresh токенами, Rate Limiting для AI-запросов (алгоритм Token Bucket на базе **Bucket4j**) и AOP-аудит (Audit Trail) критических действий.
-* 🏗️ **Современная архитектура и инфраструктура:** Разработано на **Java 21** + **Spring Boot 3** (Modular Monolith) и **React** + **Vite** + **TypeScript**. Хранение данных в **PostgreSQL** (с миграциями **Flyway**). Проект полностью контейнеризован (**Docker Compose**) и защищен CI-пайплайнами проверок в **GitHub Actions**.
-* ⚡ **Продвинутый UX/UI:** Современный интерфейс (вдохновленный Linear и Vercel) с поддержкой drag-and-drop Kanban-досок, глобальным шорткат-поиском по всем сущностям (Cmd+K) и полноценной локализацией на лету (i18n, ru/en).
+* 🤖 **Multi-Provider AI Assistant:** Integration with local models (**Ollama**) and cloud APIs (**OpenAI, Google Gemini 3**). Supports dynamic, on-the-fly provider switching (Bring Your Own Key), advanced Prompt Engineering based on Markdown templates, and response caching via **Redis**.
+* 🗓️ **Two-Way Calendar Synchronization:** Supports direct integration with **Google Calendar (OAuth2)** for instant interview slot booking and export to the universal **.ics** format for any other scheduling app.
+* 🔔 **Omnichannel Notifications:** Background schedulers (Spring `@Scheduled`) send beautiful HTML emails via **SMTP** and instant push notifications via an integrated **Telegram Bot** (utilizing Strategy/Factory patterns) for interview reminders and application status changes.
+* 📊 **Smart Analytics & Skill Gaps:** Algorithmic calculation of skill "gaps" by intersecting the user's profile skills with parsed aggregated tags from real job vacancies they applied to.
+* 🔐 **Enterprise-Grade Security:** **OAuth2** authorization (GitHub/Google) with seamless account merging, secure sessions via **JWT** with HttpOnly Refresh tokens, Rate Limiting for AI requests (Token Bucket algorithm via **Bucket4j**), and AOP-based Audit Trail for critical user actions.
+* 🏗️ **Modern Architecture & Infrastructure:** Built with **Java 21** + **Spring Boot 3** (Modular Monolith) and **React** + **Vite** + **TypeScript**. Data is persisted in **PostgreSQL** (with **Flyway** migrations). The project is fully containerized (**Docker Compose**) and protected by CI pipeline checks in **GitHub Actions**.
+* ⚡ **Advanced UX/UI:** Modern interface (inspired by Linear and Vercel) featuring drag-and-drop Kanban boards, global shortcut search across all entities (Cmd+K), and full on-the-fly localization (i18n, ru/en).
 
 ---
 
-## 🖼️ Скриншоты
+## 🖼️ Screenshots
 
-### Лендинг
+### Landing Page
 
 ![Landing Page](./docs/assets/screenshot-landing.png)
 
 ---
 
-### Авторизация
+### Authentication
 
 ![Auth Page](./docs/assets/screenshot-auth.png)
 
@@ -49,55 +53,55 @@ CareerPilot AI — это не просто базовое CRUD-приложен
 
 ---
 
-### Вакансии
+### Vacancies
 
 ![Vacancies](./docs/assets/screenshot-vacancies.png)
 
 ---
 
-### Вакансии — детальная страница
+### Vacancy Details
 
 ![Vacancy Detail](./docs/assets/screenshot-vacancy-detail.png)
 
 ---
 
-### Заявки — Kanban-борд
+### Applications — Kanban Board
 
 ![Applications Kanban](./docs/assets/screenshot-kanban.png)
 
 ---
 
-### Задачи
+### Tasks
 
 ![Tasks](./docs/assets/screenshot-tasks.png)
 
 ---
 
-### Собеседования
+### Interviews
 
 ![Interviews](./docs/assets/screenshot-interviews.png)
 
 ---
 
-### Компании
+### Companies
 
 ![Companies](./docs/assets/screenshot-companies.png)
 
 ---
 
-### AI-помощник
+### AI Assistant
 
 ![AI Assistant](./docs/assets/screenshot-ai.png)
 
 ---
 
-### Аналитика
+### Analytics
 
 ![Analytics](./docs/assets/screenshot-analytics.png)
 
 ---
 
-### Настройки
+### Settings
 
 ![Settings](./docs/assets/screenshot-settings.png)
 
@@ -105,173 +109,176 @@ CareerPilot AI — это не просто базовое CRUD-приложен
 
 ## 🚀 Production & Demo
 
-### 🌐 Production (полный функционал)
+### 🌐 Production (Full Features)
 
 **[careerpilot-ai.ru](https://careerpilot-ai.ru)**
 
-- Деплой: Google Cloud Run (фронтенд + бэкенд)
-- База данных: Cloud SQL PostgreSQL (Google Cloud)
-- CD-пайплайн: GitHub Actions → Google Artifact Registry → Cloud Run
-- Полный функционал: регистрация, AI-ассистент, Google Calendar, Telegram-бот
+- Deployment: Google Cloud Run (frontend + backend)
+- Database: Cloud SQL PostgreSQL (Google Cloud)
+- CD Pipeline: GitHub Actions → Google Artifact Registry → Cloud Run
+- Core integrations active: Google Calendar, Telegram Bot, OAuth2, and Cloud AI providers
 
-### 🎭 Mock Demo (без регистрации)
+### 🎭 Mock Demo (No Registration Required)
 
 **[careerpilot-ai-sigma.vercel.app](https://careerpilot-ai-sigma.vercel.app)**
 
-Demo-аккаунт для входа:
+Demo account credentials:
 
-| Поле   | Значение               |
-|--------|------------------------|
-| Email  | `sofia.horak@demo.dev` |
-| Пароль | `Demo123!@#`           |
+| Field    | Value                  |
+|----------|------------------------|
+| Email    | `sofia.horak@demo.dev` |
+| Password | `Demo123!@#`           |
 
-> ⚠️ Mock demo работает в режиме **mock data** — backend не подключён.
-> Данные сбрасываются при перезагрузке страницы. Для полного функционала — [careerpilot-ai.ru](https://careerpilot-ai.ru).
-
----
-
-## О проекте
-
-Поиск работы быстро превращается в набор разрозненных вкладок, таблиц, заметок и напоминаний.
-CareerPilot AI собирает этот процесс в один понятный workflow:
-
-- хранение вакансий и компаний;
-- отслеживание этапов откликов через Kanban-борд с drag-and-drop;
-- планирование задач (Tasks) и отслеживание собеседований (Interviews);
-- AI-анализ вакансий, сравнение резюме, генерация cover letter и вопросов к интервью;
-- единый глобальный поиск по всем сущностям (с поддержкой горячих клавиш);
-- аналитика прогресса поиска работы;
-- интерфейс на русском и английском.
+> ⚠️ Mock demo runs entirely in **mock data mode** — no backend is connected.
+> Data resets upon refreshing the page. For full features, visit [careerpilot-ai.ru](https://careerpilot-ai.ru).
 
 ---
 
-## ✅ Что реализовано
+## About the Project
+
+Job searching can quickly become a messy collection of tabs, spreadsheets, notes, and reminders.
+CareerPilot AI unifies this process into a clean, intuitive workflow:
+
+- Keep track of job vacancies and companies;
+- Monitor application stages using a beautiful drag-and-drop Kanban board;
+- Plan tasks (Tasks) and schedule interviews (Interviews);
+- Utilize AI to analyze job descriptions, compare resumes, generate tailored cover letters, and prepare interview questions;
+- Search everything instantly with global hotkey-driven search (Cmd+K);
+- Analyze your job search progress with visual metrics;
+- Enjoy a full UI localized in both English and Russian.
+
+---
+
+## ✅ What's Implemented
 
 ### Backend (REST API)
 
-| Slice         | Эндпоинты                                                                                                     | Статус |
+| Slice         | Endpoints                                                                                                     | Status |
 |---------------|---------------------------------------------------------------------------------------------------------------|--------|
 | Auth          | `POST /auth/register`, `POST /auth/login`, `GET /auth/me`, `POST /auth/forgot-password`, `POST /auth/reset-password`, `POST /auth/password`, `POST /auth/refresh`, `POST /auth/logout` | ✅      |
-| OAuth2        | Авторизация через GitHub / Google, автоматический маппинг профилей, поддержка приватных email                 | ✅      |
-| Vacancies     | Полный CRUD, pagination, user ownership, загрузка данных компании без N+1                                     | ✅      |
-| Companies     | Полный CRUD, pagination, user ownership                                                                       | ✅      |
-| Applications  | Board, PATCH status, полный CRUD, **Status History (Timeline)**                                               | ✅      |
-| Tasks         | Полный CRUD, pagination, фильтрация, toggle статуса выполнения, связь с Applications                          | ✅      |
-| Interviews    | Полный CRUD, pagination, фильтрация по типу/результату, связь с Applications                                  | ✅      |
-| Resumes       | Полный CRUD, транзакционная логика установки дефолтного резюме, валидация URL                                 | ✅      |
-| Search        | `GET /api/search` — агрегированный полнотекстовый поиск по вакансиям, компаниям, задачам и собеседованиям     | ✅      |
-| Analytics     | `GET /analytics/summary` с воронкой откликов, недельной активностью и top skill gaps                         | ✅      |
+| OAuth2        | Authentication via GitHub / Google, automatic profile mapping, support for private emails                     | ✅      |
+| Vacancies     | Full CRUD, pagination, user ownership, company data loading without N+1                                       | ✅      |
+| Companies     | Full CRUD, pagination, user ownership                                                                         | ✅      |
+| Applications  | Board, PATCH status, full CRUD, **Status History (Timeline)**                                                 | ✅      |
+| Tasks         | Full CRUD, pagination, filtering, execution status toggling, connection with Applications                     | ✅      |
+| Interviews    | Full CRUD, pagination, filtering by type/result, connection with Applications                                 | ✅      |
+| Resumes       | Full CRUD, transactional logic for setting default resume, URL validation                                     | ✅      |
+| Search        | `GET /api/search` — aggregated full-text search across vacancies, companies, tasks, and interviews            | ✅      |
+| Analytics     | `GET /analytics/summary` with application funnel, weekly activity, and top skill gaps                         | ✅      |
 | AI Assistant  | analyze-vacancy, resume-match, cover-letter, interview-questions, history                                     | ✅      |
-| Dashboard     | `GET /dashboard/summary` (KPI, предстоящие интервью, AI инсайты, список задач)                                | ✅      |
-| Profile       | `GET /profiles/me`, `PUT /profiles/me` с JSONB-полем скиллов                                                  | ✅      |
+| Dashboard     | `GET /dashboard/summary` (KPIs, upcoming interviews, AI insights, task list)                                  | ✅      |
+| Profile       | `GET /profiles/me`, `PUT /profiles/me` with JSONB skills field                                                | ✅      |
 | Settings      | `GET/PUT /users/me`, `GET/PUT /preferences`, `DELETE /users/me` (Secure Deletion)                              | ✅      |
 | Notifications | `GET /notifications` (pagination, read filter), `PATCH /{id}/read`, **Telegram Integration** (Strategy/Factory pattern) | ✅      |
 
 ### Frontend
 
-- World-class UI redesign в стиле **Linear / Vercel / Clerk** — тёмная тема, glassmorphism, violet-акценты.
-- **Kanban-борд** с drag-and-drop (dnd-kit), DragOverlay-preview, optimistic update.
-- **Интерактивные задачи & Собеседования** — полноценный CRUD, фильтрация, приведение к стандартам дизайн-системы.
-- **Экспорт в Календарь** — поддержка скачивания `.ics` файлов и прямая синхронизация с **Google Calendar** через OAuth2.
-- **Глобальный поиск (Cmd+K / Ctrl+K)** — модальное окно с дебаунсом и быстрым переходом к любой сущности.
-- **AI-ассистент** — 5 инструментов с динамическими формами, выбором резюме/вакансий с автозаполнением, улучшенной валидацией и индивидуальными заголовками, автообновление истории запросов.
-- **Analytics** — KPI-карточки, воронка (funnel), график активности по реальным неделям, skill gaps.
-- **Dashboard** — подключён к backend через React Query, skeleton-loading, быстрый toggle задач.
-- **Settings** — профиль (ввод навыков), управление резюме (Zod-валидация), управление паролями (в т.ч. создание для OAuth2 пользователей).
-- React Query (TanStack Query) для кэширования и инвалидации.
-- Error boundaries + unified Toast-система с перехватом HTTP-ошибок.
-- i18n: `ru` + `en`, переключатель языка, автоматическая локализация дат (`date-fns`).
+- World-class UI redesign inspired by **Linear / Vercel / Clerk** — dark mode, glassmorphism, violet accents.
+- **Kanban Board** with drag-and-drop (dnd-kit), DragOverlay-preview, optimistic updates.
+- **Interactive Tasks & Interviews** — full CRUD, filtering, unified styling.
+- **Calendar Export** — support for downloading `.ics` files and direct sync with **Google Calendar** via OAuth2.
+- **Global Search (Cmd+K / Ctrl+K)** — hotkey modal with debounced search and quick entity navigation.
+- **AI Assistant** — 5 tools with dynamic forms, auto-filled resume/vacancy selectors, advanced validation, and search history.
+- **Analytics** — KPI cards, conversion funnel, activity chart based on calendar weeks, and skill gaps.
+- **Dashboard** — fully integrated with backend via React Query, skeleton loading, quick-toggle tasks.
+- **Settings** — profile editor (skills input), resume management (Zod validation), password manager (including password generation for OAuth2 accounts).
+- React Query (TanStack Query) for robust caching and invalidation.
+- Error boundaries + unified Toast notification system with automatic HTTP error interceptors.
+- i18n: `ru` + `en` with a language switcher and localized date rendering (`date-fns`).
 
-### Безопасность и Инфраструктура
+### Security & Infrastructure
 
-- **Refresh Tokens:** Автоматическое продление сессии через HttpOnly Cookies, безопасный выход с очисткой сессий в БД.
-- **Rate Limiting:** Ограничение частоты запросов для AI-эндпоинтов с использованием алгоритма Token Bucket (Bucket4j, HTTP 429).
-- **Audit Trail:** Журналирование критичных действий пользователей (логин, изменения сущностей, AI-запросы) в PostgreSQL.
-- **Secure Key Storage:** Прозрачное шифрование (AES-256) OpenAI API ключей пользователей при хранении в базе данных.
-- **Full-Stack Docker Compose:** Весь стек (backend + frontend + PostgreSQL + Redis + optional MinIO/Ollama) поднимается одной командой `docker compose up -d --build`. Nginx проксирует API и OAuth2 callbacks.
-- **AI Integration:** Ollama как local provider с автоматическим fallback на mock-ответы.
-- **Redis Cache:** Кэширование AI-результатов (TTL 24ч, с автоматическим обходом при сбоях Redis).
-- **CI Pipeline:** GitHub Actions — frontend lint/build + backend unit-тесты при push и PR в main.
-- **CD Pipeline:** GitHub Actions → Docker → Google Artifact Registry → Google Cloud Run (автодеплой при push в main).
-- **Production Hosting:** Google Cloud Run (`europe-west1`). Frontend — nginx-контейнер, Backend — Spring Boot. БД — Cloud SQL PostgreSQL (`europe-west3`). Домен: [careerpilot-ai.ru](https://careerpilot-ai.ru).
+- **Refresh Tokens:** Automatic session extension via HttpOnly Cookies, secure logout with session invalidation in the database.
+- **Rate Limiting:** Request rate limiting for AI endpoints using the Token Bucket algorithm (Bucket4j, HTTP 429).
+- **Audit Trail:** Secure journaling of critical user activities (login, entity mutations, AI queries) in PostgreSQL.
+- **Secure Key Storage:** Transparent encryption (AES-256) of user-provided OpenAI API keys stored in the database.
+- **Full-Stack Docker Compose:** Launch the entire stack (backend + frontend + PostgreSQL + Redis + optional MinIO/Ollama) with a single command: `docker compose up -d --build`. Nginx handles API proxying and OAuth2 callbacks.
+- **AI Integration:** Ollama as local provider with automatic fallback to mock responses.
+- **Redis Cache:** AI response caching (TTL 24h, with automatic fallback if Redis is down).
+- **CI Pipeline:** GitHub Actions for frontend lint/build + backend unit testing on every push and PR to main.
+- **CD Pipeline:** GitHub Actions → Docker → Google Artifact Registry → Cloud Run (auto-deploy on push to main).
+- **Production Hosting:** Google Cloud Run (`europe-west1`) running nginx-frontend container and Spring Boot backend. Google Cloud SQL PostgreSQL (`europe-west3`) database. Domain: [careerpilot-ai.ru](https://careerpilot-ai.ru).
 
 ---
 
-## 🔧 Стек технологий
+## 🔧 Tech Stack
 
-### Бэкенд
+### Backend
 
 `Java 21` · `Spring Boot 3` · `Spring Security` · `OAuth 2.0` · `JWT` · `Spring Data JPA` · `PostgreSQL` · `Flyway` · `MapStruct` ·
 `Bean Validation` · `OpenAPI / Swagger` · `JUnit 5` · `Mockito` · `Testcontainers` · `Redis` · `Bucket4j`
 
-### Фронтенд
+### Frontend
 
 `React` · `TypeScript` · `Vite` · `Tailwind CSS` · `React Router` · `TanStack Query` · `React Hook Form` · `Zod` ·
 `dnd-kit` · `i18next` · `lucide-react` · `date-fns`
 
-### Инфраструктура
+### Infrastructure
 
 `Docker` · `Docker Compose` · `PostgreSQL` · `Redis` · `GitHub Actions CI/CD` · `Google Cloud Run` · `Google Artifact Registry` · `Cloud SQL`
 
 ---
 
-## ⚠️ Известные ограничения
+## ⚠️ Known Limitations
 
-Актуально для `v1.0.0-beta`:
+Current status for `v1.0.0-beta`:
 
-- **Backend:** Интеграционные тесты с Testcontainers требуют работающего локального Docker-окружения.
-- **Redis:** В production (Cloud Run) Redis не используется (`SPRING_CACHE_TYPE=none`) — требуется VPC Connector для подключения к Google Memorystore.
+- **Backend:** Integration tests using Testcontainers require a running local Docker environment.
+- **Redis:** Redis is disabled in production Cloud Run (`SPRING_CACHE_TYPE=none`) — requires a VPC Connector to hook up Google Memorystore.
 
-Полный список и статус задач: [ROADMAP.md](./ROADMAP.md).
+See the full roadmap and task status at [ROADMAP.en.md](./ROADMAP.en.md).
 
 ---
 
-## 🗂️ Структура репозитория
+## 🗂️ Directory Structure
 
 ```text
 careerpilot-ai/
 ├── backend/          Spring Boot backend
 ├── frontend/         React + TypeScript frontend
-├── docs/             Документация и API-контракт
-│   └── assets/       Скриншоты для README
+├── docs/             Documentation and API contract
+│   ├── assets/       Screenshots for README
+│   └── en/           English documentation
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml    CI — lint, build, unit-тесты
+│       ├── ci.yml    CI — lint, build, unit tests
 │       └── cd.yml    CD — Docker build + Cloud Run deploy
+├── README.md         English documentation (default)
+├── README.ru.md      Russian documentation
+├── ROADMAP.md        Roadmap (Russian)
+├── ROADMAP.en.md     Roadmap (English)
 ├── docker-compose.yml
-├── README.md
-├── ROADMAP.md
 └── LICENSE
 ```
 
 ---
 
-## 🖥️ Локальный запуск
+## 🖥️ Local Setup
 
-### 0. Full-stack Docker (рекомендуется)
+### 0. Full-stack Docker (Recommended)
 
 ```bash
-cp .env.docker.example .env   # заполнить секреты
+cp .env.docker.example .env   # fill in the secrets
 docker compose up -d --build
 ```
 
 Frontend: `http://localhost` · Backend Swagger: `http://localhost:8080/swagger-ui.html`
 
-Подробнее: [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
+Read more in [docs/en/DEPLOYMENT.md](./docs/en/DEPLOYMENT.md)
 
 ---
 
-### 1. Инфраструктура (локальный dev)
+### 1. Infrastructure (Local Dev)
 
 ```bash
 docker compose up -d postgres redis
 ```
 
-Опциональные профили:
+Optional profiles:
 
 ```bash
-docker compose --profile ai up -d ollama      # локальный LLM
-docker compose --profile storage up -d minio  # файловое хранилище
+docker compose --profile ai up -d ollama      # local LLM
+docker compose --profile storage up -d minio  # file storage
 ```
 
 ### 2. Backend
@@ -290,9 +297,9 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
-Backend запускается на `http://localhost:8080`. Swagger UI: `http://localhost:8080/swagger-ui.html`.
+The backend will start at `http://localhost:8080`. Swagger UI is available at `http://localhost:8080/swagger-ui.html`.
 
-Переменные окружения — см. `backend/.env.example`. Реальный `.env` не коммитится.
+Environment variables list can be found in `backend/.env.example`. Real `.env` is git-ignored.
 
 ### 3. Frontend
 
@@ -302,16 +309,16 @@ pnpm install
 pnpm run dev
 ```
 
-Frontend запускается на `http://localhost:5173`.
+The frontend will start at `http://localhost:5173`.
 
-Основные переменные окружения:
+Core environment variables:
 
-| Переменная          | Описание                 | Default                     |
-|---------------------|--------------------------|-----------------------------|
-| `VITE_API_BASE_URL` | Base URL для REST API    | `http://localhost:8080/api` |
-| `VITE_USE_MOCKS`    | Mock-режим (без backend) | `false`                     |
+| Variable            | Description             | Default                     |
+|---------------------|-------------------------|-----------------------------|
+| `VITE_API_BASE_URL` | Base URL for REST API   | `http://localhost:8080/api` |
+| `VITE_USE_MOCKS`    | Mock mode (no backend)  | `false`                     |
 
-### 4. Проверки
+### 4. Tests & Quality Checks
 
 ```bash
 # Frontend
@@ -323,19 +330,19 @@ cd backend && ./mvnw test
 
 ---
 
-## 📚 Документация
+## 📚 Documentation
 
-| Документ                                                                 | Содержание                     |
-|--------------------------------------------------------------------------|--------------------------------|
-| [ROADMAP.md](./ROADMAP.md)                                               | Фазы разработки и статусы      |
-| [docs/README.DEV.md](./docs/README.DEV.md)                               | Руководство разработчика       |
-| [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)                               | Деплой через Docker Compose и Cloud Run |
-| [docs/FRONTEND_BACKEND_CONTRACT.md](./docs/FRONTEND_BACKEND_CONTRACT.md) | API-контракт (source of truth) |
-| [docs/I18N_IMPLEMENTATION.md](./docs/I18N_IMPLEMENTATION.md)             | Реализация i18n                |
+| Document                                                                       | Contents                       |
+|--------------------------------------------------------------------------------|--------------------------------|
+| [ROADMAP.en.md](./ROADMAP.en.md)                                               | Development phases & status    |
+| [docs/en/README.DEV.md](./docs/en/README.DEV.md)                               | Developer's guidelines         |
+| [docs/en/DEPLOYMENT.md](./docs/en/DEPLOYMENT.md)                               | Docker Compose & Cloud Run Deployment |
+| [docs/en/FRONTEND_BACKEND_CONTRACT.md](./docs/en/FRONTEND_BACKEND_CONTRACT.md) | API Contract (source of truth) |
+| [docs/en/I18N_IMPLEMENTATION.md](./docs/en/I18N_IMPLEMENTATION.md)             | i18n Implementation Details    |
 
 ---
 
-## 📝 Примечание
+## 📝 Note
 
-Секреты, `.env`-файлы, build artifacts, IDE configs и dependency folders исключены через `.gitignore`.
-Для публичного репозитория коммитятся только `.env.example` и `.env.docker.example`.
+Secrets, `.env` files, build artifacts, IDE configs, and dependency folders are excluded via `.gitignore`.
+Only `.env.example` and `.env.docker.example` are committed for the public repository.
