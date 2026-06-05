@@ -124,7 +124,7 @@ export default function LandingPage() {
 
                         {/* Headline */}
                         <h1
-                            className="mt-8 text-5xl md:text-7xl lg:text-[80px] font-semibold tracking-[-0.03em] leading-[1.05] ds-anim-rise"
+                            className="mt-8 text-3xl sm:text-5xl md:text-7xl lg:text-[80px] font-semibold tracking-[-0.03em] leading-[1.05] ds-anim-rise"
                             style={{ fontFamily: 'Onest, system-ui, sans-serif', animationDelay: '80ms' }}
                         >
                             <span className="text-[#e8eaed]">{t('landing.hero.title')}</span>{' '}
@@ -147,7 +147,7 @@ export default function LandingPage() {
                         >
                             <Link
                                 to="/auth/register"
-                                className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 text-[15px] font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-xl hover:from-violet-500 hover:to-violet-400 transition-all shadow-xl shadow-violet-500/30 hover:shadow-violet-500/40 hover:-translate-y-0.5 w-full sm:w-auto"
+                                className="group relative inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-8 sm:py-4 text-[14px] sm:text-[15px] font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-xl hover:from-violet-500 hover:to-violet-400 transition-all shadow-xl shadow-violet-500/30 hover:shadow-violet-500/40 hover:-translate-y-0.5 w-full sm:w-auto"
                             >
                                 {t('landing.hero.cta_primary')}
                                 <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none"
@@ -158,7 +158,7 @@ export default function LandingPage() {
                             </Link>
                             <Link
                                 to="/auth/login"
-                                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-[15px] font-medium text-[#e8eaed] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] rounded-xl hover:bg-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.15)] transition-all w-full sm:w-auto"
+                                className="inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-8 sm:py-4 text-[14px] sm:text-[15px] font-medium text-[#e8eaed] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] rounded-xl hover:bg-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.15)] transition-all w-full sm:w-auto"
                             >
                                 {t('landing.hero.cta_secondary')}
                             </Link>
