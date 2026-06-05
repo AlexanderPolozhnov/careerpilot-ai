@@ -103,7 +103,7 @@ public class AuthServiceImpl implements AuthService {
             Mac mac = Mac.getInstance("HmacSHA256");
             SecretKeySpec secretKeySpec = new SecretKeySpec("WebAppData".getBytes(StandardCharsets.UTF_8), "HmacSHA256");
             mac.init(secretKeySpec);
-            byte[] secretKey = mac.doFinal(telegramBotToken.getBytes(StandardCharsets.UTF_8));
+            byte[] secretKey = mac.doFinal(telegramBotToken.trim().getBytes(StandardCharsets.UTF_8));
 
             mac = Mac.getInstance("HmacSHA256");
             SecretKeySpec hashKeySpec = new SecretKeySpec(secretKey, "HmacSHA256");
