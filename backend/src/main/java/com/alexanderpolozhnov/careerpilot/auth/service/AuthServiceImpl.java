@@ -137,11 +137,11 @@ public class AuthServiceImpl implements AuthService {
 
             return buildAuthResult(user);
 
-        } catch (AuthException e) {
+        } catch (AuthException | InvalidCredentialsException e) {
             throw e;
         } catch (Exception e) {
             log.error("Error validating Telegram WebApp initData", e);
-            throw new InvalidCredentialsException("Invalid initData format");
+            throw new InvalidCredentialsException("Invalid initData format: " + e.getMessage());
         }
     }
 
