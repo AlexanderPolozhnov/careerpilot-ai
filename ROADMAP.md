@@ -133,6 +133,6 @@ Roadmap отражает текущее состояние перед первы
 
 ## 📅 Ближайшие планы (v1.1.0)
 
-- [ ] Улучшение мобильной версии.
+- [x] **Улучшение мобильной версии:** Mobile Drawer Sidebar (hamburger-меню, CSS-трансформация, overlay, блокировка scroll body), адаптивный `ApplicationsPage` (flex-wrap статистика, flex-col поиск, min-w Kanban-колонки).
 - [ ] Поддержка файлов (PDF/DOCX) для загрузки резюме напрямую.
 - [ ] Redis в production через GCP Memorystore + VPC Connector (AI кэширование в Cloud Run).

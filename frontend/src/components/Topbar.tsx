@@ -10,7 +10,8 @@ import {
   FileSpreadsheet, 
   Sparkles, 
   Send,
-  Calendar
+  Calendar,
+  Menu
 } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 import { useTranslation } from 'react-i18next'
@@ -23,9 +24,10 @@ import { settingsService } from '@/services/settings.service'
 
 interface TopbarProps {
   title: string
+  onOpenMenu?: () => void
 }
 
-export function Topbar({ title }: TopbarProps) {
+export function Topbar({ title, onOpenMenu }: TopbarProps) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation()
@@ -91,8 +93,16 @@ export function Topbar({ title }: TopbarProps) {
 
   return (
     <header className="h-14 border-b border-white/[0.06] bg-[#0a0a0b]/80 backdrop-blur-xl flex items-center justify-between px-5 md:px-6 gap-4 relative z-[60]">
-      {/* Left - Page title */}
+      {/* Left - Hamburger (mobile) + Page title */}
       <div className="min-w-0 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onOpenMenu}
+          className="md:hidden p-2 -ml-2 text-white/70 hover:text-white hover:bg-white/[0.04] rounded-lg transition-colors"
+          aria-label="Open menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
         <div>
           <h1 className="text-[15px] font-semibold text-white tracking-tight">{title}</h1>
           <p className="text-[11px] text-white/40 mt-0.5 hidden md:block">{t('dashboard.subtitle')}</p>

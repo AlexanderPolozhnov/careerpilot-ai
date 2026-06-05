@@ -37,6 +37,7 @@ frontend/dist/
 .factorypath
 .springBeans
 .sts4-cache/
+.devin/
 
 # Logs
 logs/

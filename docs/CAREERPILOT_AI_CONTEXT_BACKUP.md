@@ -3253,4 +3253,26 @@ pm run build прошла успешно.
 
 **Статус:** Реализовано локально, сборка успешна.
 
+## Update 2026-06-05 — Mobile UX / Adaptive Layout
 
+**Цель:** Внедрение мобильного Drawer-меню и адаптивная оптимизация ключевых страниц.
+
+**Frontend:**
+- `AppLayout.tsx` — добавлено состояние `isMobileMenuOpen` (`useState(false)`), props `isOpen`/`onClose` передаются в `Sidebar`, `onOpenMenu` в `Topbar`.
+- `Sidebar.tsx` — полностью переработан в адаптивный Drawer:
+  - `fixed inset-y-0 left-0 z-[70]` позиционирование
+  - CSS-трансформация `-translate-x-full` / `translate-x-0` с `transition-transform duration-300`
+  - На десктопе (`md:relative md:translate-x-0`) — поведение без изменений
+  - Мобильный overlay `z-[60] bg-black/60 backdrop-blur-sm` для закрытия по клику
+  - `useEffect` для блокировки `body.overflow` при открытом меню
+  - Все `NavLink` закрывают меню через `onClick={() => onClose?.()}`
+- `Topbar.tsx` — добавлена кнопка-гамбургер (`<Menu>` из lucide-react), видна только на `md:hidden`, вызывает `onOpenMenu`.
+- `ApplicationsPage.tsx`:
+  - Блок статистики: `flex-wrap` для корректного отображения на узких экранах
+  - Строка поиска: `flex flex-col sm:flex-row` — на мобильных поиск и кнопки идут столбцом
+  - Поле поиска: `max-w-full sm:max-w-md`
+  - Колонки Kanban: `min-w-[280px] sm:min-w-[300px]` вместо `w-[300px]` — обеспечивает корректный горизонтальный скролл на мобильных
+
+**Z-index порядок:** overlay `z-[60]` < Sidebar `z-[70]`, Topbar `z-[60]` (overlay перекрывает контент, но не Sidebar).
+
+**Статус:** Реализовано локально, сборка успешна (`npm run build` без ошибок).
