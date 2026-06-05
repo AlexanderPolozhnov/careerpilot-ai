@@ -6,7 +6,7 @@ spring:
   application:
     name: careerpilot-ai
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
+    active: ${SPRING_PROFILES_ACTIVE:dev,local}
 
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:careerpilot_ai}?currentSchema=careerpilot
