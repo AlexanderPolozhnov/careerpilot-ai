@@ -67,14 +67,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleInvalidCredentials(
             RuntimeException exception,
             HttpServletRequest request) {
-        return build(HttpStatus.UNAUTHORIZED, "Invalid email or password", "INVALID_CREDENTIALS", request, Map.of());
+        return build(HttpStatus.UNAUTHORIZED, exception.getMessage() != null ? exception.getMessage() : "Invalid email or password", "INVALID_CREDENTIALS", request, Map.of());
     }
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiErrorResponse> handleAuthentication(
             AuthenticationException exception,
             HttpServletRequest request) {
-        return build(HttpStatus.UNAUTHORIZED, "Unauthorized", "UNAUTHORIZED", request, Map.of());
+        return build(HttpStatus.UNAUTHORIZED, exception.getMessage() != null ? exception.getMessage() : "Unauthorized", "UNAUTHORIZED", request, Map.of());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
