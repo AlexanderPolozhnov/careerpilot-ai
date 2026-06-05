@@ -81,7 +81,8 @@ public class AuthServiceImpl implements AuthService {
                 .map(pair -> {
                     int idx = pair.indexOf("=");
                     String key = pair.substring(0, idx);
-                    String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8);
+                    String rawValue = pair.substring(idx + 1).replace("+", "%2B");
+                    String value = URLDecoder.decode(rawValue, StandardCharsets.UTF_8);
                     return Map.entry(key, value);
                 })
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
