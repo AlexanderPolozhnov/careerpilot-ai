@@ -1,5 +1,5 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import type { Resolver } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -92,7 +92,13 @@ export default function AuthPages({ mode }: AuthPagesProps) {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
-    const { login, register, forgotPassword, resetPassword } = useAuth()
+    const { isAuthenticated, login, register, forgotPassword, resetPassword } = useAuth()
+
+    useEffect(() => {
+        if (isAuthenticated && mode !== 'reset-password' && mode !== 'forgot-password') {
+            navigate('/app/dashboard', { replace: true })
+        }
+    }, [isAuthenticated, navigate, mode])
 
     const pageMeta: Record<AuthMode, { title: string; description: string }> = {
         login: {
