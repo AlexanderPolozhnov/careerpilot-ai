@@ -63,7 +63,7 @@ async function request<T>(
     const data = text ? JSON.parse(text) : undefined
 
     if (!response.ok) {
-      if (response.status === 401 && !options._retry && !path.includes('/auth/refresh') && !path.includes('/auth/login')) {
+      if (response.status === 401 && !options._retry && !path.includes('/auth/refresh') && !path.includes('/auth/login') && !path.includes('/auth/telegram-webapp')) {
         if (!isRefreshing) {
           isRefreshing = true
           refreshPromise = fetch(`${API_BASE}/auth/refresh`, {
