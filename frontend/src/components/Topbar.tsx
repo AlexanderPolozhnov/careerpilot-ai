@@ -103,9 +103,9 @@ export function Topbar({ title, onOpenMenu }: TopbarProps) {
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div>
+        <div className="hidden md:block">
           <h1 className="text-[15px] font-semibold text-white tracking-tight">{title}</h1>
-          <p className="text-[11px] text-white/40 mt-0.5 hidden md:block">{t('dashboard.subtitle')}</p>
+          <p className="text-[11px] text-white/40 mt-0.5">{t('dashboard.subtitle')}</p>
         </div>
       </div>
 
