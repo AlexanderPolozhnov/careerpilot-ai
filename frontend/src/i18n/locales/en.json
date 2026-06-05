@@ -636,6 +636,7 @@
     "aiProviderLocal": "Local",
     "aiProviderLocalDescription": "Privacy-first local processing",
     "aiProviderCloud": "Cloud",
+    "aiProviderCloudBadge": "In Development",
     "aiProviderCloudDescription": "Fast, reliable cloud inference",
     "aiProviderCustom": "Bring your own key",
     "aiProviderCustomDescription": "Use your own API key",

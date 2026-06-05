@@ -640,6 +640,7 @@
     "aiProviderLocal": "Локальный",
     "aiProviderLocalDescription": "Приватная локальная обработка",
     "aiProviderCloud": "Облако",
+    "aiProviderCloudBadge": "В разработке",
     "aiProviderCloudDescription": "Быстрый и надежный облачный вывод",
     "aiProviderCustom": "Свой ключ",
     "aiProviderCustomDescription": "Используйте свой собственный API ключ",

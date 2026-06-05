@@ -3242,3 +3242,15 @@ pm run build прошла успешно.
 
 **Статус:** Страницы задеплоены, доступны на production.
 
+## Update 2026-06-05 — Settings AI Provider Cloud Unavailable
+
+**Frontend:**
+- В `SettingsPage.tsx` свойство `disabled: true` добавлено к опции провайдера `CLOUD`.
+- Настроена блокировка выбора данной опции в методе `onClick`.
+- Добавлен яркий янтарный бейдж «В разработке» (In Development) рядом с названием провайдера при рендеринге списка в `SettingsPage.tsx`.
+- Кнопка опции визуально приглушена с помощью `opacity-50 cursor-not-allowed`.
+- Добавлены соответствующие i18n ключи `aiProviderCloudBadge` в `ru.json` и `en.json`.
+
+**Статус:** Реализовано локально, сборка успешна.
+
+

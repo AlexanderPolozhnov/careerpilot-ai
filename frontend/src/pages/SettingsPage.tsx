@@ -705,7 +705,8 @@ export default function SettingsPage() {
             value: 'CLOUD',
             label: t('settings.aiProviderCloud'),
             icon: Cloud,
-            description: t('settings.aiProviderCloudDescriptionFull')
+            description: t('settings.aiProviderCloudDescriptionFull'),
+            disabled: true
         },
         {
             value: 'LOCAL',
@@ -1226,10 +1227,11 @@ export default function SettingsPage() {
                                 const Icon = option.icon
                                 const isActive = aiProviderMode === option.value
                                 return (
-                                    <button
+                                                                    <button
                                         key={option.value}
                                         type="button"
                                         onClick={() => {
+                                            if (option.disabled) return
                                             const val = option.value as 'LOCAL' | 'CLOUD' | 'BRING_YOUR_OWN_KEY'
                                             prefsForm.setValue('aiProviderMode', val)
                                             const current = prefsForm.getValues()
@@ -1239,7 +1241,8 @@ export default function SettingsPage() {
                                             'w-full flex items-center gap-4 rounded-xl border px-4 py-4 text-left transition-all duration-200',
                                             isActive
                                                 ? 'bg-violet-500/10 border-violet-500/30'
-                                                : 'border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.02]'
+                                                : 'border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.02]',
+                                            option.disabled && 'opacity-50 cursor-not-allowed hover:bg-transparent hover:border-white/[0.06]'
                                         )}
                                     >
                                         <div className={cn(
@@ -1250,9 +1253,16 @@ export default function SettingsPage() {
                                                 className={cn('w-5 h-5', isActive ? 'text-violet-400' : 'text-white/40')} />
                                         </div>
                                         <div className="flex-1">
-                                            <p className={cn('text-sm font-medium', isActive ? 'text-white' : 'text-white/70')}>
-                                                {option.label}
-                                            </p>
+                                            <div className="flex items-center gap-2">
+                                                <p className={cn('text-sm font-medium', isActive ? 'text-white' : 'text-white/70')}>
+                                                    {option.label}
+                                                </p>
+                                                {option.disabled && (
+                                                    <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full tracking-wider select-none">
+                                                        {t('settings.aiProviderCloudBadge')}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <p className="text-xs text-white/40 mt-0.5">{option.description}</p>
                                         </div>
                                         <div className={cn(
