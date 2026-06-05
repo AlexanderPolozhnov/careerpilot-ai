@@ -11,5 +11,7 @@ public interface PreferencesRepository extends JpaRepository<PreferencesEntity, 
 
     Optional<PreferencesEntity> findByTelegramConnectToken(UUID token);
 
+    Optional<PreferencesEntity> findByTelegramChatId(String telegramChatId);
+
     boolean existsByTelegramChatId(String telegramChatId);
 }

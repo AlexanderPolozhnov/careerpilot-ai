@@ -3,6 +3,7 @@ import type { User } from '@/types'
 import { authService } from '@/services/auth.service'
 import { AuthContext } from './auth-context'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { isTelegramWebApp, getTelegramInitData, initTelegramApp } from '@/lib/telegram'
 
 export interface AuthContextValue {
   user: User | null
@@ -28,6 +29,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
+
+  // Telegram WebApp Auto-Login
+  useEffect(() => {
+    if (isTelegramWebApp()) {
+      initTelegramApp()
+      const initData = getTelegramInitData()
+      if (initData && !token) {
+        authService.telegramWebAppAuth(initData)
+          .then(({ user, accessToken }) => {
+            setToken(accessToken)
+            queryClient.setQueryData(['auth', 'me'], user)
+          })
+          .catch((e) => {
+            console.error('Telegram WebApp auth failed', e)
+          })
+      }
+    }
+  }, [queryClient, token])
 
   const { data: user, isLoading: isQueryLoading, isFetched } = useQuery({
     queryKey: ['auth', 'me'],

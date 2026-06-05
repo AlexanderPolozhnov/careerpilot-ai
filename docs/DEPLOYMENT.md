@@ -18,7 +18,7 @@ cp .env.docker.example .env
 - `MAIL_USERNAME` и `MAIL_PASSWORD` — учетные данные SMTP (рекомендуется Mailtrap для тестирования)
 - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` — для OAuth2 через GitHub (опционально)
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` — для OAuth2 через Google (опционально)
-- `TELEGRAM_BOT_TOKEN` — токен Telegram бота для уведомлений (опционально)
+- `TELEGRAM_BOT_TOKEN` — токен Telegram бота для уведомлений и аутентификации через WebApp / MiniApp (опционально)
 - `TELEGRAM_BOT_USERNAME` — имя пользователя Telegram бота (опционально)
 
 3. Запустите весь стек:
@@ -127,6 +127,20 @@ docker compose --profile ai up -d
 ## Healthchecks
 
 Backend имеет healthcheck с периодом 90 секунд для прохождения Flyway миграций при первом запуске. Приложение считается здоровым, когда отвечает на `/swagger-ui/index.html`.
+
+## Интеграция с Cloudflare
+
+В production-окружении трафик к приложению должен проксироваться через **Cloudflare** для защиты от DDoS, управления SSL-сертификатами и оптимизации производительности (WAF).
+
+### Настройка Cloudflare
+1. **Режим SSL/TLS:** В панели Cloudflare (раздел **SSL/TLS -> Overview**) установите режим **Full** или **Full (strict)**, так как Google Cloud Run ожидает зашифрованный HTTPS-трафик.
+2. **Отключение кэширования для API:** В разделе **Rules -> Cache Rules** (или Page Rules) создайте правило для обхода кэширования динамических запросов:
+   - Если URL совпадает с `careerpilot-ai.ru/api/*`
+   - Действие (Cache Eligibility) -> **Bypass** (Обходить кэш).
+
+### Определение реального IP пользователя
+При проксировании трафика через Cloudflare стандартный метод `HttpServletRequest.getRemoteAddr()` на бэкенде возвращает IP-адрес серверов Cloudflare. 
+Бэкенд CareerPilot AI автоматически извлекает оригинальный IP-адрес пользователя из HTTP-заголовка `CF-Connecting-IP` (это реализовано в аспектах логирования `AuditAspect` и защиты от спама `RateLimiterAspect`). Дополнительных настроек окружения не требуется.
 
 ## Troubleshooting
 

@@ -366,8 +366,7 @@ docker compose config
 12. **Settings**: preferences, управление резюме, смена пароля, удаление аккаунта, **Contextual Help**.
 13. **Search**: агрегированный поиск по вакансиям, компаниям, задачам, собеседованиям.
 14. **Notifications**: In-app уведомления, Email (SMTP), Telegram Bot (Strategy/Factory паттерн). Scheduled напоминания о задачах и собеседованиях. Уведомления при смене статуса отклика.
-15. **Integrations**: Прямая синхронизация с **Google Calendar (OAuth2)**, экспорт в **Excel**, экспорт собеседований в **ICS**.
-
+15. **Integrations**: Прямая синхронизация с **Google Calendar (OAuth2)**, экспорт в **Excel**, экспорт собеседований в **ICS**, **Telegram MiniApp** (WebApp интеграция).
 ## Безопасность
 
 - **Refresh Tokens**: автоматическое продление сессии через HttpOnly Cookies.

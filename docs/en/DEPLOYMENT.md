@@ -18,7 +18,7 @@ cp .env.docker.example .env
 - `MAIL_USERNAME` and `MAIL_PASSWORD` — SMTP credentials (we highly recommend Mailtrap for testing purposes)
 - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` — for OAuth2 via GitHub (optional)
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` — for OAuth2 via Google (optional)
-- `TELEGRAM_BOT_TOKEN` — Telegram Bot Token for notification alerts (optional)
+- `TELEGRAM_BOT_TOKEN` — Telegram Bot Token for notification alerts and WebApp / MiniApp authentication (optional)
 - `TELEGRAM_BOT_USERNAME` — Telegram Bot Username (optional)
 
 3. Start the entire container stack:

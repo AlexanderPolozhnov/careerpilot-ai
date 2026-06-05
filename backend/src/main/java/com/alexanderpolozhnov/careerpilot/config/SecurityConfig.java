@@ -47,14 +47,14 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                                 .requestMatchers(HttpMethod.POST, "/api/auth/register",
-                                                                "/api/auth/login", "/api/auth/forgot-password",
+                                                                "/api/auth/login", "/api/auth/telegram-webapp", "/api/auth/forgot-password",
                                                                 "/api/auth/reset-password", "/api/auth/refresh",
                                                                 "/api/auth/logout")
                                                 .permitAll()
                                                 .requestMatchers("/api/auth/oauth2/**", "/login/oauth2/**",
                                                                 "/oauth2/authorization/**")
                                                 .permitAll()
-                                                // .requestMatchers("/api/**").authenticated()
+                                                .requestMatchers("/api/**").authenticated()
                                                 .anyRequest().permitAll())
                                 .oauth2Login(oauth2 -> oauth2
                                                 .userInfoEndpoint(userInfo -> userInfo

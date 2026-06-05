@@ -14,7 +14,7 @@ public class CurrentUserResolver {
 
     public AuthEntity resolveRequired() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getName() == null) {
+        if (authentication == null || authentication.getName() == null || "anonymousUser".equals(authentication.getName())) {
             throw new IllegalArgumentException("Unauthorized");
         }
         return authRepository.findByEmail(authentication.getName())

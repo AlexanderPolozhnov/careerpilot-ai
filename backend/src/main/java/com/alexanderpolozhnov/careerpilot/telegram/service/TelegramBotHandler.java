@@ -126,10 +126,25 @@ public class TelegramBotHandler extends TelegramLongPollingBot {
     }
 
     private void sendHtml(Long chatId, String html) throws TelegramApiException {
+        org.telegram.telegrambots.meta.api.objects.webapp.WebAppInfo webAppInfo = 
+            new org.telegram.telegrambots.meta.api.objects.webapp.WebAppInfo("https://careerpilot-ai.ru/app/dashboard?tg=1");
+
+        org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton webAppBtn = 
+            org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton.builder()
+                .text("📱 Открыть CareerPilot")
+                .webApp(webAppInfo)
+                .build();
+
+        org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup markup = 
+            org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup.builder()
+                .keyboardRow(java.util.List.of(webAppBtn))
+                .build();
+
         SendMessage sendMessage = SendMessage.builder()
                 .chatId(chatId)
                 .text(html)
                 .parseMode("HTML")
+                .replyMarkup(markup)
                 .build();
         execute(sendMessage);
     }

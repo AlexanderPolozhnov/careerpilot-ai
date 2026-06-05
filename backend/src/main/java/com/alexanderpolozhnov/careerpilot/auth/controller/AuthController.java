@@ -4,6 +4,7 @@ import com.alexanderpolozhnov.careerpilot.audit.annotation.Auditable;
 import com.alexanderpolozhnov.careerpilot.auth.request.ForgotPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.LoginRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.RegisterRequest;
+import com.alexanderpolozhnov.careerpilot.auth.request.TelegramWebAppAuthRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.ResetPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.UpdatePasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthResponse;
@@ -12,6 +13,7 @@ import com.alexanderpolozhnov.careerpilot.auth.service.AuthResult;
 import com.alexanderpolozhnov.careerpilot.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import com.alexanderpolozhnov.careerpilot.common.ratelimit.RateLimit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +31,7 @@ public class AuthController {
     private long refreshTokenExpirationMs;
 
     @PostMapping("/login")
+    @RateLimit(key = "auth_login", capacity = 5, refillTokens = 5, refillDurationMinutes = 15)
     @Auditable(action = "USER_LOGIN", entityType = "USER")
     public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
         AuthResult result = authService.login(request);
@@ -37,6 +40,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @RateLimit(key = "auth_register", capacity = 5, refillTokens = 5, refillDurationMinutes = 15)
     @Auditable(action = "USER_REGISTER", entityType = "USER")
     public AuthResponse register(@Valid @RequestBody RegisterRequest request, HttpServletResponse response) {
         AuthResult result = authService.register(request);
@@ -47,6 +51,15 @@ public class AuthController {
     @GetMapping("/me")
     public AuthUserResponse me() {
         return authService.me();
+    }
+
+    @PostMapping("/telegram-webapp")
+    @RateLimit(key = "auth_telegram", capacity = 10, refillTokens = 10, refillDurationMinutes = 15)
+    @Auditable(action = "USER_LOGIN_TELEGRAM", entityType = "USER")
+    public AuthResponse telegramWebAppAuth(@Valid @RequestBody TelegramWebAppAuthRequest request, HttpServletResponse response) {
+        AuthResult result = authService.telegramWebAppAuth(request);
+        setRefreshTokenCookie(response, result.refreshToken());
+        return result.response();
     }
 
     @PostMapping("/forgot-password")

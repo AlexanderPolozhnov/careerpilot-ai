@@ -337,7 +337,7 @@ The following components are fully functional and integrated end-to-end:
 12. **Settings:** User settings, active integrations panel, **Unified Contextual Help**.
 13. **Search:** Global Cmd+K full-text query aggregator.
 14. **Notifications:** Email alerts, In-app badges, Telegram bot scheduled interview & task reminders.
-15. **Integrations:** **Google Calendar (OAuth2)** direct sync, Excel data export, `.ics` files downloads.
+15. **Integrations:** **Google Calendar (OAuth2)** direct sync, Excel data export, `.ics` files downloads, **Telegram MiniApp** (WebApp integration).
 
 ## Enterprise Security
 

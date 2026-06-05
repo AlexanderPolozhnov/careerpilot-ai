@@ -8,7 +8,10 @@ import com.alexanderpolozhnov.careerpilot.auth.request.ResetPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.UpdatePasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthUserResponse;
 
+import com.alexanderpolozhnov.careerpilot.auth.request.TelegramWebAppAuthRequest;
+
 public interface AuthService {
+    AuthResult telegramWebAppAuth(TelegramWebAppAuthRequest request);
     AuthResult login(LoginRequest request);
 
     AuthResult register(RegisterRequest request);

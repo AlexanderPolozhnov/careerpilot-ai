@@ -15,9 +15,16 @@ import com.alexanderpolozhnov.careerpilot.auth.request.ResetPasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.request.UpdatePasswordRequest;
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthResponse;
 import com.alexanderpolozhnov.careerpilot.auth.response.AuthUserResponse;
+import com.alexanderpolozhnov.careerpilot.auth.request.TelegramWebAppAuthRequest;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
 import com.alexanderpolozhnov.careerpilot.notification.service.EmailService;
+import com.alexanderpolozhnov.careerpilot.preferences.entity.PreferencesEntity;
+import com.alexanderpolozhnov.careerpilot.preferences.repository.PreferencesRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +34,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -38,6 +52,11 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenService refreshTokenService;
     private final CurrentUserResolver currentUserResolver;
     private final EmailService emailService;
+    private final PreferencesRepository preferencesRepository;
+    private final ObjectMapper objectMapper;
+
+    @Value("${telegram.bot.token}")
+    private String telegramBotToken;
 
     @Override
     @Transactional
@@ -50,6 +69,76 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return buildAuthResult(user);
+    }
+
+    @Override
+    @Transactional
+    public AuthResult telegramWebAppAuth(TelegramWebAppAuthRequest request) {
+        String initData = request.getInitData();
+        
+        try {
+            Map<String, String> dataMap = Arrays.stream(initData.split("&"))
+                .map(pair -> {
+                    int idx = pair.indexOf("=");
+                    String key = pair.substring(0, idx);
+                    String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8);
+                    return Map.entry(key, value);
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+            String hash = dataMap.remove("hash");
+            if (hash == null) {
+                throw new InvalidCredentialsException("Invalid initData: no hash found");
+            }
+
+            String dataCheckString = dataMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> e.getKey() + "=" + e.getValue())
+                .collect(Collectors.joining("\n"));
+
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec("WebAppData".getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            mac.init(secretKeySpec);
+            byte[] secretKey = mac.doFinal(telegramBotToken.getBytes(StandardCharsets.UTF_8));
+
+            mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec hashKeySpec = new SecretKeySpec(secretKey, "HmacSHA256");
+            mac.init(hashKeySpec);
+            byte[] calculatedHashBytes = mac.doFinal(dataCheckString.getBytes(StandardCharsets.UTF_8));
+
+            StringBuilder calculatedHashHex = new StringBuilder();
+            for (byte b : calculatedHashBytes) {
+                calculatedHashHex.append(String.format("%02x", b));
+            }
+
+            if (!calculatedHashHex.toString().equalsIgnoreCase(hash)) {
+                throw new InvalidCredentialsException("Invalid initData: hash mismatch");
+            }
+
+            long authDate = Long.parseLong(dataMap.get("auth_date"));
+            long now = System.currentTimeMillis() / 1000;
+            if (now - authDate > 300) {
+                throw new InvalidCredentialsException("Invalid initData: expired");
+            }
+
+            String userJson = dataMap.get("user");
+            JsonNode userNode = objectMapper.readTree(userJson);
+            String telegramUserId = userNode.get("id").asText();
+
+            PreferencesEntity preferences = preferencesRepository.findByTelegramChatId(telegramUserId)
+                .orElseThrow(() -> new AuthException("Telegram аккаунт не привязан. Пожалуйста, привяжите его в настройках веб-версии."));
+
+            AuthEntity user = authRepository.findById(preferences.getUserId())
+                .orElseThrow(() -> new AuthException("User not found"));
+
+            return buildAuthResult(user);
+
+        } catch (AuthException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error validating Telegram WebApp initData", e);
+            throw new InvalidCredentialsException("Invalid initData format");
+        }
     }
 
     @Override

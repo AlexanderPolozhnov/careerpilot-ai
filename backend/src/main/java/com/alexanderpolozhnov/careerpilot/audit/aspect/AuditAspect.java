@@ -63,6 +63,12 @@ public class AuditAspect {
         try {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
             HttpServletRequest request = attributes.getRequest();
+            String ip = request.getHeader("CF-Connecting-IP");
+            if (ip != null && !ip.isBlank()) return ip;
+            
+            String xff = request.getHeader("X-Forwarded-For");
+            if (xff != null && !xff.isBlank()) return xff.split(",")[0].trim();
+            
             return request.getRemoteAddr();
         } catch (Exception e) {
             log.debug("Failed to extract IP address", e);

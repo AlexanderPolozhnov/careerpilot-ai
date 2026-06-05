@@ -37,6 +37,17 @@ export const authService = {
     return response
   },
 
+  telegramWebAppAuth: async (initData: string): Promise<AuthResponse> => {
+    if (USE_MOCKS) {
+      const response: AuthResponse = { accessToken: 'mock_access_token', user: mockUser }
+      setToken(response.accessToken)
+      return Promise.resolve(response)
+    }
+    const response = await api.post<AuthResponse>('/auth/telegram-webapp', { initData })
+    setToken(response.accessToken)
+    return response
+  },
+
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
     if (USE_MOCKS) {
       const response: AuthResponse = { accessToken: 'mock_access_token', user: { ...mockUser, name: data.name, email: data.email } }

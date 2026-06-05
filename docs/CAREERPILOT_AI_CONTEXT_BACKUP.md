@@ -3276,3 +3276,37 @@ pm run build прошла успешно.
 **Z-index порядок:** overlay `z-[60]` < Sidebar `z-[70]`, Topbar `z-[60]` (overlay перекрывает контент, но не Sidebar).
 
 **Статус:** Реализовано локально, сборка успешна (`npm run build` без ошибок).
+
+## Update 2026-06-05 — Telegram MiniApp
+
+**Цель:** Реализация аутентификации и входа через Telegram WebApp (MiniApp).
+
+**Backend:**
+- `TelegramWebAppAuthRequest.java` — DTO для получения `initData`.
+- `AuthService.java` / `AuthServiceImpl.java` — Добавлен метод `telegramWebAppAuth`, реализующий валидацию `initData` с помощью HMAC-SHA256 (сверка хеша) и проверку времени (до 5 минут). Извлекает `id` пользователя из поля `user`, находит пользователя по `telegramChatId` через `PreferencesRepository`.
+- `AuthController.java` — Добавлен эндпоинт `POST /api/auth/telegram-webapp`.
+- `SecurityConfig.java` — Разрешен публичный доступ к новому эндпоинту.
+- `TelegramBotHandler.java` — Добавлена Inline-кнопка "📱 Открыть CareerPilot" для команды `/start`, которая открывает `https://careerpilot-ai.ru/app/dashboard?tg=1` как WebApp.
+
+**Frontend:**
+- `lib/telegram.ts` — Создана обертка для SDK (`isTelegramWebApp`, `getTelegramInitData`, `initTelegramApp`).
+- `auth.service.ts` — Добавлен вызов `POST /api/auth/telegram-webapp` для авторизации.
+- `AuthContext.tsx` — Реализован эффект автоматической аутентификации при старте приложения внутри Telegram. Если токена нет, а `initData` есть, приложение делает запрос к API и устанавливает сессию.
+- `AppLayout.tsx` — Добавлен условный рендеринг: если открыто в Telegram (`isTg`), скрываются `Sidebar` и `Topbar`, а фон остается темным для соответствия MiniApp дизайну.
+
+**Статус:** Backend компилируется, Frontend собирается без ошибок. Интеграция готова к деплою.
+
+## Update 2026-06-05 — Cloudflare Integration & Security Hardening
+
+**Цель:** Интеграция с Cloudflare для защиты от DDoS и WAF на продакшене, а также корректное восстановление реальных IP-адресов пользователей на бэкенде.
+
+**Backend:**
+- `AuditAspect.java` — Добавлена логика извлечения реального IP-адреса пользователя из HTTP-заголовка `CF-Connecting-IP`. Если заголовок отсутствует, используется стандартный `request.getRemoteAddr()`. Это гарантирует корректность логов аудита при проксировании трафика.
+- `RateLimiterAspect.java` — Изменено определение IP-клиента для лимитера запросов. Теперь лимиты накладываются по реальному IP-адресу пользователя (из заголовка `CF-Connecting-IP`), а не по IP прокси-сервера Cloudflare.
+
+**Документация:**
+- `docs/DEPLOYMENT.md` — Добавлено руководство по настройке Cloudflare (SSL/TLS режим Full/Strict, отключение кэширования для API эндпоинтов `/api/*`).
+- `README.md` / `README.ru.md` — Обновлен список возможностей безопасности с упоминанием Cloudflare.
+
+**Статус:** Все тесты (`mvnw test`) успешно выполнены локально. Реализовано и готово к использованию в продакшене.
+
