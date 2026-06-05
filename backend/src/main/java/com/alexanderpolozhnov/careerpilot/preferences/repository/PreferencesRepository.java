@@ -3,6 +3,7 @@ package com.alexanderpolozhnov.careerpilot.preferences.repository;
 import com.alexanderpolozhnov.careerpilot.preferences.entity.PreferencesEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,7 +12,7 @@ public interface PreferencesRepository extends JpaRepository<PreferencesEntity, 
 
     Optional<PreferencesEntity> findByTelegramConnectToken(UUID token);
 
-    Optional<PreferencesEntity> findByTelegramChatId(String telegramChatId);
+    List<PreferencesEntity> findByTelegramChatId(String telegramChatId);
 
     boolean existsByTelegramChatId(String telegramChatId);
 }

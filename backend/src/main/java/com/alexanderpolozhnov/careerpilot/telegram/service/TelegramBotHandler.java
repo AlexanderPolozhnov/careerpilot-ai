@@ -111,6 +111,13 @@ public class TelegramBotHandler extends TelegramWebhookBot {
             }
 
             PreferencesEntity prefs = prefsOpt.get();
+
+            java.util.List<PreferencesEntity> existingLinks = preferencesRepository.findByTelegramChatId(chatId.toString());
+            for (PreferencesEntity existingLink : existingLinks) {
+                existingLink.setTelegramChatId(null);
+            }
+            preferencesRepository.saveAll(existingLinks);
+
             prefs.setTelegramChatId(chatId.toString());
             prefs.setTelegramConnectToken(null);
             prefs.setNotificationProvider(com.alexanderpolozhnov.careerpilot.preferences.entity.NotificationProvider.TELEGRAM);

@@ -127,6 +127,7 @@ public class AuthServiceImpl implements AuthService {
             String telegramUserId = userNode.get("id").asText();
 
             PreferencesEntity preferences = preferencesRepository.findByTelegramChatId(telegramUserId)
+                .stream().findFirst()
                 .orElseThrow(() -> new AuthException("Telegram аккаунт не привязан. Пожалуйста, привяжите его в настройках веб-версии."));
 
             AuthEntity user = authRepository.findById(preferences.getUserId())
