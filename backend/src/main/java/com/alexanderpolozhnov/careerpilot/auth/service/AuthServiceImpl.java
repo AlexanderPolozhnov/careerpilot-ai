@@ -92,10 +92,6 @@ public class AuthServiceImpl implements AuthService {
                 throw new InvalidCredentialsException("Invalid initData: no hash found");
             }
             
-            // Telegram recently added 'signature' to the initData payload for WebApps.
-            // According to Telegram docs, we must exclude it (along with hash) from dataCheckString.
-            dataMap.remove("signature");
-
             String dataCheckString = dataMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(e -> e.getKey() + "=" + e.getValue())
