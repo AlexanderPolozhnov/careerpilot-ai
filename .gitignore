@@ -16,6 +16,7 @@ target/
 *.jar
 *.war
 .junie
+application-local.yaml
 
 # Node / Vite
 node_modules/
