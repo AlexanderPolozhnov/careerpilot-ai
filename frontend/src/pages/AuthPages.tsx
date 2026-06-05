@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuth } from '@/context/useAuth'
 import { cn } from '@/lib/utils'
+import { isTelegramWebApp } from '@/lib/telegram'
 
 type AuthMode = 'login' | 'register' | 'forgot-password' | 'reset-password'
 
@@ -561,7 +562,7 @@ export default function AuthPages({ mode }: AuthPagesProps) {
                         </form>
 
                         {/* Divider */}
-                        {mode !== 'reset-password' && (
+                        {mode !== 'reset-password' && !isTelegramWebApp() && (
                             <>
                                 <div className="relative my-8">
                                     <div className="absolute inset-0 flex items-center">

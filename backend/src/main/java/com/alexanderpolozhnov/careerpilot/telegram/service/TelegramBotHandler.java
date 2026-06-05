@@ -7,7 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.bots.TelegramWebhookBot;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -16,10 +17,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 @ConditionalOnProperty(name = "telegram.bot.enabled", havingValue = "true", matchIfMissing = false)
-public class TelegramBotHandler extends TelegramLongPollingBot {
+public class TelegramBotHandler extends TelegramWebhookBot {
 
     private static final String HELP_TEXT = "🚀 <b>CareerPilot AI</b> — ваш личный ассистент для поиска работы.\n\n" +
             "Этот бот отправляет уведомления:\n" +
@@ -32,17 +32,31 @@ public class TelegramBotHandler extends TelegramLongPollingBot {
             "Для привязки перейдите в <b>Settings → Notifications</b> и выберите Telegram как провайдер уведомлений.";
 
     private final PreferencesRepository preferencesRepository;
+    private final String botUsername;
 
-    @Value("${telegram.bot.token}")
-    private String botToken;
-
-    @Value("${telegram.bot.username}")
-    private String botUsername;
+    public TelegramBotHandler(
+            @Value("${telegram.bot.token}") String botToken,
+            @Value("${telegram.bot.username:careerpilot_ai_bot}") String botUsername,
+            PreferencesRepository preferencesRepository) {
+        super(botToken);
+        this.botUsername = botUsername;
+        this.preferencesRepository = preferencesRepository;
+    }
 
     @Override
-    public void onUpdateReceived(Update update) {
+    public String getBotUsername() {
+        return botUsername;
+    }
+
+    @Override
+    public String getBotPath() {
+        return "/api/telegram/webhook";
+    }
+
+    @Override
+    public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            return;
+            return null;
         }
 
         String messageText = update.getMessage().getText().trim();
@@ -53,6 +67,8 @@ public class TelegramBotHandler extends TelegramLongPollingBot {
         } else if (messageText.equals("/help")) {
             handleHelpCommand(chatId);
         }
+        
+        return null;
     }
 
     private void handleStartCommand(String messageText, Long chatId) {
@@ -147,15 +163,5 @@ public class TelegramBotHandler extends TelegramLongPollingBot {
                 .replyMarkup(markup)
                 .build();
         execute(sendMessage);
-    }
-
-    @Override
-    public String getBotToken() {
-        return botToken;
-    }
-
-    @Override
-    public String getBotUsername() {
-        return botUsername;
     }
 }

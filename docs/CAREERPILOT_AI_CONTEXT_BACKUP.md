@@ -3310,3 +3310,24 @@ pm run build прошла успешно.
 
 **Статус:** Все тесты (`mvnw test`) успешно выполнены локально. Реализовано и готово к использованию в продакшене.
 
+## Update 2026-06-05 — Telegram MiniApp Auth Fixes
+
+**Backend:**
+- Исправлена критическая ошибка при валидации `initData` от Telegram WebApp: добавлено удаление поля `signature` из `dataMap` перед генерацией `dataCheckString`. Недавно Telegram добавил это поле в структуру `initData`, и без его удаления `HMAC-SHA256` хэш не совпадал, что блокировало автоматическую аутентификацию в MiniApp с ошибкой `InvalidCredentialsException: Invalid initData: hash mismatch`.
+
+**Frontend:**
+- В `AuthPages.tsx` добавлено условное скрытие разделителя ("or continue with") и кнопок входа через Google и GitHub при загрузке внутри Telegram WebApp (`!isTelegramWebApp()`). Это сделано из-за того, что встроенные веб-браузеры Telegram блокируют потоки аутентификации OAuth2 по соображениям безопасности.
+
+## Update 2026-06-05 — Telegram Webhook Migration
+
+**Цель:** Устранение задержек ответов бота из-за троттлинга CPU в Google Cloud Run.
+
+**Backend:**
+- `TelegramBotHandler.java` — Бот переведен с `TelegramLongPollingBot` на `TelegramWebhookBot`.
+- `TelegramWebhookController.java` — Создан новый REST API-контроллер для приема входящих POST-запросов от Telegram на `POST /api/telegram/webhook`.
+- `TelegramWebhookRegistrar.java` — Создан сервис для автоматической регистрации вебхука через API Telegram при старте приложения (на основе `TELEGRAM_WEBHOOK_URL` или `FRONTEND_URL`). Защищен от регистрации `localhost`.
+- `TelegramConfig.java` — Удален бин `TelegramBotsApi`, который отвечал за запуск фонового потока Long Polling.
+- `SecurityConfig.java` — Эндпоинт `/api/telegram/webhook` добавлен в `permitAll()` для обеспечения беспрепятственного доступа серверов Telegram без JWT.
+- `application.yaml` — Добавлена поддержка переменной `TELEGRAM_WEBHOOK_URL`.
+
+**Статус:** Код успешно скомпилирован, интеграционные тесты пройдены. Бот готов к мгновенной работе на бессерверной архитектуре.

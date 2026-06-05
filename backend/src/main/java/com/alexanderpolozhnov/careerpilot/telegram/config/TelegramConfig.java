@@ -13,12 +13,5 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 @ConditionalOnProperty(name = "telegram.bot.enabled", havingValue = "true", matchIfMissing = false)
 @Slf4j
 public class TelegramConfig {
-
-    @Bean
-    public TelegramBotsApi telegramBotsApi(TelegramBotHandler telegramBotHandler) throws TelegramApiException {
-        TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
-        api.registerBot(telegramBotHandler);
-        log.info("Telegram bot successfully registered and started polling.");
-        return api;
-    }
+    // Configuration left empty for future use, TelegramBotsApi removed since we use Webhooks now.
 }

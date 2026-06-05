@@ -49,7 +49,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.POST, "/api/auth/register",
                                                                 "/api/auth/login", "/api/auth/telegram-webapp", "/api/auth/forgot-password",
                                                                 "/api/auth/reset-password", "/api/auth/refresh",
-                                                                "/api/auth/logout")
+                                                                "/api/auth/logout", "/api/telegram/webhook")
                                                 .permitAll()
                                                 .requestMatchers("/api/auth/oauth2/**", "/login/oauth2/**",
                                                                 "/oauth2/authorization/**")

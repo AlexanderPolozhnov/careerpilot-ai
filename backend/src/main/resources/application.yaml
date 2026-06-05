@@ -104,3 +104,4 @@ telegram:
     enabled: ${TELEGRAM_BOT_ENABLED:true}
     token: ${TELEGRAM_BOT_TOKEN:placeholder}
     username: ${TELEGRAM_BOT_USERNAME:careerpilot_ai_bot}
+    webhook-url: ${TELEGRAM_WEBHOOK_URL:}
