@@ -231,6 +231,9 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+				<environmentVariables>
+            <SPRING_DOTENV_ENABLE>true</SPRING_DOTENV_ENABLE>
+        </environmentVariables>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
