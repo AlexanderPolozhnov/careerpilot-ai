@@ -13,7 +13,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @RestController
 @RequestMapping("/api/telegram")
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "telegram.bot.enabled", havingValue = "true", matchIfMissing = false)
 public class TelegramWebhookController {
 
     private final TelegramBotHandler telegramBotHandler;

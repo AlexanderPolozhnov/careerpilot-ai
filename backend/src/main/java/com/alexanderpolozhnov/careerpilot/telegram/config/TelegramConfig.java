@@ -10,7 +10,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @Configuration
-@ConditionalOnProperty(name = "telegram.bot.enabled", havingValue = "true", matchIfMissing = false)
 @Slf4j
 public class TelegramConfig {
     // Configuration left empty for future use, TelegramBotsApi removed since we use Webhooks now.

@@ -18,7 +18,6 @@ import java.util.UUID;
 
 @Component
 @Slf4j
-@ConditionalOnProperty(name = "telegram.bot.enabled", havingValue = "true", matchIfMissing = false)
 public class TelegramBotHandler extends TelegramWebhookBot {
 
     private static final String HELP_TEXT = "🚀 <b>CareerPilot AI</b> — ваш личный ассистент для поиска работы.\n\n" +
