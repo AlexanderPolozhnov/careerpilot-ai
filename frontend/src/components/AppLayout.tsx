@@ -25,9 +25,9 @@ export function AppLayout() {
 
   return (
     <div className="h-dvh bg-[#08090b] text-white flex overflow-hidden">
-      {!isTg && <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />}
+      <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
       <div className="flex-1 min-w-0 flex flex-col">
-        {!isTg && <Topbar title={title} onOpenMenu={() => setIsMobileMenuOpen(true)} />}
+        <Topbar title={title} onOpenMenu={() => setIsMobileMenuOpen(true)} />
         <main className={`flex-1 min-h-0 overflow-y-auto bg-[#08090b] ${isTg ? 'p-4' : 'px-5 py-5 md:px-8 md:py-6'}`}>
           <Outlet />
         </main>
