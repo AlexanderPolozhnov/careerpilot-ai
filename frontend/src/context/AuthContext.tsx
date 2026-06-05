@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (isTelegramWebApp()) {
       initTelegramApp()
       const initData = getTelegramInitData()
-      if (initData && !token) {
+      if (initData) {
         authService.telegramWebAppAuth(initData)
           .then(({ user, accessToken }) => {
             setToken(accessToken)
@@ -43,10 +43,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           })
           .catch((e) => {
             console.error('Telegram WebApp auth failed', e)
+            alert('Ошибка автологина Telegram: ' + (e.message || JSON.stringify(e)))
           })
       }
     }
-  }, [queryClient, token])
+  }, [queryClient])
 
   const { data: user, isLoading: isQueryLoading, isFetched } = useQuery({
     queryKey: ['auth', 'me'],
