@@ -15,7 +15,7 @@ cp .env.docker.example .env
 2. Fill in the secrets in `.env`:
 - `DB_PASSWORD` — PostgreSQL database password
 - `JWT_SECRET` — Secret key for JWT tokens (at least 32 characters, base64 encoded)
-- `MAIL_USERNAME` and `MAIL_PASSWORD` — SMTP credentials (we highly recommend Mailtrap for testing purposes)
+- `MAIL_USERNAME`, `MAIL_PASSWORD`, and `MAIL_FROM` — SMTP credentials (we highly recommend Mailtrap for testing purposes; Resend is used in production with the sender address configured in `MAIL_FROM`)
 - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` — for OAuth2 via GitHub (optional)
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` — for OAuth2 via Google (optional)
 - `TELEGRAM_BOT_TOKEN` — Telegram Bot Token for notification alerts and WebApp / MiniApp authentication (optional)
@@ -85,10 +85,11 @@ To enable social logins via OAuth2, you must register a redirect URI on the prov
 | `JWT_SECRET` | Secret key for JWT tokens | (must be filled) |
 | `JWT_ACCESS_TOKEN_EXPIRATION_MS` | Access token lifetime (ms) | `3600000` (1 hour) |
 | `JWT_REFRESH_TOKEN_EXPIRATION_MS` | Refresh token lifetime (ms) | `604800000` (7 days) |
-| `MAIL_HOST` | SMTP Host | `sandbox.smtp.mailtrap.io` |
-| `MAIL_PORT` | SMTP Port | `2525` |
-| `MAIL_USERNAME` | SMTP login/username | (optional) |
-| `MAIL_PASSWORD` | SMTP password | (optional) |
+| `MAIL_HOST` | SMTP Host | `sandbox.smtp.mailtrap.io` (`smtp.resend.com` in prod) |
+| `MAIL_PORT` | SMTP Port | `2525` (`587` in prod) |
+| `MAIL_USERNAME` | SMTP login/username | (optional, `resend` in prod) |
+| `MAIL_PASSWORD` | SMTP password | (optional, Resend API key in prod) |
+| `MAIL_FROM` | SMTP sender address | `support@careerpilot-ai.ru` (in prod) |
 | `FRONTEND_URL` | Frontend URL for CORS mapping | `http://localhost` |
 | `GITHUB_CLIENT_ID` | GitHub OAuth2 Client ID | `placeholder` |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth2 Client Secret | `placeholder` |

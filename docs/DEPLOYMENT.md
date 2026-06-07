@@ -15,7 +15,7 @@ cp .env.docker.example .env
 2. Заполните секреты в `.env`:
 - `DB_PASSWORD` — пароль PostgreSQL
 - `JWT_SECRET` — секрет для JWT токенов (минимум 32 символа, base64)
-- `MAIL_USERNAME` и `MAIL_PASSWORD` — учетные данные SMTP (рекомендуется Mailtrap для тестирования)
+- `MAIL_USERNAME`, `MAIL_PASSWORD` и `MAIL_FROM` — учетные данные SMTP (рекомендуется Mailtrap для тестирования, в продакшене используется Resend с адресом отправителя в `MAIL_FROM`)
 - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` — для OAuth2 через GitHub (опционально)
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` — для OAuth2 через Google (опционально)
 - `TELEGRAM_BOT_TOKEN` — токен Telegram бота для уведомлений и аутентификации через WebApp / MiniApp (опционально)
@@ -85,10 +85,11 @@ docker exec careerpilot-ollama ollama pull llama3
 | `JWT_SECRET` | Секрет для JWT токенов | (обязательно заполнить) |
 | `JWT_ACCESS_TOKEN_EXPIRATION_MS` | Время жизни access токена (мс) | `3600000` (1 час) |
 | `JWT_REFRESH_TOKEN_EXPIRATION_MS` | Время жизни refresh токена (мс) | `604800000` (7 дней) |
-| `MAIL_HOST` | SMTP хост | `sandbox.smtp.mailtrap.io` |
-| `MAIL_PORT` | SMTP порт | `2525` |
-| `MAIL_USERNAME` | SMTP логин | (опционально) |
-| `MAIL_PASSWORD` | SMTP пароль | (опционально) |
+| `MAIL_HOST` | SMTP хост | `sandbox.smtp.mailtrap.io` (`smtp.resend.com` для prod) |
+| `MAIL_PORT` | SMTP порт | `2525` (`587` для prod) |
+| `MAIL_USERNAME` | SMTP логин | (опционально, `resend` для prod) |
+| `MAIL_PASSWORD` | SMTP пароль | (опционально, API-ключ Resend для prod) |
+| `MAIL_FROM` | SMTP адрес отправителя | `support@careerpilot-ai.ru` (для prod) |
 | `FRONTEND_URL` | URL фронтенда для CORS | `http://localhost` |
 | `GITHUB_CLIENT_ID` | GitHub OAuth2 Client ID | `placeholder` |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth2 Client Secret | `placeholder` |

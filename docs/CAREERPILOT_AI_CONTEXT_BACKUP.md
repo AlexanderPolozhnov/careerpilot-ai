@@ -3437,3 +3437,14 @@ pm run build прошла успешно.
 - **Mocks:** Добавлена функция генерации моков за последние 365 дней.
 - **Analytics:** Компонент встроен на страницу AnalyticsPage с использованием useQuery.
 - **Backend:** Реализована серверная часть: разработан ActivityHeatmapItem DTO, AnalyticsService и AnalyticsServiceImpl для агрегации событий за 365 дней (отклики, задачи, интервью), создан и протестирован эндпоинт GET /api/analytics/activity-heatmap.
+
+## Update 2026-06-08: Resend & Cloudflare Email Routing Integration
+
+- **Backend:**
+  - Added `app.mail.from` configuration variable to `application.yaml`, allowing dynamic configuration of the sender address with `support@careerpilot-ai.ru` as default.
+  - Updated `EmailServiceImpl.java` to inject `app.mail.from` via `@Value` and set it on the JavaMailSender MimeMessageHelper instance, removing hardcoded `no-reply@careerpilot.ai`.
+  - Documented `MAIL_FROM` in `backend/.env.example` and `.env.docker.example`.
+- **Infrastructure & Deploy:**
+  - Updated `.github/workflows/cd.yml` deployment script for Google Cloud Run to use Resend SMTP settings in production: `MAIL_HOST=smtp.resend.com`, `MAIL_PORT=587`, `MAIL_USERNAME=resend`, and `MAIL_FROM=support@careerpilot-ai.ru`.
+  - Configured GCP Firewall rule `allow-cloudflare-only` to secure the origin backend instance by allowing traffic on ports `80, 443, 8080` only from Cloudflare's official IP ranges.
+  - Set up Cloudflare Email Routing for receiving emails, forwarding all mail to `support@careerpilot-ai.ru` directly to personal Gmail, avoiding premium Google Workspace/Yandex subscription costs.

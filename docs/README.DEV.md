@@ -334,7 +334,7 @@ docker compose config
 | `GH_CLIENT_ID` / `GH_CLIENT_SECRET` | GitHub OAuth App (НЕ `GITHUB_*` — зарезервированный префикс!) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth Client |
 | `TELEGRAM_BOT_TOKEN` | Токен Telegram бота |
-| `MAIL_USERNAME` / `MAIL_PASSWORD` | SMTP credentials |
+| `MAIL_USERNAME` / `MAIL_PASSWORD` / `MAIL_FROM` | SMTP credentials and sender address |
 
 Подробный пошаговый гайд: `private-notes/info-by-project/CLOUD_RUN_CD_DEPLOYMENT_GUIDE.md`
 
