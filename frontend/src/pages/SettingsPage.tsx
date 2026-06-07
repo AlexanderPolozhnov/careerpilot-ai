@@ -454,14 +454,18 @@ export default function SettingsPage() {
         mutationFn: (data: PreferencesRequest) => settingsService.updatePreferences(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['preferences'] })
+            toast.success(t('settings.preferencesUpdated'))
         },
+        onError: () => toast.error(t('settings.preferencesUpdateError'))
     })
 
     const updateAiProviderMutation = useMutation({
         mutationFn: (data: PreferencesRequest) => settingsService.updatePreferences(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['preferences'] })
+            toast.success(t('settings.aiProviderUpdated'))
         },
+        onError: () => toast.error(t('settings.aiProviderUpdateError'))
     })
 
     const getTelegramLinkMutation = useMutation({

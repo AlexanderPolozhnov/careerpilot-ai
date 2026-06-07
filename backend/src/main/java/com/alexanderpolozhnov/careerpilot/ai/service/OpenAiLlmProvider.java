@@ -93,7 +93,7 @@ public class OpenAiLlmProvider implements LlmProvider {
         String apiKey = preferences.getAiProviderMode() == AiProviderMode.BRING_YOUR_OWN_KEY 
                 ? preferences.getOpenAiApiKey() : systemApiKey;
         if (apiKey == null || apiKey.isBlank()) {
-            return java.util.Collections.emptyList();
+            throw new IllegalArgumentException("OpenAI API key is required to sync models");
         }
         try {
             String url = "https://api.openai.com/v1/models";
@@ -116,7 +116,8 @@ public class OpenAiLlmProvider implements LlmProvider {
             }
         } catch (Exception e) {
             log.warn("Failed to fetch OpenAI models: {}", e.getMessage());
+            throw new RuntimeException("Failed to fetch OpenAI models: " + e.getMessage());
         }
-        return java.util.Collections.emptyList();
+        throw new RuntimeException("Failed to fetch OpenAI models: invalid response format");
     }
 }

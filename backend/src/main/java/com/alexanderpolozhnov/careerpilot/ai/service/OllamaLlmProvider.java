@@ -107,7 +107,8 @@ public class OllamaLlmProvider implements LlmProvider {
             }
         } catch (Exception e) {
             log.warn("Failed to fetch Ollama models: {}", e.getMessage());
+            throw new RuntimeException("Failed to connect to Ollama: " + e.getMessage());
         }
-        return java.util.Collections.emptyList();
+        throw new RuntimeException("Failed to fetch Ollama models: invalid response format");
     }
 }

@@ -289,6 +289,9 @@ public class AiServiceImpl implements AiService {
                         if (response.errorMessage() != null) {
                                 return new AiTestConnectionResponse(false, response.errorMessage(), null);
                         }
+                        if (response.isFallback()) {
+                                return new AiTestConnectionResponse(false, "API key is missing or invalid (fallback activated)", null);
+                        }
                         Long latency = response.latencyMs() != null ? response.latencyMs() : stopWatch.getTotalTimeMillis();
                         return new AiTestConnectionResponse(true, "OK", latency);
                 } catch (Exception e) {

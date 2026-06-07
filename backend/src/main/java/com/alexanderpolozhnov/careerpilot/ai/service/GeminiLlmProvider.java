@@ -86,7 +86,7 @@ public class GeminiLlmProvider implements LlmProvider {
     public java.util.List<String> getAvailableModels(PreferencesEntity preferences) {
         String apiKey = preferences.getGeminiApiKey();
         if (apiKey == null || apiKey.isBlank()) {
-            return java.util.Collections.emptyList();
+            throw new IllegalArgumentException("Gemini API key is required to sync models");
         }
         try {
             String url = "https://generativelanguage.googleapis.com/v1beta/models?key=" + apiKey;
@@ -107,7 +107,8 @@ public class GeminiLlmProvider implements LlmProvider {
             }
         } catch (Exception e) {
             log.warn("Failed to fetch Gemini models: {}", e.getMessage());
+            throw new RuntimeException("Failed to fetch Gemini models: " + e.getMessage());
         }
-        return java.util.Collections.emptyList();
+        throw new RuntimeException("Failed to fetch Gemini models: invalid response format");
     }
 }

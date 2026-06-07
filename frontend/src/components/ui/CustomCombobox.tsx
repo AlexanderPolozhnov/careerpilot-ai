@@ -26,6 +26,8 @@ export default function CustomCombobox({
   disabled = false,
 }: CustomComboboxProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [filterQuery, setFilterQuery] = useState('')
+  const [isFiltering, setIsFiltering] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -41,24 +43,32 @@ export default function CustomCombobox({
 
   const handleSelect = (optionValue: string) => {
     onChange(optionValue)
+    setIsFiltering(false)
     setIsOpen(false)
   }
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value)
+    setFilterQuery(e.target.value)
+    setIsFiltering(true)
     if (!isOpen) setIsOpen(true)
   }
 
   const handleToggle = () => {
     if (!disabled) {
+      if (!isOpen) {
+        setIsFiltering(false)
+      }
       setIsOpen(!isOpen)
     }
   }
 
-  const filteredOptions = options.filter(opt => 
-    opt.label.toLowerCase().includes((value || '').toLowerCase()) || 
-    opt.value.toLowerCase().includes((value || '').toLowerCase())
-  )
+  const filteredOptions = isFiltering && filterQuery
+    ? options.filter(opt => 
+        opt.label.toLowerCase().includes(filterQuery.toLowerCase()) || 
+        opt.value.toLowerCase().includes(filterQuery.toLowerCase())
+      )
+    : options
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
@@ -76,7 +86,11 @@ export default function CustomCombobox({
           type="text"
           value={value || ''}
           onChange={handleInputChange}
-          onFocus={() => setIsOpen(true)}
+          onFocus={() => {
+            setIsFiltering(true)
+            setFilterQuery(value || '')
+            setIsOpen(true)
+          }}
           placeholder={placeholder}
           disabled={disabled}
           className="w-full h-full bg-transparent border-none outline-none text-[#c9c9d4] placeholder:text-[#6b7590]"
