@@ -283,7 +283,7 @@ export default function InterviewsPage() {
       )}
 
       {/* Page Header */}
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-4">
           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500/20 via-violet-500/10 to-purple-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 shrink-0">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -299,13 +299,22 @@ export default function InterviewsPage() {
             </p>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={() => setIsFormOpen(true)}
+          disabled={createMutation.isPending}
+          className="h-10 px-4 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-violet-500 text-white text-[13px] font-semibold rounded-lg shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 disabled:opacity-60 w-full sm:w-auto"
+        >
+          <PlusIcon className="w-4 h-4" />
+          {t('interviews.addInterview')}
+        </button>
       </div>
 
       {/* Filter bar */}
       <div className="p-4 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl">
-        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
-          <div className="relative flex-1 max-w-md">
+          <div className="relative w-full sm:max-w-md">
             <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#6b7590]" />
             <input
               value={query}
@@ -316,35 +325,24 @@ export default function InterviewsPage() {
           </div>
 
           {/* Filters */}
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-wrap flex-1">
             <CustomSelect
               value={typeFilter}
               onChange={(val) => setTypeFilter(val as InterviewType | '')}
               options={typeOptions}
-              className="w-auto"
+              className="w-full sm:w-auto"
             />
             <CustomSelect
               value={resultFilter}
               onChange={(val) => setResultFilter(val as InterviewResult | '')}
               options={resultOptions}
-              className="w-auto"
+              className="w-full sm:w-auto"
             />
 
             {/* Results count */}
-            <span className="px-3 py-1.5 text-xs font-medium text-[#6b7590] bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] rounded-full">
+            <span className="px-3 py-1.5 text-xs font-medium text-[#6b7590] bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] rounded-full text-center sm:ml-auto">
               {t('interviews.interviewsCount', { count: filteredInterviews.length })}
             </span>
-
-            {/* Add button */}
-            <button
-              type="button"
-              onClick={() => setIsFormOpen(true)}
-              disabled={createMutation.isPending}
-              className="h-10 px-4 flex items-center gap-2 bg-gradient-to-r from-violet-600 to-violet-500 text-white text-[13px] font-semibold rounded-lg shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 disabled:opacity-60"
-            >
-              <PlusIcon className="w-4 h-4" />
-              {t('interviews.addInterview')}
-            </button>
           </div>
         </div>
       </div>
@@ -438,7 +436,7 @@ export default function InterviewsPage() {
               <div className="my-auto" />
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-2 pt-4 mt-auto">
+              <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-2 pt-4 mt-auto">
                 <button
                   onClick={(e) => {
                     e.stopPropagation()

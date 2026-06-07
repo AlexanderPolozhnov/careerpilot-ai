@@ -372,7 +372,7 @@ export default function VacancyDetailPage() {
                         </div>
 
                         {/* Stats cards */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div
                                 className="p-4 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl">
                                 <div className="flex items-center gap-2 text-[12px] text-[#6b7590] mb-2">
@@ -471,20 +471,20 @@ export default function VacancyDetailPage() {
                                 type="button"
                                 onClick={() => setIsEditing(true)}
                                 disabled={updateMutation.isPending}
-                                className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-[#8b8fa3] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-xl hover:bg-[rgba(255,255,255,0.06)] hover:text-[#e8eaed] hover:border-[rgba(255,255,255,0.12)] transition-all duration-200"
+                                className="flex items-center justify-center gap-2 px-4 py-2.5 text-[13px] font-medium text-[#8b8fa3] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-xl hover:bg-[rgba(255,255,255,0.06)] hover:text-[#e8eaed] hover:border-[rgba(255,255,255,0.12)] transition-all duration-200"
                             >
                                 <PencilIcon className="w-4 h-4" />
-                                {t('vacancies.edit')}
+                                <span className="hidden sm:inline">{t('vacancies.edit')}</span>
                             </button>
                             {vacancy.status !== 'ARCHIVED' && (
                                 <button
                                     type="button"
                                     onClick={() => archiveMutation.mutate(vacancy.id)}
                                     disabled={archiveMutation.isPending}
-                                    className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-[#8b8fa3] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-xl hover:bg-[rgba(255,255,255,0.06)] hover:text-[#e8eaed] hover:border-[rgba(255,255,255,0.12)] transition-all duration-200"
+                                    className="flex items-center justify-center gap-2 px-4 py-2.5 text-[13px] font-medium text-[#8b8fa3] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-xl hover:bg-[rgba(255,255,255,0.06)] hover:text-[#e8eaed] hover:border-[rgba(255,255,255,0.12)] transition-all duration-200"
                                 >
                                     <ArchiveIcon className="w-4 h-4" />
-                                    {t('vacancies.archive')}
+                                    <span className="hidden sm:inline">{t('vacancies.archive')}</span>
                                 </button>
                             )}
                             {vacancy.status === 'ARCHIVED' && (
@@ -492,30 +492,31 @@ export default function VacancyDetailPage() {
                                     type="button"
                                     onClick={() => restoreMutation.mutate(vacancy.id)}
                                     disabled={restoreMutation.isPending}
-                                    className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/15 hover:border-emerald-500/30 transition-all duration-200"
+                                    className="flex items-center justify-center gap-2 px-4 py-2.5 text-[13px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/15 hover:border-emerald-500/30 transition-all duration-200"
                                 >
                                     <ArrowPathIcon className="w-4 h-4" />
-                                    {t('vacancies.restore')}
+                                    <span className="hidden sm:inline">{t('vacancies.restore')}</span>
                                 </button>
                             )}
                             <button
                                 type="button"
                                 onClick={() => setIsConfirmDeleteOpen(true)}
                                 disabled={deleteMutation.isPending}
-                                className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl hover:bg-red-500/15 hover:border-red-500/30 transition-all duration-200"
+                                className="flex items-center justify-center gap-2 px-4 py-2.5 text-[13px] font-medium text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl hover:bg-red-500/15 hover:border-red-500/30 transition-all duration-200"
                             >
                                 <TrashIcon className="w-4 h-4" />
-                                {t('vacancies.delete')}
-                            </button>                            <button
+                                <span className="hidden sm:inline">{t('vacancies.delete')}</span>
+                            </button>
+                            <button
                                 type="button"
                                 onClick={async () => {
                                     await applicationService.create({ vacancyId: vacancy.id, status: 'SAVED' })
                                     toast.info(t('vacancies.savedToApplications'))
                                 }}
-                                className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-medium text-[#8b8fa3] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-xl hover:bg-[rgba(255,255,255,0.06)] hover:text-[#e8eaed] hover:border-[rgba(255,255,255,0.12)] transition-all duration-200"
+                                className="flex items-center justify-center gap-2 px-4 py-2.5 text-[13px] font-medium text-[#8b8fa3] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-xl hover:bg-[rgba(255,255,255,0.06)] hover:text-[#e8eaed] hover:border-[rgba(255,255,255,0.12)] transition-all duration-200"
                             >
                                 <BookmarkIcon className="w-4 h-4" />
-                                {t('vacancies.addToFavorites')}
+                                <span className="hidden sm:inline">{t('vacancies.addToFavorites')}</span>
                             </button>
                             <button
                                 type="button"
@@ -527,10 +528,10 @@ export default function VacancyDetailPage() {
                                     })
                                     toast.info(t('vacancies.markedAsApplied'))
                                 }}
-                                className="flex items-center gap-2 px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:from-violet-500 hover:to-violet-400 transition-all duration-200"
+                                className="flex items-center justify-center gap-2 px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-violet-600 to-violet-500 rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:from-violet-500 hover:to-violet-400 transition-all duration-200"
                             >
                                 <CheckIcon className="w-4 h-4" />
-                                {t('vacancies.apply')}
+                                <span className="hidden sm:inline">{t('vacancies.apply')}</span>
                             </button>
                         </div>
                     </div>

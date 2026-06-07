@@ -398,7 +398,7 @@ export default function AnalyticsPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto whitespace-nowrap scrollbar-hide pb-2 sm:pb-0">
                     <button
                         type="button"
                         onClick={() => setActiveTab('overview')}
@@ -581,7 +581,7 @@ export default function AnalyticsPage() {
 
                     {companiesData && companiesData.length > 0 ? (
                         <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] rounded-xl overflow-hidden">
-                            <div className="grid grid-cols-12 gap-4 px-5 py-3 text-[11px] font-semibold text-[#6b7590] uppercase tracking-wider border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
+                            <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-3 text-[11px] font-semibold text-[#6b7590] uppercase tracking-wider border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
                                 <div className="col-span-4">{t('analytics.companies.name')}</div>
                                 <div className="col-span-2">{t('analytics.companies.applications')}</div>
                                 <div className="col-span-2">{t('analytics.companies.interviews')}</div>
@@ -593,17 +593,35 @@ export default function AnalyticsPage() {
                                 {companiesData.map((company) => (
                                     <div
                                         key={company.companyId}
-                                        className="grid grid-cols-12 gap-4 px-5 py-4 hover:bg-[rgba(255,255,255,0.03)] transition-colors"
+                                        className="flex flex-col sm:grid sm:grid-cols-12 gap-3 sm:gap-4 px-5 py-4 hover:bg-[rgba(255,255,255,0.03)] transition-colors"
                                     >
-                                        <div className="col-span-4 flex items-center gap-3">
+                                        <div className="sm:col-span-4 flex items-center gap-3">
                                             <CompanyLogo url={company.logoUrl} name={company.companyName} />
                                             <span className="text-sm text-white font-medium">{company.companyName}</span>
                                         </div>
-                                        <div className="col-span-2 text-sm text-white/60">{company.applicationCount}</div>
-                                        <div className="col-span-2 text-sm text-white/60">{company.interviewCount}</div>
-                                        <div className="col-span-2 text-sm text-white/60">{company.offerCount}</div>
-                                        <div className="col-span-1 text-sm text-right text-white/60">{pct(company.responseRate)}</div>
-                                        <div className="col-span-1 text-sm text-right text-white/60">{company.avgTimeToInterview.toFixed(1)}d</div>
+                                        <div className="grid grid-cols-2 gap-3 sm:hidden mt-2">
+                                            <div>
+                                                <p className="text-[10px] text-white/40 uppercase tracking-wider mb-1">{t('analytics.companies.applications')}</p>
+                                                <p className="text-sm text-white/80">{company.applicationCount}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] text-white/40 uppercase tracking-wider mb-1">{t('analytics.companies.interviews')}</p>
+                                                <p className="text-sm text-white/80">{company.interviewCount}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] text-white/40 uppercase tracking-wider mb-1">{t('analytics.companies.offers')}</p>
+                                                <p className="text-sm text-white/80">{company.offerCount}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] text-white/40 uppercase tracking-wider mb-1">{t('analytics.companies.responseRate')}</p>
+                                                <p className="text-sm text-white/80">{pct(company.responseRate)}</p>
+                                            </div>
+                                        </div>
+                                        <div className="hidden sm:block sm:col-span-2 text-sm text-white/60 self-center">{company.applicationCount}</div>
+                                        <div className="hidden sm:block sm:col-span-2 text-sm text-white/60 self-center">{company.interviewCount}</div>
+                                        <div className="hidden sm:block sm:col-span-2 text-sm text-white/60 self-center">{company.offerCount}</div>
+                                        <div className="hidden sm:block sm:col-span-1 text-sm text-right text-white/60 self-center">{pct(company.responseRate)}</div>
+                                        <div className="hidden sm:block sm:col-span-1 text-sm text-right text-white/60 self-center">{company.avgTimeToInterview.toFixed(1)}d</div>
                                     </div>
                                 ))}
                             </div>

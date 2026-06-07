@@ -163,7 +163,7 @@ export default function CompaniesPage() {
       )}
 
       {/* Page Header */}
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-4">
           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500/20 via-violet-500/10 to-purple-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 shrink-0">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -178,22 +178,33 @@ export default function CompaniesPage() {
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-            <span className="text-xs text-[#6b7590]">{t('companies.title')}</span>
-            <span className="text-sm font-medium text-[#e8eaed]">{companies.length}</span>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4 sm:mt-0">
+          {/* Stats */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 flex items-center justify-center sm:justify-start gap-2 px-3 py-2 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
+              <span className="text-xs text-[#6b7590]">{t('companies.title')}</span>
+              <span className="text-sm font-medium text-[#e8eaed]">{companies.length}</span>
+            </div>
+            <div className="flex-1 flex items-center justify-center sm:justify-start gap-2 px-3 py-2 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
+              <span className="text-xs text-[#6b7590]">{t('companies.vacancies')}</span>
+              <span className="text-sm font-medium text-violet-400">{totalVacancies}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-            <span className="text-xs text-[#6b7590]">{t('companies.vacancies')}</span>
-            <span className="text-sm font-medium text-violet-400">{totalVacancies}</span>
-          </div>
+          <button
+            type="button"
+            onClick={() => setIsFormOpen(true)}
+            disabled={createMutation.isPending}
+            className="h-10 px-4 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-violet-500 text-white text-[13px] font-semibold rounded-lg shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 disabled:opacity-60"
+          >
+            <PlusIcon className="w-4 h-4" />
+            {t('companies.addCompany')}
+          </button>
         </div>
       </div>
 
       {/* Search and Filters Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-3 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)]">
-        <div className="relative flex-1 max-w-md">
+        <div className="relative flex-1 w-full sm:max-w-md">
           <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6b7590] pointer-events-none">
             <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
@@ -208,17 +219,8 @@ export default function CompaniesPage() {
           />
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-[#6b7590]">{companies.length} {t('companies.results')}</span>
-          <button
-            type="button"
-            onClick={() => setIsFormOpen(true)}
-            disabled={createMutation.isPending}
-            className="h-10 px-4 flex items-center gap-2 bg-gradient-to-r from-violet-600 to-violet-500 text-white text-[13px] font-semibold rounded-lg shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:from-violet-500 hover:to-violet-400 transition-all duration-200 disabled:opacity-60"
-          >
-            <PlusIcon className="w-4 h-4" />
-            {t('companies.addCompany')}
-          </button>
+        <div className="flex items-center justify-end">
+          <span className="text-xs text-[#6b7590] px-2">{companies.length} {t('companies.results')}</span>
         </div>
       </div>
 

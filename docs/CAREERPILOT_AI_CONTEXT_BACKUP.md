@@ -3372,6 +3372,23 @@ pm run build прошла успешно.
 - Updated translations in u.json and en.json.
 
 **Status:** Backend and frontend implemented, compiled successfully.
+
+## Update 2026-06-07: Mobile Optimization Phase
+
+**Frontend:**
+- **AnalyticsPage**: Добавлен `overflow-x-auto` для вкладок (Tabs), сетка метрик адаптирована для мобильных (stacked layout).
+- **VacancyDetailPage**: Внутренние `grid-cols-2` заменены на `grid-cols-1 sm:grid-cols-2`, скрыт текст на кнопках действий (оставлены иконки) для узких экранов.
+- **InterviewsPage**: Шапка и фильтры обновлены до `flex-col sm:flex-row`, кнопки действий оборачиваются корректно (`flex-wrap`).
+- **VacanciesPage**: Шапка и фильтры адаптированы (`flex-col sm:flex-row`), табличное отображение скрывается на мобильных в пользу отображения списка карточек.
+- **CompaniesPage**: Шапка адаптирована (`flex-col sm:flex-row`), статистика и кнопки перегруппированы.
+- **TasksPage**: Шапка и панель фильтров изменены на `flex-col sm:flex-row` с поддержкой мобильных устройств.
+- **DashboardPage**: Сетка метрик (KPIs и виджеты) исправлена на `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` (или `lg:grid-cols-3`), чтобы карточки корректно занимали ширину на мобильных.
+- **AiAssistantPage**: Проверена адаптивность (содержит горизонтальный скролл на мобильных устройствах).
+- Пройдена успешная сборка frontend (`npm run build`).
+
+**Status:** Мобильная оптимизация завершена.
+
+
 ## Update 2026-06-07: Release v1.1.0
 
 Релиз v1.1.0 (AI Configuration & Stability Update).

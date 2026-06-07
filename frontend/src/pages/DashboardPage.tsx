@@ -68,7 +68,7 @@ export default function DashboardPage() {
 
     return (
         <section className="space-y-6 w-full min-w-0">
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 ds-stagger">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ds-stagger">
                 <div className="ds-anim-rise">
                     <StatCard
                         label={t('dashboard.activeVacancies')}
@@ -110,7 +110,7 @@ export default function DashboardPage() {
                         {t('dashboard.viewAll')}
                     </button>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ds-stagger">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ds-stagger">
                     {isLoading
                         ? Array.from({ length: 3 }).map((_, i) => (
                             <div key={i} className="ds-anim-rise">
@@ -132,7 +132,7 @@ export default function DashboardPage() {
                         {t('dashboard.quickAdd')}
                     </button>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ds-stagger">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ds-stagger">
                     <div className="ds-card p-4 ds-anim-rise">
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-semibold text-ink">{t('dashboard.upcomingInterviews')}</div>
