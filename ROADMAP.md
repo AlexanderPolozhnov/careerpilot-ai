@@ -139,3 +139,42 @@ Roadmap отражает текущее состояние перед первы
 - [x] Поддержка файлов (PDF/DOCX) для загрузки резюме напрямую (загрузка и извлечение текста для AI).
 - [x] Redis в production через GCP Memorystore + VPC Connector (AI кэширование в Cloud Run).
 - [x] **Улучшение настроек AI провайдера:** Тестирование соединения, синхронизация моделей, улучшенная валидация, Toasts, фикс UI багов.
+
+---
+
+## 🎯 Цели v1.2.0
+
+> Подробные идеи и обоснование — в [`docs/ideas/IDEAS_v1.2.md`](docs/ideas/IDEAS_v1.2.md).
+
+### 🖥️ Визуальная часть (Frontend / UX)
+
+- [x] **Onboarding Flow** — мастер первого запуска (3–4 шага): профиль → первая вакансия → настройка AI → знакомство с Kanban.
+- [ ] **Полная мобильная оптимизация** — адаптивные `AnalyticsPage` (charts), `VacancyDetailPage`, `InterviewsPage`; touch-friendly Kanban.
+- [ ] **PWA** — режим offline, кнопка «Установить приложение», push-уведомления о собеседованиях через Service Worker.
+- [ ] **Activity Heatmap** — тепловая карта активности в стиле GitHub (52 нед × 7 дней) на странице аналитики.
+- [ ] **Rejection Funnel** — воронка конверсии между статусами (NEW → APPLIED → HR_SCREEN → TECH → OFFER).
+- [ ] **Kanban 2.0** — inline-редактирование заметок на карточке, фильтры по компании/дате, счётчик карточек в колонке, collapsed-режим.
+- [ ] **DnD-сортировка задач** — drag-and-drop для ручной расстановки порядка задач (dnd-kit уже установлен; поле `sort_order` в таблице `tasks`).
+- [ ] **Dark / Light Theme** — переключатель темы в Topbar; light mode палитра через CSS custom properties.
+- [ ] **Markdown Preview для вакансий** — rich text preview для поля description/notes (использовать уже установленный `react-markdown`).
+- [ ] **AI Chat / Copilot UI** — страница чата с typing-cursor анимацией и streaming-рендерингом markdown (SSE).
+- [ ] **Application Health Score Badge** — цветной бейдж совместимости (0–100) на каждой Kanban-карточке.
+- [ ] **Company Intelligence Page** — детальная страница компании с аналитикой: вакансии, отклики, timeline, response rate.
+
+### ⚙️ Серверная часть (Backend / Infrastructure)
+
+- [ ] **User Timezone Support** — поле `timezone` в `user_preferences`; все напоминания и расписания форматируются по часовому поясу пользователя (сейчас hardcoded `Europe/Moscow`).
+- [ ] **Database Indexes Audit** — миграция V30: составные индексы на `applications(user_id, status)`, `vacancies(user_id, status)`, `notifications(user_id, status)`, `tasks(user_id, done, due_at)`.
+- [ ] **File Upload (MinIO)** — хранение оригинальных PDF/DOCX резюме; MinIO уже объявлен в `docker-compose.yml` (`profile: storage`), но не подключён к приложению.
+- [ ] **AI Chat endpoint (SSE streaming)** — `POST /ai/chat` с `text/event-stream`; новый тип `CHAT_SESSION` в `ai_results`.
+- [ ] **Application Health Score (AI)** — фоновый `@Async` расчёт совместимости при `POST /applications`; поле `compatibility_score INT` в миграции V30.
+- [ ] **AI Daily Briefing** — расширить `ReminderScheduler`; новый тип уведомления `DAILY_BRIEFING`; доставка через Email + in-app + Telegram.
+- [ ] **AI Follow-up Scheduler** — автоматическое создание задачи для откликов без ответа >7 дней в статусе `APPLIED`; endpoint `POST /ai/follow-up`.
+- [ ] **Salary Trend Analytics** — endpoint `GET /analytics/salary-trends`; агрегация по `salary_from`/`salary_to` вакансий за месяц.
+- [ ] **Rejection Funnel (backend)** — расширить `GET /analytics/summary` данными конверсии между статусами.
+- [ ] **Activity Heatmap (backend)** — endpoint `GET /analytics/activity-heatmap`; группировка событий по дате (отклики + задачи + интервью).
+- [ ] **Telegram Bot Enhanced Commands** — добавить команды `/morning`, `/tasks`, `/add [URL]` в существующий `TelegramWebhookBot`.
+- [ ] **Real-time Notifications (SSE / WebSocket)** — `GET /notifications/stream` через SSE или Spring WebSocket + STOMP; замена polling каждые 60 сек.
+- [ ] **OpenAPI Documentation Polish** — полноценные `@Operation`, `@ApiResponse`, `@Parameter` для всех 30+ контроллеров.
+- [ ] **Backend Health Dashboard** — Spring Boot Actuator + Micrometer; эндпоинт `/admin/health` с метриками AI latency, cache hit rate, uptime.
+

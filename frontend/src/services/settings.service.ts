@@ -30,6 +30,7 @@ export interface PreferencesResponse {
     notificationProvider: NotificationProvider
     telegramConnected: boolean
     googleCalendarConnected: boolean
+    onboardingCompleted: boolean
 }
 
 export interface PreferencesRequest {
@@ -47,6 +48,7 @@ export interface PreferencesRequest {
     geminiApiKey?: string
     geminiModel?: string
     notificationProvider: NotificationProvider
+    onboardingCompleted?: boolean
 }
 
 export interface DeleteAccountRequest {
@@ -70,7 +72,8 @@ const mockPreferences: PreferencesResponse = {
     geminiModel: 'gemini-1.5-flash',
     notificationProvider: 'EMAIL',
     telegramConnected: false,
-    googleCalendarConnected: false
+    googleCalendarConnected: false,
+    onboardingCompleted: false
 }
 
 export const settingsService = {
@@ -107,6 +110,18 @@ export const settingsService = {
         USE_MOCKS
             ? Promise.resolve({ ...mockPreferences, ...data })
             : api.put<PreferencesResponse>('/preferences', data),
+
+    completeOnboarding: async (): Promise<PreferencesResponse> => {
+        if (USE_MOCKS) {
+            return Promise.resolve({ ...mockPreferences, onboardingCompleted: true })
+        }
+        
+        const currentPrefs = await settingsService.getPreferences()
+        return api.put<PreferencesResponse>('/preferences', { 
+            ...currentPrefs,
+            onboardingCompleted: true 
+        })
+    },
 
     getTelegramLink: (): Promise<{ link: string }> =>
         USE_MOCKS

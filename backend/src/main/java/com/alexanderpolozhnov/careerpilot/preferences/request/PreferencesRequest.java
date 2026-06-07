@@ -21,5 +21,6 @@ public record PreferencesRequest(
         CustomAiProvider customAiProvider,
         @Size(max = 255) String geminiApiKey,
         @Size(max = 50) String geminiModel,
-        @NotNull NotificationProvider notificationProvider) {
+        @NotNull NotificationProvider notificationProvider,
+        Boolean onboardingCompleted) {
 }

@@ -3383,3 +3383,19 @@ pm run build прошла успешно.
 - В SettingsPage.tsx добавлены уведомления (Toasts) при успешном сохранении AI конфигурации и настроек.
 - Улучшен CustomCombobox: исправлена фильтрация при клике на выпадающий список (открытие всего списка без обрезки).
 - Исправлен z-index (stacking context) для секций на странице настроек (выпадающие списки теперь корректно отображаются поверх соседних блоков).
+
+## Update 2026-06-07: Onboarding Flow Implementation
+
+**Backend:**
+- Created V30__add_onboarding_completed.sql to add onboarding_completed boolean field to preferences table.
+- Updated PreferencesEntity, PreferencesRequest, and PreferencesResponse to include the onboardingCompleted field.
+- Refactored PreferencesServiceImpl and its mapper methods to apply and save onboardingCompleted.
+
+**Frontend:**
+- Added onboardingCompleted into settings.service.ts along with completeOnboarding() API endpoint method.
+- Added onboarding translations to en.json and u.json.
+- Implemented OnboardingWizard, OnboardingStep1Profile, OnboardingStep2Vacancy, OnboardingStep3Ai, and OnboardingStep4Done components under src/components/onboarding/.
+- Updated AppRouter.tsx to conditionally render OnboardingWizard overlay within ProtectedRoute if preferences.onboardingCompleted is false.
+- Avoided displaying wizard in Telegram WebApp context.
+
+**Status:** Backend and frontend implemented, compiled successfully.

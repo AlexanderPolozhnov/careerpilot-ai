@@ -5,6 +5,9 @@ import { useTranslation } from 'react-i18next'
 import { AppLayout } from '../components/AppLayout'
 import { useAuth } from '../context/useAuth'
 import { LoadingState } from '@/components/LoadingState'
+import { useQuery } from '@tanstack/react-query'
+import { settingsService } from '@/services/settings.service'
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
 
 // Динамические импорты страниц (Code Splitting)
 const LandingPage = lazy(() => import('../pages/LandingPage'))
@@ -27,7 +30,13 @@ function ProtectedRoute({ children }: { children: ReactElement }) {
   const { t } = useTranslation()
   const { isAuthenticated, isLoading } = useAuth()
 
-  if (isLoading) {
+  const { data: preferences, isLoading: prefsLoading } = useQuery({
+    queryKey: ['preferences'],
+    queryFn: settingsService.getPreferences,
+    enabled: isAuthenticated
+  })
+
+  if (isLoading || (isAuthenticated && prefsLoading)) {
     return <LoadingState message={t('common.preparingWorkspace')} className="py-24" />
   }
 
@@ -35,7 +44,12 @@ function ProtectedRoute({ children }: { children: ReactElement }) {
     return <Navigate to="/auth/login" replace />
   }
 
-  return children
+  return (
+    <>
+      {children}
+      {preferences && !preferences.onboardingCompleted && <OnboardingWizard />}
+    </>
+  )
 }
 
 export function AppRouter() {

@@ -83,7 +83,7 @@ class PreferencesServiceImplTest {
                 null, "gpt-4", "http://localhost:11434", "llama3",
                 null, // customAiProvider is null
                 null, "gemini-1.5-flash", 
-                NotificationProvider.EMAIL
+                NotificationProvider.EMAIL, null
         );
 
         // Act
@@ -115,7 +115,7 @@ class PreferencesServiceImplTest {
                 AiProviderMode.LOCAL, "en",
                 null, null, null, null,
                 null, null, null, 
-                NotificationProvider.EMAIL
+                NotificationProvider.EMAIL, null
         );
 
         // Act
@@ -148,7 +148,7 @@ class PreferencesServiceImplTest {
                 null, "gpt-4", "http://localhost:11434", "llama3",
                 CustomAiProvider.GEMINI,
                 "new-gemini-key", "gemini-2.0-flash-exp", 
-                NotificationProvider.EMAIL
+                NotificationProvider.EMAIL, null
         );
 
         // Act

@@ -31,6 +31,7 @@ CareerPilot AI is not just a basic CRUD application, but a full-fledged product 
 * 🏗️ **Modern Architecture & Infrastructure:** Built with **Java 21** + **Spring Boot 3** (Modular Monolith) and **React** + **Vite** + **TypeScript**. Data is persisted in **PostgreSQL** (with **Flyway** migrations). The project is fully containerized (**Docker Compose**) and protected by CI pipeline checks in **GitHub Actions**.
 * 📱 **Telegram MiniApp:** Open the application directly within the Telegram messenger. Seamless authentication via WebApp `initData`, cryptographic validation, and an adaptive mobile interface (hidden navigation bars) for full immersion.
 * ⚡ **Advanced UX/UI:** Modern interface (inspired by Linear and Vercel) featuring drag-and-drop Kanban boards, global shortcut search across all entities (Cmd+K), and full on-the-fly localization (i18n, ru/en).
+* 🚀 **Interactive Onboarding:** Step-by-step wizard for new users to set up their profile, configure AI preferences, and add their first vacancy smoothly.
 * 📄 **Resume Parsing Engine:** Upload and extract text from your DOCX and PDF resumes natively to power your AI contexts, built on top of Apache POI and PDFBox.
 
 ---

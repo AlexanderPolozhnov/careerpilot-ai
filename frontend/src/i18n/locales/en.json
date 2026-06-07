@@ -991,5 +991,23 @@
         "content": "For questions about these Terms, please contact: {{email}}"
       }
     }
+  },
+  "onboarding": {
+    "step1Title": "Tell us about yourself",
+    "step1Description": "Fill in basic information for personalization",
+    "step2Title": "Add your first vacancy",
+    "step2Description": "Track applications in a convenient Kanban board",
+    "step3Title": "Setup AI Assistant",
+    "step3Description": "Choose an AI provider for vacancy and resume analysis",
+    "step4Title": "You're all set!",
+    "step4Description": "CareerPilot AI will help you find your dream job",
+    "next": "Next",
+    "skip": "Skip step",
+    "finish": "Get Started",
+    "progress": "Step {{current}} of {{total}}",
+    "stepProfile": "Profile",
+    "stepVacancy": "Vacancy",
+    "stepAi": "AI",
+    "stepDone": "Done"
   }
 }

@@ -103,6 +103,10 @@ public class PreferencesServiceImpl implements PreferencesService {
                 prefs.setNotificationProvider(request.notificationProvider());
             }
 
+            if (request.onboardingCompleted() != null) {
+                prefs.setOnboardingCompleted(request.onboardingCompleted());
+            }
+
             PreferencesEntity saved = preferencesRepository.save(prefs);
             return toResponse(saved);
         } catch (Exception e) {
@@ -119,6 +123,7 @@ public class PreferencesServiceImpl implements PreferencesService {
         prefs.setOllamaModel("llama3");
         prefs.setCustomAiProvider(com.alexanderpolozhnov.careerpilot.preferences.entity.CustomAiProvider.OPENAI);
         prefs.setGeminiModel("gemini-1.5-flash");
+        prefs.setOnboardingCompleted(false);
         return preferencesRepository.save(prefs);
     }
 
@@ -150,7 +155,8 @@ public class PreferencesServiceImpl implements PreferencesService {
                 prefs.getGeminiModel(),
                 prefs.getNotificationProvider().name(),
                 prefs.getTelegramChatId() != null,
-                prefs.isGoogleCalendarConnected());
+                prefs.isGoogleCalendarConnected(),
+                prefs.isOnboardingCompleted());
     }
 
     private String maskApiKey(String apiKey) {

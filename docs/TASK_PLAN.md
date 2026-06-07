@@ -1,195 +1,237 @@
-# Task: Resume Upload & Parsing (пример)
+# Task: Onboarding Flow (Wizard первого запуска) (пример)
 
 ## Контекст и цель
-Добавить возможность загружать PDF-резюме, парсить текст через AI и сохранять
-в профиле пользователя. Фронтенд — drag-and-drop форма, бэкенд — endpoint + Redis cache.
+
+Реализовать мастер первого запуска (Onboarding Wizard) для новых пользователей CareerPilot AI.
+Сейчас после регистрации пользователь попадает на пустой Dashboard без какого-либо контекста.
+Нужно добавить поле `onboarding_completed` в `user_preferences`, endpoint для его обновления, и
+красивый 4-шаговый Wizard на фронтенде (Профиль → Первая вакансия → Настройка AI → Готово).
 
 ## Затрагиваемые файлы
 
 ### Создать новые
-- `backend/src/main/java/com/careerpilot/resume/ResumeController.java`
-- `backend/src/main/java/com/careerpilot/resume/ResumeService.java`
-- `backend/src/main/java/com/careerpilot/resume/ResumeRepository.java`
-- `backend/src/main/java/com/careerpilot/resume/dto/ResumeUploadResponse.java`
-- `backend/src/main/java/com/careerpilot/resume/entity/Resume.java`
-- `backend/src/main/resources/db/migration/V14__add_resume_table.sql`
-- `frontend/src/services/resumeService.ts`
-- `frontend/src/types/resume.ts`
-- `frontend/src/hooks/useResumeUpload.ts`
-- `frontend/src/components/resume/ResumeUploadCard.tsx`
+
+- `backend/src/main/resources/db/migration/V30__add_onboarding_completed.sql` — Flyway миграция: добавить поле `onboarding_completed` в `user_preferences`
+- `frontend/src/components/onboarding/OnboardingWizard.tsx` — главный компонент Wizard (4 шага, роутинг между ними)
+- `frontend/src/components/onboarding/OnboardingStep1Profile.tsx` — Шаг 1: заполнить имя и позицию
+- `frontend/src/components/onboarding/OnboardingStep2Vacancy.tsx` — Шаг 2: добавить первую вакансию (упрощённая форма)
+- `frontend/src/components/onboarding/OnboardingStep3Ai.tsx` — Шаг 3: выбор AI провайдера
+- `frontend/src/components/onboarding/OnboardingStep4Done.tsx` — Шаг 4: финальный экран с CTA
 
 ### Изменить существующие
-- `backend/src/main/java/com/careerpilot/user/UserService.java` — добавить `getUserResume(Long userId)`
-- `frontend/src/pages/ProfilePage.tsx` — подключить ResumeUploadCard
+
+- `backend/src/main/resources/db/migration/V30__add_onboarding_completed.sql` — **(создать)**
+- `backend/.../preferences/entity/PreferencesEntity.java` — добавить поле `onboardingCompleted`
+- `backend/.../preferences/response/PreferencesResponse.java` — добавить поле `onboardingCompleted`
+- `backend/.../preferences/request/PreferencesRequest.java` — добавить поле `onboardingCompleted` (опциональное)
+- `backend/.../preferences/service/PreferencesServiceImpl.java` — учесть новое поле при маппинге; `createDefaults()` — по умолчанию `false`
+- `frontend/src/services/settings.service.ts` — добавить поле `onboardingCompleted` в `PreferencesResponse`; добавить метод `completeOnboarding()`
+- `frontend/src/context/AuthContext.tsx` — после загрузки `user` проверять `preferences.onboardingCompleted` и управлять видимостью Wizard
+- `frontend/src/routes/AppRouter.tsx` — добавить логику показа `OnboardingWizard` вместо контента, если `!onboardingCompleted`
+- `frontend/src/i18n/locales/ru.json` — добавить ключи `onboarding.*`
+- `frontend/src/i18n/locales/en.json` — аналогично
+
+---
 
 ## Backend: точная реализация
 
-### Entity
-```java
-@Entity
-@Table(name = "resumes")
-public class Resume {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+### Flyway миграция V30
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @Column(name = "file_name", nullable = false)
-    private String fileName;
-
-    @Column(name = "parsed_text", columnDefinition = "TEXT")
-    private String parsedText;
-
-    @Column(name = "uploaded_at", nullable = false)
-    private LocalDateTime uploadedAt;
-}
-```
-
-### Repository
-```java
-public interface ResumeRepository extends JpaRepository<Resume, Long> {
-    Optional<Resume> findTopByUserIdOrderByUploadedAtDesc(Long userId);
-}
-```
-
-### Service — логика шаг за шагом
-```java
-public ResumeUploadResponse uploadResume(MultipartFile file) {
-    Long userId = CurrentUserResolver.resolveRequired();
-    // 1. Валидация: file != null, contentType == "application/pdf", size <= 5MB
-    // 2. Извлечь текст через PDFBox: PDDocument.load(file.getInputStream())
-    // 3. Сохранить Resume entity с userId, fileName, parsedText, uploadedAt = now()
-    // 4. Инвалидировать Redis cache: redisTemplate.delete("resume:" + userId)
-    // 5. Вернуть ResumeUploadResponse(id, fileName, uploadedAt)
-}
-```
-
-### Controller
-```java
-@RestController
-@RequestMapping("/api/v1/resume")
-@RequiredArgsConstructor
-public class ResumeController {
-
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResumeUploadResponse upload(@RequestParam("file") MultipartFile file) {
-        return resumeService.uploadResume(file);
-    }
-
-    @GetMapping
-    public ResumeUploadResponse getCurrent() {
-        return resumeService.getCurrentResume();
-    }
-}
-```
-
-### DTO
-```java
-public record ResumeUploadResponse(
-    Long id,
-    String fileName,
-    LocalDateTime uploadedAt
-) {}
-```
-
-### Flyway миграция — V14
 ```sql
-CREATE TABLE resumes (
-    id          BIGSERIAL PRIMARY KEY,
-    user_id     BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    file_name   VARCHAR(255) NOT NULL,
-    parsed_text TEXT,
-    uploaded_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_resumes_user_id ON resumes(user_id);
+-- V30__add_onboarding_completed.sql
+ALTER TABLE careerpilot.user_preferences
+    ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN NOT NULL DEFAULT FALSE;
 ```
+
+> Миграция маленькая — новой таблицы не нужно. Поле добавляется в уже существующую `user_preferences`.
+
+### PreferencesEntity
+
+Добавить в `PreferencesEntity.java` после поля `googleCalendarConnected`:
+
+```java
+@Column(name = "onboarding_completed", nullable = false)
+private boolean onboardingCompleted = false;
+```
+
+### PreferencesResponse
+
+Добавить поле `boolean onboardingCompleted` в `record PreferencesResponse(...)` или в `class PreferencesResponse`.
+
+### PreferencesRequest
+
+Добавить опциональное поле — `Boolean onboardingCompleted` (boxed, чтобы не ломать существующие PUT-запросы):
+
+```java
+private Boolean onboardingCompleted;
+```
+
+### PreferencesServiceImpl — изменения
+
+1. В `toResponse()` (маппинг Entity → Response): добавить `.onboardingCompleted(entity.isOnboardingCompleted())`.
+2. В `updatePreferences()`: если `request.getOnboardingCompleted() != null`, применять значение: `entity.setOnboardingCompleted(request.getOnboardingCompleted())`.
+3. В `createDefaults()`: поле `onboardingCompleted` = `false` (уже будет через @Column default, но явно для clarity).
+
+### PreferencesController — изменения
+
+Дополнительного endpoint'а **не нужно**. Фронтенд вызовет существующий `PUT /api/preferences` с полем `onboardingCompleted: true` после завершения Wizard.
+
+---
 
 ## Frontend: точная реализация
 
-### TypeScript типы (types/resume.ts)
+### Обновление типов (`settings.service.ts`)
+
 ```typescript
-export interface ResumeUploadResponse {
-  id: number;
-  fileName: string;
-  uploadedAt: string;
+export interface PreferencesResponse {
+  // ... existing fields ...
+  onboardingCompleted: boolean  // добавить
+}
+
+// Добавить метод:
+completeOnboarding: (): Promise<PreferencesResponse> =>
+  USE_MOCKS
+    ? Promise.resolve({ ...mockPreferences, onboardingCompleted: true })
+    : api.put<PreferencesResponse>('/preferences', { onboardingCompleted: true }),
+```
+
+> Метод `completeOnboarding()` отправляет PUT с единственным значимым полем — остальные поля бэкенд проигнорирует если они `null` (благодаря boxed `Boolean` в `PreferencesRequest`).
+> **Проблема:** текущий `PreferencesRequest` на бэкенде требует все обязательные поля при PUT. Поэтому агент должен проверить — если все поля required, нужно передавать текущие значения преференций вместе с `onboardingCompleted: true`. Использовать `PATCH` или передавать полный объект с `getPreferences()` + overwrite поля.
+
+### React Query хук
+
+```typescript
+// Новый хук useOnboarding (можно встроить в SettingsPage/AppRouter)
+const completeOnboardingMutation = useMutation({
+  mutationFn: () => settingsService.completeOnboarding(),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['preferences'] })
+  },
+})
+```
+
+### Логика показа Wizard (`AppRouter.tsx`)
+
+```typescript
+// После того как preferences загружены:
+const { data: preferences } = useQuery({
+  queryKey: ['preferences'],
+  queryFn: settingsService.getPreferences,
+  enabled: isAuthenticated,
+})
+
+// Если onboarding не пройден — показываем Wizard поверх контента:
+if (isAuthenticated && preferences && !preferences.onboardingCompleted) {
+  return <OnboardingWizard onComplete={completeOnboarding} />
 }
 ```
 
-### API-функция (services/resumeService.ts)
-```typescript
-export const uploadResume = (file: File): Promise<ResumeUploadResponse> => {
-  const formData = new FormData();
-  formData.append('file', file);
-  return apiClient.post('/api/v1/resume/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }).then(r => r.data);
-};
+### Компонент OnboardingWizard
 
-export const getCurrentResume = (): Promise<ResumeUploadResponse> =>
-  apiClient.get('/api/v1/resume').then(r => r.data);
+Структура:
+```tsx
+// Состояние шагов: 1 | 2 | 3 | 4
+const [step, setStep] = useState(1)
+
+// Прогресс-бар вверху: 4 точки или линия
+// Кнопки: "Пропустить шаг" (skip) + "Далее" / "Завершить"
+// На финальном шаге: кнопка "Начать работу" → вызывает onComplete()
 ```
 
-### React Query хук (hooks/useResumeUpload.ts)
-```typescript
-export const useResumeUpload = () =>
-  useMutation({
-    mutationFn: uploadResume,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['resume'] }),
-  });
+Полноэкранный overlay (`fixed inset-0 z-[200] bg-surface flex items-center justify-center`) поверх всего приложения.
 
-export const useCurrentResume = () =>
-  useQuery({ queryKey: ['resume'], queryFn: getCurrentResume });
-```
+### Шаг 1 — Профиль (`OnboardingStep1Profile`)
 
-### Компонент ResumeUploadCard.tsx
-- Drag-and-drop зона (принимает только PDF)
-- Показывает текущее резюме если есть (fileName + uploadedAt)
-- Кнопка загрузки, loading state, error state
-- Использует useResumeUpload и useCurrentResume
+- Поля: имя (`name` из `User`), желаемая позиция (поле `headline` из `Profile`)
+- При нажатии "Далее" — сохраняет через `profileService.update()` (уже существует)
+- Если поля пусты — можно пропустить
+
+### Шаг 2 — Первая вакансия (`OnboardingStep2Vacancy`)
+
+- Минимальная форма: название вакансии, компания (текстовое поле, не select)
+- При нажатии "Добавить и продолжить" — вызывает `vacancyService.create()` (уже существует)
+- Кнопка "Пропустить" — переходит к шагу 3
+
+### Шаг 3 — AI Провайдер (`OnboardingStep3Ai`)
+
+- Упрощённый UI выбора: три кнопки-карточки (LOCAL, BRING_YOUR_OWN_KEY, CLOUD — disabled)
+- Если выбран BRING_YOUR_OWN_KEY — поле для API ключа
+- Сохраняет через `settingsService.updatePreferences()`
+- Кнопка "Пропустить" доступна
+
+### Шаг 4 — Done (`OnboardingStep4Done`)
+
+- Красивая анимированная карточка с иконкой ✓
+- Текст: "Вы готовы к работе! CareerPilot AI поможет вам найти работу мечты."
+- Кнопка "Начать работу" → вызывает `onComplete()` → `completeOnboarding()` → `invalidateQueries(['preferences'])` → Wizard скрывается
 
 ### i18n ключи
+
 ```json
 // ru.json
-"resume": {
-  "upload": "Загрузить резюме",
-  "dragHint": "Перетащите PDF-файл сюда или нажмите для выбора",
-  "current": "Текущее резюме",
-  "uploadedAt": "Загружено",
-  "errors": {
-    "invalidType": "Только PDF файлы",
-    "tooLarge": "Файл не должен превышать 5 МБ"
-  }
+"onboarding": {
+  "step1Title": "Расскажите о себе",
+  "step1Description": "Заполните базовую информацию для персонализации",
+  "step2Title": "Добавьте первую вакансию",
+  "step2Description": "Отслеживайте отклики в удобном Kanban-борде",
+  "step3Title": "Настройте AI-ассистента",
+  "step3Description": "Выберите AI-провайдера для анализа вакансий и резюме",
+  "step4Title": "Всё готово!",
+  "step4Description": "CareerPilot AI поможет вам найти работу мечты",
+  "next": "Далее",
+  "skip": "Пропустить шаг",
+  "finish": "Начать работу",
+  "progress": "Шаг {{current}} из {{total}}",
+  "stepProfile": "Профиль",
+  "stepVacancy": "Вакансия",
+  "stepAi": "AI",
+  "stepDone": "Готово"
 }
 
-// en.json — добавить аналогично
+// en.json — аналогично на английском
 ```
 
-## Порядок реализации для SWE-1.6
-1. Создай Flyway миграцию V14 и проверь что применяется
-2. Создай Entity `Resume` и `ResumeRepository`
-3. Добавь зависимость PDFBox в pom.xml (`org.apache.pdfbox:pdfbox:3.0.1`)
-4. Реализуй `ResumeService` с валидацией и Redis cache
-5. Реализуй `ResumeController`
-6. Создай DTO `ResumeUploadResponse`
-7. Прогони тесты бэкенда
-8. Создай TypeScript типы и API-функции
-9. Реализуй хуки React Query
-10. Реализуй `ResumeUploadCard` компонент
-11. Подключи карточку в `ProfilePage`
-12. Добавь i18n ключи в оба файла локали
-13. Выполни `npm run build`
+---
+
+## Порядок реализации для агента
+
+1. [x] Создать миграцию `V30__add_onboarding_completed.sql` с `ALTER TABLE`.
+2. [x] Добавить поле `onboardingCompleted` в `PreferencesEntity`, `PreferencesResponse`, `PreferencesRequest`.
+3. [x] Обновить `PreferencesServiceImpl`: маппинг в `toResponse()` и применение в `updatePreferences()`.
+4. [x] Запустить `.\mvnw.cmd test -Dtest="PreferencesServiceImplTest,PreferencesControllerTest"` — убедиться что тесты зелёные.
+5. [x] Добавить `onboardingCompleted` в `PreferencesResponse` в `settings.service.ts`. Добавить метод `completeOnboarding()`.
+6. [x] Добавить ключи i18n в `ru.json` и `en.json`.
+7. [x] Создать компоненты: `OnboardingWizard`, `OnboardingStep1Profile`, `OnboardingStep2Vacancy`, `OnboardingStep3Ai`, `OnboardingStep4Done`.
+8. [x] Добавить логику в `AppRouter.tsx`: загружать preferences при `isAuthenticated`, если `!onboardingCompleted` — рендерить `<OnboardingWizard />`.
+9. [x] Запустить `cd frontend && npm.cmd run build` — убедиться что сборка зелёная.
+10. Протестировать вручную: зарегистрировать нового пользователя → должен появиться Wizard → пройти все шаги → Dashboard должен открыться.
+
+---
 
 ## Риски и что проверить
-- PDFBox зависимость: проверить что нет конфликта версий с другими Apache Commons
-- Multipart upload: убедиться что `spring.servlet.multipart.max-file-size=5MB` в application.yml
-- Redis cache: если Redis недоступен — graceful degradation, не ронять endpoint
-- Миграция V14: если таблица `users` называется иначе — сверить с V1 миграцией
+
+- **PUT /preferences требует все поля:** Если `PreferencesRequest` содержит обязательные (non-null) поля, `completeOnboarding()` должен передавать полный объект. Решение: сначала получить `getPreferences()`, затем слить с `{ onboardingCompleted: true }` и отправить PUT. Либо — на бэкенде сделать поля Request boxed (`Boolean`, а не `boolean`) и применять только non-null.
+- **Существующие пользователи:** Все существующие записи в `user_preferences` получат `onboarding_completed = FALSE` (через DEFAULT в миграции), что заставит их пройти Wizard заново. Решение: в миграции сделать `UPDATE careerpilot.user_preferences SET onboarding_completed = TRUE WHERE created_at < NOW()` — считать уже зарегистрированных прошедшими онбординг.
+- **Wizard не должен блокировать Telegram MiniApp:** В `OnboardingWizard` добавить проверку `isTelegramWebApp()` — если открыто в Telegram, не показывать Wizard (нет смысла проходить онбординг в MiniApp).
+- **preferences query до authenticated:** Запрос `getPreferences` должен стартовать только при `isAuthenticated`. Иначе `401` будет ломать логику до логина.
+- **Миграция V30:** Убедиться что `V29__add_google_calendar_integration.sql` применена. Следующая — строго `V30`.
+
+---
 
 ## Проверки после реализации
-**Backend:** `.\mvnw.cmd test -Dtest="ResumeServiceTest,ResumeControllerTest"`
+
+**Backend:** `.\mvnw.cmd test -Dtest="PreferencesServiceImplTest,PreferencesControllerTest"`
+**Backend compile:** `.\mvnw.cmd clean compile -DskipTests`
 **Frontend:** `cd frontend && npm.cmd run build`
-**Manual:** POST /api/v1/resume/upload с тестовым PDF через curl или Postman
+**Manual smoke:**
+1. Регистрация нового аккаунта → должен появиться Wizard
+2. Пройти все 4 шага → попасть на Dashboard
+3. Перезагрузить страницу → Wizard не появляется снова
+4. Существующий пользователь (у кого `onboarding_completed = true` после миграции) → Wizard не появляется
+
+ОБЯЗАТЕЛЬНО перед завершением выполни локальную валидацию через .\verify-all.ps1 в корне проекта. 
+Если скрипт выдает ошибки — исправляй их! Пуш или отчет без успешной валидации ЗАПРЕЩЕН.
+После реализации выполни проверки из раздела "Проверки" и учет раздела "⚠️ Известные ошибки и паттерны" в GEMINI.md чтобы не было ошибок.
+Выполни синхронизацию всех связанных документов (ROADMAP.md, ROADMAP.en.md, CAREERPILOT_AI_CONTEXT_BACKUP.md, DEPLOYMENT.md, README.md, README.ru.md, README.DEV.md), отразив в них внесенные изменения.
+В конце если были ошибки или нюансы — обнови раздел "⚠️ Известные ошибки и паттерны" в GEMINI.md, но только если ты точно уверен что решение правильное и сооветствует best practics.
+Обязательно не забывай про i18n ключи!

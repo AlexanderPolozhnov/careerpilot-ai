@@ -16,5 +16,6 @@ public record PreferencesResponse(
         String geminiModel,
         String notificationProvider,
         boolean telegramConnected,
-        boolean googleCalendarConnected) {
+        boolean googleCalendarConnected,
+        boolean onboardingCompleted) {
 }

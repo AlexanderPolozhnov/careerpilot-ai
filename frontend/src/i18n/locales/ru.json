@@ -997,5 +997,23 @@
         "content": "По вопросам об этих Условиях, пожалуйста, свяжитесь с нами: {{email}}"
       }
     }
+  },
+  "onboarding": {
+    "step1Title": "Расскажите о себе",
+    "step1Description": "Заполните базовую информацию для персонализации",
+    "step2Title": "Добавьте первую вакансию",
+    "step2Description": "Отслеживайте отклики в удобном Kanban-борде",
+    "step3Title": "Настройте AI-ассистента",
+    "step3Description": "Выберите AI-провайдера для анализа вакансий и резюме",
+    "step4Title": "Всё готово!",
+    "step4Description": "CareerPilot AI поможет вам найти работу мечты",
+    "next": "Далее",
+    "skip": "Пропустить шаг",
+    "finish": "Начать работу",
+    "progress": "Шаг {{current}} из {{total}}",
+    "stepProfile": "Профиль",
+    "stepVacancy": "Вакансия",
+    "stepAi": "AI",
+    "stepDone": "Готово"
   }
 }

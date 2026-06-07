@@ -76,4 +76,7 @@ public class PreferencesEntity extends BaseAuditableEntity {
 
     @Column(name = "google_calendar_connected", nullable = false)
     private boolean googleCalendarConnected = false;
+
+    @Column(name = "onboarding_completed", nullable = false)
+    private boolean onboardingCompleted = false;
 }
