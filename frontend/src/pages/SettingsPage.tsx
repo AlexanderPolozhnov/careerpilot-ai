@@ -21,6 +21,7 @@ import { ConfirmModal } from '@/components/ConfirmModal'
 import { toast } from '@/lib/toast'
 import type { Profile, Resume, User as UserType } from '@/types'
 import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
+import CustomCombobox from '@/components/ui/CustomCombobox'
 import {
     AlertTriangle,
     Bell,
@@ -773,6 +774,8 @@ export default function SettingsPage() {
         },
     ]
 
+    const modelOptions = availableModels.map(m => ({ value: m, label: m }))
+
     return (
         <div className="min-h-full pb-20">
             {/* Header */}
@@ -1327,12 +1330,6 @@ export default function SettingsPage() {
                             })}
                         </div>
 
-                        <datalist id="models-list">
-                            {availableModels.map(model => (
-                                <option key={model} value={model} />
-                            ))}
-                        </datalist>
-
                         {/* Dynamic fields based on AI provider mode */}
                         {aiProviderMode === 'LOCAL' && (
                             <div className="space-y-4 mt-6 pt-6 border-t border-white/[0.06]">
@@ -1351,11 +1348,18 @@ export default function SettingsPage() {
                                     <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
                                         {t('settings.ollamaModel')}
                                     </label>
-                                    <input
-                                        className="input mt-1 w-full"
-                                        {...prefsForm.register('ollamaModel')}
-                                        placeholder="llama3"
-                                        list="models-list"
+                                    <Controller
+                                        name="ollamaModel"
+                                        control={prefsForm.control}
+                                        render={({ field }) => (
+                                            <CustomCombobox
+                                                value={field.value ?? ''}
+                                                onChange={field.onChange}
+                                                options={modelOptions}
+                                                placeholder="llama3"
+                                                className="mt-1"
+                                            />
+                                        )}
                                     />
                                     <p className="text-[10px] text-white/30 mt-1">{t('settings.ollamaDefaultsHint')}</p>
                                 </div>
@@ -1447,11 +1451,18 @@ export default function SettingsPage() {
                                             <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
                                                 {t('settings.openAiModel')}
                                             </label>
-                                            <input
-                                                className="input mt-1 w-full"
-                                                {...prefsForm.register('openAiModel')}
-                                                placeholder="gpt-4o"
-                                                list="models-list"
+                                            <Controller
+                                                name="openAiModel"
+                                                control={prefsForm.control}
+                                                render={({ field }) => (
+                                                    <CustomCombobox
+                                                        value={field.value ?? ''}
+                                                        onChange={field.onChange}
+                                                        options={modelOptions}
+                                                        placeholder="gpt-4o"
+                                                        className="mt-1"
+                                                    />
+                                                )}
                                             />
                                         </div>
                                     </>
@@ -1478,11 +1489,18 @@ export default function SettingsPage() {
                                             <label className="text-xs text-ink-dim uppercase tracking-wider font-medium">
                                                 {t('settings.geminiModel')}
                                             </label>
-                                            <input
-                                                className="input mt-1 w-full"
-                                                {...prefsForm.register('geminiModel')}
-                                                placeholder="gemini-1.5-flash"
-                                                list="models-list"
+                                            <Controller
+                                                name="geminiModel"
+                                                control={prefsForm.control}
+                                                render={({ field }) => (
+                                                    <CustomCombobox
+                                                        value={field.value ?? ''}
+                                                        onChange={field.onChange}
+                                                        options={modelOptions}
+                                                        placeholder="gemini-1.5-flash"
+                                                        className="mt-1"
+                                                    />
+                                                )}
                                             />
                                         </div>
                                         <p className="text-xs text-white/30 mt-1">{t('settings.geminiDescription')}</p>
