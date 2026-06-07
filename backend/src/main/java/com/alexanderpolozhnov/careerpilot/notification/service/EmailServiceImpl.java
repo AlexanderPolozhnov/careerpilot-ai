@@ -20,6 +20,9 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
+    @Value("${app.mail.from}")
+    private String mailFrom;
+
     @Async
     @Override
     public void sendPasswordResetEmail(String to, String token) {
@@ -36,7 +39,7 @@ public class EmailServiceImpl implements EmailService {
 
             String htmlContent = buildResetPasswordHtml(resetLink);
 
-            helper.setFrom("no-reply@careerpilot.ai", "CareerPilot AI");
+            helper.setFrom(mailFrom, "CareerPilot AI");
             helper.setTo(to);
             helper.setSubject("Сброс пароля — CareerPilot AI");
             helper.setText(htmlContent, true); // true = HTML content
@@ -130,7 +133,7 @@ public class EmailServiceImpl implements EmailService {
 
             String htmlContent = buildReminderHtml(title, message);
 
-            helper.setFrom("no-reply@careerpilot.ai", "CareerPilot AI");
+            helper.setFrom(mailFrom, "CareerPilot AI");
             helper.setTo(to);
             helper.setSubject(title + " — CareerPilot AI");
             helper.setText(htmlContent, true);

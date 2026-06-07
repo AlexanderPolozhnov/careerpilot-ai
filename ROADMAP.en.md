@@ -141,3 +141,11 @@ The roadmap reflects the current project status. Planned items are not yet imple
 - [x] **PWA**: offline mode, "Install App" button, Service Worker support.
 - [ ] Direct file upload (PDF/DOCX) for resumes.
 - [ ] Production Redis caching in Google Cloud via GCP Memorystore + VPC Connector.
+
+---
+
+## 🎯 Goals v1.2.0
+
+> Detailed ideas and reasoning — in [`docs/ideas/IDEAS_v1.2.md`](docs/ideas/IDEAS_v1.2.md).
+
+**Release Policy Note:** The next full release (without alpha versions) will be published after completing all visual (Frontend/UX) goals. Following that, the next full release will include all server/backend goals.
