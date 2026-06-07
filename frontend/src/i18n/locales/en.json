@@ -342,6 +342,18 @@
       "noHistory": "No history recorded yet",
       "initial": "Initial",
       "viewHistory": "View status history"
+    },
+    "filters": {
+      "allCompanies": "All Companies",
+      "newest": "Newest first",
+      "oldest": "Oldest first",
+      "recentlyUpdated": "Recently updated"
+    },
+    "editNote": "Edit note",
+    "stats": {
+      "total": "Total",
+      "active": "Active",
+      "offers": "Offers"
     }
   },
   "interviews": {
@@ -604,7 +616,6 @@
     "notificationsApplicationStatusDescription": "Get notified when your application status changes",
     "notificationProvider": "Notification Provider",
     "notificationProviderDescription": "Choose how to receive notifications",
-    "email": "Email",
     "telegram": "Telegram",
     "telegramNotConnected": "Telegram bot not connected. Click to connect.",
     "telegramConnectTitle": "Connect Telegram Bot",

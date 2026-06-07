@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EmptyState } from '@/components/EmptyState'
 import { LoadingState } from '@/components/LoadingState'
@@ -7,6 +7,7 @@ import ApplicationTimelineModal from '@/components/ApplicationTimelineModal'
 import { applicationService } from '@/services/application.service'
 import type { Application, ApplicationStatus } from '@/types'
 import { cn, APPLICATION_STATUS_KEYS } from '@/lib/utils'
+import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
 import { ApiError } from '@/services/api-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -97,6 +98,41 @@ function moveToDifferentStatus(
 function ApplicationCardBody({ application, isDragging = false, onTimelineClick }: { application: Application; isDragging?: boolean; onTimelineClick: () => void }) {
   const { t } = useTranslation()
   const statusColors = STATUS_COLORS[application.status]
+  const [isEditingNotes, setIsEditingNotes] = useState(false)
+  const [notesValue, setNotesValue] = useState(application.notes || '')
+  const queryClient = useQueryClient()
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  const notesMutation = useMutation({
+    mutationFn: (notes: string) => applicationService.update(application.id, { notes }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: BOARD_QUERY_KEY })
+  })
+
+  useEffect(() => {
+    if (isEditingNotes && inputRef.current) {
+      inputRef.current.focus()
+      inputRef.current.setSelectionRange(notesValue.length, notesValue.length)
+    }
+  }, [isEditingNotes, notesValue.length])
+
+  const saveNotes = () => {
+    setIsEditingNotes(false)
+    if (notesValue !== (application.notes || '')) {
+      notesMutation.mutate(notesValue)
+    }
+  }
+
+  const handleNotesKeyDown = (e: React.KeyboardEvent) => {
+    e.stopPropagation()
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      saveNotes()
+    }
+    if (e.key === 'Escape') {
+      setIsEditingNotes(false)
+      setNotesValue(application.notes || '')
+    }
+  }
 
   return (
     <div className={cn('space-y-3', isDragging && 'opacity-90')}>
@@ -138,13 +174,41 @@ function ApplicationCardBody({ application, isDragging = false, onTimelineClick 
       </div>
 
       {/* Notes snippet */}
-      {application.notes && (
-        <div className="pt-2 border-t border-[rgba(255,255,255,0.04)]">
-          <p className="text-[11px] text-[#6b7590] line-clamp-2 leading-relaxed italic">
-            "{application.notes}"
-          </p>
-        </div>
-      )}
+      <div 
+        className="pt-2 border-t border-[rgba(255,255,255,0.04)] cursor-text group/notes relative"
+        onClick={(e) => {
+          e.stopPropagation()
+          setIsEditingNotes(true)
+        }}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        {isEditingNotes ? (
+          <textarea
+            ref={inputRef}
+            value={notesValue}
+            onChange={(e) => setNotesValue(e.target.value)}
+            onBlur={saveNotes}
+            onKeyDown={handleNotesKeyDown}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="w-full bg-[rgba(255,255,255,0.05)] border border-violet-500/30 rounded-md text-[11px] text-[#e8eaed] p-1.5 focus:outline-none focus:ring-1 focus:ring-violet-500/50 min-h-[40px] resize-none"
+            placeholder={t('applications.notesPlaceholder', '+ Add note') || 'Add notes...'}
+          />
+        ) : (
+          <div className="relative group/notetext">
+            <p className={cn("text-[11px] leading-relaxed italic transition-colors pr-6", application.notes ? "text-[#6b7590] line-clamp-2" : "text-[#4a4e5a] group-hover/notes:text-[#6b7590]")}>
+              {application.notes ? `"${application.notes}"` : t('applications.addNote', '+ Add note') || '+ Add note'}
+            </p>
+            <div className="absolute right-0 top-0 bottom-0 flex items-start opacity-70 group-hover/notetext:opacity-100 transition-opacity">
+              <div className="p-0.5 rounded-md bg-[rgba(255,255,255,0.05)] text-[#6b7590] hover:text-[#e8eaed]" title={t('applications.editNote', 'Edit note') || 'Edit note'}>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Status indicator */}
       <div className="flex items-center justify-between pt-1">
@@ -171,7 +235,7 @@ function ApplicationCardBody({ application, isDragging = false, onTimelineClick 
                 'bg-violet-500/10 border border-violet-500/20 text-violet-400',
                 'hover:bg-violet-500/20 hover:border-violet-500/40 hover:text-violet-300',
                 'hover:shadow-sm hover:shadow-violet-500/20',
-              ].join(' ')}
+              ].join(' ') }
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -194,7 +258,6 @@ function ApplicationCardBody({ application, isDragging = false, onTimelineClick 
     </div>
   )
 }
-
 function SortableApplicationCard({ application, onTimelineClick }: { application: Application; onTimelineClick: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: application.id,
@@ -221,20 +284,33 @@ function SortableApplicationCard({ application, onTimelineClick }: { application
   )
 }
 
-function ApplicationColumn({ status, items, label, onTimelineClick }: { status: ApplicationStatus; items: Application[]; label: string; onTimelineClick: (id: string) => void }) {
+function ApplicationColumn({ status, items, label, onTimelineClick, isCollapsed, toggleCollapse }: { status: ApplicationStatus; items: Application[]; label: string; onTimelineClick: (id: string) => void; isCollapsed: boolean; toggleCollapse: (s: ApplicationStatus) => void }) {
   const { setNodeRef, isOver } = useDroppable({ id: status })
   const statusColors = STATUS_COLORS[status]
 
   return (
-    <div key={status} className="min-w-[280px] sm:min-w-[300px] shrink-0 snap-start flex flex-col">
+    <div key={status} className={cn(
+      "shrink-0 snap-start flex flex-col transition-all duration-300",
+      isCollapsed ? "w-14" : "min-w-[280px] sm:min-w-[300px]"
+    )}>
       {/* Column header */}
       <div className={cn(
-        'flex items-center gap-2 px-3 py-2 mb-3 rounded-lg border',
+        'flex items-center justify-between px-3 py-2 mb-3 rounded-lg border',
         statusColors.bg, statusColors.border, statusColors.text
       )}>
-        <span className={cn('w-2 h-2 rounded-full', statusColors.dot)} />
-        <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
-        <span className="ml-auto text-[11px] font-medium opacity-70">{items.length}</span>
+        {!isCollapsed && (
+          <div className="flex items-center gap-2">
+            <span className={cn('w-2 h-2 rounded-full', statusColors.dot)} />
+            <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
+            <span className="text-[11px] font-medium opacity-70 ml-2">{items.length}</span>
+          </div>
+        )}
+        {isCollapsed && <div />}
+        <button onClick={() => toggleCollapse(status)} className="p-1 hover:bg-white/10 rounded-md transition-colors text-inherit">
+          <svg className={cn("w-4 h-4 transition-transform duration-300", isCollapsed ? "rotate-180" : "")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
       </div>
 
       {/* Drop zone */}
@@ -242,20 +318,31 @@ function ApplicationColumn({ status, items, label, onTimelineClick }: { status: 
         ref={setNodeRef}
         className={cn(
           'flex-1 rounded-xl border-2 border-dashed transition-colors',
-          isOver ? statusColors.bg : 'border-[rgba(255,255,255,0.08)]'
+          isOver ? statusColors.bg : 'border-[rgba(255,255,255,0.08)]',
+          isCollapsed && "flex flex-col items-center py-4 relative"
         )}
       >
-        <SortableContext items={items.map((a) => a.id)} strategy={verticalListSortingStrategy}>
-          <div className="space-y-2 p-2">
-            {items.map((application) => (
-              <SortableApplicationCard
-                key={application.id}
-                application={application}
-                onTimelineClick={() => onTimelineClick(application.id)}
-              />
-            ))}
-          </div>
-        </SortableContext>
+        {!isCollapsed && (
+          <SortableContext items={items.map((a) => a.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-2 p-2">
+              {items.map((application) => (
+                <SortableApplicationCard
+                  key={application.id}
+                  application={application}
+                  onTimelineClick={() => onTimelineClick(application.id)}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        )}
+        {isCollapsed && (
+          <>
+            <span className="text-xs font-semibold uppercase tracking-widest opacity-50 whitespace-nowrap mb-4" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
+              {label}
+            </span>
+            <span className="mt-auto mb-4 font-bold text-xs opacity-70">{items.length}</span>
+          </>
+        )}
       </div>
     </div>
   )
@@ -264,6 +351,32 @@ function ApplicationColumn({ status, items, label, onTimelineClick }: { status: 
 export default function ApplicationsPage() {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
+  const [selectedCompany, setSelectedCompany] = useState<string>('ALL')
+  const [sortOrder, setSortOrder] = useState<'NEWEST' | 'OLDEST' | 'RECENTLY_UPDATED'>('NEWEST')
+  
+  const [collapsedColumns, setCollapsedColumns] = useState<Set<ApplicationStatus>>(() => {
+    try {
+      const saved = localStorage.getItem('cp_collapsed_columns')
+      if (saved) return new Set(JSON.parse(saved))
+    } catch (e) {
+      console.error(e)
+    }
+    return new Set()
+  })
+
+  useEffect(() => {
+    localStorage.setItem('cp_collapsed_columns', JSON.stringify(Array.from(collapsedColumns)))
+  }, [collapsedColumns])
+
+  const toggleCollapse = (status: ApplicationStatus) => {
+    setCollapsedColumns(prev => {
+      const next = new Set(prev)
+      if (next.has(status)) next.delete(status)
+      else next.add(status)
+      return next
+    })
+  }
+
   const [dragError, setDragError] = useState<string | null>(null)
   const [activeApplicationId, setActiveApplicationId] = useState<string | null>(null)
   const [timelineApplicationId, setTimelineApplicationId] = useState<string | null>(null)
@@ -317,15 +430,68 @@ export default function ApplicationsPage() {
     return STATUS_ORDER.flatMap((s) => board[s] ?? [])
   }, [board])
 
-  const filteredFlat = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return itemsFlat
-    return itemsFlat.filter((a) => {
-      const v = a.vacancy
-      const hay = `${v?.title ?? ''} ${v?.company?.name ?? ''} ${a.status}`.toLowerCase()
-      return hay.includes(q)
+  const uniqueCompanies = useMemo(() => {
+    const companies = new Set<string>()
+    itemsFlat.forEach(a => {
+      if (a.vacancy?.company?.name) {
+        companies.add(a.vacancy.company.name)
+      }
     })
-  }, [itemsFlat, query])
+    return Array.from(companies).sort()
+  }, [itemsFlat])
+
+  const companyOptions: SelectOption[] = useMemo(() => {
+    return [
+      { value: 'ALL', label: t('applications.filters.allCompanies', 'All Companies') },
+      ...uniqueCompanies.map(c => ({ value: c, label: c }))
+    ]
+  }, [uniqueCompanies, t])
+
+  const sortOptions: SelectOption[] = useMemo(() => [
+    { value: 'NEWEST', label: t('applications.filters.newest', 'Newest first') },
+    { value: 'OLDEST', label: t('applications.filters.oldest', 'Oldest first') },
+    { value: 'RECENTLY_UPDATED', label: t('applications.filters.recentlyUpdated', 'Recently updated') },
+  ], [t])
+
+  
+
+  const filteredFlat = useMemo(() => {
+    let result = itemsFlat
+
+    if (selectedCompany !== 'ALL') {
+      result = result.filter(a => a.vacancy?.company?.name === selectedCompany)
+    }
+
+    const q = query.trim().toLowerCase()
+    if (q) {
+      result = result.filter((a) => {
+        const v = a.vacancy
+        const hay = `${v?.title ?? ''} ${v?.company?.name ?? ''} ${a.status}`.toLowerCase()
+        return hay.includes(q)
+      })
+    }
+
+    result = [...result].sort((a, b) => {
+      if (sortOrder === 'NEWEST') {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return timeB - timeA
+      }
+      if (sortOrder === 'OLDEST') {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return timeA - timeB
+      }
+      if (sortOrder === 'RECENTLY_UPDATED') {
+        const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0
+        const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0
+        return timeB - timeA
+      }
+      return 0
+    })
+
+    return result
+  }, [itemsFlat, query, selectedCompany, sortOrder])
 
   const filteredBoard = useMemo(() => {
     if (!board) return null
@@ -420,15 +586,15 @@ export default function ApplicationsPage() {
         {/* Quick stats */}
         <div className="flex items-center gap-2 flex-wrap">
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-            <span className="text-xs text-[#6b7590]">Total</span>
+            <span className="text-xs text-[#6b7590]">{t('applications.stats.total', 'Total')}</span>
             <span className="text-sm font-medium text-[#e8eaed]">{stats.total}</span>
           </div>
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-            <span className="text-xs text-[#6b7590]">Active</span>
+            <span className="text-xs text-[#6b7590]">{t('applications.stats.active', 'Active')}</span>
             <span className="text-sm font-medium text-violet-400">{stats.active}</span>
           </div>
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-            <span className="text-xs text-[#6b7590]">Offers</span>
+            <span className="text-xs text-[#6b7590]">{t('applications.stats.offers', 'Offers')}</span>
             <span className="text-sm font-medium text-emerald-400">{stats.offers}</span>
           </div>
         </div>
@@ -451,6 +617,22 @@ export default function ApplicationsPage() {
             className="w-full h-10 pl-11 pr-4 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-xl text-[13px] text-[#e8eaed] placeholder:text-[#4a4e5a] focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all duration-200"
           />
         </div>
+
+        {/* Company filter */}
+        <CustomSelect
+          value={selectedCompany}
+          onChange={(val) => setSelectedCompany(val)}
+          options={companyOptions}
+          className="w-full sm:w-auto min-w-[160px]"
+        />
+
+        {/* Sort order filter */}
+        <CustomSelect
+          value={sortOrder}
+          onChange={(val) => setSortOrder(val as 'NEWEST' | 'OLDEST' | 'RECENTLY_UPDATED')}
+          options={sortOptions}
+          className="w-full sm:w-auto min-w-[160px]"
+        />
 
         {/* Results count */}
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
@@ -512,7 +694,7 @@ export default function ApplicationsPage() {
               {STATUS_ORDER.map((s) => {
                 const col = filteredBoard?.[s] ?? []
                 return (
-                  <ApplicationColumn key={s} status={s} items={col} label={t(APPLICATION_STATUS_KEYS[s])} onTimelineClick={setTimelineApplicationId} />
+                  <ApplicationColumn key={s} status={s} items={col} label={t(APPLICATION_STATUS_KEYS[s])} onTimelineClick={setTimelineApplicationId} isCollapsed={collapsedColumns.has(s)} toggleCollapse={toggleCollapse} />
                 )
               })}
             </div>

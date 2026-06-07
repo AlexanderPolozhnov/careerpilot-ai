@@ -12,7 +12,13 @@
 
 
 
-## Update 2026-05-03: CI Pipeline Setup
+
+## Update 2026-06-07: Kanban 2.0 implementation
+- Added inline notes editing to ApplicationCardBody with useMutation to update notes via applicationService.
+- Implemented collapsible columns in ApplicationsPage with state saved to localStorage.
+- Added advanced filtering by company name and sort orders (Newest, Oldest, Recently updated).
+
+
 
 
 
@@ -3419,9 +3425,9 @@ pm run build РїСЂРѕС€Р»Р° СѓСЃРїРµС€РЅРѕ.
 
 ## Update 2026-06-07: PWA Implementation
 
-- **Frontend:** Реализована поддержка Progressive Web App (PWA) с помощью `vite-plugin-pwa`.
-- **Features:** Оффлайн-кэширование (GenerateSW), иконки приложения, UI-компонент `PwaInstallPrompt` в сайдбаре для установки приложения.
-- **Dependencies:** Добавлен пакет `workbox-window` для корректной работы `virtual:pwa-register` в окружении pnpm.
+- **Frontend:** пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Progressive Web App (PWA) пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ `vite-plugin-pwa`.
+- **Features:** пїЅпїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (GenerateSW), пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, UI-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ `PwaInstallPrompt` пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+- **Dependencies:** пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ `workbox-window` пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ `virtual:pwa-register` пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ pnpm.
 
 
 ## Update 2026-06-08: Activity Heatmap

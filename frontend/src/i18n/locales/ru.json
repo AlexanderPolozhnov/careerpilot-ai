@@ -344,6 +344,18 @@
       "noHistory": "История изменений еще не записана",
       "initial": "Начало",
       "viewHistory": "Посмотреть историю статусов"
+    },
+    "filters": {
+      "allCompanies": "Все компании",
+      "newest": "Сначала новые",
+      "oldest": "Сначала старые",
+      "recentlyUpdated": "Обновленные недавно"
+    },
+    "editNote": "Изменить заметку",
+    "stats": {
+      "total": "Всего",
+      "active": "Активных",
+      "offers": "Офферы"
     }
   },
   "interviews": {
@@ -608,7 +620,6 @@
     "notificationsApplicationStatusDescription": "Получать уведомления при изменении этапа найма по вашим откликам",
     "notificationProvider": "Провайдер уведомлений",
     "notificationProviderDescription": "Выберите способ получения уведомлений",
-    "email": "Email",
     "telegram": "Telegram",
     "telegramNotConnected": "Telegram бот не привязан. Нажмите для привязки.",
     "telegramConnectTitle": "Привязка Telegram бота",
