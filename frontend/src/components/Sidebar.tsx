@@ -3,6 +3,7 @@ import { LayoutGrid, Briefcase, FileText, Building2, Sparkles, BarChart3, Settin
 import { useTranslation } from 'react-i18next'
 import { useEffect } from 'react'
 import { cn } from '@/lib/utils'
+import { PwaInstallPrompt } from './PwaInstallPrompt'
 
 interface SidebarProps {
   isOpen?: boolean
@@ -161,6 +162,11 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             )
           })}
         </nav>
+
+        {/* PWA Install */}
+        <div className="px-3 pb-2">
+          <PwaInstallPrompt />
+        </div>
 
         {/* Tip Card */}
         <div className="p-3">

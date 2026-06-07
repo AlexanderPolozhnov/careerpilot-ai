@@ -3416,3 +3416,10 @@ pm run build РїСЂРѕС€Р»Р° СѓСЃРїРµС€РЅРѕ.
 - Avoided displaying wizard in Telegram WebApp context.
 
 **Status:** Backend and frontend implemented, compiled successfully.
+
+## Update 2026-06-07: PWA Implementation
+
+- **Frontend:** Реализована поддержка Progressive Web App (PWA) с помощью `vite-plugin-pwa`.
+- **Features:** Оффлайн-кэширование (GenerateSW), иконки приложения, UI-компонент `PwaInstallPrompt` в сайдбаре для установки приложения.
+- **Dependencies:** Добавлен пакет `workbox-window` для корректной работы `virtual:pwa-register` в окружении pnpm.
+

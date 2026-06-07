@@ -18,7 +18,8 @@
     "preparingWorkspace": "Preparing workspace...",
     "new": "new",
     "markRead": "Mark read",
-    "retry": "Try again"
+    "retry": "Try again",
+    "installApp": "Install App"
   },
   "navigation": {
     "workspace": "Workspace",

@@ -136,5 +136,6 @@ The roadmap reflects the current project status. Planned items are not yet imple
 - [x] Telegram MiniApp: WebApp integration with HMAC-SHA256 authentication and SDK support.
 - [x] Cloudflare integration: secure traffic proxying for DDoS & WAF protection, restoring client IP addresses via `CF-Connecting-IP` header in Audit & Rate Limiting aspects.
 - [x] **Onboarding Flow**: first-launch wizard (3-4 steps): profile -> first vacancy -> AI setup -> Kanban introduction.
+- [x] **PWA**: offline mode, "Install App" button, Service Worker support.
 - [ ] Direct file upload (PDF/DOCX) for resumes.
 - [ ] Production Redis caching in Google Cloud via GCP Memorystore + VPC Connector.
