@@ -136,5 +136,5 @@ Roadmap отражает текущее состояние перед первы
 - [x] **Улучшение мобильной версии:** Mobile Drawer Sidebar (hamburger-меню, CSS-трансформация, overlay, блокировка scroll body), адаптивный `ApplicationsPage` (flex-wrap статистика, flex-col поиск, min-w Kanban-колонки).
 - [x] **Telegram MiniApp:** Реализация входа через Telegram WebApp (HMAC-SHA256 `initData` validation, SDK integration, conditional UI).
 - [x] **Интеграция Cloudflare:** Проксирование трафика для защиты от DDoS и WAF, автоматическое извлечение IP-адресов пользователей через заголовок `CF-Connecting-IP` в аспектах логирования аудита и лимитера запросов.
-- [ ] Поддержка файлов (PDF/DOCX) для загрузки резюме напрямую.
-- [ ] Redis в production через GCP Memorystore + VPC Connector (AI кэширование в Cloud Run).
+- [x] Поддержка файлов (PDF/DOCX) для загрузки резюме напрямую (загрузка и извлечение текста для AI).
+- [x] Redis в production через GCP Memorystore + VPC Connector (AI кэширование в Cloud Run).

@@ -57,6 +57,11 @@ async function request<T>(
     credentials: 'include' // Needed for HttpOnly refresh_token cookie
   }
 
+  // Remove Content-Type if explicitly set to undefined (e.g. for FormData)
+  if (headers['Content-Type'] === undefined) {
+    delete headers['Content-Type']
+  }
+
   try {
     const response = await fetch(`${API_BASE}${path}`, fetchOptions)
     const text = await response.text()
@@ -162,6 +167,19 @@ export const api = {
 
   post: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined }),
+
+  postFormData: <T>(path: string, body: FormData) => {
+    // When sending FormData, we must NOT set Content-Type to application/json
+    // fetch will automatically set it to multipart/form-data with the correct boundary
+    return request<T>(path, {
+      method: 'POST',
+      body,
+      headers: {
+        // Setting undefined here overrides the default 'application/json' in request()
+        'Content-Type': undefined as unknown as string,
+      },
+    })
+  },
 
   put: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: 'PUT', body: body ? JSON.stringify(body) : undefined }),

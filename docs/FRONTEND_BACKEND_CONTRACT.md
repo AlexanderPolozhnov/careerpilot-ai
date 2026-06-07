@@ -809,6 +809,20 @@ Frontend source: `frontend/src/services/resume.service.ts`.
 
 Response: `204 No Content`.
 
+### `POST /resumes/extract` — USED BY FRONTEND
+
+Frontend source: `frontend/src/services/resume.service.ts`.
+
+Request: `multipart/form-data` with `file` part (PDF or DOCX).
+
+Response `ResumeExtractionResponse`:
+
+```json
+{
+  "text": "Extracted text content from the file..."
+}
+```
+
 ## Export
 
 ### `GET /export/excel` — USED BY FRONTEND

@@ -731,7 +731,11 @@
       "updated": "Resume updated successfully",
       "deleted": "Resume deleted",
       "defaultSet": "Resume set as default",
-      "error": "Error managing resume"
+      "error": "Error managing resume",
+      "uploadFile": "Extract text from file",
+      "uploadFormat": "PDF and DOCX up to 5MB supported",
+      "extractSuccess": "Text extracted successfully",
+      "uploading": "Extracting text..."
     }
   },
   "forms": {
@@ -763,7 +767,8 @@
     "tooManyRequests": "Too many requests. Please wait.",
     "boundaryTitle": "Application Error",
     "boundaryMessage": "Something went wrong in the application interface.",
-    "reload": "Reload page"
+    "reload": "Reload page",
+    "extractFailed": "Failed to extract text from file"
   },
   "features": {
     "label": "FEATURES",

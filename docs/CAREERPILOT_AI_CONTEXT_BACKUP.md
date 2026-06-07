@@ -3332,6 +3332,20 @@ pm run build прошла успешно.
 
 **Статус:** Код успешно скомпилирован, интеграционные тесты пройдены. Бот готов к мгновенной работе на бессерверной архитектуре.
 
+## Update 2026-06-07: Implement Resume File Upload & Parsing
+
+**Задачи:**
+- На бэкенде добавлена зависимость `pdfbox` для извлечения текста из PDF файлов.
+- Созданы `ResumeParserService` и `ResumeParserServiceImpl` для парсинга PDF (PDFBox) и DOCX (Apache POI).
+- Добавлен endpoint `POST /resumes/extract` в `ResumeController` для загрузки файла и возврата извлеченного текста.
+- Обновлен `FRONTEND_BACKEND_CONTRACT.md` с описанием нового endpoint.
+- На фронтенде в `api-client.ts` добавлен метод `postFormData` для поддержки `multipart/form-data`.
+- В `resume.service.ts` реализован метод `extractText` с передачей файлов через `FormData`.
+- Компонент `ResumeForm.tsx` обновлен: добавлена кнопка "Извлечь текст из файла", которая вызывает `extractText` и заполняет `textContent` через `react-hook-form`.
+- Добавлены новые ключи i18n в `ru.json` и `en.json` для локализации UI и ошибок парсинга.
+
+**Статус:** Реализовано и проверено (фронт скомпилирован успешно, добавлены бэкенд unit тесты для сервиса парсинга).
+
  # #   U p d a t e   2 0 2 6 - 0 6 - 0 6 :   T e l e g r a m   W e b A p p   I n t e g r a t i o n   &   B u g f i x e s 
  
  !45;0=>: 

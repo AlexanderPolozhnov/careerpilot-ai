@@ -70,4 +70,13 @@ export const resumeService = {
 
   delete: (id: string): Promise<void> =>
     USE_MOCKS ? Promise.resolve() : api.delete<void>(`/resumes/${id}`),
+
+  extractText: async (file: File): Promise<{ text: string }> => {
+    if (USE_MOCKS) {
+      return new Promise((resolve) => setTimeout(() => resolve({ text: 'Mock extracted resume text from ' + file.name }), 1500))
+    }
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.postFormData<{ text: string }>('/resumes/extract', formData)
+  },
 }

@@ -19,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ResumeController {
     private final ResumeService service;
+    private final com.alexanderpolozhnov.careerpilot.resume.service.ResumeParserService resumeParserService;
 
     @GetMapping
     public List<ResumeResponse> list() {
@@ -53,5 +54,12 @@ public class ResumeController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
         service.delete(id);
+    }
+
+    @PostMapping(value = "/extract", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Auditable(action = "RESUME_EXTRACT", entityType = "RESUME")
+    public com.alexanderpolozhnov.careerpilot.resume.response.ResumeExtractionResponse extractText(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        String extractedText = resumeParserService.extractText(file);
+        return new com.alexanderpolozhnov.careerpilot.resume.response.ResumeExtractionResponse(extractedText);
     }
 }
