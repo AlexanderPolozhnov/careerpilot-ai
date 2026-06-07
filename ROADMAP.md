@@ -149,7 +149,7 @@ Roadmap отражает текущее состояние перед первы
 ### 🖥️ Визуальная часть (Frontend / UX)
 
 - [x] **Onboarding Flow** — мастер первого запуска (3–4 шага): профиль → первая вакансия → настройка AI → знакомство с Kanban.
-- [ ] **Полная мобильная оптимизация** — адаптивные `AnalyticsPage` (charts), `VacancyDetailPage`, `InterviewsPage`; touch-friendly Kanban.
+- [x] **Полная мобильная оптимизация** — адаптивные `AnalyticsPage` (charts), `VacancyDetailPage`, `InterviewsPage`; touch-friendly Kanban.
 - [ ] **PWA** — режим offline, кнопка «Установить приложение», push-уведомления о собеседованиях через Service Worker.
 - [ ] **Activity Heatmap** — тепловая карта активности в стиле GitHub (52 нед × 7 дней) на странице аналитики.
 - [ ] **Rejection Funnel** — воронка конверсии между статусами (NEW → APPLIED → HR_SCREEN → TECH → OFFER).
