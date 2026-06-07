@@ -3356,3 +3356,19 @@ pm run build прошла успешно.
  -   A?@02;5=0  >H81:0  N o n U n i q u e R e s u l t E x c e p t i o n :   5A;8  >48=  0::0C=B  T e l e g r a m   1K;  ?@82O70=  :  =5A:>;L:8<  ?@>D8;O<  C a r e e r P i l o t ,   A5@25@  ?040;.   "5?5@L  P r e f e r e n c e s R e p o s i t o r y . f i n d B y T e l e g r a m C h a t I d   2>72@0I05B  A?8A>:  ( 15@5<  ?5@2K9  M;5<5=B) ,   0  ?@8  ?@82O7:5  =>2>3>  ?@>D8;O  AB0@K5  A2O78  >B2O7K20NBAO  ( s e t T e l e g r a m C h a t I d ( n u l l ) ) . 
  -   >AAB0=>2;5=  T o p b a r   8  S i d e b a r   2=CB@8  T e l e g r a m   W e b A p p   ( 2  A p p L a y o u t . t s x   C40;5=0  ?@>25@:0  ! i s T g ) ,   GB>1K  ?>;L7>20B5;8  <>3;8  ?5@5<5I0BLAO  ?>  ?@8;>65=8N,   B0:  :0:  =0B82=0O  =02830F8O  =5  1K;0  @50;87>20=0.  
  
+## Update 2026-06-07: AI Provider Settings (Test & Sync)
+
+**Backend:**
+- AiProviderConfigRequest, AiTestConnectionResponse DTOs added.
+- LlmProvider interface extended with getAvailableModels.
+- Implemented connection testing and model syncing for OpenAI, Gemini, and Ollama in AiService.
+- Added POST /ai/test-connection and POST /ai/models/sync in AiController.
+- Updated FRONTEND_BACKEND_CONTRACT.md with new endpoints.
+
+**Frontend:**
+- i.service.ts updated to call new test/sync endpoints.
+- SettingsPage.tsx UI updated: added 'Test Connection' and 'Sync Models' buttons under AI Provider Settings.
+- Added datalist for models to support auto-suggestions after syncing.
+- Updated translations in u.json and en.json.
+
+**Status:** Backend and frontend implemented, compiled successfully.

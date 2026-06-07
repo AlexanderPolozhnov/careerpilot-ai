@@ -133,4 +133,31 @@ export const aiService = {
         return Promise.resolve(found)
       })()
       : api.get<AiResult>(`/ai/history/${id}`),
+
+  testConnection: (data: AiProviderConfigRequest): Promise<AiTestConnectionResponse> =>
+    USE_MOCKS
+      ? Promise.resolve({ success: true, message: 'OK', latencyMs: 540 })
+      : api.post<AiTestConnectionResponse>('/ai/test-connection', data),
+
+  syncModels: (data: AiProviderConfigRequest): Promise<string[]> =>
+    USE_MOCKS
+      ? Promise.resolve(data.customAiProvider === 'OPENAI' ? ['gpt-4o', 'gpt-4o-mini'] : data.customAiProvider === 'OLLAMA' ? ['llama3', 'mistral'] : ['gemini-1.5-pro', 'gemini-1.5-flash'])
+      : api.post<string[]>('/ai/models/sync', data),
+}
+
+export interface AiProviderConfigRequest {
+  aiProviderMode: 'SYSTEM_DEFAULT' | 'BRING_YOUR_OWN_KEY'
+  customAiProvider?: 'OPENAI' | 'OLLAMA' | 'GEMINI'
+  openAiApiKey?: string
+  openAiModel?: string
+  ollamaUrl?: string
+  ollamaModel?: string
+  geminiApiKey?: string
+  geminiModel?: string
+}
+
+export interface AiTestConnectionResponse {
+  success: boolean
+  message: string
+  latencyMs?: number
 }

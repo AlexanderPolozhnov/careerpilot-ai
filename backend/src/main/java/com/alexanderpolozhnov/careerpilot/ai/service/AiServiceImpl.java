@@ -12,6 +12,8 @@ import com.alexanderpolozhnov.careerpilot.ai.request.AiResumeGenerationRequest;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiResumeMatchRequest;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResponse;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResultDto;
+import com.alexanderpolozhnov.careerpilot.ai.request.AiProviderConfigRequest;
+import com.alexanderpolozhnov.careerpilot.ai.response.AiTestConnectionResponse;
 import com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity;
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
 import com.alexanderpolozhnov.careerpilot.preferences.entity.PreferencesEntity;
@@ -273,6 +275,61 @@ public class AiServiceImpl implements AiService {
                 AiEntity entity = aiRepository.findByIdAndUserId(id, user.getId())
                                 .orElseThrow(() -> new AiNotFoundException(id));
                 return aiMapper.toDto(entity);
+        }
+
+        @Override
+        public AiTestConnectionResponse testConnection(com.alexanderpolozhnov.careerpilot.ai.request.AiProviderConfigRequest request) {
+                PreferencesEntity prefs = buildTempPreferences(request);
+                LlmProvider provider = llmProviderFactory.getProvider(prefs);
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+                try {
+                        LlmResponse response = provider.generate("Say exactly: OK", prefs);
+                        stopWatch.stop();
+                        if (response.errorMessage() != null) {
+                                return new AiTestConnectionResponse(false, response.errorMessage(), null);
+                        }
+                        Long latency = response.latencyMs() != null ? response.latencyMs() : stopWatch.getTotalTimeMillis();
+                        return new AiTestConnectionResponse(true, "OK", latency);
+                } catch (Exception e) {
+                        return new AiTestConnectionResponse(false, e.getMessage(), null);
+                }
+        }
+
+        @Override
+        public List<String> syncModels(com.alexanderpolozhnov.careerpilot.ai.request.AiProviderConfigRequest request) {
+                PreferencesEntity prefs = buildTempPreferences(request);
+                LlmProvider provider = llmProviderFactory.getProvider(prefs);
+                return provider.getAvailableModels(prefs);
+        }
+
+        private PreferencesEntity buildTempPreferences(com.alexanderpolozhnov.careerpilot.ai.request.AiProviderConfigRequest request) {
+                PreferencesEntity prefs = new PreferencesEntity();
+                prefs.setAiProviderMode(request.aiProviderMode());
+                prefs.setCustomAiProvider(request.customAiProvider());
+                
+                AuthEntity user = currentUserResolver.resolveRequired();
+                PreferencesEntity savedPrefs = preferencesRepository.findByUserId(user.getId()).orElse(null);
+
+                String openAiKey = request.openAiApiKey();
+                if (openAiKey != null && openAiKey.contains("...") && savedPrefs != null) {
+                        openAiKey = savedPrefs.getOpenAiApiKey();
+                }
+                prefs.setOpenAiApiKey(openAiKey);
+                
+                String geminiKey = request.geminiApiKey();
+                if (geminiKey != null && geminiKey.contains("...") && savedPrefs != null) {
+                        geminiKey = savedPrefs.getGeminiApiKey();
+                }
+                prefs.setGeminiApiKey(geminiKey);
+
+                prefs.setOllamaUrl(request.ollamaUrl());
+
+                prefs.setOpenAiModel(request.openAiModel() != null && !request.openAiModel().isBlank() ? request.openAiModel() : "gpt-4o-mini");
+                prefs.setGeminiModel(request.geminiModel() != null && !request.geminiModel().isBlank() ? request.geminiModel() : "gemini-1.5-flash");
+                prefs.setOllamaModel(request.ollamaModel() != null && !request.ollamaModel().isBlank() ? request.ollamaModel() : "llama3");
+
+                return prefs;
         }
 
         private AiEntity createAndSave(AuthEntity user, String type, String prompt, LlmResponse llmResponse,

@@ -81,4 +81,33 @@ public class GeminiLlmProvider implements LlmProvider {
 
         return fallbackLlmGenerator.generateFallback(prompt);
     }
+
+    @Override
+    public java.util.List<String> getAvailableModels(PreferencesEntity preferences) {
+        String apiKey = preferences.getGeminiApiKey();
+        if (apiKey == null || apiKey.isBlank()) {
+            return java.util.Collections.emptyList();
+        }
+        try {
+            String url = "https://generativelanguage.googleapis.com/v1beta/models?key=" + apiKey;
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                Object models = response.getBody().get("models");
+                if (models instanceof java.util.List) {
+                    return ((java.util.List<?>) models).stream()
+                            .filter(item -> item instanceof Map)
+                            .map(item -> ((Map<?, ?>) item).get("name"))
+                            .filter(name -> name != null)
+                            .map(Object::toString)
+                            .map(name -> name.replaceFirst("^models/", ""))
+                            .filter(name -> name.startsWith("gemini"))
+                            .sorted()
+                            .toList();
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to fetch Gemini models: {}", e.getMessage());
+        }
+        return java.util.Collections.emptyList();
+    }
 }

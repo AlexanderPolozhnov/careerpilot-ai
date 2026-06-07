@@ -86,4 +86,28 @@ public class OllamaLlmProvider implements LlmProvider {
         return null;
     }
 
+    @Override
+    public java.util.List<String> getAvailableModels(PreferencesEntity preferences) {
+        String ollamaBaseUrl = (preferences.getOllamaUrl() != null && !preferences.getOllamaUrl().isBlank())
+                ? preferences.getOllamaUrl() : "http://localhost:11434";
+        try {
+            String url = ollamaBaseUrl + "/api/tags";
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                Object models = response.getBody().get("models");
+                if (models instanceof java.util.List) {
+                    return ((java.util.List<?>) models).stream()
+                            .filter(item -> item instanceof Map)
+                            .map(item -> ((Map<?, ?>) item).get("name"))
+                            .filter(name -> name != null)
+                            .map(Object::toString)
+                            .sorted()
+                            .toList();
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to fetch Ollama models: {}", e.getMessage());
+        }
+        return java.util.Collections.emptyList();
+    }
 }

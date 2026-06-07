@@ -8,6 +8,8 @@ import com.alexanderpolozhnov.careerpilot.ai.request.AiResumeMatchRequest;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResponse;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResultDto;
 import com.alexanderpolozhnov.careerpilot.ai.service.AiService;
+import com.alexanderpolozhnov.careerpilot.ai.request.AiProviderConfigRequest;
+import com.alexanderpolozhnov.careerpilot.ai.response.AiTestConnectionResponse;
 import com.alexanderpolozhnov.careerpilot.audit.annotation.Auditable;
 import com.alexanderpolozhnov.careerpilot.common.ratelimit.RateLimit;
 import jakarta.validation.Valid;
@@ -63,6 +65,16 @@ public class AiController {
     @GetMapping("/history")
     public List<AiResultDto> history(@RequestParam(required = false) String type) {
         return aiService.history(type);
+    }
+
+    @PostMapping("/test-connection")
+    public AiTestConnectionResponse testConnection(@Valid @RequestBody AiProviderConfigRequest request) {
+        return aiService.testConnection(request);
+    }
+
+    @PostMapping("/models/sync")
+    public List<String> syncModels(@Valid @RequestBody AiProviderConfigRequest request) {
+        return aiService.syncModels(request);
     }
 
     @GetMapping("/history/{id}")

@@ -13,6 +13,7 @@ import { profileService } from '@/services/profile.service'
 import { resumeService, type CreateResumeDto } from '@/services/resume.service'
 import { authService, type UpdatePasswordRequest } from '@/services/auth.service'
 import { exportService } from '@/services/export.service'
+import { aiService, type AiProviderConfigRequest } from '@/services/ai.service'
 import { cn, formatRelative, translateStatusInText } from '@/lib/utils'
 import { notificationService } from '@/services/notification.service'
 import { ResumeForm } from '@/components/ResumeForm'
@@ -228,6 +229,7 @@ export default function SettingsPage() {
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
     const [showTelegramModal, setShowTelegramModal] = useState(false)
     const [telegramLink, setTelegramLink] = useState<string | null>(null)
+    const [availableModels, setAvailableModels] = useState<string[]>([])
 
     useEffect(() => {
         if (location.hash) {
@@ -570,6 +572,55 @@ export default function SettingsPage() {
             toast.error(t('settings.resumes.error'))
         }
     })
+
+    const testConnectionMutation = useMutation({
+        mutationFn: (data: AiProviderConfigRequest) => aiService.testConnection(data),
+        onSuccess: (data) => {
+            if (data.success) {
+                toast.success(t('settings.testConnectionSuccess', { latency: data.latencyMs }))
+            } else {
+                toast.error(t('settings.testConnectionFailed', { message: data.message }))
+            }
+        },
+        onError: () => toast.error(t('settings.testConnectionError'))
+    })
+
+    const syncModelsMutation = useMutation({
+        mutationFn: (data: AiProviderConfigRequest) => aiService.syncModels(data),
+        onSuccess: (data) => {
+            setAvailableModels(data)
+            toast.success(t('settings.syncModelsSuccess', { count: data.length }))
+        },
+        onError: () => toast.error(t('settings.syncModelsError'))
+    })
+
+    const handleTestConnection = () => {
+        const values = prefsForm.getValues()
+        testConnectionMutation.mutate({
+            aiProviderMode: values.aiProviderMode === 'BRING_YOUR_OWN_KEY' ? 'BRING_YOUR_OWN_KEY' : 'SYSTEM_DEFAULT',
+            customAiProvider: values.aiProviderMode === 'LOCAL' ? 'OLLAMA' : values.customAiProvider,
+            openAiApiKey: values.openAiApiKey,
+            openAiModel: values.openAiModel,
+            ollamaUrl: values.ollamaUrl,
+            ollamaModel: values.ollamaModel,
+            geminiApiKey: values.geminiApiKey,
+            geminiModel: values.geminiModel,
+        })
+    }
+
+    const handleSyncModels = () => {
+        const values = prefsForm.getValues()
+        syncModelsMutation.mutate({
+            aiProviderMode: values.aiProviderMode === 'BRING_YOUR_OWN_KEY' ? 'BRING_YOUR_OWN_KEY' : 'SYSTEM_DEFAULT',
+            customAiProvider: values.aiProviderMode === 'LOCAL' ? 'OLLAMA' : values.customAiProvider,
+            openAiApiKey: values.openAiApiKey,
+            openAiModel: values.openAiModel,
+            ollamaUrl: values.ollamaUrl,
+            ollamaModel: values.ollamaModel,
+            geminiApiKey: values.geminiApiKey,
+            geminiModel: values.geminiModel,
+        })
+    }
 
     const exportDataMutation = useMutation({
         mutationFn: () => exportService.exportToExcel(),
@@ -1276,6 +1327,12 @@ export default function SettingsPage() {
                             })}
                         </div>
 
+                        <datalist id="models-list">
+                            {availableModels.map(model => (
+                                <option key={model} value={model} />
+                            ))}
+                        </datalist>
+
                         {/* Dynamic fields based on AI provider mode */}
                         {aiProviderMode === 'LOCAL' && (
                             <div className="space-y-4 mt-6 pt-6 border-t border-white/[0.06]">
@@ -1298,11 +1355,12 @@ export default function SettingsPage() {
                                         className="input mt-1 w-full"
                                         {...prefsForm.register('ollamaModel')}
                                         placeholder="llama3"
+                                        list="models-list"
                                     />
                                     <p className="text-[10px] text-white/30 mt-1">{t('settings.ollamaDefaultsHint')}</p>
                                 </div>
-                                {prefsForm.formState.isDirty && (
-                                    <div className="pt-2">
+                                <div className="pt-2 flex flex-wrap gap-3">
+                                    {prefsForm.formState.isDirty && (
                                         <button
                                             type="button"
                                             onClick={handleAiConfigSave}
@@ -1314,8 +1372,30 @@ export default function SettingsPage() {
                                         >
                                             {updateAiProviderMutation.isPending ? t('settings.saving') : t('settings.saveAiConfig')}
                                         </button>
-                                    </div>
-                                )}
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={handleTestConnection}
+                                        disabled={testConnectionMutation.isPending}
+                                        className={cn(
+                                            'btn-secondary px-4 py-2 text-sm',
+                                            testConnectionMutation.isPending && 'opacity-70 cursor-not-allowed'
+                                        )}
+                                    >
+                                        {testConnectionMutation.isPending ? t('settings.testing', 'Testing...') : t('settings.testConnection', 'Test Connection')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleSyncModels}
+                                        disabled={syncModelsMutation.isPending}
+                                        className={cn(
+                                            'btn-secondary px-4 py-2 text-sm',
+                                            syncModelsMutation.isPending && 'opacity-70 cursor-not-allowed'
+                                        )}
+                                    >
+                                        {syncModelsMutation.isPending ? t('settings.syncing', 'Syncing...') : t('settings.syncModels', 'Sync Models')}
+                                    </button>
+                                </div>
                                 <div className="mt-4 p-4 rounded-xl bg-black/40 border border-white/[0.06]">
                                     <h4 className="text-sm font-medium text-white mb-2">{t('settings.dockerTitle')}</h4>
                                     <pre className="text-xs text-emerald-400 bg-black/60 p-3 rounded-lg overflow-x-auto">
@@ -1371,6 +1451,7 @@ export default function SettingsPage() {
                                                 className="input mt-1 w-full"
                                                 {...prefsForm.register('openAiModel')}
                                                 placeholder="gpt-4o"
+                                                list="models-list"
                                             />
                                         </div>
                                     </>
@@ -1401,14 +1482,15 @@ export default function SettingsPage() {
                                                 className="input mt-1 w-full"
                                                 {...prefsForm.register('geminiModel')}
                                                 placeholder="gemini-1.5-flash"
+                                                list="models-list"
                                             />
                                         </div>
                                         <p className="text-xs text-white/30 mt-1">{t('settings.geminiDescription')}</p>
                                     </>
                                 )}
 
-                                {prefsForm.formState.isDirty && (
-                                    <div className="pt-2">
+                                <div className="pt-2 flex flex-wrap gap-3">
+                                    {prefsForm.formState.isDirty && (
                                         <button
                                             type="button"
                                             onClick={handleAiConfigSave}
@@ -1420,8 +1502,30 @@ export default function SettingsPage() {
                                         >
                                             {updateAiProviderMutation.isPending ? t('settings.saving') : t('settings.saveAiConfig')}
                                         </button>
-                                    </div>
-                                )}
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={handleTestConnection}
+                                        disabled={testConnectionMutation.isPending}
+                                        className={cn(
+                                            'btn-secondary px-4 py-2 text-sm',
+                                            testConnectionMutation.isPending && 'opacity-70 cursor-not-allowed'
+                                        )}
+                                    >
+                                        {testConnectionMutation.isPending ? t('settings.testing', 'Testing...') : t('settings.testConnection', 'Test Connection')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleSyncModels}
+                                        disabled={syncModelsMutation.isPending}
+                                        className={cn(
+                                            'btn-secondary px-4 py-2 text-sm',
+                                            syncModelsMutation.isPending && 'opacity-70 cursor-not-allowed'
+                                        )}
+                                    >
+                                        {syncModelsMutation.isPending ? t('settings.syncing', 'Syncing...') : t('settings.syncModels', 'Sync Models')}
+                                    </button>
+                                </div>
                             </div>
                         )}
 

@@ -87,4 +87,36 @@ public class OpenAiLlmProvider implements LlmProvider {
 
         return fallbackLlmGenerator.generateFallback(prompt);
     }
+
+    @Override
+    public java.util.List<String> getAvailableModels(PreferencesEntity preferences) {
+        String apiKey = preferences.getAiProviderMode() == AiProviderMode.BRING_YOUR_OWN_KEY 
+                ? preferences.getOpenAiApiKey() : systemApiKey;
+        if (apiKey == null || apiKey.isBlank()) {
+            return java.util.Collections.emptyList();
+        }
+        try {
+            String url = "https://api.openai.com/v1/models";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(apiKey);
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                Object data = response.getBody().get("data");
+                if (data instanceof java.util.List) {
+                    return ((java.util.List<?>) data).stream()
+                            .filter(item -> item instanceof Map)
+                            .map(item -> ((Map<?, ?>) item).get("id"))
+                            .filter(id -> id != null)
+                            .map(Object::toString)
+                            .filter(id -> id.startsWith("gpt-") || id.startsWith("o1") || id.startsWith("o3"))
+                            .sorted()
+                            .toList();
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to fetch OpenAI models: {}", e.getMessage());
+        }
+        return java.util.Collections.emptyList();
+    }
 }

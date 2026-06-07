@@ -7,6 +7,8 @@ import com.alexanderpolozhnov.careerpilot.ai.request.AiResumeGenerationRequest;
 import com.alexanderpolozhnov.careerpilot.ai.request.AiResumeMatchRequest;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResponse;
 import com.alexanderpolozhnov.careerpilot.ai.response.AiResultDto;
+import com.alexanderpolozhnov.careerpilot.ai.request.AiProviderConfigRequest;
+import com.alexanderpolozhnov.careerpilot.ai.response.AiTestConnectionResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,4 +29,8 @@ public interface AiService {
     List<AiResultDto> history(String type);
 
     AiResultDto historyById(UUID id);
+
+    AiTestConnectionResponse testConnection(AiProviderConfigRequest request);
+
+    List<String> syncModels(AiProviderConfigRequest request);
 }

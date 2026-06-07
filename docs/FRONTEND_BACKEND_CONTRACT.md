@@ -441,6 +441,39 @@ Response: `AiResult[]`.
 
 Response: `AiResult`.
 
+### `POST /ai/test-connection` — USED BY FRONTEND
+
+Request `AiProviderConfigRequest`:
+
+```json
+{
+  "aiProviderMode": "BRING_YOUR_OWN_KEY",
+  "customAiProvider": "OPENAI",
+  "openAiApiKey": "sk-...",
+  "openAiModel": "gpt-4o-mini",
+  "ollamaUrl": "",
+  "ollamaModel": "",
+  "geminiApiKey": "",
+  "geminiModel": ""
+}
+```
+
+Response `AiTestConnectionResponse`:
+
+```json
+{
+  "success": true,
+  "message": "OK",
+  "latencyMs": 1200
+}
+```
+
+### `POST /ai/models/sync` — USED BY FRONTEND
+
+Request `AiProviderConfigRequest`.
+
+Response: `string[]` (e.g. `["gpt-4o", "gpt-4o-mini"]`).
+
 ## Analytics
 
 Frontend source: `frontend/src/services/analytics.service.ts`.
