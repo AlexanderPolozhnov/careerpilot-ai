@@ -84,6 +84,8 @@ The roadmap reflects the current project status. Planned items are not yet imple
 - [x] **Analytics & UI Bugfixes:** resolved LazyInitializationException, removed React key warnings, optimized data fetching (no N+1 issues).
 - [x] **Interview Calendar Export:** export scheduled interviews to .ics files to add to personal schedulers.
 - [x] **Google Calendar Direct Sync:** direct two-way sync via official Google APIs (OAuth2).
+- [x] **Activity Heatmap:** GitHub-style activity heatmap (52 weeks × 7 days) on the Analytics page.
+- [x] **Activity Heatmap (backend):** `GET /analytics/activity-heatmap` endpoint with event aggregation by date (applications + tasks + interviews).
 
 ## Phase 5 — AI Features
 

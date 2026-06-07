@@ -281,3 +281,8 @@ export interface CompanyAnalyticsItem {
   responseRate: number
   avgTimeToInterview: number
 }
+
+export interface ActivityHeatmapItem {
+  date: string
+  count: number
+}

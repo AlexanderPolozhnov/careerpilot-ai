@@ -20,6 +20,7 @@ import { analyticsService } from '@/services/analytics.service'
 import type { AnalyticsSummary, ApplicationFunnel, CompanyAnalyticsItem } from '@/types'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
+import { ActivityHeatmap } from '@/components/analytics/ActivityHeatmap'
 
 function pct(n: number) {
     return `${Math.round(n * 100)}%`
@@ -350,8 +351,13 @@ export default function AnalyticsPage() {
         queryKey: ['analytics', 'companies'],
         queryFn: () => analyticsService.getCompanyAnalytics(),
     })
+    const heatmapQuery = useQuery({
+        queryKey: ['analytics-heatmap'],
+        queryFn: () => analyticsService.getActivityHeatmap(),
+    })
     const data: AnalyticsSummary | undefined = summaryQuery.data
     const companiesData: CompanyAnalyticsItem[] | undefined = companiesQuery.data
+    const heatmapData = heatmapQuery.data
 
     const maxFunnel = useMemo(() => {
         const f = data?.funnel ?? []
@@ -461,6 +467,9 @@ export default function AnalyticsPage() {
                             delay={150}
                         />
                     </div>
+                    {heatmapData && (
+                        <ActivityHeatmap data={heatmapData} />
+                    )}
                 </>
             )}
 

@@ -517,6 +517,10 @@
   },
   "analytics": {
     "title": "Аналитика",
+    "activityHeatmap": "Активность",
+    "activityLess": "Меньше",
+    "activityMore": "Больше",
+    "actionsCount": "{{count}} действий",
     "overview": "Обзор",
     "applications": "Заявки",
     "interviews": "Интервью",

@@ -521,6 +521,16 @@ Response `CompanyAnalyticsItem[]`:
 ]
 ```
 
+### `GET /analytics/activity-heatmap` — USED BY FRONTEND
+Возвращает массив активности за последние 365 дней (до текущей даты).
+Response `ActivityHeatmapItem[]`:
+```json
+[
+  { "date": "2025-06-07", "count": 5 },
+  { "date": "2025-06-08", "count": 0 }
+]
+```
+
 ## Dashboard тАФ USED BY FRONTEND
 
 Frontend source:

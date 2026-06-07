@@ -3423,3 +3423,11 @@ pm run build прошла успешно.
 - **Features:** �������-����������� (GenerateSW), ������ ����������, UI-��������� `PwaInstallPrompt` � �������� ��� ��������� ����������.
 - **Dependencies:** �������� ����� `workbox-window` ��� ���������� ������ `virtual:pwa-register` � ��������� pnpm.
 
+
+## Update 2026-06-08: Activity Heatmap
+
+- **Frontend:** Реализован UI-компонент Activity Heatmap в стиле GitHub на странице аналитики.
+- **Contract:** Обновлен FRONTEND_BACKEND_CONTRACT.md с новым эндпоинтом /analytics/activity-heatmap.
+- **Mocks:** Добавлена функция генерации моков за последние 365 дней.
+- **Analytics:** Компонент встроен на страницу AnalyticsPage с использованием useQuery.
+- **Backend:** Реализована серверная часть: разработан ActivityHeatmapItem DTO, AnalyticsService и AnalyticsServiceImpl для агрегации событий за 365 дней (отклики, задачи, интервью), создан и протестирован эндпоинт GET /api/analytics/activity-heatmap.

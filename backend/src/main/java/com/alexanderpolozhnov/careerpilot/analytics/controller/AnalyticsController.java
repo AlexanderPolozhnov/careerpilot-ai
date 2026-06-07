@@ -1,5 +1,6 @@
 package com.alexanderpolozhnov.careerpilot.analytics.controller;
 
+import com.alexanderpolozhnov.careerpilot.analytics.response.ActivityHeatmapItem;
 import com.alexanderpolozhnov.careerpilot.analytics.request.AnalyticsRequest;
 import com.alexanderpolozhnov.careerpilot.analytics.response.AnalyticsResponse;
 import com.alexanderpolozhnov.careerpilot.analytics.response.AnalyticsSummaryResponse;
@@ -34,5 +35,10 @@ public class AnalyticsController {
     @GetMapping("/companies")
     public List<CompanyAnalyticsItem> getCompanyAnalytics() {
         return service.getCompanyAnalytics();
+    }
+
+    @GetMapping("/activity-heatmap")
+    public List<ActivityHeatmapItem> getActivityHeatmap() {
+        return service.getActivityHeatmap();
     }
 }

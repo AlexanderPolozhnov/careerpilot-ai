@@ -513,6 +513,10 @@
   },
   "analytics": {
     "title": "Analytics",
+    "activityHeatmap": "Activity",
+    "activityLess": "Less",
+    "activityMore": "More",
+    "actionsCount": "{{count}} actions",
     "overview": "Overview",
     "applications": "Applications",
     "interviews": "Interviews",

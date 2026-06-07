@@ -168,7 +168,7 @@ CareerPilot AI unifies this process into a clean, intuitive workflow:
 | Interviews    | Full CRUD, pagination, filtering by type/result, connection with Applications                                 | ✅      |
 | Resumes       | Full CRUD, transactional logic for setting default resume, URL validation                                     | ✅      |
 | Search        | `GET /api/search` — aggregated full-text search across vacancies, companies, tasks, and interviews            | ✅      |
-| Analytics     | `GET /analytics/summary` with application funnel, weekly activity, and top skill gaps                         | ✅      |
+| Analytics     | `GET /api/analytics/summary` (funnel, skill gaps), `GET /api/analytics/activity-heatmap` (activity heatmap for last 365 days) | ✅      |
 | AI Assistant  | analyze-vacancy, resume-match, cover-letter, interview-questions, history                                     | ✅      |
 | Dashboard     | `GET /dashboard/summary` (KPIs, upcoming interviews, AI insights, task list)                                  | ✅      |
 | Profile       | `GET /profiles/me`, `PUT /profiles/me` with JSONB skills field                                                | ✅      |
@@ -183,7 +183,7 @@ CareerPilot AI unifies this process into a clean, intuitive workflow:
 - **Calendar Export** — support for downloading `.ics` files and direct sync with **Google Calendar** via OAuth2.
 - **Global Search (Cmd+K / Ctrl+K)** — hotkey modal with debounced search and quick entity navigation.
 - **AI Assistant** — 5 tools with dynamic forms, auto-filled resume/vacancy selectors, advanced validation, and search history.
-- **Analytics** — KPI cards, conversion funnel, activity chart based on calendar weeks, and skill gaps.
+- **Analytics** — KPI cards, conversion funnel, activity chart, GitHub-style activity heatmap (52 weeks × 7 days), and skill gaps.
 - **Dashboard** — fully integrated with backend via React Query, skeleton loading, quick-toggle tasks.
 - **Settings** — profile editor (skills input), resume management (Zod validation), password manager (including password generation for OAuth2 accounts).
 - React Query (TanStack Query) for robust caching and invalidation.

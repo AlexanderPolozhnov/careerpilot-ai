@@ -10,6 +10,11 @@ import com.alexanderpolozhnov.careerpilot.analytics.response.CompanyAnalyticsIte
 import com.alexanderpolozhnov.careerpilot.common.service.CurrentUserResolver;
 import com.alexanderpolozhnov.careerpilot.profile.entity.ProfileEntity;
 import com.alexanderpolozhnov.careerpilot.profile.repository.ProfileRepository;
+import com.alexanderpolozhnov.careerpilot.analytics.response.ActivityHeatmapItem;
+import com.alexanderpolozhnov.careerpilot.interview.repository.InterviewRepository;
+import com.alexanderpolozhnov.careerpilot.task.repository.TaskRepository;
+import com.alexanderpolozhnov.careerpilot.interview.entity.InterviewEntity;
+import com.alexanderpolozhnov.careerpilot.task.entity.TaskEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +43,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private final ApplicationRepository applicationRepository;
     private final CurrentUserResolver currentUserResolver;
     private final ProfileRepository profileRepository;
+    private final InterviewRepository interviewRepository;
+    private final TaskRepository taskRepository;
 
     @Override
     public AnalyticsResponse create(AnalyticsRequest request) {
@@ -275,5 +282,69 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .thenComparing(CompanyAnalyticsItem::companyName));
 
         return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ActivityHeatmapItem> getActivityHeatmap() {
+        UUID userId = currentUserResolver.resolveRequired().getId();
+        ZoneId zone = ZoneId.systemDefault();
+        LocalDate today = LocalDate.now(zone);
+        LocalDate startDate = today.minusDays(364); // We want 365 days including today
+
+        Map<LocalDate, Integer> counts = new LinkedHashMap<>();
+        for (int i = 0; i < 365; i++) {
+            counts.put(startDate.plusDays(i), 0);
+        }
+
+        // 1. Applications
+        List<ApplicationEntity> applications = applicationRepository.findAllByUserId(userId);
+        for (ApplicationEntity app : applications) {
+            if (app.getCreatedAt() != null) {
+                LocalDate date = LocalDate.ofInstant(app.getCreatedAt(), zone);
+                if (counts.containsKey(date)) {
+                    counts.put(date, counts.get(date) + 1);
+                }
+            }
+            if (app.getAppliedAt() != null) {
+                LocalDate date = LocalDate.ofInstant(app.getAppliedAt(), zone);
+                if (counts.containsKey(date)) {
+                    counts.put(date, counts.get(date) + 1);
+                }
+            }
+        }
+
+        // 2. Interviews
+        List<InterviewEntity> interviews = interviewRepository.findAllByApplication_User_Id(userId);
+        for (InterviewEntity interview : interviews) {
+            if (interview.getScheduledAt() != null) {
+                LocalDate date = LocalDate.ofInstant(interview.getScheduledAt(), zone);
+                if (counts.containsKey(date)) {
+                    counts.put(date, counts.get(date) + 1);
+                }
+            }
+            if (interview.getCreatedAt() != null) {
+                LocalDate date = LocalDate.ofInstant(interview.getCreatedAt(), zone);
+                if (counts.containsKey(date)) {
+                    counts.put(date, counts.get(date) + 1);
+                }
+            }
+        }
+
+        // 3. Tasks
+        List<TaskEntity> tasks = taskRepository.findAllByUserId(userId);
+        for (TaskEntity task : tasks) {
+            if (task.getCreatedAt() != null) {
+                LocalDate date = LocalDate.ofInstant(task.getCreatedAt(), zone);
+                if (counts.containsKey(date)) {
+                    counts.put(date, counts.get(date) + 1);
+                }
+            }
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+        return counts.entrySet().stream()
+                .map(entry -> new ActivityHeatmapItem(entry.getKey().format(formatter), entry.getValue()))
+                .collect(Collectors.toList());
     }
 }

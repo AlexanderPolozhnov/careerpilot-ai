@@ -361,7 +361,7 @@ docker compose config
 7. **Resumes**: полный CRUD, транзакционная логика дефолтного резюме.
 8. **Profile**: GET/PUT me с JSONB-полем скиллов.
 9. **AI Assistant**: analyze-vacancy, resume-match, cover-letter, interview-questions, history с Redis-кэшированием.
-10. **Analytics**: summary с воронкой, недельной активностью, skill gaps, **статистика по компаниям**.
+10. **Analytics**: summary с воронкой, недельной активностью, skill gaps, **статистика по компаниям**, **тепловая карта активности (Activity Heatmap)**.
 11. **Dashboard**: summary с KPI, интервью, задачами.
 12. **Settings**: preferences, управление резюме, смена пароля, удаление аккаунта, **Contextual Help**.
 13. **Search**: агрегированный поиск по вакансиям, компаниям, задачам, собеседованиям.

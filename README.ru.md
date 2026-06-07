@@ -168,7 +168,7 @@ CareerPilot AI собирает этот процесс в один понятн
 | Interviews    | Полный CRUD, pagination, фильтрация по типу/результату, связь с Applications                                  | ✅      |
 | Resumes       | Полный CRUD, транзакционная логика установки дефолтного резюме, валидация URL                                 | ✅      |
 | Search        | `GET /api/search` — агрегированный полнотекстовый поиск по вакансиям, компаниям, задачам и собеседованиям     | ✅      |
-| Analytics     | `GET /analytics/summary` с воронкой откликов, недельной активностью и top skill gaps                         | ✅      |
+| Analytics     | `GET /api/analytics/summary` (воронка, skill gaps), `GET /api/analytics/activity-heatmap` (тепловая карта активности за 365 дней) | ✅      |
 | AI Assistant  | analyze-vacancy, resume-match, cover-letter, interview-questions, history                                     | ✅      |
 | Dashboard     | `GET /dashboard/summary` (KPI, предстоящие интервью, AI инсайты, список задач)                                | ✅      |
 | Profile       | `GET /profiles/me`, `PUT /profiles/me` с JSONB-полем скиллов                                                  | ✅      |
@@ -183,7 +183,7 @@ CareerPilot AI собирает этот процесс в один понятн
 - **Экспорт в Календарь** — поддержка скачивания `.ics` файлов и прямая синхронизация с **Google Calendar** через OAuth2.
 - **Глобальный поиск (Cmd+K / Ctrl+K)** — модальное окно с дебаунсом и быстрым переходом к любой сущности.
 - **AI-ассистент** — 5 инструментов с динамическими формами, выбором резюме/вакансий с автозаполнением, улучшенной валидацией и индивидуальными заголовками, автообновление истории запросов.
-- **Analytics** — KPI-карточки, воронка (funnel), график активности по реальным неделям, skill gaps.
+- **Analytics** — KPI-карточки, воронка (funnel), график активности, тепловая карта активности за 365 дней (Activity Heatmap) в стиле GitHub, skill gaps.
 - **Dashboard** — подключён к backend через React Query, skeleton-loading, быстрый toggle задач.
 - **Settings** — профиль (ввод навыков), управление резюме (Zod-валидация), управление паролями (в т.ч. создание для OAuth2 пользователей).
 - React Query (TanStack Query) для кэширования и инвалидации.

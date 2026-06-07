@@ -151,7 +151,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] **Onboarding Flow** — мастер первого запуска (3–4 шага): профиль → первая вакансия → настройка AI → знакомство с Kanban.
 - [x] **Полная мобильная оптимизация** — адаптивные `AnalyticsPage` (charts), `VacancyDetailPage`, `InterviewsPage`; touch-friendly Kanban.
 - [x] **PWA** — режим offline, кнопка «Установить приложение», поддержка Service Worker.
-- [ ] **Activity Heatmap** — тепловая карта активности в стиле GitHub (52 нед × 7 дней) на странице аналитики.
+- [x] **Activity Heatmap** — тепловая карта активности в стиле GitHub (52 нед × 7 дней) на странице аналитики.
 - [ ] **Rejection Funnel** — воронка конверсии между статусами (NEW → APPLIED → HR_SCREEN → TECH → OFFER).
 - [ ] **Kanban 2.0** — inline-редактирование заметок на карточке, фильтры по компании/дате, счётчик карточек в колонке, collapsed-режим.
 - [ ] **DnD-сортировка задач** — drag-and-drop для ручной расстановки порядка задач (dnd-kit уже установлен; поле `sort_order` в таблице `tasks`).
@@ -172,7 +172,7 @@ Roadmap отражает текущее состояние перед первы
 - [ ] **AI Follow-up Scheduler** — автоматическое создание задачи для откликов без ответа >7 дней в статусе `APPLIED`; endpoint `POST /ai/follow-up`.
 - [ ] **Salary Trend Analytics** — endpoint `GET /analytics/salary-trends`; агрегация по `salary_from`/`salary_to` вакансий за месяц.
 - [ ] **Rejection Funnel (backend)** — расширить `GET /analytics/summary` данными конверсии между статусами.
-- [ ] **Activity Heatmap (backend)** — endpoint `GET /analytics/activity-heatmap`; группировка событий по дате (отклики + задачи + интервью).
+- [x] **Activity Heatmap (backend)** — endpoint `GET /analytics/activity-heatmap`; группировка событий по дате (отклики + задачи + интервью).
 - [ ] **Telegram Bot Enhanced Commands** — добавить команды `/morning`, `/tasks`, `/add [URL]` в существующий `TelegramWebhookBot`.
 - [ ] **Real-time Notifications (SSE / WebSocket)** — `GET /notifications/stream` через SSE или Spring WebSocket + STOMP; замена polling каждые 60 сек.
 - [ ] **OpenAPI Documentation Polish** — полноценные `@Operation`, `@ApiResponse`, `@Parameter` для всех 30+ контроллеров.

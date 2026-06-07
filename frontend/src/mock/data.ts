@@ -7,6 +7,7 @@ import type {
   AiResult,
   AnalyticsSummary,
   Notification,
+  ActivityHeatmapItem,
 } from '@/types'
 
 export const mockUser = {
@@ -384,4 +385,28 @@ export const mockAnalytics: AnalyticsSummary = {
     { skill: 'AWS', frequency: 10, hasSkill: false },
     { skill: 'Docker', frequency: 9, hasSkill: true },
   ],
+}
+
+export const generateMockHeatmap = (): ActivityHeatmapItem[] => {
+  const data: ActivityHeatmapItem[] = []
+  const today = new Date()
+  
+  for (let i = 364; i >= 0; i--) {
+    const d = new Date(today)
+    d.setDate(today.getDate() - i)
+    
+    const rand = Math.random()
+    let count = 0
+    if (rand > 0.6) count = Math.floor(Math.random() * 3) + 1
+    if (rand > 0.85) count = Math.floor(Math.random() * 3) + 3
+    if (rand > 0.95) count = Math.floor(Math.random() * 3) + 6
+    if (rand > 0.98) count = Math.floor(Math.random() * 3) + 9
+    
+    data.push({
+      date: d.toISOString().split('T')[0],
+      count,
+    })
+  }
+  
+  return data
 }
