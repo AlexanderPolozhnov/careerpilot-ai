@@ -1267,7 +1267,7 @@ export default function SettingsPage() {
                     </section>
 
                     {/* AI Provider Section */}
-                    <section id="ai-provider" className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm scroll-mt-24">
+                    <section id="ai-provider" className="relative z-20 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm scroll-mt-24">
                         <SectionHeader
                             icon={Sparkles}
                             title={t('settings.aiProvider')}
@@ -1564,7 +1564,7 @@ export default function SettingsPage() {
                     </section>
 
                     {/* Notifications Section */}
-                    <section id="notifications" className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm scroll-mt-24">
+                    <section id="notifications" className="relative z-10 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm scroll-mt-24">
                         <SectionHeader
                             icon={Bell}
                             title={t('settings.notifications')}
