@@ -23,7 +23,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Frontend-backend API contract вынесен в `docs/FRONTEND_BACKEND_CONTRACT.md`.
 - [x] Modular monolith выбран как архитектурный подход.
 - [x] Корневой `.gitignore` защищает `.env`, build artifacts, IDE configs и dependency folders.
-- [x] MIT `LICENSE` добавлен.
+- [x] Добавлена собственная настраиваемая лицензия (запрещено коммерческое использование и развертывание).
 
 ## Phase 2 — Frontend Foundation
 

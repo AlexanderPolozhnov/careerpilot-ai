@@ -22,7 +22,7 @@ The roadmap reflects the current project status. Planned items are not yet imple
 - [x] Frontend-backend API contract documented in `docs/FRONTEND_BACKEND_CONTRACT.md`.
 - [x] Modular monolith chosen as the architectural pattern.
 - [x] Root `.gitignore` configured to protect `.env`, build artifacts, IDE configs, and dependency folders.
-- [x] MIT `LICENSE` added.
+- [x] Proprietary Custom License added (Commercial use & deployment prohibited).
 
 ## Phase 2 — Frontend Foundation
 

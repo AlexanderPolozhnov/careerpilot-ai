@@ -24,3 +24,6 @@ TERMS AND CONDITIONS:
 2. Non-Commercial Use Only: Any use of this code, its parts, algorithms, or architectural solutions for commercial purposes, profit generation, or as part of other commercial products is strictly prohibited without the prior written consent of the author.
 3. Deployment and Hosting Prohibition: Deployment, publication, distribution, or hosting of this code (in source or compiled form) on any public or private domains, cloud platforms (including Google Cloud Run, AWS, Heroku, etc.), or servers to provide access to third parties is strictly prohibited.
 4. Modification: Creating forks of this repository on GitHub is allowed solely for personal study. Public distribution of modified versions of the code is prohibited.
+
+CONTACT INFORMATION:
+For commercial licensing, collaboration, or permission to use the project, you can contact the author via their GitHub profile.
