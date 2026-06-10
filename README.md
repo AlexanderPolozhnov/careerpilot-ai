@@ -19,6 +19,8 @@
 
 </div>
 
+⚠️ **License:** This project's source code is open exclusively for architectural demonstration and portfolio purposes. Commercial use and deployment to external domains are strictly prohibited. For more details, see the [LICENSE](LICENSE) file.
+
 ## 🌟 Key Features
 
 CareerPilot AI is not just a basic CRUD application, but a full-fledged product with a well-thought-out architecture.
