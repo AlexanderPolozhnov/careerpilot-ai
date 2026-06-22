@@ -678,16 +678,6 @@
       "success": "Resume settings saved successfully",
       "error": "Error saving resume settings"
     },
-    "hh": {
-      "title": "hh.ru",
-      "description": "Import resume data from hh.ru into your CareerPilot profile",
-      "connect": "Connect",
-      "disconnect": "Disconnect",
-      "sync": "Sync",
-      "connectError": "Error connecting to hh.ru",
-      "disconnectSuccess": "hh.ru disconnected successfully",
-      "disconnectError": "Error disconnecting hh.ru"
-    },
     "help": {
       "profile": "This information is used to personalize your account and in document headers.",
       "professionalProfile": "Your skills and links are used by the AI Assistant to analyze job fit and generate cover letters.",

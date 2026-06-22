@@ -18,7 +18,6 @@ import { cn, formatRelative, translateStatusInText } from '@/lib/utils'
 import { notificationService } from '@/services/notification.service'
 import { ResumeForm } from '@/components/ResumeForm'
 import { ConfirmModal } from '@/components/ConfirmModal'
-import { ProfileSyncModal } from '@/components/ProfileSyncModal'
 import { toast } from '@/lib/toast'
 import type { Profile, Resume, User as UserType } from '@/types'
 import CustomSelect, { type SelectOption } from '@/components/ui/CustomSelect'
@@ -36,7 +35,6 @@ import {
     Key,
     Mail,
     MapPin,
-    RefreshCw,
     Send,
     Shield,
     Sparkles,
@@ -233,7 +231,6 @@ export default function SettingsPage() {
     const [showTelegramModal, setShowTelegramModal] = useState(false)
     const [telegramLink, setTelegramLink] = useState<string | null>(null)
     const [availableModels, setAvailableModels] = useState<string[]>([])
-    const [showHhSyncModal, setShowHhSyncModal] = useState(false)
 
     useEffect(() => {
         if (location.hash) {
@@ -487,21 +484,6 @@ export default function SettingsPage() {
             toast.success(t('settings.disconnectGoogleCalendarSuccess'))
         },
         onError: () => toast.error(t('settings.disconnectGoogleCalendarError'))
-    })
-
-    const { data: hhStatus } = useQuery({
-        queryKey: ['hh-status'],
-        queryFn: () => integrationService.getHhStatus(),
-        staleTime: 30_000,
-    })
-
-    const disconnectHhMutation = useMutation({
-        mutationFn: integrationService.disconnectHh,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['hh-status'] })
-            toast.success(t('settings.hh.disconnectSuccess'))
-        },
-        onError: () => toast.error(t('settings.hh.disconnectError'))
     })
 
     const deleteAccountMutation = useMutation({
@@ -1825,56 +1807,6 @@ export default function SettingsPage() {
                             )}
                         </div>
 
-                        {/* hh.ru Integration */}
-                        <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4 mt-3">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-[#d52b1e]/10 flex items-center justify-center">
-                                    <span className="text-[#d52b1e] font-bold text-sm">hh</span>
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-white">{t('settings.hh.title')}</p>
-                                    <p className="text-xs text-white/40 mt-0.5">{t('settings.hh.description')}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                {hhStatus?.connected && (
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowHhSyncModal(true)}
-                                        className="px-3 py-2 rounded-lg border border-violet-500/30 text-sm font-medium text-violet-400 hover:bg-violet-500/10 transition-colors flex items-center gap-1.5"
-                                    >
-                                        <RefreshCw className="w-3.5 h-3.5" />
-                                        {t('settings.hh.sync')}
-                                    </button>
-                                )}
-                                {hhStatus?.connected ? (
-                                    <button
-                                        type="button"
-                                        onClick={() => disconnectHhMutation.mutate()}
-                                        disabled={disconnectHhMutation.isPending}
-                                        className="px-4 py-2 rounded-lg border border-red-500/30 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
-                                    >
-                                        {disconnectHhMutation.isPending ? t('common.loading') : t('settings.hh.disconnect')}
-                                    </button>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        onClick={async () => {
-                                            try {
-                                                const { url } = await integrationService.getHhAuthUrl()
-                                                window.open(url, '_blank')
-                                            } catch {
-                                                toast.error(t('settings.hh.connectError'))
-                                            }
-                                        }}
-                                        className="px-4 py-2 rounded-lg bg-[#d52b1e] text-sm font-medium text-white hover:bg-[#b82217] transition-colors"
-                                    >
-                                        {t('settings.hh.connect')}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
                         {/* hh.ru Smart Auto-Search: Resume Text */}
                         <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4 mt-3">
                             <div className="flex items-center gap-4">
@@ -1913,11 +1845,6 @@ export default function SettingsPage() {
                             </Link>
                         </div>
                     </section>
-
-                    <ProfileSyncModal
-                        isOpen={showHhSyncModal}
-                        onClose={() => setShowHhSyncModal(false)}
-                    />
 
                     {/* Export Data */}
                     <section id="export-data" className="rounded-2xl border border-violet-500/20 bg-violet-500/[0.02] p-6 scroll-mt-24">

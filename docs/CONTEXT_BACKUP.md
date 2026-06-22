@@ -1,4 +1,4 @@
-﻿# CareerPilot AI — Context Backup
+# CareerPilot AI — Context Backup
 
 
 
@@ -145,6 +145,12 @@
 - `.\mvnw.cmd clean compile -q -DskipTests` (в `backend`) — **BUILD SUCCESS**
 - `pnpm run build` (в `frontend`) — **✓ built in 826ms**
 - `.\verify-all.ps1` — **SUCCESS**
+
+**Backend/Frontend — Очистка мертвого кода (Вариант Б):**
+- Полностью удален неработоспособный старый OAuth2-код hh.ru (пакет `integration/hh/` на бэкенде, файлы `ProfileSyncModal.tsx`, методы в `integration.service.ts` и старые i18n ключи на фронтенде).
+- Удалена временная миграция `V33__recreate_hh_integrations.sql`. База данных очищена от лишней таблицы `hh_integrations` (удаленной в V32), а бэкенд избавлен от неиспользуемых Java-сущностей и репозиториев, что исключило ошибки Hibernate валидации.
+
+
 
 
 
