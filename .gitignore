@@ -16,7 +16,6 @@ target/
 *.jar
 *.war
 .junie
-application-local.yaml
 
 # Node / Vite
 node_modules/
@@ -64,14 +63,9 @@ Thumbs.db
 # AI assistant local rules
 **/.aiassistant/
 .windsurf/
-private-notes/
-docs/tasks/
+docs/tasks/temp_tasks/
 docs/releases/
 docs/ideas/
-backend/.aiassistant/rules/.aiignore
-GEMINI.md
 
 # Test output files
 backend/test_compile_output.txt
-docs/logs/validation/
-.windsurfignore

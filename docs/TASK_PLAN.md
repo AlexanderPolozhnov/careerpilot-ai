@@ -1,244 +1,120 @@
-# Task: Onboarding Flow (Wizard первого запуска) (пример)
+# TASK_PLAN Шаблон
 
-## Контекст и цель
+> Скопируй этот шаблон при создании новой задачи.
+> Файл задачи: docs/tasks/new_tasks/TASK_{NAME}.md
+> После выполнения: перемести в docs/tasks/temp_tasks/
 
-Реализовать мастер первого запуска (Onboarding Wizard) для новых пользователей CareerPilot AI.
-Сейчас после регистрации пользователь попадает на пустой Dashboard без какого-либо контекста.
-Нужно добавить поле `onboarding_completed` в `user_preferences`, endpoint для его обновления, и
-красивый 4-шаговый Wizard на фронтенде (Профиль → Первая вакансия → Настройка AI → Готово).
+---
 
-## Затрагиваемые файлы
+# TASK: [НАЗВАНИЕ ЗАДАЧИ]
+
+**Дата создания:** YYYY-MM-DD  
+**Приоритет:** High / Medium / Low  
+**Фаза:** Phase X  
+**Автор плана:** Gemini 3.1 Pro (High)
+**Исполнитель:** Gemini 3.5 Flash (Medium / High)
+
+---
+
+## Цель
+
+[Одно предложение — что должно работать после выполнения задачи]
+
+---
+
+## Контекст
+
+- **Зависит от:** [предыдущие задачи / модули]
+- **Затрагивает:** Backend / Frontend / Both
+- **Связанный контракт:** docs/FRONTEND_BACKEND_CONTRACT.md #[секция]
+
+## Документация для обязательного ознакомления перед началом (пример):
+- `GEMINI.md` — архитектурные правила (MapStruct, userId из SecurityContext, @Transactional на сервисах).
+- **Выжимка из KNOWN_ISSUES:** [Автор плана (3.1 Pro) должен вписать сюда 1-3 ключевых правила для этой задачи, найденных через grep_search. Агент реализации НЕ должен читать весь файл KNOWN_ISSUES целиком!]
+- `docs/CONTEXT_BACKUP.md` — текущий статус. 
+⚠️ ЗАПРЕЩЕНО: Не читай `docs/CONTEXT_BACKUP_ARCHIVE.md` — этот файл предназначен ТОЛЬКО для человека. Тебе достаточно текущего контекста бэкапа.
+- `docs/FRONTEND_BACKEND_CONTRACT.md` — Секция 10 (Budgets: GET, POST, PUT, DELETE).
+- `ROADMAP.md` — Текущий прогресс (Фаза 3).
+
+
+---
+
+## Затронутые файлы
 
 ### Создать новые
-
-- `backend/src/main/resources/db/migration/V30__add_onboarding_completed.sql` — Flyway миграция: добавить поле `onboarding_completed` в `user_preferences`
-- `frontend/src/components/onboarding/OnboardingWizard.tsx` — главный компонент Wizard (4 шага, роутинг между ними)
-- `frontend/src/components/onboarding/OnboardingStep1Profile.tsx` — Шаг 1: заполнить имя и позицию
-- `frontend/src/components/onboarding/OnboardingStep2Vacancy.tsx` — Шаг 2: добавить первую вакансию (упрощённая форма)
-- `frontend/src/components/onboarding/OnboardingStep3Ai.tsx` — Шаг 3: выбор AI провайдера
-- `frontend/src/components/onboarding/OnboardingStep4Done.tsx` — Шаг 4: финальный экран с CTA
+- `backend/.../[Name].java` — [для чего]
+- `frontend/.../[Name].tsx` — [для чего]
 
 ### Изменить существующие
-
-- `backend/src/main/resources/db/migration/V30__add_onboarding_completed.sql` — **(создать)**
-- `backend/.../preferences/entity/PreferencesEntity.java` — добавить поле `onboardingCompleted`
-- `backend/.../preferences/response/PreferencesResponse.java` — добавить поле `onboardingCompleted`
-- `backend/.../preferences/request/PreferencesRequest.java` — добавить поле `onboardingCompleted` (опциональное)
-- `backend/.../preferences/service/PreferencesServiceImpl.java` — учесть новое поле при маппинге; `createDefaults()` — по умолчанию `false`
-- `frontend/src/services/settings.service.ts` — добавить поле `onboardingCompleted` в `PreferencesResponse`; добавить метод `completeOnboarding()`
-- `frontend/src/context/AuthContext.tsx` — после загрузки `user` проверять `preferences.onboardingCompleted` и управлять видимостью Wizard
-- `frontend/src/routes/AppRouter.tsx` — добавить логику показа `OnboardingWizard` вместо контента, если `!onboardingCompleted`
-- `frontend/src/i18n/locales/ru.json` — добавить ключи `onboarding.*`
-- `frontend/src/i18n/locales/en.json` — аналогично
+> **КРИТИЧЕСКИ ВАЖНО (Для автора плана 3.1 Pro):** Будь МАКСИМАЛЬНО КОНКРЕТНЫМ! Не пиши "изменить логику баланса", пиши: "в методе updateBalance() класса AccountService.java добавить проверку на отрицательный лимит".
+- `backend/.../[Name].java` — [что именно меняем, конкретный метод/логика]
+- `frontend/.../[Name].ts` — [что именно меняем, конкретный хук/UI]
 
 ---
 
-## Backend: точная реализация
+## Точная реализация (Technical Design)
 
-### Flyway миграция V30
+> Краткие наброски кода для архитектурного обдумывания ПЕРЕД реализацией.
+> **КРИТИЧЕСКИ ВАЖНО (Для автора плана 3.1 Pro):** Пиши названия переменных, типы и точные сигнатуры методов (напр. `BigDecimal amount`), чтобы агент Flash не придумывал архитектуру сам.
 
-```sql
--- V30__add_onboarding_completed.sql
-ALTER TABLE careerpilot.user_preferences
-    ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN NOT NULL DEFAULT FALSE;
-```
+### Backend
+- **Миграции:** [нужна ли V...__name.sql?]
+- **Entity / DTO:** [какие конкретные поля добавляем и их типы]
 
-> Миграция маленькая — новой таблицы не нужно. Поле добавляется в уже существующую `user_preferences`.
-
-### PreferencesEntity
-
-Добавить в `PreferencesEntity.java` после поля `googleCalendarConnected`:
-
-```java
-@Column(name = "onboarding_completed", nullable = false)
-private boolean onboardingCompleted = false;
-```
-
-### PreferencesResponse
-
-Добавить поле `boolean onboardingCompleted` в `record PreferencesResponse(...)` или в `class PreferencesResponse`.
-
-### PreferencesRequest
-
-Добавить опциональное поле — `Boolean onboardingCompleted` (boxed, чтобы не ломать существующие PUT-запросы):
-
-```java
-private Boolean onboardingCompleted;
-```
-
-### PreferencesServiceImpl — изменения
-
-1. В `toResponse()` (маппинг Entity → Response): добавить `.onboardingCompleted(entity.isOnboardingCompleted())`.
-2. В `updatePreferences()`: если `request.getOnboardingCompleted() != null`, применять значение: `entity.setOnboardingCompleted(request.getOnboardingCompleted())`.
-3. В `createDefaults()`: поле `onboardingCompleted` = `false` (уже будет через @Column default, но явно для clarity).
-
-### PreferencesController — изменения
-
-Дополнительного endpoint'а **не нужно**. Фронтенд вызовет существующий `PUT /api/preferences` с полем `onboardingCompleted: true` после завершения Wizard.
+### Frontend
+- **API / Types:** [какие точные сигнатуры/типы меняем]
+- **UI / Роутинг:** [основная логика компонентов]
+- **i18n:** [новые ключи для ru.json / en.json]
 
 ---
 
-## Frontend: точная реализация
+## Риски и подводные камни (Edge Cases)
 
-### Обновление типов (`settings.service.ts`)
-
-```typescript
-export interface PreferencesResponse {
-  // ... existing fields ...
-  onboardingCompleted: boolean  // добавить
-}
-
-// Добавить метод:
-completeOnboarding: (): Promise<PreferencesResponse> =>
-  USE_MOCKS
-    ? Promise.resolve({ ...mockPreferences, onboardingCompleted: true })
-    : api.put<PreferencesResponse>('/preferences', { onboardingCompleted: true }),
-```
-
-> Метод `completeOnboarding()` отправляет PUT с единственным значимым полем — остальные поля бэкенд проигнорирует если они `null` (благодаря boxed `Boolean` в `PreferencesRequest`).
-> **Проблема:** текущий `PreferencesRequest` на бэкенде требует все обязательные поля при PUT. Поэтому агент должен проверить — если все поля required, нужно передавать текущие значения преференций вместе с `onboardingCompleted: true`. Использовать `PATCH` или передавать полный объект с `getPreferences()` + overwrite поля.
-
-### React Query хук
-
-```typescript
-// Новый хук useOnboarding (можно встроить в SettingsPage/AppRouter)
-const completeOnboardingMutation = useMutation({
-  mutationFn: () => settingsService.completeOnboarding(),
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['preferences'] })
-  },
-})
-```
-
-### Логика показа Wizard (`AppRouter.tsx`)
-
-```typescript
-// После того как preferences загружены:
-const { data: preferences } = useQuery({
-  queryKey: ['preferences'],
-  queryFn: settingsService.getPreferences,
-  enabled: isAuthenticated,
-})
-
-// Если onboarding не пройден — показываем Wizard поверх контента:
-if (isAuthenticated && preferences && !preferences.onboardingCompleted) {
-  return <OnboardingWizard onComplete={completeOnboarding} />
-}
-```
-
-### Компонент OnboardingWizard
-
-Структура:
-```tsx
-// Состояние шагов: 1 | 2 | 3 | 4
-const [step, setStep] = useState(1)
-
-// Прогресс-бар вверху: 4 точки или линия
-// Кнопки: "Пропустить шаг" (skip) + "Далее" / "Завершить"
-// На финальном шаге: кнопка "Начать работу" → вызывает onComplete()
-```
-
-Полноэкранный overlay (`fixed inset-0 z-[200] bg-surface flex items-center justify-center`) поверх всего приложения.
-
-### Шаг 1 — Профиль (`OnboardingStep1Profile`)
-
-- Поля: имя (`name` из `User`), желаемая позиция (поле `headline` из `Profile`)
-- При нажатии "Далее" — сохраняет через `profileService.update()` (уже существует)
-- Если поля пусты — можно пропустить
-
-### Шаг 2 — Первая вакансия (`OnboardingStep2Vacancy`)
-
-- Минимальная форма: название вакансии, компания (текстовое поле, не select)
-- При нажатии "Добавить и продолжить" — вызывает `vacancyService.create()` (уже существует)
-- Кнопка "Пропустить" — переходит к шагу 3
-
-### Шаг 3 — AI Провайдер (`OnboardingStep3Ai`)
-
-- Упрощённый UI выбора: три кнопки-карточки (LOCAL, BRING_YOUR_OWN_KEY, CLOUD — disabled)
-- Если выбран BRING_YOUR_OWN_KEY — поле для API ключа
-- Сохраняет через `settingsService.updatePreferences()`
-- Кнопка "Пропустить" доступна
-
-### Шаг 4 — Done (`OnboardingStep4Done`)
-
-- Красивая анимированная карточка с иконкой ✓
-- Текст: "Вы готовы к работе! CareerPilot AI поможет вам найти работу мечты."
-- Кнопка "Начать работу" → вызывает `onComplete()` → `completeOnboarding()` → `invalidateQueries(['preferences'])` → Wizard скрывается
-
-### i18n ключи
-
-```json
-// ru.json
-"onboarding": {
-  "step1Title": "Расскажите о себе",
-  "step1Description": "Заполните базовую информацию для персонализации",
-  "step2Title": "Добавьте первую вакансию",
-  "step2Description": "Отслеживайте отклики в удобном Kanban-борде",
-  "step3Title": "Настройте AI-ассистента",
-  "step3Description": "Выберите AI-провайдера для анализа вакансий и резюме",
-  "step4Title": "Всё готово!",
-  "step4Description": "CareerPilot AI поможет вам найти работу мечты",
-  "next": "Далее",
-  "skip": "Пропустить шаг",
-  "finish": "Начать работу",
-  "progress": "Шаг {{current}} из {{total}}",
-  "stepProfile": "Профиль",
-  "stepVacancy": "Вакансия",
-  "stepAi": "AI",
-  "stepDone": "Готово"
-}
-
-// en.json — аналогично на английском
-```
+- **База данных:** [обратная совместимость, N+1 запросы, каскадное удаление]
+- **Telegram Mini App:** [ограничения мобилки, safe area, haptic feedback, back button]
+- **Кэш / State:** [сброс React Query `invalidateQueries`, Optimistic Updates]
 
 ---
 
 ## Порядок реализации для агента
 
-1. [x] Создать миграцию `V30__add_onboarding_completed.sql` с `ALTER TABLE`.
-2. [x] Добавить поле `onboardingCompleted` в `PreferencesEntity`, `PreferencesResponse`, `PreferencesRequest`.
-3. [x] Обновить `PreferencesServiceImpl`: маппинг в `toResponse()` и применение в `updatePreferences()`.
-4. [x] Запустить `.\mvnw.cmd test -Dtest="PreferencesServiceImplTest,PreferencesControllerTest"` — убедиться что тесты зелёные.
-5. [x] Добавить `onboardingCompleted` в `PreferencesResponse` в `settings.service.ts`. Добавить метод `completeOnboarding()`.
-6. [x] Добавить ключи i18n в `ru.json` и `en.json`.
-7. [x] Создать компоненты: `OnboardingWizard`, `OnboardingStep1Profile`, `OnboardingStep2Vacancy`, `OnboardingStep3Ai`, `OnboardingStep4Done`.
-8. [x] Добавить логику в `AppRouter.tsx`: загружать preferences при `isAuthenticated`, если `!onboardingCompleted` — рендерить `<OnboardingWizard />`.
-9. [x] Запустить `cd frontend && npm.cmd run build` — убедиться что сборка зелёная.
-10. Протестировать вручную: зарегистрировать нового пользователя → должен появиться Wizard → пройти все шаги → Dashboard должен открыться.
-11. [х] Выполнить все действия и синхронизировать все файлы которые описаны в последнем блоке этого файла. (обязательный пункт шаблона, должен быть добавлен в каждую новую задачу!!!)
+> ⚠️ После каждого Java-класса — `.\mvnw.cmd clean compile -q -DskipTests`
+> ⚠️ После каждого пункта — отметить [x]
+
+### Backend
+- [ ] 1. Flyway миграция (если нужна).
+- [ ] 2. Entity + DTO.
+- [ ] 3. Repository + Service.
+- [ ] 4. Controller + Mapper.
+- [ ] 5. Unit-тест.
+- [ ] 6. `.\mvnw.cmd test`
+
+### Frontend
+- [ ] 7. Types + API клиенты.
+- [ ] 8. React Query хуки.
+- [ ] 9. UI Компоненты / Страницы.
+- [ ] 10. i18n ключи.
+- [ ] 11. `cd frontend && pnpm run build`
 
 ---
 
-## Риски и что проверить
+## ⚠️ Обязательный финальный чек-лист (НЕ ИЗМЕНЯТЬ ПРИ КОПИРОВАНИИ, но удалить это пояснение в скобочках и скобочки для агента реализации)
 
-- **PUT /preferences требует все поля:** Если `PreferencesRequest` содержит обязательные (non-null) поля, `completeOnboarding()` должен передавать полный объект. Решение: сначала получить `getPreferences()`, затем слить с `{ onboardingCompleted: true }` и отправить PUT. Либо — на бэкенде сделать поля Request boxed (`Boolean`, а не `boolean`) и применять только non-null.
-- **Существующие пользователи:** Все существующие записи в `user_preferences` получат `onboarding_completed = FALSE` (через DEFAULT в миграции), что заставит их пройти Wizard заново. Решение: в миграции сделать `UPDATE careerpilot.user_preferences SET onboarding_completed = TRUE WHERE created_at < NOW()` — считать уже зарегистрированных прошедшими онбординг.
-- **Wizard не должен блокировать Telegram MiniApp:** В `OnboardingWizard` добавить проверку `isTelegramWebApp()` — если открыто в Telegram, не показывать Wizard (нет смысла проходить онбординг в MiniApp).
-- **preferences query до authenticated:** Запрос `getPreferences` должен стартовать только при `isAuthenticated`. Иначе `401` будет ломать логику до логина.
-- **Миграция V30:** Убедиться что `V29__add_google_calendar_integration.sql` применена. Следующая — строго `V30`.
+> [!IMPORTANT]
+> **СОХРАНЕНИЕ КОДИРОВКИ UTF-8**: Любое добавление или редактирование текстовой информации во всех файлах проекта (включая бэкапы `docs/CONTEXT_BACKUP.md`, ROADMAP, файлы задач, исходный код и комментарии) должно производиться **СТРОГО в кодировке UTF-8**. Использование системной кодировки Windows CP1251 (Windows-1251) или создание смешанных кодировок (mixed encoding/mojibake) КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО. Всегда принудительно сохраняйте файлы в UTF-8.
 
+ОБЯЗАТЕЛЬНО перед завершением задачи:
+1. [ ] Выполни локальную валидацию `.\verify-all.ps1` в корне проекта. Если скрипт выдает ошибки — исправляй их! Пуш или отчет без 100% успеха ЗАПРЕЩЕН.
+2. [ ] Синхронизируй `docs/CONTEXT_BACKUP.md` — добавь блок `## Update YYYY-MM-DD: [Суть]` в самый конец файла. Запись должна быть СТРОГО в UTF-8.
+3. [ ] Запусти `.\rotate-backup.ps1` для очистки старых логов. (Старые уйдут в `docs/CONTEXT_BACKUP_ARCHIVE.md`).
+4. [ ] Синхронизируй `ROADMAP.md` — отметь выполненное `[x]`.
+4. [ ] Запиши новые баги/решения в `docs/KNOWN_ISSUES_AND_PATTERNS.md` (только если уверен, что решение — best practice).
+5. [ ] Перемести файл этой задачи из `docs/tasks/new_tasks/` в `docs/tasks/temp_tasks/`.
+6. [ ] Протестируй фичу руками и напиши гайд ниже.
 ---
 
-## Проверки после реализации
+## Ручная проверка (Гайд для пользователя/разработчика)
 
-**Backend:** `.\mvnw.cmd test -Dtest="PreferencesServiceImplTest,PreferencesControllerTest"`
-**Backend compile:** `.\mvnw.cmd clean compile -DskipTests`
-**Frontend:** `cd frontend && npm.cmd run build`
-**Manual smoke:**
-1. Регистрация нового аккаунта → должен появиться Wizard
-2. Пройти все 4 шага → попасть на Dashboard
-3. Перезагрузить страницу → Wizard не появляется снова
-4. Существующий пользователь (у кого `onboarding_completed = true` после миграции) → Wizard не появляется
-
----
-
-## Всё что ниже обязательная вставка в каждый план реализации (не изменяя)
-
-ОБЯЗАТЕЛЬНО перед завершением выполни локальную валидацию через .\verify-all.ps1 в корне проекта. 
-Если скрипт выдает ошибки — исправляй их! Пуш или отчет без успешной валидации ЗАПРЕЩЕН.
-После реализации выполни проверки из раздела "Проверки" и учет раздела "⚠️ Известные ошибки и паттерны" в GEMINI.md чтобы не было ошибок.
-Выполни синхронизацию всех связанных документов (ROADMAP.md, ROADMAP.en.md, CAREERPILOT_AI_CONTEXT_BACKUP.md, DEPLOYMENT.md, README.md, README.ru.md, README.DEV.md), отразив в них внесенные изменения.
-В конце если были ошибки или нюансы — обнови раздел "⚠️ Известные ошибки и паттерны" в GEMINI.md, но только если ты точно уверен что решение правильное и сооветствует best practics.
-Обязательно не забывай про i18n ключи!
-
-После реализации обязательно кратко как проверить новую фичу от лица пользователя
+1. Запустить: `docker compose up -d`, `.\mvnw.cmd spring-boot:run`, `cd frontend && pnpm run dev`.
+2. [Шаг 1]
+3. [Шаг 2]

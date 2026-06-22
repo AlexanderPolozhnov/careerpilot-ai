@@ -107,3 +107,11 @@ telegram:
     token: ${TELEGRAM_BOT_TOKEN:placeholder}
     username: ${TELEGRAM_BOT_USERNAME:careerpilot_ai_bot}
     webhook-url: ${TELEGRAM_WEBHOOK_URL:}
+    webapp-url: ${TELEGRAM_WEBAPP_URL:https://careerpilot-ai.ru/app/dashboard?tg=1}
+  miniapp:
+    name: ${TELEGRAM_MINIAPP_NAME:app}
+
+hh:
+  client-id: ${HH_CLIENT_ID:}
+  client-secret: ${HH_CLIENT_SECRET:}
+  redirect-uri: ${HH_REDIRECT_URI:http://localhost:8080/api/integration/hh/callback}

@@ -640,6 +640,16 @@
     "connectGoogleCalendarError": "Ошибка при подключении Google Календаря",
     "disconnectGoogleCalendarSuccess": "Google Calendar успешно отключен",
     "disconnectGoogleCalendarError": "Ошибка при отключении Google Календаря",
+    "hh": {
+      "title": "hh.ru",
+      "description": "Импорт данных резюме из hh.ru в ваш профиль CareerPilot",
+      "connect": "Подключить",
+      "disconnect": "Отключить",
+      "sync": "Синхронизировать",
+      "connectError": "Ошибка при подключении к hh.ru",
+      "disconnectSuccess": "hh.ru успешно отключен",
+      "disconnectError": "Ошибка при отключении hh.ru"
+    },
     "help": {
       "profile": "Эти данные используются для персонализации вашего аккаунта и в заголовках документов.",
       "professionalProfile": "Ваши навыки и ссылки используются AI-помощником для анализа соответствия вакансиям и генерации сопроводительных писем.",
@@ -1031,5 +1041,27 @@
     "stepVacancy": "Вакансия",
     "stepAi": "AI",
     "stepDone": "Готово"
+  },
+  "hh": {
+    "sync": {
+      "title": "Синхронизация с hh.ru",
+      "subtitle": "Выберите поля для импорта из вашего резюме на hh.ru",
+      "current": "Сейчас",
+      "fromHh": "Из hh.ru",
+      "empty": "не указано",
+      "noChanges": "Совпадает",
+      "hint": "Отметьте поля, которые хотите обновить из hh.ru:",
+      "loading": "Загрузка данных с hh.ru...",
+      "error": "Не удалось загрузить данные с hh.ru. Убедитесь, что аккаунт подключен.",
+      "syncButton": "Синхронизировать",
+      "selectedCount": "Выбрано полей: {{count}}",
+      "fields": {
+        "name": "Имя",
+        "location": "Город",
+        "headline": "Должность",
+        "skills": "Навыки",
+        "yearsOfExperience": "Опыт (лет)"
+      }
+    }
   }
 }

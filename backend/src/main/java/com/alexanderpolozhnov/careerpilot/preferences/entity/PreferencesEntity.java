@@ -79,4 +79,7 @@ public class PreferencesEntity extends BaseAuditableEntity {
 
     @Column(name = "onboarding_completed", nullable = false)
     private boolean onboardingCompleted = false;
+
+    @Column(name = "telegram_username", length = 100)
+    private String telegramUsername;
 }

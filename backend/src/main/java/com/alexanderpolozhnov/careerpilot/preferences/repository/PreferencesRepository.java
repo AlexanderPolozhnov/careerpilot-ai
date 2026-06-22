@@ -2,6 +2,7 @@ package com.alexanderpolozhnov.careerpilot.preferences.repository;
 
 import com.alexanderpolozhnov.careerpilot.preferences.entity.PreferencesEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,4 +16,10 @@ public interface PreferencesRepository extends JpaRepository<PreferencesEntity, 
     List<PreferencesEntity> findByTelegramChatId(String telegramChatId);
 
     boolean existsByTelegramChatId(String telegramChatId);
+
+    Optional<PreferencesEntity> findByTelegramUsernameIgnoreCase(String username);
+
+    @Query("SELECT p.telegramChatId FROM PreferencesEntity p WHERE p.telegramChatId IS NOT NULL")
+    List<String> findAllTelegramChatIds();
 }
+

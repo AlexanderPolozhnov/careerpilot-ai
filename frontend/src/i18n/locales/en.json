@@ -636,6 +636,16 @@
     "connectGoogleCalendarError": "Error connecting Google Calendar",
     "disconnectGoogleCalendarSuccess": "Google Calendar disconnected successfully",
     "disconnectGoogleCalendarError": "Error disconnecting Google Calendar",
+    "hh": {
+      "title": "hh.ru",
+      "description": "Import resume data from hh.ru into your CareerPilot profile",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "sync": "Sync",
+      "connectError": "Error connecting to hh.ru",
+      "disconnectSuccess": "hh.ru disconnected successfully",
+      "disconnectError": "Error disconnecting hh.ru"
+    },
     "help": {
       "profile": "This information is used to personalize your account and in document headers.",
       "professionalProfile": "Your skills and links are used by the AI Assistant to analyze job fit and generate cover letters.",
@@ -1025,5 +1035,27 @@
     "stepVacancy": "Vacancy",
     "stepAi": "AI",
     "stepDone": "Done"
+  },
+  "hh": {
+    "sync": {
+      "title": "Sync with hh.ru",
+      "subtitle": "Select fields to import from your hh.ru resume",
+      "current": "Current",
+      "fromHh": "From hh.ru",
+      "empty": "not set",
+      "noChanges": "Matches",
+      "hint": "Check the fields you want to update from hh.ru:",
+      "loading": "Loading data from hh.ru...",
+      "error": "Failed to load data from hh.ru. Make sure your account is connected.",
+      "syncButton": "Synchronize",
+      "selectedCount": "Selected fields: {{count}}",
+      "fields": {
+        "name": "Name",
+        "location": "City",
+        "headline": "Job title",
+        "skills": "Skills",
+        "yearsOfExperience": "Experience (years)"
+      }
+    }
   }
 }

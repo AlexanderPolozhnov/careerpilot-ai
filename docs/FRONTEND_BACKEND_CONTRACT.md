@@ -940,3 +940,17 @@ Search behavior:
 - `authService.me()` is not mock-aware.
 - Frontend has no refresh-token handling.
 - Frontend tests are not configured yet; current confidence relies on lint/build plus manual API testing.
+
+## 11. Integrations (hh.ru & Payments)
+
+### 11.1 HH.ru OAuth2 & Sync
+**Status:** USED BY FRONTEND
+- **GET /integration/hh/auth-url** -> string (URL)
+- **POST /integration/hh/callback?code={code}** -> oid (200 OK)
+- **GET /integration/hh/status** -> { isLinked: boolean, linkedAt?: string, hhUserId?: string }
+- **POST /integration/hh/sync** -> oid (200 OK)
+
+### 11.2 Payments (Telegram Stars)
+**Status:** USED BY FRONTEND
+- **POST /payments/stars/initiate** -> { paymentId: string, botLink: string }
+- **GET /payments/stars/{paymentId}/status** -> { status: 'PENDING' | 'COMPLETED' | 'FAILED' }

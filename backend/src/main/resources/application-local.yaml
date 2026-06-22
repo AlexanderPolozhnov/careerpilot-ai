@@ -1,0 +1,3 @@
+telegram:
+  bot:
+    webhook-url: "https://krypton-cruelty-hypocrite.ngrok-free.dev/api/telegram/webhook"
