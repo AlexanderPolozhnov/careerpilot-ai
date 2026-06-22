@@ -1,0 +1,66 @@
+steps:
+  # === BACKEND ===
+  # 1. Build Backend JAR
+  - name: 'maven:3.9.6-eclipse-temurin-21'
+    entrypoint: 'bash'
+    args: ['-c', 'cd backend && ./mvnw clean package -Dmaven.test.skip=true']
+    
+  # 2. Build Backend Docker Image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/backend:latest', '-f', 'backend/Dockerfile', 'backend']
+
+  # 3. Push Backend Docker Image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/backend:latest']
+
+  # 4. Deploy Backend to Cloud Run
+  # Важно: Секреты теперь пробрасываются напрямую из Google Secret Manager
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'careerpilot-backend'
+      - '--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/backend:latest'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--add-cloudsql-instances=${PROJECT_ID}:europe-west3:careerpilot-db'
+      - '--update-secrets=DATABASE_USERNAME=DATABASE_USERNAME:latest,DATABASE_PASSWORD=DATABASE_PASSWORD:latest,REDIS_HOST=REDIS_HOST:latest,ENCRYPTION_MASTER_KEY=ENCRYPTION_MASTER_KEY:latest,JWT_SECRET=JWT_SECRET:latest,GH_CLIENT_ID=GH_CLIENT_ID:latest,GH_CLIENT_SECRET=GH_CLIENT_SECRET:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest,GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest,MAIL_PASSWORD=MAIL_PASSWORD:latest,HH_CLIENT_ID=HH_CLIENT_ID:latest,HH_CLIENT_SECRET=HH_CLIENT_SECRET:latest,TELEGRAM_BOT_TOKEN=TELEGRAM_BOT_TOKEN:latest'
+      - '--update-env-vars=SPRING_PROFILES_ACTIVE=prod,SERVER_PORT=8080,SPRING_CACHE_TYPE=none,TELEGRAM_BOT_ENABLED=true,SPRING_DATASOURCE_URL=jdbc:postgresql:///careerpilot_ai?socketFactory=com.google.cloud.sql.postgres.SocketFactory&cloudSqlInstance=${PROJECT_ID}:europe-west3:careerpilot-db&currentSchema=careerpilot,FRONTEND_URL=https://careerpilot-ai.ru,GOOGLE_CALENDAR_REDIRECT_URI=https://careerpilot-backend-213199819151.europe-west1.run.app/api/integrations/google-calendar/callback,MAIL_HOST=smtp.resend.com,MAIL_PORT=587,MAIL_USERNAME=resend,MAIL_FROM=support@careerpilot-ai.ru'
+
+  # === FRONTEND ===
+  # 5. Build Frontend Docker Image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - 'build'
+      - '--build-arg'
+      - 'VITE_API_BASE_URL=https://careerpilot-backend-213199819151.europe-west1.run.app/api'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/frontend:latest'
+      - '-f'
+      - 'frontend/Dockerfile'
+      - 'frontend/'
+
+  # 6. Push Frontend Docker Image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/frontend:latest']
+
+  # 7. Deploy Frontend to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'careerpilot-frontend'
+      - '--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/frontend:latest'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=80'
+
+substitutions:
+  _REGION: europe-west1
+  _REPO_NAME: careerpilot-docker-repo
+
+
