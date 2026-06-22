@@ -1,9 +1,9 @@
 steps:
   # === BACKEND ===
-  # 1. Build Backend JAR
+  # 1. Build Backend JAR (Добавлен chmod +x для надежности wrapper'а)
   - name: 'maven:3.9.6-eclipse-temurin-21'
     entrypoint: 'bash'
-    args: ['-c', 'cd backend && ./mvnw clean package -Dmaven.test.skip=true']
+    args: ['-c', 'cd backend && chmod +x ./mvnw && ./mvnw clean package -Dmaven.test.skip=true']
     
   # 2. Build Backend Docker Image
   - name: 'gcr.io/cloud-builders/docker'
@@ -14,7 +14,6 @@ steps:
     args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/backend:latest']
 
   # 4. Deploy Backend to Cloud Run
-  # Важно: Секреты теперь пробрасываются напрямую из Google Secret Manager
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -63,4 +62,5 @@ substitutions:
   _REGION: europe-west1
   _REPO_NAME: careerpilot-docker-repo
 
-
+options:
+  logging: CLOUD_LOGGING_ONLY
