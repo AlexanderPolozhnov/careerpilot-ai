@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
 import { useAuth } from '@/context/useAuth'
 import { useForm, useWatch, type Resolver, Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -1873,6 +1873,44 @@ export default function SettingsPage() {
                                     </button>
                                 )}
                             </div>
+                        </div>
+
+                        {/* hh.ru Smart Auto-Search: Resume Text */}
+                        <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4 mt-3">
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                                    <Sparkles className="w-5 h-5 text-purple-400" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-white">{t('settings.monitoring.resumeTitle', 'Автопоиск: Резюме и Сопроводительное')}</p>
+                                    <p className="text-xs text-white/40 mt-0.5">{t('settings.monitoring.resumeDesc', 'Настройте текст резюме и шаблон письма для автоматического сопоставления ИИ')}</p>
+                                </div>
+                            </div>
+                            <Link
+                                to="/app/settings/resume"
+                                className="px-4 py-2 rounded-lg bg-purple-600 text-sm font-medium text-white hover:bg-purple-700 transition-colors"
+                            >
+                                {t('settings.monitoring.configure', 'Настроить')}
+                            </Link>
+                        </div>
+
+                        {/* hh.ru Smart Auto-Search: Filters */}
+                        <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-4 mt-3">
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                                    <Bell className="w-5 h-5 text-primary-400" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium text-white">{t('settings.monitoring.filtersTitle', 'Автопоиск: Управление фильтрами')}</p>
+                                    <p className="text-xs text-white/40 mt-0.5">{t('settings.monitoring.filtersDesc', 'Создайте и настройте поисковые фильтры для автоматического отслеживания вакансий')}</p>
+                                </div>
+                            </div>
+                            <Link
+                                to="/app/settings/monitoring"
+                                className="px-4 py-2 rounded-lg bg-primary-600 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
+                            >
+                                {t('settings.monitoring.configure', 'Настроить')}
+                            </Link>
                         </div>
                     </section>
 

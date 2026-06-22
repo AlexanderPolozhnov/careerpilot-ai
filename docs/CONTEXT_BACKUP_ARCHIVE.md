@@ -3410,3 +3410,11 @@ pm run build прошла успешно.
 **Status:** Backend and frontend implemented, compiled successfully.
 
 
+## Update 2026-06-07: PWA Implementation
+
+- **Frontend:** ����������� ��������� Progressive Web App (PWA) � ������� `vite-plugin-pwa`.
+- **Features:** �������-����������� (GenerateSW), ������ ����������, UI-��������� `PwaInstallPrompt` � �������� ��� ��������� ����������.
+- **Dependencies:** �������� ����� `workbox-window` ��� ���������� ������ `virtual:pwa-register` � ��������� pnpm.
+
+
+

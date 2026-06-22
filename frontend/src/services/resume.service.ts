@@ -1,5 +1,5 @@
 import { api } from '@/lib/api-client'
-import type { Resume } from '@/types'
+import type { Resume, UserResume } from '@/types'
 
 const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'false') === 'true'
 
@@ -8,6 +8,13 @@ export interface CreateResumeDto {
   fileUrl?: string
   textContent?: string
   isDefault?: boolean
+}
+
+const mockUserResume: UserResume = {
+  id: 'ur1',
+  userId: 'user1',
+  rawText: '',
+  coverLetterTemplate: 'Здравствуйте! Меня зовут Александр, меня очень заинтересовала ваша вакансия...'
 }
 
 export const resumeService = {
@@ -78,5 +85,20 @@ export const resumeService = {
     const formData = new FormData()
     formData.append('file', file)
     return api.postFormData<{ text: string }>('/resumes/extract', formData)
+  },
+
+  getMyResume: (): Promise<UserResume> => {
+    if (USE_MOCKS) {
+      return Promise.resolve(mockUserResume)
+    }
+    return api.get<UserResume>('/resumes/mine')
+  },
+
+  updateMyResume: (data: Partial<UserResume>): Promise<UserResume> => {
+    if (USE_MOCKS) {
+      Object.assign(mockUserResume, data)
+      return Promise.resolve(mockUserResume)
+    }
+    return api.put<UserResume>('/resumes/mine', data)
   },
 }

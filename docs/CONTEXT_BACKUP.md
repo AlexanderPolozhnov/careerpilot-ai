@@ -13,13 +13,6 @@
 
 
 
-## Update 2026-06-07: PWA Implementation
-
-- **Frontend:** ����������� ��������� Progressive Web App (PWA) � ������� `vite-plugin-pwa`.
-- **Features:** �������-����������� (GenerateSW), ������ ����������, UI-��������� `PwaInstallPrompt` � �������� ��� ��������� ����������.
-- **Dependencies:** �������� ����� `workbox-window` ��� ���������� ������ `virtual:pwa-register` � ��������� pnpm.
-
-
 ## Update 2026-06-08: Activity Heatmap
 
 - **Frontend:** Реализован UI-компонент Activity Heatmap в стиле GitHub на странице аналитики.
@@ -109,6 +102,51 @@
 ### Проверки
 - `.\mvnw.cmd clean compile -q -DskipTests` — **BUILD SUCCESS**
 - `pnpm run build` — **✓ built in 796ms**
+
+
+## Update 2026-06-22: Smart Job Auto-Search & hh.ru Monitoring (Scraping/Public API)
+
+### Что реализовано
+
+**Backend — Flyway миграция:**
+- `V32__add_hh_smart_monitoring.sql` — Добавлены таблицы `user_resumes` (для хранения сырого резюме и шаблона сопроводительного письма) и `user_vacancy_filters` (для хранения поисковых запросов и настроек зарплаты). Удалена старая неиспользуемая таблица `hh_integrations` из V31.
+
+**Backend — JPA Entities & Repositories:**
+- `UserResumeEntity` (OneToOne к `User`) + `UserResumeRepository` (`findByUserId`).
+- `VacancyFilterEntity` (ManyToOne к `User`) + `VacancyFilterRepository` (`findByIsActiveTrue`, `findAllByUserId`, `findByIdAndUserId`).
+
+**Backend — MapStruct & DTOs:**
+- `UserResumeMapper`, `VacancyFilterMapper` для преобразования объектов в DTO.
+- `UserResumeRequest`, `UserResumeResponse`, `VacancyFilterRequest`, `VacancyFilterResponse`.
+
+**Backend — Services & Controllers:**
+- `UserResumeService` + `UserResumeServiceImpl` — управление текстовым резюме пользователя и шаблоном письма.
+- `VacancyFilterService` + `VacancyFilterServiceImpl` — CRUD-операции над фильтрами автопоиска.
+- `UserResumeController` — эндпоинты `GET /api/resumes/mine` и `PUT /api/resumes/mine`.
+- `VacancyFilterController` — эндпоинты `GET /api/vacancy-filters`, `POST /api/vacancy-filters`, `PUT /api/vacancy-filters/{id}`, `DELETE /api/vacancy-filters/{id}`.
+
+**Backend — Background Scheduled Job & Integrations:**
+- `HhVacancyPollingService` — сервис с аннотацией `@Scheduled(fixedRate = 1800000)` (раз в 30 мин). Извлекает активные фильтры, опрашивает публичный API вакансий hh.ru (`GET https://api.hh.ru/vacancies`), считывает подробное описание каждой вакансии, проверяет кэш отправленных вакансий через Spring CacheManager, сопоставляет резюме соискателя с вакансией с помощью ИИ (модели OpenAI/Gemini/Ollama, настроенные пользователем).
+- `TelegramBotHandler` — добавлен метод `sendVacancyAlert(chatId, vacancyUrl, coverLetter)` для отправки уведомлений в Telegram с текстом сгенерированного сопроводительного письма и ссылкой на вакансию.
+
+**Frontend — API Services & Routing:**
+- `resume.service.ts` — добавлены методы `getMyResume` и `updateMyResume`.
+- `monitoring.service.ts` — добавлен новый сервис для CRUD-операций над фильтрами поиска.
+- `AppRouter.tsx` — добавлены новые пути `/app/settings/resume` и `/app/settings/monitoring`.
+- `SettingsPage.tsx` — добавлены ссылки-карточки перехода к настройкам автопоиска в секцию "Интеграции".
+
+**Frontend — UI Pages:**
+- `ResumeSettingsPage.tsx` — интерфейс для ввода текстового резюме и шаблона сопроводительного письма со встроенными TanStack Query мутациями.
+- `MonitoringSettingsPage.tsx` — панель управления фильтрами автопоиска (карточки, модальное окно добавления фильтра, тоггл активности, удаление).
+- Добавлены новые i18n переводы в файлы локалей `ru.json` и `en.json`.
+- Синхронизированы структуры ключей перевода через `js-scripts` утилиты.
+
+### Проверки
+- `.\mvnw.cmd clean compile -q -DskipTests` (в `backend`) — **BUILD SUCCESS**
+- `pnpm run build` (в `frontend`) — **✓ built in 826ms**
+- `.\verify-all.ps1` — **SUCCESS**
+
+
 
 
 

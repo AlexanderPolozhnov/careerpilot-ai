@@ -286,3 +286,26 @@ export interface ActivityHeatmapItem {
   date: string
   count: number
 }
+
+// ─── Smart Monitoring ─────────────────────────────────────────────────────────
+
+export interface UserResume {
+  id: string | null
+  userId: string
+  rawText: string
+  coverLetterTemplate: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface VacancyFilter {
+  id: string
+  userId: string
+  searchQuery: string
+  targetSalary: number | null
+  isActive: boolean
+  lastPolledAt?: string
+  createdAt: string
+  updatedAt: string
+}
+

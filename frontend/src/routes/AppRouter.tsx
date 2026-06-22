@@ -23,6 +23,8 @@ const CompaniesPage = lazy(() => import('../pages/CompaniesPage'))
 const AiAssistantPage = lazy(() => import('../pages/AiAssistantPage'))
 const AnalyticsPage = lazy(() => import('../pages/AnalyticsPage'))
 const SettingsPage = lazy(() => import('../pages/SettingsPage'))
+const ResumeSettingsPage = lazy(() => import('../pages/settings/ResumeSettingsPage'))
+const MonitoringSettingsPage = lazy(() => import('../pages/settings/MonitoringSettingsPage'))
 const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicyPage'))
 const TermsOfServicePage = lazy(() => import('../pages/TermsOfServicePage'))
 const TelegramStarsPaywallPage = lazy(() => import('../pages/payment/TelegramStarsPaywallPage'))
@@ -118,6 +120,8 @@ export function AppRouter() {
           <Route path="ai-assistant" element={<AiAssistantPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="settings/resume" element={<ResumeSettingsPage />} />
+          <Route path="settings/monitoring" element={<MonitoringSettingsPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -81,13 +81,13 @@ CREATE TABLE careerpilot.user_vacancy_filters (
 - `MonitoringSettingsPage.tsx`: Список карточек фильтров. Кнопка "Добавить фильтр" (открывает модалку с вводом строки поиска и ЗП). Тоггл (Switch) для включения/выключения фильтра.
 
 ## Порядок реализации для агента реализации
-1. Создать миграцию `V32__add_hh_smart_monitoring.sql`. Скомпилировать бэкенд и проверить поднятие БД.
-2. Реализовать Entity, DTO, Repository, Service и Controller для `UserResume`.
-3. Реализовать Entity, DTO, Repository, Service и Controller для `VacancyFilter`.
-4. Реализовать сервис фонового поллинга `HhVacancyPollingService` и интеграцию с AI + Telegram.
-5. Написать frontend сервисы, типы, React Query хуки.
-6. Сверстать `ResumeSettingsPage` и `MonitoringSettingsPage`.
-7. Добавить новые страницы в роутер.
+- [x] 1. Создать миграцию `V32__add_hh_smart_monitoring.sql`. Скомпилировать бэкенд и проверить поднятие БД.
+- [x] 2. Реализовать Entity, DTO, Repository, Service и Controller для `UserResume`.
+- [x] 3. Реализовать Entity, DTO, Repository, Service и Controller для `VacancyFilter`.
+- [x] 4. Реализовать сервис фонового поллинга `HhVacancyPollingService` и интеграцию с AI + Telegram.
+- [x] 5. Написать frontend сервисы, типы, React Query хуки.
+- [x] 6. Сверстать `ResumeSettingsPage` и `MonitoringSettingsPage`.
+- [x] 7. Добавить новые страницы в роутер.
 
 ## Риски и что проверить
 - Ограничение API hh.ru (rate limits). Обязательно делать паузы (`Thread.sleep` или аналог) между запросами к API hh.ru при поллинге, чтобы не получить бан по IP (рекомендуется не более 1 запроса в 1-2 секунды).

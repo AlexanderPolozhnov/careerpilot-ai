@@ -19,7 +19,9 @@
     "new": "new",
     "markRead": "Mark read",
     "retry": "Try again",
-    "installApp": "Install App"
+    "installApp": "Install App",
+    "toClose": "чтобы закрыть",
+    "toNavigate": "чтобы навигировать"
   },
   "navigation": {
     "workspace": "Workspace",
@@ -412,7 +414,9 @@
       "PASSED": "Passed",
       "FAILED": "Failed",
       "CANCELLED": "Cancelled"
-    }
+    },
+    "interviewsCount_few": "{{count}} собеседования",
+    "interviewsCount_many": "{{count}} собеседований"
   },
   "companies": {
     "title": "Companies",
@@ -636,6 +640,44 @@
     "connectGoogleCalendarError": "Error connecting Google Calendar",
     "disconnectGoogleCalendarSuccess": "Google Calendar disconnected successfully",
     "disconnectGoogleCalendarError": "Error disconnecting Google Calendar",
+    "monitoring": {
+      "title": "Smart Job Auto-Search",
+      "description": "Set search filters. Our service will regularly query jobs on hh.ru, select the best matches, and send you alerts in Telegram.",
+      "addFilter": "Add Filter",
+      "modalTitle": "New Auto-Search Filter",
+      "searchQuery": "Search Query",
+      "searchQueryPlaceholder": "e.g., Frontend React Developer",
+      "queryRequired": "Search query is required",
+      "targetSalary": "Minimum Salary (₽)",
+      "targetSalaryPlaceholder": "e.g., 120000",
+      "cancel": "Cancel",
+      "create": "Create",
+      "empty": "You have no active monitoring filters yet.",
+      "lastPolled": "Last Polled",
+      "neverPolled": "never polled yet",
+      "deleteConfirm": "Are you sure you want to delete this filter?",
+      "createSuccess": "Filter successfully added",
+      "updateSuccess": "Filter status updated",
+      "deleteSuccess": "Filter deleted successfully",
+      "error": "An error occurred",
+      "resumeTitle": "Auto-Search: Resume & Cover Letter",
+      "resumeDesc": "Configure your resume text and cover letter template for automatic AI matching",
+      "filtersTitle": "Auto-Search: Filter Management",
+      "filtersDesc": "Create and manage search filters for automatic job alerts monitoring",
+      "configure": "Configure"
+    },
+    "resume": {
+      "title": "Resume & Template Settings",
+      "description": "Specify the text version of your resume and a cover letter template. AI will match them against new vacancies and automatically draft letters.",
+      "labelRawText": "Resume Text",
+      "placeholderRawText": "Paste the entire text of your resume (skills, experience, projects, education)...",
+      "labelCoverLetterTemplate": "Cover Letter Template",
+      "placeholderCoverLetterTemplate": "Hello! I am interested in your vacancy... Write a draft letter that AI will adapt to each vacancy.",
+      "save": "Save Settings",
+      "saving": "Saving...",
+      "success": "Resume settings saved successfully",
+      "error": "Error saving resume settings"
+    },
     "hh": {
       "title": "hh.ru",
       "description": "Import resume data from hh.ru into your CareerPilot profile",
@@ -891,7 +933,9 @@
       "noApplication": "No application",
       "untitled": "Untitled",
       "done": "Done"
-    }
+    },
+    "tasksCount_few": "{{count}} задачи",
+    "tasksCount_many": "{{count}} задач"
   },
   "privacyPolicy": {
     "title": "Privacy Policy",

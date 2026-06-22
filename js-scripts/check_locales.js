@@ -8,7 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const localesDir = path.join(__dirname, '../../frontend/src/i18n/locales');
+const localesDir = path.join(__dirname, '../frontend/src/i18n/locales');
 
 if (!fs.existsSync(localesDir)) {
     console.error(`Директория локалей не найдена: ${localesDir}`);

@@ -559,4 +559,24 @@ public class TelegramBotHandler extends TelegramWebhookBot {
             log.error("Failed to send notification to chatId: {}", chatId, e);
         }
     }
+
+    /**
+     * Отправляет оповещение о подходящей вакансии со ссылкой и сопроводительным письмом.
+     */
+    public void sendVacancyAlert(String chatId, String vacancyUrl, String coverLetter) {
+        if (chatId == null || chatId.isBlank()) {
+            log.warn("Cannot send vacancy alert, chatId is null/empty");
+            return;
+        }
+        String text = "🔥 <b>Найдена новая подходящая вакансия!</b>\n\n" +
+                "🔗 <a href=\"" + vacancyUrl + "\">Ссылка на вакансию</a>\n\n" +
+                "📝 <b>Сгенерированное сопроводительное письмо:</b>\n" +
+                "<code>" + coverLetter + "</code>";
+        try {
+            sendHtmlWithWebApp(Long.parseLong(chatId), text);
+            log.info("Vacancy alert successfully sent to chatId: {}", chatId);
+        } catch (Exception e) {
+            log.error("Failed to send vacancy alert to chatId: {}", chatId, e);
+        }
+    }
 }
