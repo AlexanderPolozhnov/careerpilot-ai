@@ -4,7 +4,7 @@ name: CD Pipeline (Google Cloud Run)
 
 on:
   push:
-    branches: [main] # Триггер только при слиянии/пуше в ветку main
+    branches: [disabled-main] # Триггер только при слиянии/пуше в ветку main ! исправить потом на main
 
 jobs:
   deploy:

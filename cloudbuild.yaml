@@ -61,6 +61,3 @@ steps:
 substitutions:
   _REGION: europe-west1
   _REPO_NAME: careerpilot-docker-repo
-
-options:
-  logging: CLOUD_LOGGING_ONLY
