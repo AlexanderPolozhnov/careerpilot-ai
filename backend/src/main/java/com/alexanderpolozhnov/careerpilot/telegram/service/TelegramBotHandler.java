@@ -50,7 +50,7 @@ public class TelegramBotHandler extends TelegramWebhookBot {
     private final String webAppUrl;
 
     // ─── Стейт машина для /gift_subscription ─────────────────────────────────
-    private final Map<Long, AdminGiftState> giftStates = new ConcurrentHashMap<>();
+    private final AdminCommandStateService giftStates;
 
     // ─── Конструктор ─────────────────────────────────────────────────────────
     public TelegramBotHandler(
@@ -58,12 +58,14 @@ public class TelegramBotHandler extends TelegramWebhookBot {
             @Value("${telegram.bot.username:careerpilot_ai_bot}") String botUsername,
             @Value("${telegram.bot.webapp-url:https://careerpilot-ai.ru/app/dashboard?tg=1}") String webAppUrl,
             PreferencesRepository preferencesRepository,
-            SubscriptionService subscriptionService) {
+            SubscriptionService subscriptionService,
+            AdminCommandStateService giftStates) {
         super(botToken);
         this.botUsername = botUsername;
         this.webAppUrl = webAppUrl;
         this.preferencesRepository = preferencesRepository;
         this.subscriptionService = subscriptionService;
+        this.giftStates = giftStates;
     }
 
     @Override
@@ -99,7 +101,7 @@ public class TelegramBotHandler extends TelegramWebhookBot {
             saveTelegramUsernameIfPresent(update);
 
             // Приоритет: если администратор в процессе пошагового диалога
-            if (isAdmin(update) && giftStates.containsKey(chatId)) {
+            if (isAdmin(update) && giftStates.hasState(chatId)) {
                 handleAdminGiftStep(chatId, messageText);
                 return null;
             }
@@ -336,7 +338,7 @@ public class TelegramBotHandler extends TelegramWebhookBot {
     private void startGiftSubscriptionFlow(Long chatId) {
         AdminGiftState state = new AdminGiftState();
         state.setStep(AdminGiftState.Step.WAITING_FOR_USERNAME);
-        giftStates.put(chatId, state);
+        giftStates.putState(chatId, state);
         try {
             sendHtmlSimple(chatId, "🎁 <b>Выдача подарочной подписки</b>\n\nВведите Telegram-username пользователя (без @) или /cancel для отмены:");
         } catch (TelegramApiException e) {
@@ -346,11 +348,11 @@ public class TelegramBotHandler extends TelegramWebhookBot {
 
     // ─── /gift_subscription: Шаги диалога ────────────────────────────────────
     private void handleAdminGiftStep(Long chatId, String text) {
-        AdminGiftState state = giftStates.get(chatId);
+        AdminGiftState state = giftStates.getState(chatId).orElse(null);
         if (state == null) return;
 
         if ("/cancel".equalsIgnoreCase(text.trim())) {
-            giftStates.remove(chatId);
+            giftStates.removeState(chatId);
             try {
                 sendHtmlSimple(chatId, "❌ Операция отменена.");
             } catch (TelegramApiException e) {
@@ -370,7 +372,7 @@ public class TelegramBotHandler extends TelegramWebhookBot {
                         state.setTargetUserId(prefs.getUserId());
                         state.setTargetTelegramChatId(prefs.getTelegramChatId());
                         state.setStep(AdminGiftState.Step.WAITING_FOR_PLAN);
-                        giftStates.put(chatId, state);
+                        giftStates.putState(chatId, state);
                         sendPlanSelection(chatId);
                     } else {
                         sendHtmlSimple(chatId, "❌ Пользователь @" + username + " не найден в базе данных (Telegram не привязан или username неверный).\nПопробуйте снова или /cancel:");
@@ -379,7 +381,7 @@ public class TelegramBotHandler extends TelegramWebhookBot {
                 case WAITING_FOR_REASON -> {
                     state.setReason(text.trim());
                     state.setStep(AdminGiftState.Step.WAITING_FOR_CONFIRMATION);
-                    giftStates.put(chatId, state);
+                    giftStates.putState(chatId, state);
                     sendConfirmation(chatId);
                 }
                 case WAITING_FOR_CONFIRMATION -> {
@@ -398,19 +400,19 @@ public class TelegramBotHandler extends TelegramWebhookBot {
 
     // ─── Callback для инлайн-кнопок (plan/duration) ───────────────────────────
     private void handleCallbackQuery(Long chatId, String data) {
-        AdminGiftState state = giftStates.get(chatId);
+        AdminGiftState state = giftStates.getState(chatId).orElse(null);
         if (state == null) return;
 
         try {
             if (data.startsWith("gift_plan_")) {
                 state.setPlan(data.substring("gift_plan_".length()));
                 state.setStep(AdminGiftState.Step.WAITING_FOR_DURATION);
-                giftStates.put(chatId, state);
+                giftStates.putState(chatId, state);
                 sendDurationSelection(chatId);
             } else if (data.startsWith("gift_dur_")) {
                 state.setDurationMonths(Integer.parseInt(data.substring("gift_dur_".length())));
                 state.setStep(AdminGiftState.Step.WAITING_FOR_REASON);
-                giftStates.put(chatId, state);
+                giftStates.putState(chatId, state);
                 sendHtmlSimple(chatId, "📝 Введите причину выдачи подписки (будет показана пользователю):");
             }
         } catch (TelegramApiException e) {
@@ -462,7 +464,8 @@ public class TelegramBotHandler extends TelegramWebhookBot {
     }
 
     private void sendConfirmation(Long chatId) throws TelegramApiException {
-        AdminGiftState state = giftStates.get(chatId);
+        AdminGiftState state = giftStates.getState(chatId).orElse(null);
+        if (state == null) return;
         String durationText = state.getDurationMonths() >= 1188 ? "Бессрочно" : state.getDurationMonths() + " мес.";
         String text = String.format(
                 "🏁 <b>ПОДТВЕРЖДЕНИЕ ВЫДАЧИ</b>\n\n" +
@@ -477,8 +480,9 @@ public class TelegramBotHandler extends TelegramWebhookBot {
     }
 
     private void executeGiftActivation(Long adminChatId) throws TelegramApiException {
-        AdminGiftState state = giftStates.remove(adminChatId);
+        AdminGiftState state = giftStates.getState(adminChatId).orElse(null);
         if (state == null) return;
+        giftStates.removeState(adminChatId);
 
         try {
             subscriptionService.activateSubscription(

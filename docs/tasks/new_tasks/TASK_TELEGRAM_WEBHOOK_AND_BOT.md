@@ -52,11 +52,11 @@
   5. По коллбеку (успех) редиректит пользователя на страницу успеха.
 
 ## Порядок реализации для агента реализации
-1. Реализовать `TelegramPaymentWebhookRequest` DTO и эндпоинт `/api/payments/webhook/telegram` в контроллере.
-2. Написать логику `PaymentService.handleTelegramWebhook` (подтверждение pre_checkout и обработка successful_payment с активацией подписки).
-3. Обновить `TelegramBotHandler.java` для сохранения `telegramUsername` при старте бота.
-4. Добавить админские команды (`/send_messages`, `/gift_subscription`) в `TelegramBotHandler.java`.
-5. Создать фронтенд-компонент `TelegramStarsPaywallPage.tsx` и прописать роут.
+1. [x] Реализовать `TelegramPaymentWebhookRequest` DTO и эндпоинт `/api/payments/webhook/telegram` в контроллере.
+2. [x] Написать логику `PaymentService.handleTelegramWebhook` (подтверждение pre_checkout и обработка successful_payment с активацией подписки).
+3. [x] Обновить `TelegramBotHandler.java` для сохранения `telegramUsername` при старте бота.
+4. [x] Добавить админские команды (`/send_messages`, `/gift_subscription`) в `TelegramBotHandler.java`.
+5. [x] Создать фронтенд-компонент `TelegramStarsPaywallPage.tsx` и прописать роут.
 
 ## Риски и что проверить
 - Webhook от Telegram приходит без авторизации (Bearer токена нашего приложения). Контроллер должен быть открыт в Spring Security (`/api/payments/webhook/**`).

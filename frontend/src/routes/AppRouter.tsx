@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import type { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AppLayout } from '../components/AppLayout'
@@ -25,16 +25,40 @@ const AnalyticsPage = lazy(() => import('../pages/AnalyticsPage'))
 const SettingsPage = lazy(() => import('../pages/SettingsPage'))
 const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicyPage'))
 const TermsOfServicePage = lazy(() => import('../pages/TermsOfServicePage'))
+const TelegramStarsPaywallPage = lazy(() => import('../pages/payment/TelegramStarsPaywallPage'))
 
 function ProtectedRoute({ children }: { children: ReactElement }) {
   const { t } = useTranslation()
   const { isAuthenticated, isLoading } = useAuth()
+  const navigate = useNavigate()
 
   const { data: preferences, isLoading: prefsLoading } = useQuery({
     queryKey: ['preferences'],
     queryFn: settingsService.getPreferences,
     enabled: isAuthenticated
   })
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const tg = (window as unknown as {
+        Telegram?: {
+          WebApp?: {
+            initDataUnsafe?: {
+              start_param?: string;
+            };
+          };
+        };
+      }).Telegram?.WebApp
+      const startParam = tg?.initDataUnsafe?.start_param
+      if (startParam && startParam.startsWith('pay_stars_')) {
+        const paymentId = startParam.substring('pay_stars_'.length)
+        if (tg?.initDataUnsafe) {
+          tg.initDataUnsafe.start_param = ''
+        }
+        navigate(`/payment/stars?paymentId=${paymentId}`, { replace: true })
+      }
+    }
+  }, [isAuthenticated, navigate])
 
   if (isLoading || (isAuthenticated && prefsLoading)) {
     return <LoadingState message={t('common.preparingWorkspace')} className="py-24" />
@@ -66,6 +90,14 @@ export function AppRouter() {
         <Route path="/auth/forgot-password" element={<AuthPages mode="forgot-password" />} />
         <Route path="/auth/reset-password" element={<AuthPages mode="reset-password" />} />
         <Route path="/auth/callback" element={<OAuthCallbackPage />} />
+        <Route
+          path="/payment/stars"
+          element={
+            <ProtectedRoute>
+              <TelegramStarsPaywallPage />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/app"

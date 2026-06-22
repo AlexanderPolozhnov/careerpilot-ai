@@ -1063,5 +1063,27 @@
         "yearsOfExperience": "Опыт (лет)"
       }
     }
+  },
+  "payment": {
+    "stars": {
+      "title": "Оплата Telegram Stars",
+      "premiumTitle": "CareerPilot Premium",
+      "premiumDesc": "Доступ ко всем AI-функциям, аналитике, шаблонам резюме и рассылкам вакансий.",
+      "priceLabel": "Тариф: 1 Месяц Premium",
+      "payButton": "Оплатить через Telegram",
+      "statusChecking": "Проверка платежа...",
+      "statusCheckingDesc": "Мы проверяем статус транзакции на сервере Telegram...",
+      "statusSuccess": "Оплата прошла успешно!",
+      "statusSuccessDesc": "Ваш PREMIUM статус активирован. Возвращаемся в приложение...",
+      "loading": "Подготовка счета...",
+      "loadingError": "Не удалось загрузить счет на оплату.",
+      "notInTma": "Оплата доступна только в Telegram Mini App.",
+      "notInTmaWarning": "Нажмите на кнопку выше, чтобы запустить оплату нативно в Telegram.",
+      "paymentFailed": "Платеж не был завершен.",
+      "verificationFailed": "Ошибка проверки платежа.",
+      "timeout": "Истекло время ожидания подтверждения.",
+      "errorDesc": "Пожалуйста, попробуйте совершить платеж снова или обратитесь в службу поддержки.",
+      "noPayment": "Счет на оплату не найден."
+    }
   }
 }

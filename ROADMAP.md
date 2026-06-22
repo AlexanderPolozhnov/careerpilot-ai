@@ -140,6 +140,7 @@ Roadmap отражает текущее состояние перед первы
 - [x] Redis в production через GCP Memorystore + VPC Connector (AI кэширование в Cloud Run).
 - [x] **Улучшение настроек AI провайдера:** Тестирование соединения, синхронизация моделей, улучшенная валидация, Toasts, фикс UI багов.
 - [x] **Реальная почтовая рассылка:** Интеграция с Resend для отправки транзакционных писем (сброс пароля, напоминания) и Cloudflare Email Routing для приема почты на `support@careerpilot-ai.ru` (пересылка на личную почту).
+- [x] **Интеграция Telegram Webhook & Stars:** подтверждение pre_checkout, обработка successful_payment, автосохранение username, админские команды (/send_messages, /gift_subscription) и нативная оплата Stars в Mini App.
 
 ---
 

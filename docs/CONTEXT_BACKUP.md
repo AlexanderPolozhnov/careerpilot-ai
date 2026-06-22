@@ -13,22 +13,6 @@
 
 
 
-## Update 2026-06-07: Onboarding Flow Implementation
-
-**Backend:**
-- Created V30__add_onboarding_completed.sql to add onboarding_completed boolean field to preferences table.
-- Updated PreferencesEntity, PreferencesRequest, and PreferencesResponse to include the onboardingCompleted field.
-- Refactored PreferencesServiceImpl and its mapper methods to apply and save onboardingCompleted.
-
-**Frontend:**
-- Added onboardingCompleted into settings.service.ts along with completeOnboarding() API endpoint method.
-- Added onboarding translations to en.json and u.json.
-- Implemented OnboardingWizard, OnboardingStep1Profile, OnboardingStep2Vacancy, OnboardingStep3Ai, and OnboardingStep4Done components under src/components/onboarding/.
-- Updated AppRouter.tsx to conditionally render OnboardingWizard overlay within ProtectedRoute if preferences.onboardingCompleted is false.
-- Avoided displaying wizard in Telegram WebApp context.
-
-**Status:** Backend and frontend implemented, compiled successfully.
-
 ## Update 2026-06-07: PWA Implementation
 
 - **Frontend:** ����������� ��������� Progressive Web App (PWA) � ������� `vite-plugin-pwa`.
@@ -100,5 +84,32 @@
 - Зарегистрировать приложение на hh.ru и заполнить `HH_CLIENT_ID`, `HH_CLIENT_SECRET` в .env
 - Реализовать Telegram Stars webhook обработку для подтверждения платежа (обновление `PaymentEntity` до `COMPLETED` и активация `SubscriptionEntity`)
 - Настроить deep-link обработку в TMA (startapp параметр `pay_stars_<id>`)
+
+
+## Update 2026-06-22: Telegram Webhook and Bot Payments Integration
+
+### Что реализовано
+
+**Backend — DTO & Services:**
+- `TelegramPaymentWebhookRequest.java` — DTO для обработки входящих webhook-сообщений от серверов Telegram (Stars pre_checkout_query и успешные оплаты).
+- `PaymentService.java` & `PaymentServiceImpl.java` — сервис для валидации pre_checkout_query (проверка существования платежа в БД), подтверждения оплаты, обработки успешных платежей с последующей автоматической активацией PREMIUM-подписки на 1 месяц, а также генерации нативных invoiceLink через Telegram API.
+- `AdminCommandStateService.java` & `AdminCommandStateServiceImpl.java` — выделенный сервис в памяти для управления пошаговыми диалогами администратора бота (выдача подарочных подписок).
+
+**Backend — Controllers & Config:**
+- `PaymentController.java` — добавлены эндпоинты `POST /api/payments/webhook/telegram` для получения вебхуков и `GET /api/payments/stars/{paymentId}/invoice` для генерации счета Mini App.
+- `TelegramBotHandler.java` — интегрирован `AdminCommandStateService` для управления административными состояниями.
+- `SecurityConfig.java` — добавлен эндпоинт вебхука в список разрешенных без авторизации (`permitAll`).
+
+**Frontend:**
+- `integration.service.ts` — добавлен метод `getStarsInvoiceLink` для получения ссылки на оплату.
+- `TelegramStarsPaywallPage.tsx` — компонент paywall для вызова нативного окна оплаты Telegram Stars (`Telegram.WebApp.openInvoice`).
+- `AppRouter.tsx` — добавлен роут `/payment/stars`, а также глобальная обработка параметра `start_param` (формата `pay_stars_<id>`) с последующим автоматическим перенаправлением на paywall-экран.
+- Добавлены новые i18n переводы для оплаты Stars в файлы локалей `ru.json` и `en.json`.
+
+### Проверки
+- `.\mvnw.cmd clean compile -q -DskipTests` — **BUILD SUCCESS**
+- `pnpm run build` — **✓ built in 796ms**
+
+
 
 

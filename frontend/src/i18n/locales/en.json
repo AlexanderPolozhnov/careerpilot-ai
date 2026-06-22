@@ -1057,5 +1057,27 @@
         "yearsOfExperience": "Experience (years)"
       }
     }
+  },
+  "payment": {
+    "stars": {
+      "title": "Telegram Stars Payment",
+      "premiumTitle": "CareerPilot Premium",
+      "premiumDesc": "Access to all AI features, analytics, resume templates, and job notifications.",
+      "priceLabel": "Plan: 1 Month Premium",
+      "payButton": "Pay via Telegram",
+      "statusChecking": "Verifying payment...",
+      "statusCheckingDesc": "We are verifying the transaction status with Telegram servers...",
+      "statusSuccess": "Payment Successful!",
+      "statusSuccessDesc": "Your PREMIUM status has been activated. Returning to app...",
+      "loading": "Preparing invoice...",
+      "loadingError": "Failed to load payment invoice.",
+      "notInTma": "Payment is only available inside Telegram Mini App.",
+      "notInTmaWarning": "Click the button above to launch payment natively in Telegram.",
+      "paymentFailed": "Payment was not completed.",
+      "verificationFailed": "Payment verification failed.",
+      "timeout": "Verification timeout occurred.",
+      "errorDesc": "Please try to pay again or contact support if the issue persists.",
+      "noPayment": "Payment invoice not found."
+    }
   }
 }

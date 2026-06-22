@@ -55,4 +55,8 @@ export const integrationService = {
   /** Проверить статус платежа Stars */
   getStarsPaymentStatus: (paymentId: string): Promise<{ paymentId: string; status: string }> =>
     api.get<{ paymentId: string; status: string }>(`/payments/stars/${paymentId}/status`),
+
+  /** Получить ссылку на оплату Stars */
+  getStarsInvoiceLink: (paymentId: string): Promise<{ invoiceLink: string }> =>
+    api.get<{ invoiceLink: string }>(`/payments/stars/${paymentId}/invoice`),
 };

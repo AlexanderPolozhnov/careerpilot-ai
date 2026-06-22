@@ -5,6 +5,8 @@ import com.alexanderpolozhnov.careerpilot.subscription.entity.PaymentEntity;
 import com.alexanderpolozhnov.careerpilot.subscription.entity.PaymentProvider;
 import com.alexanderpolozhnov.careerpilot.subscription.entity.PaymentStatus;
 import com.alexanderpolozhnov.careerpilot.subscription.repository.PaymentRepository;
+import com.alexanderpolozhnov.careerpilot.subscription.service.PaymentService;
+import com.alexanderpolozhnov.careerpilot.telegram.dto.TelegramPaymentWebhookRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +31,7 @@ public class PaymentController {
 
     private final PaymentRepository paymentRepository;
     private final CurrentUserResolver currentUserResolver;
+    private final PaymentService paymentService;
 
     /**
      * POST /api/payments/stars/initiate
@@ -84,5 +87,27 @@ public class PaymentController {
                 "paymentId", paymentId.toString(),
                 "status", payment.getStatus().name()
         ));
+    }
+
+    /**
+     * GET /api/payments/stars/{paymentId}/invoice
+     * Создает и возвращает ссылку на нативную оплату в Telegram Stars.
+     */
+    @GetMapping("/stars/{paymentId}/invoice")
+    public ResponseEntity<Map<String, String>> getStarsInvoiceLink(@PathVariable UUID paymentId) {
+        UUID userId = currentUserResolver.resolveRequired().getId();
+        String invoiceLink = paymentService.generateStarsInvoiceLink(paymentId, userId);
+        return ResponseEntity.ok(Map.of("invoiceLink", invoiceLink));
+    }
+
+    /**
+     * POST /api/payments/webhook/telegram
+     * Обработка webhook от Telegram.
+     */
+    @PostMapping("/webhook/telegram")
+    public ResponseEntity<Void> handleTelegramWebhook(@RequestBody TelegramPaymentWebhookRequest request) {
+        log.info("Telegram payment webhook received: {}", request);
+        paymentService.handleTelegramWebhook(request);
+        return ResponseEntity.ok().build();
     }
 }
