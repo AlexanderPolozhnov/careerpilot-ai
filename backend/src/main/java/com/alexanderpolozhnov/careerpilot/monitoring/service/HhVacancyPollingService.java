@@ -217,8 +217,6 @@ public class HhVacancyPollingService {
             );
         } catch (Exception e) {
             log.error("Failed to query hh.ru vacancies for filter query={}", filter.getSearchQuery(), e);
-            telegramBotHandler.sendAdminAlert("Ошибка запроса к API hh.ru для фильтра ID=" + filter.getId() + " (" + filter.getSearchQuery() + "):\n" + e.getMessage() + "\n\n" +
-                    "Что сказать агенту: 'Проверь сетевое подключение к api.hh.ru, лимиты запросов (Rate Limiting) или формат ответа.'");
             return;
         }
 
