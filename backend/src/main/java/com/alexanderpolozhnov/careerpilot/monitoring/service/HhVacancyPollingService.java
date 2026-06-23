@@ -79,21 +79,23 @@ public class HhVacancyPollingService {
         if (hhProxyEnabled && hhProxyHost != null && !hhProxyHost.isBlank()) {
             log.info("Configuring HH.ru API polling to use proxy {}:{}", hhProxyHost, hhProxyPort);
             
-            // Разрешаем базовую аутентификацию для HTTPS-туннелей (иначе Java блокирует Basic авторизацию на CONNECT)
-            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+            java.net.http.HttpClient.Builder httpClientBuilder = java.net.http.HttpClient.newBuilder()
+                    .followRedirects(java.net.http.HttpClient.Redirect.NORMAL);
 
-            SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(hhProxyHost, hhProxyPort));
-            requestFactory.setProxy(proxy);
+            httpClientBuilder.proxy(java.net.ProxySelector.of(new InetSocketAddress(hhProxyHost, hhProxyPort)));
 
             if (hhProxyUsername != null && !hhProxyUsername.isBlank()) {
-                Authenticator.setDefault(new Authenticator() {
+                httpClientBuilder.authenticator(new Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(hhProxyUsername, hhProxyPassword.toCharArray());
                     }
                 });
             }
+
+            java.net.http.HttpClient httpClient = httpClientBuilder.build();
+            org.springframework.http.client.JdkClientHttpRequestFactory requestFactory = 
+                    new org.springframework.http.client.JdkClientHttpRequestFactory(httpClient);
             this.restTemplate = new RestTemplate(requestFactory);
         } else {
             this.restTemplate = new RestTemplate();
