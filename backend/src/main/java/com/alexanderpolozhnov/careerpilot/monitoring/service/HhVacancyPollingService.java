@@ -78,6 +78,10 @@ public class HhVacancyPollingService {
     public void init() {
         if (hhProxyEnabled && hhProxyHost != null && !hhProxyHost.isBlank()) {
             log.info("Configuring HH.ru API polling to use proxy {}:{}", hhProxyHost, hhProxyPort);
+            
+            // Разрешаем базовую аутентификацию для HTTPS-туннелей (иначе Java блокирует Basic авторизацию на CONNECT)
+            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+
             SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(hhProxyHost, hhProxyPort));
             requestFactory.setProxy(proxy);
