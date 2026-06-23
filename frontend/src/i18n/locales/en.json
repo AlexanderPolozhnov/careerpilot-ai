@@ -681,7 +681,8 @@
       "selectResumePlaceholder": "Select a resume",
       "extractButton": "Extract",
       "extractSuccess": "Resume text extracted successfully",
-      "extractEmpty": "Selected resume has no text content"
+      "extractEmpty": "Selected resume has no text content",
+      "noResumesUploaded": "No uploaded files. Add them in settings."
     },
     "help": {
       "profile": "This information is used to personalize your account and in document headers.",
