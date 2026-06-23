@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Clock, Coins, Plus, Search, Trash2, X, AlertCircle } from 'lucide-react'
 import { useState } from 'react'
@@ -8,6 +9,9 @@ import { monitoringService } from '@/services/monitoring.service'
 import { toast } from '@/lib/toast'
 import { formatRelative, cn } from '@/lib/utils'
 import type { VacancyFilter } from '@/types'
+import CustomSelect from '@/components/ui/CustomSelect'
+import CustomMultiSelect from '@/components/ui/CustomMultiSelect'
+
 
 interface FilterFormData {
   searchQuery: string
@@ -49,10 +53,101 @@ function Toggle({ checked, onChange, disabled = false }: {
   )
 }
 
+const getAreaLabel = (areaId: string, t: TFunction) => {
+  switch (areaId) {
+    case '1': return t('settings.monitoring.areaMoscow')
+    case '2': return t('settings.monitoring.areaSpb')
+    case '4': return t('settings.monitoring.areaNsk')
+    case '3': return t('settings.monitoring.areaEkb')
+    case '66': return t('settings.monitoring.areaNizhny')
+    case '88': return t('settings.monitoring.areaKazan')
+    case '1438': return t('settings.monitoring.areaKrasnodar')
+    case '113': return t('settings.monitoring.areaRussia')
+    case '40': return t('settings.monitoring.areaKazakhstan')
+    case '16': return t('settings.monitoring.areaBelarus')
+    case '97': return t('settings.monitoring.areaUzbekistan')
+    case '28': return t('settings.monitoring.areaGeorgia')
+    case '5': return t('settings.monitoring.areaArmenia')
+    default: return areaId
+  }
+}
+
+const getExperienceLabel = (exp: string, t: TFunction) => {
+  if (!exp) return ''
+  const key = `settings.monitoring.experience${exp.charAt(0).toUpperCase() + exp.slice(1)}`
+  return t(key, exp)
+}
+
+const getEmploymentLabel = (emp: string, t: TFunction) => {
+  if (!emp) return ''
+  const key = `settings.monitoring.employment${emp.charAt(0).toUpperCase() + emp.slice(1)}`
+  return t(key, emp)
+}
+
+const getScheduleLabel = (sch: string, t: TFunction) => {
+  if (!sch) return ''
+  const key = `settings.monitoring.schedule${sch.charAt(0).toUpperCase() + sch.slice(1)}`
+  return t(key, sch)
+}
+
 export default function MonitoringSettingsPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const experienceOptions = [
+    { value: '', label: t('settings.monitoring.experienceAny', 'Любой опыт') },
+    { value: 'noExperience', label: t('settings.monitoring.experienceNoExperience', 'Нет опыта') },
+    { value: 'between1And3', label: t('settings.monitoring.experienceBetween1And3', 'От 1 года до 3 лет') },
+    { value: 'between3And6', label: t('settings.monitoring.experienceBetween3And6', 'От 3 до 6 лет') },
+    { value: 'moreThan6', label: t('settings.monitoring.experienceMoreThan6', 'Более 6 лет') }
+  ]
+
+  const employmentOptions = [
+    { value: '', label: t('settings.monitoring.employmentAny', 'Любая занятость') },
+    { value: 'full', label: t('settings.monitoring.employmentFull', 'Полная занятость') },
+    { value: 'part', label: t('settings.monitoring.employmentPart', 'Частичная занятость') },
+    { value: 'project', label: t('settings.monitoring.employmentProject', 'Проектная работа') },
+    { value: 'volunteer', label: t('settings.monitoring.employmentVolunteer', 'Волонтерство') },
+    { value: 'probation', label: t('settings.monitoring.employmentProbation', 'Стажировка') }
+  ]
+
+  const scheduleOptions = [
+    { value: '', label: t('settings.monitoring.scheduleAny', 'Любой график') },
+    { value: 'fullDay', label: t('settings.monitoring.scheduleFullDay', 'Полный день') },
+    { value: 'shift', label: t('settings.monitoring.scheduleShift', 'Сменный график') },
+    { value: 'flexible', label: t('settings.monitoring.scheduleFlexible', 'Гибкий график') },
+    { value: 'remote', label: t('settings.monitoring.scheduleRemote', 'Удаленная работа') },
+    { value: 'flyInFlyOut', label: t('settings.monitoring.scheduleFlyInFlyOut', 'Вахтовый метод') }
+  ]
+
+  const areaOptions = [
+    { value: '', label: t('settings.monitoring.areaAny', 'Везде (любой регион)') },
+    { value: '113', label: t('settings.monitoring.areaRussia', 'Россия (вся страна)') },
+    { value: '113,40,16', label: t('settings.monitoring.areaCIS', 'Россия, Казахстан, Беларусь') },
+    { value: '40', label: t('settings.monitoring.areaKazakhstan', 'Казахстан (вся страна)') },
+    { value: '16', label: t('settings.monitoring.areaBelarus', 'Беларусь (вся страна)') },
+    { value: '97', label: t('settings.monitoring.areaUzbekistan', 'Узбекистан (вся страна)') },
+    { value: '28', label: t('settings.monitoring.areaGeorgia', 'Грузия (вся страна)') },
+    { value: '5', label: t('settings.monitoring.areaArmenia', 'Армения (вся страна)') },
+    { value: '1,2', label: t('settings.monitoring.areaCapitals', 'Москва + Санкт-Петербург') },
+    { value: '1', label: t('settings.monitoring.areaMoscow', 'Москва') },
+    { value: '2', label: t('settings.monitoring.areaSpb', 'Санкт-Петербург') },
+    { value: '4', label: t('settings.monitoring.areaNsk', 'Новосибирск') },
+    { value: '3', label: t('settings.monitoring.areaEkb', 'Екатеринбург') },
+    { value: '66', label: t('settings.monitoring.areaNizhny', 'Нижний Новгород') },
+    { value: '88', label: t('settings.monitoring.areaKazan', 'Казань') },
+    { value: '1438', label: t('settings.monitoring.areaKrasnodar', 'Краснодар') }
+  ]
+
+  const pollingIntervalOptions = [
+    { value: '30', label: t('settings.monitoring.pollingIntervalMin30', '30 минут (по умолчанию)') },
+    { value: '60', label: t('settings.monitoring.pollingIntervalHour1', '1 час') },
+    { value: '120', label: t('settings.monitoring.pollingIntervalHour2', '2 часа') },
+    { value: '240', label: t('settings.monitoring.pollingIntervalHour4', '4 часа') },
+    { value: '720', label: t('settings.monitoring.pollingIntervalHour12', '12 часов') },
+    { value: '1440', label: t('settings.monitoring.pollingIntervalDay1', '24 часа') }
+  ]
 
   const { data: filters, isLoading } = useQuery({
     queryKey: ['monitoring-filters'],
@@ -263,40 +358,26 @@ export default function MonitoringSettingsPage() {
                             Зарплата любая
                           </span>
                         )}
-                        {filter.experience && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-violet-500/10 text-violet-400 text-[10px] font-medium border border-violet-500/20">
-                            {t(`settings.monitoring.experience${filter.experience.charAt(0).toUpperCase() + filter.experience.slice(1)}`)}
+                        {filter.experience && filter.experience.split(',').filter(Boolean).map((exp) => (
+                          <span key={exp} className="inline-flex items-center px-2 py-0.5 rounded bg-violet-500/10 text-violet-400 text-[10px] font-medium border border-violet-500/20">
+                            {getExperienceLabel(exp, t)}
                           </span>
-                        )}
-                        {filter.employment && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-medium border border-blue-500/20">
-                            {t(`settings.monitoring.employment${filter.employment.charAt(0).toUpperCase() + filter.employment.slice(1)}`)}
+                        ))}
+                        {filter.employment && filter.employment.split(',').filter(Boolean).map((emp) => (
+                          <span key={emp} className="inline-flex items-center px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-medium border border-blue-500/20">
+                            {getEmploymentLabel(emp, t)}
                           </span>
-                        )}
-                        {filter.schedule && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] font-medium border border-amber-500/20">
-                            {t(`settings.monitoring.schedule${filter.schedule.charAt(0).toUpperCase() + filter.schedule.slice(1)}`)}
+                        ))}
+                        {filter.schedule && filter.schedule.split(',').filter(Boolean).map((sch) => (
+                          <span key={sch} className="inline-flex items-center px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] font-medium border border-amber-500/20">
+                            {getScheduleLabel(sch, t)}
                           </span>
-                        )}
-                        {filter.area && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 text-[10px] font-medium border border-rose-500/20">
-                            {filter.area === '1' && t('settings.monitoring.areaMoscow')}
-                            {filter.area === '2' && t('settings.monitoring.areaSpb')}
-                            {filter.area === '1,2' && t('settings.monitoring.areaCapitals')}
-                            {filter.area === '4' && t('settings.monitoring.areaNsk')}
-                            {filter.area === '3' && t('settings.monitoring.areaEkb')}
-                            {filter.area === '66' && t('settings.monitoring.areaNizhny')}
-                            {filter.area === '88' && t('settings.monitoring.areaKazan')}
-                            {filter.area === '1438' && t('settings.monitoring.areaKrasnodar')}
-                            {filter.area === '113' && t('settings.monitoring.areaRussia')}
-                            {filter.area === '40' && t('settings.monitoring.areaKazakhstan')}
-                            {filter.area === '16' && t('settings.monitoring.areaBelarus')}
-                            {filter.area === '97' && t('settings.monitoring.areaUzbekistan')}
-                            {filter.area === '28' && t('settings.monitoring.areaGeorgia')}
-                            {filter.area === '5' && t('settings.monitoring.areaArmenia')}
-                            {filter.area === '113,40,16' && t('settings.monitoring.areaCIS')}
+                        ))}
+                        {filter.area && filter.area.split(',').filter(Boolean).map((areaId) => (
+                          <span key={areaId} className="inline-flex items-center px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 text-[10px] font-medium border border-rose-500/20">
+                            {getAreaLabel(areaId, t)}
                           </span>
-                        )}
+                        ))}
                         {filter.onlyWithSalary && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded bg-teal-500/10 text-teal-400 text-[10px] font-medium border border-teal-500/20">
                             {t('settings.monitoring.onlyWithSalary')}
@@ -427,13 +508,12 @@ export default function MonitoringSettingsPage() {
                     name="experience"
                     control={control}
                     render={({ field }) => (
-                      <select {...field} className="select mt-1">
-                        <option value="">{t('settings.monitoring.areaAny', 'Любой')}</option>
-                        <option value="noExperience">{t('settings.monitoring.experienceNoExperience', 'Нет опыта')}</option>
-                        <option value="between1And3">{t('settings.monitoring.experienceBetween1And3', 'От 1 года до 3 лет')}</option>
-                        <option value="between3And6">{t('settings.monitoring.experienceBetween3And6', 'От 3 до 6 лет')}</option>
-                        <option value="moreThan6">{t('settings.monitoring.experienceMoreThan6', 'Более 6 лет')}</option>
-                      </select>
+                      <CustomMultiSelect
+                        value={field.value}
+                        onChange={field.onChange}
+                        options={experienceOptions}
+                        className="mt-1"
+                      />
                     )}
                   />
                 </div>
@@ -447,14 +527,12 @@ export default function MonitoringSettingsPage() {
                     name="employment"
                     control={control}
                     render={({ field }) => (
-                      <select {...field} className="select mt-1">
-                        <option value="">{t('settings.monitoring.areaAny', 'Любой')}</option>
-                        <option value="full">{t('settings.monitoring.employmentFull', 'Полная занятость')}</option>
-                        <option value="part">{t('settings.monitoring.employmentPart', 'Частичная занятость')}</option>
-                        <option value="project">{t('settings.monitoring.employmentProject', 'Проектная работа')}</option>
-                        <option value="volunteer">{t('settings.monitoring.employmentVolunteer', 'Волонтерство')}</option>
-                        <option value="probation">{t('settings.monitoring.employmentProbation', 'Стажировка')}</option>
-                      </select>
+                      <CustomMultiSelect
+                        value={field.value}
+                        onChange={field.onChange}
+                        options={employmentOptions}
+                        className="mt-1"
+                      />
                     )}
                   />
                 </div>
@@ -468,14 +546,12 @@ export default function MonitoringSettingsPage() {
                     name="schedule"
                     control={control}
                     render={({ field }) => (
-                      <select {...field} className="select mt-1">
-                        <option value="">{t('settings.monitoring.areaAny', 'Любой')}</option>
-                        <option value="fullDay">{t('settings.monitoring.scheduleFullDay', 'Полный день')}</option>
-                        <option value="shift">{t('settings.monitoring.scheduleShift', 'Сменный график')}</option>
-                        <option value="flexible">{t('settings.monitoring.scheduleFlexible', 'Гибкий график')}</option>
-                        <option value="remote">{t('settings.monitoring.scheduleRemote', 'Удаленная работа')}</option>
-                        <option value="flyInFlyOut">{t('settings.monitoring.scheduleFlyInFlyOut', 'Вахтовый метод')}</option>
-                      </select>
+                      <CustomMultiSelect
+                        value={field.value}
+                        onChange={field.onChange}
+                        options={scheduleOptions}
+                        className="mt-1"
+                      />
                     )}
                   />
                 </div>
@@ -489,26 +565,12 @@ export default function MonitoringSettingsPage() {
                     name="area"
                     control={control}
                     render={({ field }) => (
-                      <select {...field} className="select mt-1">
-                        <option value="">{t('settings.monitoring.areaAny', 'Везде (любой регион)')}</option>
-                        {/* Страны и группы */}
-                        <option value="113">{t('settings.monitoring.areaRussia', 'Россия (вся страна)')}</option>
-                        <option value="113,40,16">{t('settings.monitoring.areaCIS', 'Россия, Казахстан, Беларусь')}</option>
-                        <option value="40">{t('settings.monitoring.areaKazakhstan', 'Казахстан (вся страна)')}</option>
-                        <option value="16">{t('settings.monitoring.areaBelarus', 'Беларусь (вся страна)')}</option>
-                        <option value="97">{t('settings.monitoring.areaUzbekistan', 'Узбекистан (вся страна)')}</option>
-                        <option value="28">{t('settings.monitoring.areaGeorgia', 'Грузия (вся страна)')}</option>
-                        <option value="5">{t('settings.monitoring.areaArmenia', 'Армения (вся страна)')}</option>
-                        {/* Популярные города и комбинации */}
-                        <option value="1,2">{t('settings.monitoring.areaCapitals', 'Москва + Санкт-Петербург')}</option>
-                        <option value="1">{t('settings.monitoring.areaMoscow', 'Москва')}</option>
-                        <option value="2">{t('settings.monitoring.areaSpb', 'Санкт-Петербург')}</option>
-                        <option value="4">{t('settings.monitoring.areaNsk', 'Новосибирск')}</option>
-                        <option value="3">{t('settings.monitoring.areaEkb', 'Екатеринбург')}</option>
-                        <option value="66">{t('settings.monitoring.areaNizhny', 'Нижний Новгород')}</option>
-                        <option value="88">{t('settings.monitoring.areaKazan', 'Казань')}</option>
-                        <option value="1438">{t('settings.monitoring.areaKrasnodar', 'Краснодар')}</option>
-                      </select>
+                      <CustomMultiSelect
+                        value={field.value}
+                        onChange={field.onChange}
+                        options={areaOptions}
+                        className="mt-1"
+                      />
                     )}
                   />
                 </div>
@@ -522,19 +584,16 @@ export default function MonitoringSettingsPage() {
                     name="pollingInterval"
                     control={control}
                     render={({ field }) => (
-                      <select {...field} className="select mt-1" onChange={(e) => field.onChange(Number(e.target.value))}>
-                        <option value={30}>{t('settings.monitoring.pollingIntervalMin30', '30 минут (по умолчанию)')}</option>
-                        <option value={60}>{t('settings.monitoring.pollingIntervalHour1', '1 час')}</option>
-                        <option value={120}>{t('settings.monitoring.pollingIntervalHour2', '2 часа')}</option>
-                        <option value={240}>{t('settings.monitoring.pollingIntervalHour4', '4 часа')}</option>
-                        <option value={720}>{t('settings.monitoring.pollingIntervalHour12', '12 часов')}</option>
-                        <option value={1440}>{t('settings.monitoring.pollingIntervalDay1', '24 часа')}</option>
-                      </select>
+                      <CustomSelect
+                        value={String(field.value)}
+                        onChange={(val) => field.onChange(Number(val))}
+                        options={pollingIntervalOptions}
+                        className="mt-1"
+                      />
                     )}
                   />
                 </div>
 
-                {/* 8. Только с указанной ЗП */}
                 <div className="flex items-center gap-2 pt-2">
                   <Controller
                     name="onlyWithSalary"

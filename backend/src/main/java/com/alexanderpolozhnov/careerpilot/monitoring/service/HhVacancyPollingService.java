@@ -68,10 +68,17 @@ public class HhVacancyPollingService {
                     processFilter(filter);
                 } catch (Exception e) {
                     log.error("Error processing vacancy filter id={}", filter.getId(), e);
+                    telegramBotHandler.sendAdminAlert("Ошибка при обработке фильтра ID=" + filter.getId() + "\n" +
+                            "Запрос: " + filter.getSearchQuery() + "\n" +
+                            "Пользователь: " + filter.getUser().getEmail() + "\n" +
+                            "Ошибка: " + e.getMessage() + "\n\n" +
+                            "Что сказать агенту: 'Проверь логи HhVacancyPollingService и корректность запросов к hh.ru или LLM-провайдеру.'");
                 }
             }
         } catch (Exception e) {
             log.error("Error in pollVacancies scheduler cycle", e);
+            telegramBotHandler.sendAdminAlert("Критическая ошибка в планировщике hh.ru:\n" + e.getMessage() + "\n\n" +
+                    "Что сказать агенту: 'Проверь планировщик HhVacancyPollingService.pollVacancies и целостность базы данных.'");
         }
         log.info("HhVacancyPollingService polling cycle finished.");
     }
@@ -99,13 +106,28 @@ public class HhVacancyPollingService {
         }
 
         if (filter.getExperience() != null && !filter.getExperience().isBlank()) {
-            uriBuilder.queryParam("experience", filter.getExperience());
+            for (String val : filter.getExperience().split(",")) {
+                String trimmed = val.trim();
+                if (!trimmed.isEmpty()) {
+                    uriBuilder.queryParam("experience", trimmed);
+                }
+            }
         }
         if (filter.getEmployment() != null && !filter.getEmployment().isBlank()) {
-            uriBuilder.queryParam("employment", filter.getEmployment());
+            for (String val : filter.getEmployment().split(",")) {
+                String trimmed = val.trim();
+                if (!trimmed.isEmpty()) {
+                    uriBuilder.queryParam("employment", trimmed);
+                }
+            }
         }
         if (filter.getSchedule() != null && !filter.getSchedule().isBlank()) {
-            uriBuilder.queryParam("schedule", filter.getSchedule());
+            for (String val : filter.getSchedule().split(",")) {
+                String trimmed = val.trim();
+                if (!trimmed.isEmpty()) {
+                    uriBuilder.queryParam("schedule", trimmed);
+                }
+            }
         }
         if (filter.getArea() != null && !filter.getArea().isBlank()) {
             for (String a : filter.getArea().split(",")) {
@@ -133,6 +155,8 @@ public class HhVacancyPollingService {
             );
         } catch (Exception e) {
             log.error("Failed to query hh.ru vacancies for filter query={}", filter.getSearchQuery(), e);
+            telegramBotHandler.sendAdminAlert("Ошибка запроса к API hh.ru для фильтра ID=" + filter.getId() + " (" + filter.getSearchQuery() + "):\n" + e.getMessage() + "\n\n" +
+                    "Что сказать агенту: 'Проверь сетевое подключение к api.hh.ru, лимиты запросов (Rate Limiting) или формат ответа.'");
             return;
         }
 

@@ -695,6 +695,8 @@ public class TelegramBotHandler extends TelegramWebhookBot {
     public void sendVacancyAlert(String chatId, String vacancyUrl, String coverLetter) {
         if (chatId == null || chatId.isBlank()) {
             log.warn("Cannot send vacancy alert, chatId is null/empty");
+            sendAdminAlert("Попытка отправить вакансию, но chatId пуст. Ссылка: " + vacancyUrl + "\n\n" +
+                    "Что сказать агенту: 'Проверь, почему у пользователя не привязан chatId в preferences при запуске автопоиска.'");
             return;
         }
         String text = "🔥 <b>Найдена новая подходящая вакансия!</b>\n\n" +
@@ -706,6 +708,27 @@ public class TelegramBotHandler extends TelegramWebhookBot {
             log.info("Vacancy alert successfully sent to chatId: {}", chatId);
         } catch (Exception e) {
             log.error("Failed to send vacancy alert to chatId: {}", chatId, e);
+            sendAdminAlert("Ошибка при отправке вакансии в Telegram для chatId=" + chatId + "\n" +
+                    "Ссылка: " + vacancyUrl + "\n" +
+                    "Ошибка: " + e.getMessage() + "\n\n" +
+                    "Что сказать агенту: 'Проверь работу Telegram бота, доступность Telegram API и валидность chatId пользователя.'");
+        }
+    }
+
+    /**
+     * Отправляет сообщение администратору bigskvishik
+     */
+    public void sendAdminAlert(String text) {
+        try {
+            Optional<PreferencesEntity> adminPrefs = preferencesRepository.findByTelegramUsernameIgnoreCase(ADMIN_USERNAME);
+            if (adminPrefs.isPresent() && adminPrefs.get().getTelegramChatId() != null) {
+                sendHtmlSimple(Long.parseLong(adminPrefs.get().getTelegramChatId()), "⚠️ <b>Системное уведомление для админа:</b>\n\n" + text);
+                log.info("Admin alert sent successfully to chatId: {}", adminPrefs.get().getTelegramChatId());
+            } else {
+                log.warn("Admin preferences or chatId not found. Cannot send admin alert.");
+            }
+        } catch (Exception e) {
+            log.error("Failed to send admin alert", e);
         }
     }
 }
