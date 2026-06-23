@@ -26,6 +26,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import com.alexanderpolozhnov.careerpilot.notification.service.ReminderScheduler;
 
 import java.time.Instant;
 import java.util.List;
@@ -44,12 +45,20 @@ public class HhVacancyPollingService {
     private final TelegramBotHandler telegramBotHandler;
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
+    private final ReminderScheduler reminderScheduler;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Scheduled(fixedRate = 300000) // Раз в 5 минут
     public void pollVacancies() {
         log.info("HhVacancyPollingService starting polling cycle...");
+        
+        try {
+            reminderScheduler.checkAndSendReminders();
+        } catch (Exception e) {
+            log.error("Error running reminder check inside polling cycle", e);
+        }
+
         try {
             List<VacancyFilterEntity> activeFilters = vacancyFilterRepository.findByIsActiveTrue();
             log.info("Found {} active vacancy filters for polling", activeFilters.size());
