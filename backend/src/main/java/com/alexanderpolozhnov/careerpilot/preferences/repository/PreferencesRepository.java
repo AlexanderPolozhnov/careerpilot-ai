@@ -17,7 +17,7 @@ public interface PreferencesRepository extends JpaRepository<PreferencesEntity, 
 
     boolean existsByTelegramChatId(String telegramChatId);
 
-    Optional<PreferencesEntity> findByTelegramUsernameIgnoreCase(String username);
+    Optional<PreferencesEntity> findFirstByTelegramUsernameIgnoreCase(String username);
 
     @Query("SELECT p.telegramChatId FROM PreferencesEntity p WHERE p.telegramChatId IS NOT NULL")
     List<String> findAllTelegramChatIds();

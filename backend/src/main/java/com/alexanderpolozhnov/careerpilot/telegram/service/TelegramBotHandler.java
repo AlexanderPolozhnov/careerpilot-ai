@@ -494,7 +494,7 @@ public class TelegramBotHandler extends TelegramWebhookBot {
             switch (state.getStep()) {
                 case WAITING_FOR_USERNAME -> {
                     String username = text.replace("@", "").trim().toLowerCase();
-                    Optional<PreferencesEntity> prefsOpt = preferencesRepository.findByTelegramUsernameIgnoreCase(username);
+                    Optional<PreferencesEntity> prefsOpt = preferencesRepository.findFirstByTelegramUsernameIgnoreCase(username);
                     if (prefsOpt.isPresent()) {
                         PreferencesEntity prefs = prefsOpt.get();
                         state.setTargetUsername(username);
@@ -720,7 +720,7 @@ public class TelegramBotHandler extends TelegramWebhookBot {
      */
     public void sendAdminAlert(String text) {
         try {
-            Optional<PreferencesEntity> adminPrefs = preferencesRepository.findByTelegramUsernameIgnoreCase(ADMIN_USERNAME);
+            Optional<PreferencesEntity> adminPrefs = preferencesRepository.findFirstByTelegramUsernameIgnoreCase(ADMIN_USERNAME);
             if (adminPrefs.isPresent() && adminPrefs.get().getTelegramChatId() != null) {
                 sendHtmlSimple(Long.parseLong(adminPrefs.get().getTelegramChatId()), "⚠️ <b>Системное уведомление для админа:</b>\n\n" + text);
                 log.info("Admin alert sent successfully to chatId: {}", adminPrefs.get().getTelegramChatId());
