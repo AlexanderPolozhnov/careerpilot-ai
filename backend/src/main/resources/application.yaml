@@ -120,7 +120,7 @@ hh:
   user-agent: ${HH_USER_AGENT:CareerPilot-AI/1.0 (support@careerpilot-ai.ru)}
   proxy:
     enabled: ${HH_PROXY_ENABLED:true}
-    host: ${HH_PROXY_HOST:194.5.11.215}
-    port: ${HH_PROXY_PORT:8000}
-    username: ${HH_PROXY_USERNAME:qWPbcQ}
-    password: ${HH_PROXY_PASSWORD:n4AMT9}
+    host: ${HH_PROXY_HOST:72.56.190.7}
+    port: ${HH_PROXY_PORT:50100}
+    username: ${HH_PROXY_USERNAME:polozhnovalex}
+    password: ${HH_PROXY_PASSWORD:y8VgrjofhR}
