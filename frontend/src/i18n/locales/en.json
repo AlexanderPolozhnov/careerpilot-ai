@@ -676,7 +676,12 @@
       "save": "Save Settings",
       "saving": "Saving...",
       "success": "Resume settings saved successfully",
-      "error": "Error saving resume settings"
+      "error": "Error saving resume settings",
+      "myResumes": "My Resumes",
+      "selectResumePlaceholder": "Select a resume",
+      "extractButton": "Extract",
+      "extractSuccess": "Resume text extracted successfully",
+      "extractEmpty": "Selected resume has no text content"
     },
     "help": {
       "profile": "This information is used to personalize your account and in document headers.",

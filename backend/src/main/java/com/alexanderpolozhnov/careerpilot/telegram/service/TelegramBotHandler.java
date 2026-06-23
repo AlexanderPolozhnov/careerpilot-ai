@@ -1,8 +1,10 @@
 package com.alexanderpolozhnov.careerpilot.telegram.service;
 
+import com.alexanderpolozhnov.careerpilot.auth.repository.AuthRepository;
 import com.alexanderpolozhnov.careerpilot.preferences.entity.NotificationProvider;
 import com.alexanderpolozhnov.careerpilot.preferences.entity.PreferencesEntity;
 import com.alexanderpolozhnov.careerpilot.preferences.repository.PreferencesRepository;
+import com.alexanderpolozhnov.careerpilot.subscription.repository.SubscriptionRepository;
 import com.alexanderpolozhnov.careerpilot.subscription.service.SubscriptionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +51,8 @@ public class TelegramBotHandler extends TelegramWebhookBot {
     private final String botUsername;
     private final String webAppUrl;
     private final String webhookUrl;
+    private final AuthRepository authRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
     // ─── Стейт машина для /gift_subscription ─────────────────────────────────
     private final AdminCommandStateService giftStates;
@@ -61,7 +65,9 @@ public class TelegramBotHandler extends TelegramWebhookBot {
             @Value("${telegram.webhook.url:}") String webhookUrl,
             PreferencesRepository preferencesRepository,
             SubscriptionService subscriptionService,
-            AdminCommandStateService giftStates) {
+            AdminCommandStateService giftStates,
+            AuthRepository authRepository,
+            SubscriptionRepository subscriptionRepository) {
         super(botToken);
         this.botUsername = botUsername;
         this.webAppUrl = webAppUrl;
@@ -69,6 +75,8 @@ public class TelegramBotHandler extends TelegramWebhookBot {
         this.subscriptionService = subscriptionService;
         this.giftStates = giftStates;
         this.webhookUrl = webhookUrl;
+        this.authRepository = authRepository;
+        this.subscriptionRepository = subscriptionRepository;
     }
 
     @Override
@@ -354,16 +362,105 @@ public class TelegramBotHandler extends TelegramWebhookBot {
 
     // ─── Админ: /users ────────────────────────────────────────────────────────
     private void executeFetchUsersStats(Long adminChatId) {
-        try {
-            long totalUsers = preferencesRepository.count();
-            List<String> telegramUsers = preferencesRepository.findAllTelegramChatIds();
-            String text = "📊 <b>Статистика пользователей</b>\n\n" +
-                    "👥 Всего записей preferences: " + totalUsers + "\n" +
-                    "📱 Привязали Telegram: " + telegramUsers.size();
-            sendHtmlSimple(adminChatId, text);
-        } catch (TelegramApiException e) {
-            log.error("Failed to send user stats", e);
-        }
+        java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor().submit(() -> {
+            try {
+                List<com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity> users = authRepository.findAll();
+                List<com.alexanderpolozhnov.careerpilot.preferences.entity.PreferencesEntity> preferences = preferencesRepository.findAll();
+                List<com.alexanderpolozhnov.careerpilot.subscription.entity.SubscriptionEntity> subscriptions = subscriptionRepository.findAll();
+
+                java.util.Map<UUID, com.alexanderpolozhnov.careerpilot.preferences.entity.PreferencesEntity> prefMap = new java.util.HashMap<>();
+                for (com.alexanderpolozhnov.careerpilot.preferences.entity.PreferencesEntity p : preferences) {
+                    prefMap.put(p.getUserId(), p);
+                }
+
+                java.util.Map<UUID, com.alexanderpolozhnov.careerpilot.subscription.entity.SubscriptionEntity> subMap = new java.util.HashMap<>();
+                for (com.alexanderpolozhnov.careerpilot.subscription.entity.SubscriptionEntity s : subscriptions) {
+                    subMap.put(s.getUserId(), s);
+                }
+
+                int totalUsers = users.size();
+                long premiumCount = subscriptions.stream().filter(s -> s.getPlan() == com.alexanderpolozhnov.careerpilot.subscription.entity.SubscriptionPlan.PREMIUM).count();
+                long onboardedCount = preferences.stream().filter(p -> p.isOnboardingCompleted()).count();
+                int tgLinkedCount = (int) preferences.stream().filter(p -> p.getTelegramChatId() != null && !p.getTelegramChatId().isEmpty()).count();
+
+                java.time.Instant now = java.time.Instant.now();
+                java.time.Instant oneDayAgo = now.minus(24, java.time.temporal.ChronoUnit.HOURS);
+                java.time.Instant sevenDaysAgo = now.minus(7, java.time.temporal.ChronoUnit.DAYS);
+
+                long newUsers24h = users.stream().filter(u -> u.getCreatedAt() != null && u.getCreatedAt().isAfter(oneDayAgo)).count();
+                long newUsers7d = users.stream().filter(u -> u.getCreatedAt() != null && u.getCreatedAt().isAfter(sevenDaysAgo)).count();
+
+                long premiumPct = totalUsers > 0 ? Math.round((double) premiumCount * 100 / totalUsers) : 0;
+                long onboardedPct = totalUsers > 0 ? Math.round((double) onboardedCount * 100 / totalUsers) : 0;
+
+                users.sort((u1, u2) -> {
+                    java.time.Instant t1 = u1.getCreatedAt() != null ? u1.getCreatedAt() : java.time.Instant.MIN;
+                    java.time.Instant t2 = u2.getCreatedAt() != null ? u2.getCreatedAt() : java.time.Instant.MIN;
+                    return t2.compareTo(t1);
+                });
+
+                java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter
+                        .ofPattern("dd.MM.yyyy")
+                        .withZone(java.time.ZoneId.of("Europe/Moscow"));
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("📊 <b>СТАТИСТИКА CAREERPILOT AI</b>\n");
+                sb.append("━━━━━━━━━━━━━━━━━━\n");
+                sb.append(String.format("👥 <b>Всего пользователей:</b> %d\n", totalUsers));
+                sb.append(String.format("⭐ <b>С подпиской (PREMIUM):</b> %d (%d%%)\n", premiumCount, premiumPct));
+                sb.append(String.format("🎓 <b>Прошли онбординг:</b> %d (%d%%)\n", onboardedCount, onboardedPct));
+                sb.append(String.format("📱 <b>Telegram привязан:</b> %d\n\n", tgLinkedCount));
+                sb.append("📈 <b>Активность:</b>\n");
+                sb.append(String.format("• Новых за 24ч: %d\n", newUsers24h));
+                sb.append(String.format("• Новых за 7 дней: %d\n", newUsers7d));
+                sb.append("━━━━━━━━━━━━━━━━━━\n\n");
+                sb.append("👤 <b>СПИСОК ПОЛЬЗОВАТЕЛЕЙ:</b>\n\n");
+
+                for (com.alexanderpolozhnov.careerpilot.auth.entity.AuthEntity u : users) {
+                    com.alexanderpolozhnov.careerpilot.preferences.entity.PreferencesEntity pref = prefMap.get(u.getId());
+                    com.alexanderpolozhnov.careerpilot.subscription.entity.SubscriptionEntity sub = subMap.get(u.getId());
+
+                    String usernameInfo = (pref != null && pref.getTelegramUsername() != null && !pref.getTelegramUsername().isBlank())
+                            ? "@" + pref.getTelegramUsername().trim()
+                            : "нет TG";
+
+                    String fullName = u.getFullName() != null && !u.getFullName().isBlank() ? u.getFullName().trim() : u.getEmail();
+
+                    String onboardingEmoji = (pref != null && pref.isOnboardingCompleted()) ? "✅" : "❌";
+                    String premiumEmoji = (sub != null && sub.getPlan() == com.alexanderpolozhnov.careerpilot.subscription.entity.SubscriptionPlan.PREMIUM) ? "⭐" : "🆓";
+
+                    String regDate = u.getCreatedAt() != null ? dateFormatter.format(u.getCreatedAt()) : "неизвестно";
+
+                    String userLine = String.format(
+                        "• <b>%s</b> (%s)\n" +
+                        "  Onboard: %s | План: %s\n" +
+                        "  Регистрация: <i>%s</i>\n\n",
+                        org.springframework.web.util.HtmlUtils.htmlEscape(fullName),
+                        usernameInfo,
+                        onboardingEmoji,
+                        premiumEmoji,
+                        regDate
+                    );
+
+                    if (sb.length() + userLine.length() > 3900) {
+                        sendHtmlSimple(adminChatId, sb.toString());
+                        sb = new StringBuilder();
+                        sb.append("👤 <b>СПИСОК ПОЛЬЗОВАТЕЛЕЙ (продолжение):</b>\n\n");
+                    }
+                    sb.append(userLine);
+                }
+
+                if (sb.length() > 0) {
+                    sendHtmlSimple(adminChatId, sb.toString());
+                }
+
+            } catch (Exception e) {
+                log.error("Failed to fetch users stats via bot command", e);
+                try {
+                    sendHtmlSimple(adminChatId, "❌ Ошибка при получении статистики: " + e.getMessage());
+                } catch (Exception ex) {}
+            }
+        });
     }
 
     // ─── /gift_subscription: Запуск стейт-машины ─────────────────────────────

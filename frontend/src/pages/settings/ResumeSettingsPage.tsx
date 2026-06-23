@@ -5,7 +5,7 @@ import { ArrowLeft, FileText, Save, Sparkles } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { resumeService } from '@/services/resume.service'
 import { toast } from '@/lib/toast'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 interface ResumeFormData {
   rawText: string
@@ -15,18 +15,43 @@ interface ResumeFormData {
 export default function ResumeSettingsPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const [selectedResumeId, setSelectedResumeId] = useState<string>('')
 
   const { data: resumeData, isLoading } = useQuery({
     queryKey: ['user-resume'],
     queryFn: () => resumeService.getMyResume()
   })
 
-  const { handleSubmit, control, reset } = useForm<ResumeFormData>({
+  const { data: resumesList } = useQuery({
+    queryKey: ['resumes', 'list'],
+    queryFn: () => resumeService.list()
+  })
+
+  const { handleSubmit, control, reset, setValue } = useForm<ResumeFormData>({
     defaultValues: {
       rawText: '',
       coverLetterTemplate: ''
     }
   })
+
+  const handleExtract = () => {
+    if (!selectedResumeId || !resumesList) return
+    const selected = resumesList.find((r) => r.id === selectedResumeId)
+    if (!selected) return
+
+    // Clear form rawText value first
+    setValue('rawText', '')
+
+    // Wait short delay then populate text
+    setTimeout(() => {
+      if (selected.textContent) {
+        setValue('rawText', selected.textContent)
+        toast.success(t('settings.resume.extractSuccess', 'Текст резюме успешно извлечен'))
+      } else {
+        toast.warning(t('settings.resume.extractEmpty', 'Выбранное резюме не содержит текстового контента'))
+      }
+    }, 200)
+  }
 
   useEffect(() => {
     if (resumeData) {
@@ -95,10 +120,41 @@ export default function ResumeSettingsPage() {
           <div className="space-y-6">
             {/* Raw Textarea */}
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-200 mb-2">
-                <FileText className="h-4 w-4 text-primary-400" />
-                {t('settings.resume.labelRawText', 'Текст резюме')}
-              </label>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-3">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-200">
+                  <FileText className="h-4 w-4 text-primary-400" />
+                  {t('settings.resume.labelRawText', 'Текст резюме')}
+                </label>
+                
+                {resumesList && resumesList.length > 0 && (
+                  <div className="flex items-center gap-2 self-start md:self-auto bg-white/[0.02] border border-white/[0.06] rounded-xl px-3 py-1.5 backdrop-blur-sm">
+                    <span className="text-xs text-gray-400 font-medium whitespace-nowrap">
+                      {t('settings.resume.myResumes', 'Мои резюме')}:
+                    </span>
+                    <select
+                      value={selectedResumeId}
+                      onChange={(e) => setSelectedResumeId(e.target.value)}
+                      className="rounded-lg border border-white/[0.08] bg-black/60 px-2 py-1 text-xs text-gray-200 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 max-w-[180px] sm:max-w-xs truncate"
+                    >
+                      <option value="">-- {t('settings.resume.selectResumePlaceholder', 'Выберите резюме')} --</option>
+                      {resumesList.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.name}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={handleExtract}
+                      disabled={!selectedResumeId}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 hover:bg-primary-500 disabled:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1 text-xs font-semibold text-white shadow-sm transition-all cursor-pointer"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-yellow-300 animate-pulse" />
+                      {t('settings.resume.extractButton', 'Извлечь')}
+                    </button>
+                  </div>
+                )}
+              </div>
               <Controller
                 name="rawText"
                 control={control}
