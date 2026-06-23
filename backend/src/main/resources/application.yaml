@@ -118,3 +118,9 @@ hh:
   client-secret: ${HH_CLIENT_SECRET:}
   redirect-uri: ${HH_REDIRECT_URI:http://localhost:8080/api/integration/hh/callback}
   user-agent: ${HH_USER_AGENT:CareerPilot-AI/1.0 (support@careerpilot-ai.ru)}
+  proxy:
+    enabled: ${HH_PROXY_ENABLED:false}
+    host: ${HH_PROXY_HOST:}
+    port: ${HH_PROXY_PORT:8080}
+    username: ${HH_PROXY_USERNAME:}
+    password: ${HH_PROXY_PASSWORD:}

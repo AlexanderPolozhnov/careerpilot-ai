@@ -33,6 +33,12 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import jakarta.annotation.PostConstruct;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
 
 @Service
 @Slf4j
@@ -51,7 +57,44 @@ public class HhVacancyPollingService {
     @Value("${hh.user-agent:CareerPilot-AI/1.0 (support@careerpilot-ai.ru)}")
     private String hhUserAgent;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Value("${hh.proxy.enabled:false}")
+    private boolean hhProxyEnabled;
+
+    @Value("${hh.proxy.host:}")
+    private String hhProxyHost;
+
+    @Value("${hh.proxy.port:8080}")
+    private int hhProxyPort;
+
+    @Value("${hh.proxy.username:}")
+    private String hhProxyUsername;
+
+    @Value("${hh.proxy.password:}")
+    private String hhProxyPassword;
+
+    private RestTemplate restTemplate;
+
+    @PostConstruct
+    public void init() {
+        if (hhProxyEnabled && hhProxyHost != null && !hhProxyHost.isBlank()) {
+            log.info("Configuring HH.ru API polling to use proxy {}:{}", hhProxyHost, hhProxyPort);
+            SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(hhProxyHost, hhProxyPort));
+            requestFactory.setProxy(proxy);
+
+            if (hhProxyUsername != null && !hhProxyUsername.isBlank()) {
+                Authenticator.setDefault(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(hhProxyUsername, hhProxyPassword.toCharArray());
+                    }
+                });
+            }
+            this.restTemplate = new RestTemplate(requestFactory);
+        } else {
+            this.restTemplate = new RestTemplate();
+        }
+    }
 
     @Scheduled(fixedRate = 300000) // Раз в 5 минут
     public void pollVacancies() {
