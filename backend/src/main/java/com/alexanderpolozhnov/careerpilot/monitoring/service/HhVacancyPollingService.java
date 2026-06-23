@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import com.alexanderpolozhnov.careerpilot.notification.service.ReminderScheduler;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Instant;
 import java.util.List;
@@ -46,6 +47,9 @@ public class HhVacancyPollingService {
     private final CacheManager cacheManager;
     private final ObjectMapper objectMapper;
     private final ReminderScheduler reminderScheduler;
+
+    @Value("${hh.user-agent:CareerPilot-AI/1.0 (support@careerpilot-ai.ru)}")
+    private String hhUserAgent;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -151,7 +155,7 @@ public class HhVacancyPollingService {
         }
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Agent", "CareerPilot-AI/1.0 (support@careerpilot-ai.ru)");
+        headers.set("User-Agent", hhUserAgent);
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
         ResponseEntity<HhVacanciesResponse> response;
@@ -231,7 +235,7 @@ public class HhVacancyPollingService {
     private String fetchVacancyDescription(String vacancyId) {
         String url = "https://api.hh.ru/vacancies/" + vacancyId;
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Agent", "CareerPilot-AI/1.0 (support@careerpilot-ai.ru)");
+        headers.set("User-Agent", hhUserAgent);
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
         try {
