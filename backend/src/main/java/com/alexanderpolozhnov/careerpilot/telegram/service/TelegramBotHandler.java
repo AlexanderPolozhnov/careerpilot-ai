@@ -48,6 +48,7 @@ public class TelegramBotHandler extends TelegramWebhookBot {
     private final SubscriptionService subscriptionService;
     private final String botUsername;
     private final String webAppUrl;
+    private final String webhookUrl;
 
     // ─── Стейт машина для /gift_subscription ─────────────────────────────────
     private final AdminCommandStateService giftStates;
@@ -57,6 +58,7 @@ public class TelegramBotHandler extends TelegramWebhookBot {
             @Value("${telegram.bot.token}") String botToken,
             @Value("${telegram.bot.username:careerpilot_ai_bot}") String botUsername,
             @Value("${telegram.bot.webapp-url:https://careerpilot-ai.ru/app/dashboard?tg=1}") String webAppUrl,
+            @Value("${telegram.webhook.url:}") String webhookUrl,
             PreferencesRepository preferencesRepository,
             SubscriptionService subscriptionService,
             AdminCommandStateService giftStates) {
@@ -66,6 +68,7 @@ public class TelegramBotHandler extends TelegramWebhookBot {
         this.preferencesRepository = preferencesRepository;
         this.subscriptionService = subscriptionService;
         this.giftStates = giftStates;
+        this.webhookUrl = webhookUrl;
     }
 
     @Override
@@ -76,6 +79,35 @@ public class TelegramBotHandler extends TelegramWebhookBot {
     @Override
     public String getBotPath() {
         return "/api/telegram/webhook";
+    }
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        try {
+            // Set Webhook if URL is configured
+            if (webhookUrl != null && !webhookUrl.isBlank()) {
+                org.telegram.telegrambots.meta.api.methods.updates.SetWebhook setWebhook = org.telegram.telegrambots.meta.api.methods.updates.SetWebhook.builder()
+                        .url(webhookUrl)
+                        .dropPendingUpdates(true)
+                        .build();
+                execute(setWebhook);
+                log.info("Webhook successfully set to: {}", webhookUrl);
+            }
+
+            // Set Commands
+            List<org.telegram.telegrambots.meta.api.objects.commands.BotCommand> commands = new ArrayList<>();
+            commands.add(new org.telegram.telegrambots.meta.api.objects.commands.BotCommand("/start", "Привязать аккаунт CareerPilot"));
+            commands.add(new org.telegram.telegrambots.meta.api.objects.commands.BotCommand("/help", "Справка по боту"));
+            
+            org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands setMyCommands = new org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands();
+            setMyCommands.setCommands(commands);
+            setMyCommands.setScope(new org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault());
+            
+            execute(setMyCommands);
+            log.info("Bot commands successfully registered");
+        } catch (TelegramApiException e) {
+            log.error("Failed to initialize bot webhook/commands", e);
+        }
     }
 
     // ─── Главный обработчик обновлений ───────────────────────────────────────
