@@ -6,6 +6,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { resumeService } from '@/services/resume.service'
 import { toast } from '@/lib/toast'
 import { useEffect, useState } from 'react'
+import CustomSelect from '@/components/ui/CustomSelect'
 
 interface ResumeFormData {
   rawText: string
@@ -132,23 +133,21 @@ export default function ResumeSettingsPage() {
                   </span>
                   {resumesList && resumesList.length > 0 ? (
                     <>
-                      <select
+                      <CustomSelect
                         value={selectedResumeId}
-                        onChange={(e) => setSelectedResumeId(e.target.value)}
-                        className="rounded-lg border border-white/[0.08] bg-black/60 px-2 py-1 text-xs text-gray-200 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 max-w-[180px] sm:max-w-xs truncate"
-                      >
-                        <option value="">-- {t('settings.resume.selectResumePlaceholder', 'Выберите резюме')} --</option>
-                        {resumesList.map((r) => (
-                          <option key={r.id} value={r.id}>
-                            {r.name}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(val) => setSelectedResumeId(val)}
+                        options={resumesList.map((r) => ({
+                          value: r.id,
+                          label: r.name
+                        }))}
+                        placeholder={t('settings.resume.selectResumePlaceholder', 'Выберите резюме')}
+                        className="w-[180px] sm:w-[220px]"
+                      />
                       <button
                         type="button"
                         onClick={handleExtract}
                         disabled={!selectedResumeId}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 hover:bg-primary-500 disabled:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1 text-xs font-semibold text-white shadow-sm transition-all cursor-pointer"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 hover:bg-primary-500 disabled:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed h-10 px-4 text-xs font-semibold text-white shadow-sm transition-all cursor-pointer"
                       >
                         <Sparkles className="h-3.5 w-3.5 text-yellow-300 animate-pulse" />
                         {t('settings.resume.extractButton', 'Извлечь')}
