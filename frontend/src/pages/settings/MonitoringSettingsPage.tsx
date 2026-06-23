@@ -6,11 +6,47 @@ import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { monitoringService } from '@/services/monitoring.service'
 import { toast } from '@/lib/toast'
-import { formatRelative } from '@/lib/utils'
+import { formatRelative, cn } from '@/lib/utils'
+import type { VacancyFilter } from '@/types'
 
 interface FilterFormData {
   searchQuery: string
   targetSalary: number | ''
+  experience: string
+  employment: string
+  schedule: string
+  area: string
+  onlyWithSalary: boolean
+  pollingInterval: number
+}
+
+// Toggle Switch Component
+function Toggle({ checked, onChange, disabled = false }: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  disabled?: boolean
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={cn(
+        'relative h-6 w-11 rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08090d]',
+        checked ? 'bg-violet-600' : 'bg-white/10',
+        disabled && 'opacity-50 cursor-not-allowed'
+      )}
+    >
+      <span
+        className={cn(
+          'absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ease-out',
+          checked && 'translate-x-5'
+        )}
+      />
+    </button>
+  )
 }
 
 export default function MonitoringSettingsPage() {
@@ -26,12 +62,27 @@ export default function MonitoringSettingsPage() {
   const { handleSubmit, control, reset, formState: { errors } } = useForm<FilterFormData>({
     defaultValues: {
       searchQuery: '',
-      targetSalary: ''
+      targetSalary: '',
+      experience: '',
+      employment: '',
+      schedule: '',
+      area: '',
+      onlyWithSalary: false,
+      pollingInterval: 30
     }
   })
 
   const createMutation = useMutation({
-    mutationFn: (data: { searchQuery: string; targetSalary: number | null }) => monitoringService.createFilter(data),
+    mutationFn: (data: {
+      searchQuery: string
+      targetSalary: number | null
+      experience?: string
+      employment?: string
+      schedule?: string
+      area?: string
+      onlyWithSalary?: boolean
+      pollingInterval?: number
+    }) => monitoringService.createFilter(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['monitoring-filters'] })
       toast.success(t('settings.monitoring.createSuccess', 'Фильтр успешно добавлен'))
@@ -45,7 +96,29 @@ export default function MonitoringSettingsPage() {
   })
 
   const toggleMutation = useMutation({
-    mutationFn: (args: { id: string; isActive: boolean }) => monitoringService.updateFilter(args.id, { isActive: args.isActive }),
+    mutationFn: (args: {
+      id: string
+      searchQuery: string
+      targetSalary: number | null
+      isActive: boolean
+      experience?: string
+      employment?: string
+      schedule?: string
+      area?: string
+      onlyWithSalary?: boolean
+      pollingInterval?: number
+    }) =>
+      monitoringService.updateFilter(args.id, {
+        searchQuery: args.searchQuery,
+        targetSalary: args.targetSalary,
+        isActive: args.isActive,
+        experience: args.experience,
+        employment: args.employment,
+        schedule: args.schedule,
+        area: args.area,
+        onlyWithSalary: args.onlyWithSalary,
+        pollingInterval: args.pollingInterval
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['monitoring-filters'] })
       toast.success(t('settings.monitoring.updateSuccess', 'Статус фильтра успешно обновлен'))
@@ -71,17 +144,48 @@ export default function MonitoringSettingsPage() {
   const onSubmit = (data: FilterFormData) => {
     createMutation.mutate({
       searchQuery: data.searchQuery.trim(),
-      targetSalary: data.targetSalary === '' ? null : Number(data.targetSalary)
+      targetSalary: data.targetSalary === '' ? null : Number(data.targetSalary),
+      experience: data.experience || undefined,
+      employment: data.employment || undefined,
+      schedule: data.schedule || undefined,
+      area: data.area || undefined,
+      onlyWithSalary: data.onlyWithSalary,
+      pollingInterval: Number(data.pollingInterval)
     })
   }
 
-  const handleToggle = (id: string, currentStatus: boolean) => {
-    toggleMutation.mutate({ id, isActive: !currentStatus })
+  const handleToggle = (filter: VacancyFilter) => {
+    toggleMutation.mutate({
+      id: filter.id,
+      searchQuery: filter.searchQuery,
+      targetSalary: filter.targetSalary,
+      isActive: !filter.isActive,
+      experience: filter.experience,
+      employment: filter.employment,
+      schedule: filter.schedule,
+      area: filter.area,
+      onlyWithSalary: filter.onlyWithSalary,
+      pollingInterval: filter.pollingInterval
+    })
   }
 
   const handleDelete = (id: string) => {
     if (window.confirm(t('settings.monitoring.deleteConfirm', 'Вы уверены, что хотите удалить этот фильтр?'))) {
       deleteMutation.mutate(id)
+    }
+  }
+
+  const getIntervalLabel = (interval?: number) => {
+    if (!interval) return t('settings.monitoring.pollingIntervalMin30')
+    switch (interval) {
+      case 15: return t('settings.monitoring.pollingIntervalMin15')
+      case 30: return t('settings.monitoring.pollingIntervalMin30')
+      case 60: return t('settings.monitoring.pollingIntervalHour1')
+      case 120: return t('settings.monitoring.pollingIntervalHour2')
+      case 240: return t('settings.monitoring.pollingIntervalHour4')
+      case 720: return t('settings.monitoring.pollingIntervalHour12')
+      case 1440: return t('settings.monitoring.pollingIntervalDay1')
+      default: return `${interval} мин`
     }
   }
 
@@ -142,36 +246,74 @@ export default function MonitoringSettingsPage() {
             >
               <div>
                 <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${filter.isActive ? 'bg-primary-500/10 text-primary-400' : 'bg-gray-800 text-gray-500'}`}>
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <div className={`p-2 rounded-lg mt-0.5 ${filter.isActive ? 'bg-primary-500/10 text-primary-400' : 'bg-gray-800 text-gray-500'}`}>
                       <Search className="h-5 w-5" />
                     </div>
-                    <div>
-                      <h3 className="text-base font-semibold text-gray-100 line-clamp-1">{filter.searchQuery}</h3>
-                      {filter.targetSalary ? (
-                        <div className="flex items-center gap-1 mt-0.5 text-xs text-emerald-400 font-medium">
-                          <Coins className="h-3 w-3" />
-                          <span>от {filter.targetSalary.toLocaleString()} ₽</span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-500">Зарплата не указана</span>
-                      )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-semibold text-gray-100 truncate">{filter.searchQuery}</h3>
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {filter.targetSalary ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-medium border border-emerald-500/20">
+                            <Coins className="h-2.5 w-2.5" />
+                            от {filter.targetSalary.toLocaleString()} ₽
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-white/[0.03] text-gray-500 text-[10px] border border-white/[0.05]">
+                            Зарплата любая
+                          </span>
+                        )}
+                        {filter.experience && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-violet-500/10 text-violet-400 text-[10px] font-medium border border-violet-500/20">
+                            {t(`settings.monitoring.experience${filter.experience.charAt(0).toUpperCase() + filter.experience.slice(1)}`)}
+                          </span>
+                        )}
+                        {filter.employment && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-medium border border-blue-500/20">
+                            {t(`settings.monitoring.employment${filter.employment.charAt(0).toUpperCase() + filter.employment.slice(1)}`)}
+                          </span>
+                        )}
+                        {filter.schedule && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] font-medium border border-amber-500/20">
+                            {t(`settings.monitoring.schedule${filter.schedule.charAt(0).toUpperCase() + filter.schedule.slice(1)}`)}
+                          </span>
+                        )}
+                        {filter.area && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 text-[10px] font-medium border border-rose-500/20">
+                            {filter.area === '1' && t('settings.monitoring.areaMoscow')}
+                            {filter.area === '2' && t('settings.monitoring.areaSpb')}
+                            {filter.area === '1,2' && t('settings.monitoring.areaCapitals')}
+                            {filter.area === '4' && t('settings.monitoring.areaNsk')}
+                            {filter.area === '3' && t('settings.monitoring.areaEkb')}
+                            {filter.area === '66' && t('settings.monitoring.areaNizhny')}
+                            {filter.area === '88' && t('settings.monitoring.areaKazan')}
+                            {filter.area === '1438' && t('settings.monitoring.areaKrasnodar')}
+                            {filter.area === '113' && t('settings.monitoring.areaRussia')}
+                            {filter.area === '40' && t('settings.monitoring.areaKazakhstan')}
+                            {filter.area === '16' && t('settings.monitoring.areaBelarus')}
+                            {filter.area === '97' && t('settings.monitoring.areaUzbekistan')}
+                            {filter.area === '28' && t('settings.monitoring.areaGeorgia')}
+                            {filter.area === '5' && t('settings.monitoring.areaArmenia')}
+                            {filter.area === '113,40,16' && t('settings.monitoring.areaCIS')}
+                          </span>
+                        )}
+                        {filter.onlyWithSalary && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-teal-500/10 text-teal-400 text-[10px] font-medium border border-teal-500/20">
+                            {t('settings.monitoring.onlyWithSalary')}
+                          </span>
+                        )}
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/[0.03] text-white/40 text-[10px] border border-white/[0.05]">
+                          <Clock className="h-2.5 w-2.5" />
+                          {getIntervalLabel(filter.pollingInterval)}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Switch */}
-                  <button
-                    onClick={() => handleToggle(filter.id, filter.isActive)}
-                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      filter.isActive ? 'bg-primary-600' : 'bg-gray-700'
-                    }`}
-                  >
-                    <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                        filter.isActive ? 'translate-x-5' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
+                  {/* Switch Toggle */}
+                  <div className="ml-3 flex-shrink-0">
+                    <Toggle checked={filter.isActive} onChange={() => handleToggle(filter)} />
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-2">
@@ -214,79 +356,223 @@ export default function MonitoringSettingsPage() {
       {/* Modal Overlay */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-gray-950 p-6 shadow-2xl relative">
-            <button
-              onClick={() => {
-                setIsModalOpen(false)
-                reset()
-              }}
-              className="absolute right-4 top-4 text-gray-400 hover:text-white transition-colors cursor-pointer"
-            >
-              <X className="h-5 w-5" />
-            </button>
+          <div className="w-full max-w-lg rounded-2xl border border-white/[0.08] bg-[#0a0b0f] flex flex-col max-h-[85vh] shadow-2xl relative">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-white/[0.08] flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-100">
+                {t('settings.monitoring.modalTitle', 'Новый фильтр автопоиска')}
+              </h2>
+              <button
+                onClick={() => {
+                  setIsModalOpen(false)
+                  reset()
+                }}
+                className="text-gray-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-            <h2 className="text-xl font-bold text-gray-100 mb-6">
-              {t('settings.monitoring.modalTitle', 'Новый фильтр автопоиска')}
-            </h2>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                  {t('settings.monitoring.searchQuery', 'Поисковый запрос')} *
-                </label>
-                <Controller
-                  name="searchQuery"
-                  control={control}
-                  rules={{ required: t('settings.monitoring.queryRequired', 'Поисковый запрос обязателен') }}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="text"
-                      className="w-full rounded-xl border border-white/[0.1] bg-black/40 px-4 py-2.5 text-sm text-gray-200 placeholder-gray-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
-                      placeholder={t('settings.monitoring.searchQueryPlaceholder', 'Например: Frontend React Developer')}
-                    />
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-6 space-y-4 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden">
+                {/* 1. Поисковый запрос */}
+                <div>
+                  <label className="text-xs text-ink-dim">
+                    {t('settings.monitoring.searchQuery', 'Поисковый запрос')} *
+                  </label>
+                  <Controller
+                    name="searchQuery"
+                    control={control}
+                    rules={{ required: t('settings.monitoring.queryRequired', 'Поисковый запрос обязателен') }}
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        type="text"
+                        className="input mt-1"
+                        placeholder={t('settings.monitoring.searchQueryPlaceholder', 'Например: Frontend React Developer')}
+                      />
+                    )}
+                  />
+                  {errors.searchQuery && (
+                    <span className="text-xs text-red-400 mt-1 block">{errors.searchQuery.message}</span>
                   )}
-                />
-                {errors.searchQuery && (
-                  <span className="text-xs text-red-400 mt-1 block">{errors.searchQuery.message}</span>
-                )}
+                </div>
+
+                {/* 2. Минимальная зарплата */}
+                <div>
+                  <label className="text-xs text-ink-dim">
+                    {t('settings.monitoring.targetSalary', 'Минимальная зарплата (₽)')}
+                  </label>
+                  <Controller
+                    name="targetSalary"
+                    control={control}
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        type="number"
+                        className="input mt-1"
+                        placeholder={t('settings.monitoring.targetSalaryPlaceholder', 'Например: 120000')}
+                      />
+                    )}
+                  />
+                </div>
+
+                {/* 3. Опыт работы */}
+                <div>
+                  <label className="text-xs text-ink-dim">
+                    {t('settings.monitoring.experience', 'Опыт работы')}
+                  </label>
+                  <Controller
+                    name="experience"
+                    control={control}
+                    render={({ field }) => (
+                      <select {...field} className="select mt-1">
+                        <option value="">{t('settings.monitoring.areaAny', 'Любой')}</option>
+                        <option value="noExperience">{t('settings.monitoring.experienceNoExperience', 'Нет опыта')}</option>
+                        <option value="between1And3">{t('settings.monitoring.experienceBetween1And3', 'От 1 года до 3 лет')}</option>
+                        <option value="between3And6">{t('settings.monitoring.experienceBetween3And6', 'От 3 до 6 лет')}</option>
+                        <option value="moreThan6">{t('settings.monitoring.experienceMoreThan6', 'Более 6 лет')}</option>
+                      </select>
+                    )}
+                  />
+                </div>
+
+                {/* 4. Тип занятости */}
+                <div>
+                  <label className="text-xs text-ink-dim">
+                    {t('settings.monitoring.employment', 'Тип занятости')}
+                  </label>
+                  <Controller
+                    name="employment"
+                    control={control}
+                    render={({ field }) => (
+                      <select {...field} className="select mt-1">
+                        <option value="">{t('settings.monitoring.areaAny', 'Любой')}</option>
+                        <option value="full">{t('settings.monitoring.employmentFull', 'Полная занятость')}</option>
+                        <option value="part">{t('settings.monitoring.employmentPart', 'Частичная занятость')}</option>
+                        <option value="project">{t('settings.monitoring.employmentProject', 'Проектная работа')}</option>
+                        <option value="volunteer">{t('settings.monitoring.employmentVolunteer', 'Волонтерство')}</option>
+                        <option value="probation">{t('settings.monitoring.employmentProbation', 'Стажировка')}</option>
+                      </select>
+                    )}
+                  />
+                </div>
+
+                {/* 5. График работы */}
+                <div>
+                  <label className="text-xs text-ink-dim">
+                    {t('settings.monitoring.schedule', 'График работы')}
+                  </label>
+                  <Controller
+                    name="schedule"
+                    control={control}
+                    render={({ field }) => (
+                      <select {...field} className="select mt-1">
+                        <option value="">{t('settings.monitoring.areaAny', 'Любой')}</option>
+                        <option value="fullDay">{t('settings.monitoring.scheduleFullDay', 'Полный день')}</option>
+                        <option value="shift">{t('settings.monitoring.scheduleShift', 'Сменный график')}</option>
+                        <option value="flexible">{t('settings.monitoring.scheduleFlexible', 'Гибкий график')}</option>
+                        <option value="remote">{t('settings.monitoring.scheduleRemote', 'Удаленная работа')}</option>
+                        <option value="flyInFlyOut">{t('settings.monitoring.scheduleFlyInFlyOut', 'Вахтовый метод')}</option>
+                      </select>
+                    )}
+                  />
+                </div>
+
+                {/* 6. География поиска */}
+                <div>
+                  <label className="text-xs text-ink-dim">
+                    {t('settings.monitoring.area', 'География поиска')}
+                  </label>
+                  <Controller
+                    name="area"
+                    control={control}
+                    render={({ field }) => (
+                      <select {...field} className="select mt-1">
+                        <option value="">{t('settings.monitoring.areaAny', 'Везде (любой регион)')}</option>
+                        {/* Страны и группы */}
+                        <option value="113">{t('settings.monitoring.areaRussia', 'Россия (вся страна)')}</option>
+                        <option value="113,40,16">{t('settings.monitoring.areaCIS', 'Россия, Казахстан, Беларусь')}</option>
+                        <option value="40">{t('settings.monitoring.areaKazakhstan', 'Казахстан (вся страна)')}</option>
+                        <option value="16">{t('settings.monitoring.areaBelarus', 'Беларусь (вся страна)')}</option>
+                        <option value="97">{t('settings.monitoring.areaUzbekistan', 'Узбекистан (вся страна)')}</option>
+                        <option value="28">{t('settings.monitoring.areaGeorgia', 'Грузия (вся страна)')}</option>
+                        <option value="5">{t('settings.monitoring.areaArmenia', 'Армения (вся страна)')}</option>
+                        {/* Популярные города и комбинации */}
+                        <option value="1,2">{t('settings.monitoring.areaCapitals', 'Москва + Санкт-Петербург')}</option>
+                        <option value="1">{t('settings.monitoring.areaMoscow', 'Москва')}</option>
+                        <option value="2">{t('settings.monitoring.areaSpb', 'Санкт-Петербург')}</option>
+                        <option value="4">{t('settings.monitoring.areaNsk', 'Новосибирск')}</option>
+                        <option value="3">{t('settings.monitoring.areaEkb', 'Екатеринбург')}</option>
+                        <option value="66">{t('settings.monitoring.areaNizhny', 'Нижний Новгород')}</option>
+                        <option value="88">{t('settings.monitoring.areaKazan', 'Казань')}</option>
+                        <option value="1438">{t('settings.monitoring.areaKrasnodar', 'Краснодар')}</option>
+                      </select>
+                    )}
+                  />
+                </div>
+
+                {/* 7. Интервал опроса */}
+                <div>
+                  <label className="text-xs text-ink-dim">
+                    {t('settings.monitoring.pollingInterval', 'Интервал опроса')}
+                  </label>
+                  <Controller
+                    name="pollingInterval"
+                    control={control}
+                    render={({ field }) => (
+                      <select {...field} className="select mt-1" onChange={(e) => field.onChange(Number(e.target.value))}>
+                        <option value={30}>{t('settings.monitoring.pollingIntervalMin30', '30 минут (по умолчанию)')}</option>
+                        <option value={60}>{t('settings.monitoring.pollingIntervalHour1', '1 час')}</option>
+                        <option value={120}>{t('settings.monitoring.pollingIntervalHour2', '2 часа')}</option>
+                        <option value={240}>{t('settings.monitoring.pollingIntervalHour4', '4 часа')}</option>
+                        <option value={720}>{t('settings.monitoring.pollingIntervalHour12', '12 часов')}</option>
+                        <option value={1440}>{t('settings.monitoring.pollingIntervalDay1', '24 часа')}</option>
+                      </select>
+                    )}
+                  />
+                </div>
+
+                {/* 8. Только с указанной ЗП */}
+                <div className="flex items-center gap-2 pt-2">
+                  <Controller
+                    name="onlyWithSalary"
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                      <input
+                        id="onlyWithSalary"
+                        type="checkbox"
+                        checked={value}
+                        onChange={(e) => onChange(e.target.checked)}
+                        className="w-4 h-4 rounded border-white/20 bg-white/5 text-violet-500 focus:ring-violet-500/50"
+                      />
+                    )}
+                  />
+                  <label htmlFor="onlyWithSalary" className="text-sm text-white/70">
+                    {t('settings.monitoring.onlyWithSalary', 'Только с указанием зарплаты')}
+                  </label>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                  {t('settings.monitoring.targetSalary', 'Минимальная зарплата (₽)')}
-                </label>
-                <Controller
-                  name="targetSalary"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="number"
-                      className="w-full rounded-xl border border-white/[0.1] bg-black/40 px-4 py-2.5 text-sm text-gray-200 placeholder-gray-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
-                      placeholder={t('settings.monitoring.targetSalaryPlaceholder', 'Например: 120000')}
-                    />
-                  )}
-                />
-              </div>
-
-              <div className="pt-4 flex justify-end gap-3">
+              {/* Fixed Footer */}
+              <div className="border-t border-white/[0.08] p-6 bg-[#0a0b0f] rounded-b-2xl flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setIsModalOpen(false)
                     reset()
                   }}
-                  className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-400 hover:text-white transition-colors cursor-pointer"
+                  className="btn-secondary"
                 >
                   {t('settings.monitoring.cancel', 'Отмена')}
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending}
-                  className="rounded-xl bg-primary-600 px-5 py-2 text-sm font-semibold text-white hover:bg-primary-500 transition-all disabled:opacity-50 cursor-pointer"
+                  className="btn-primary"
                 >
-                  {createMutation.isPending ? t('common.saving', 'Сохранение...') : t('settings.monitoring.create', 'Создать')}
+                  {createMutation.isPending ? t('common.loading', 'Загрузка...') : t('settings.monitoring.create', 'Создать')}
                 </button>
               </div>
             </form>

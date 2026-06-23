@@ -307,5 +307,11 @@ export interface VacancyFilter {
   lastPolledAt?: string
   createdAt: string
   updatedAt: string
+  experience?: string
+  employment?: string
+  schedule?: string
+  area?: string
+  onlyWithSalary?: boolean
+  pollingInterval?: number
 }
 

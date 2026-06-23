@@ -47,7 +47,7 @@ public class HhVacancyPollingService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Scheduled(fixedRate = 1800000) // Раз в 30 минут
+    @Scheduled(fixedRate = 300000) // Раз в 5 минут
     public void pollVacancies() {
         log.info("HhVacancyPollingService starting polling cycle...");
         try {
@@ -56,6 +56,15 @@ public class HhVacancyPollingService {
 
             for (VacancyFilterEntity filter : activeFilters) {
                 try {
+                    // Проверяем индивидуальный интервал опроса
+                    Instant lastPolled = filter.getLastPolledAt();
+                    Integer intervalMin = filter.getPollingInterval() != null ? filter.getPollingInterval() : 30;
+                    if (lastPolled != null) {
+                        Instant nextPollTime = lastPolled.plus(java.time.Duration.ofMinutes(intervalMin));
+                        if (Instant.now().isBefore(nextPollTime)) {
+                            continue; // Время опроса для данного фильтра еще не подошло
+                        }
+                    }
                     processFilter(filter);
                 } catch (Exception e) {
                     log.error("Error processing vacancy filter id={}", filter.getId(), e);
@@ -87,6 +96,27 @@ public class HhVacancyPollingService {
 
         if (filter.getTargetSalary() != null) {
             uriBuilder.queryParam("salary", filter.getTargetSalary());
+        }
+
+        if (filter.getExperience() != null && !filter.getExperience().isBlank()) {
+            uriBuilder.queryParam("experience", filter.getExperience());
+        }
+        if (filter.getEmployment() != null && !filter.getEmployment().isBlank()) {
+            uriBuilder.queryParam("employment", filter.getEmployment());
+        }
+        if (filter.getSchedule() != null && !filter.getSchedule().isBlank()) {
+            uriBuilder.queryParam("schedule", filter.getSchedule());
+        }
+        if (filter.getArea() != null && !filter.getArea().isBlank()) {
+            for (String a : filter.getArea().split(",")) {
+                String trimmed = a.trim();
+                if (!trimmed.isEmpty()) {
+                    uriBuilder.queryParam("area", trimmed);
+                }
+            }
+        }
+        if (Boolean.TRUE.equals(filter.getOnlyWithSalary())) {
+            uriBuilder.queryParam("only_with_salary", true);
         }
 
         HttpHeaders headers = new HttpHeaders();
@@ -230,6 +260,12 @@ public class HhVacancyPollingService {
     private String buildPrompt(UserResumeEntity resume, String vacancyTitle, String vacancyDescription) {
         return "You are an AI Job Search Assistant. Compare the candidate's resume with the vacancy description.\n" +
                 "Evaluate if the match is greater than 80% based on skills, experience, and requirements.\n" +
+                "Apply the following evaluation leniency rules:\n" +
+                "1. Job Title Match: Do not require strict title matches (e.g., 'Middle React Developer' should match well with 'Frontend Developer' if tech stack matches).\n" +
+                "2. Experience Leniency: Be flexible with experience years. If vacancy requires 3 years, and candidate has 2 or 2.5 years, do not reject solely because of this.\n" +
+                "3. Education: Ignore strict higher education requirements (university degree) unless it is a highly regulated medical/legal field.\n" +
+                "4. Tech Stack: Focus on core technologies. If candidate knows React and TypeScript, but vacancy also lists Redux/Next.js (which candidate can easily learn), do not reject.\n" +
+                "5. Overall Fit: If candidate's skills align well with the vacancy's day-to-day responsibilities, consider it a match.\n\n" +
                 "If the match is > 80%, generate a tailored cover letter using the candidate's Cover Letter Template (fill in details or adjust tone to fit this vacancy).\n" +
                 "If the match is <= 80%, set isMatch to false.\n\n" +
                 "Candidate Resume Text:\n" +

@@ -163,3 +163,42 @@
 - `.\verify-all.ps1` — **SUCCESS**
 
 
+## Update 2026-06-23: Advanced hh.ru Auto-Search Filters and Leniency Matching Prompt
+
+### Что реализовано
+
+**Backend — Flyway миграция:**
+- `V33__add_extra_vacancy_filters_columns.sql` — Добавлены колонки `experience`, `employment`, `schedule`, `area`, `only_with_salary` и `polling_interval` в таблицу `user_vacancy_filters`.
+
+**Backend — JPA Entity & DTOs:**
+- Обновлен `VacancyFilterEntity` новыми полями: `experience`, `employment`, `schedule`, `area`, `onlyWithSalary`, `pollingInterval`.
+- Обновлены DTO-запросы/ответы `VacancyFilterRequest` и `VacancyFilterResponse`.
+- Обновлен `VacancyFilterServiceImpl` для инициализации дефолтных значений `pollingInterval=30` и `onlyWithSalary=false` в методе создания фильтра.
+
+**Backend — Background Scheduled Job & AI Matching:**
+- Перенастроен планировщик `HhVacancyPollingService` на запуск каждые 5 минут (`@Scheduled(fixedRate = 300000)`).
+- Реализована проверка индивидуального интервала опроса каждого фильтра.
+- Реализована передача расширенных параметров запроса (`experience`, `employment`, `schedule`, `area`, `only_with_salary`) в вызовы к API hh.ru.
+- Внедрен лояльный промпт сопоставления ИИ (ленивые правила для названий должностей, разницы в опыте работы, игнорирования отсутствия высшего образования, гибкость стека).
+
+**Frontend — Types & Services:**
+- Обновлен интерфейс `VacancyFilter` в `types/index.ts`.
+- Обновлены методы `createFilter` и `updateFilter` в `monitoring.service.ts` для отправки новых полей (с соответствующим обновлением мок-данных).
+
+**Frontend — UI & i18n:**
+- Переработано модальное окно создания фильтра в `MonitoringSettingsPage.tsx` в соответствии с дизайн-системой: скроллируемый контейнер полей с фиксированным хедером и статичным футером, использование стандартных инпутов/селектов, кнопка `Cancel` и `Create`.
+- Старый кружок переключения активности фильтра в карточках заменен на системный компонент `Toggle` из настроек.
+- В карточки фильтров добавлены компактные цветные бейджи для каждого из активных критериев (опыт, регион, график, зарплата, занятость, интервал).
+- Добавлены новые i18n переводы для всех фильтров в `ru.json` и `en.json` (в плоской структуре во избежание nested keys runtime-ошибок).
+
+### Проверки
+- `.\mvnw.cmd clean compile -DskipTests` (в `backend`) — **BUILD SUCCESS**
+- `pnpm run build` (в `frontend`) — **✓ built in 817ms**
+
+**Update 2026-06-23: Расширенная География поиска (hh.ru Multi-region & Countries)**
+- **Backend:** В `HhVacancyPollingService.java` реализована обработка перечисления регионов через запятую. Теперь строка `area` из фильтра парсится и подставляется как набор индивидуальных `queryParam("area", id)` в API hh.ru, что позволяет делать многорегиональный поиск.
+- **Frontend:** Поле выбора городов переименовано в "География поиска" (`Search Geography`). В список селектора формы добавлены варианты выбора целых стран (Россия, Беларусь, Казахстан, Узбекистан, Грузия, Армения), комбинации двух столиц (Москва + Санкт-Петербург) и стран СНГ. Карточка фильтра адаптирована для вывода бейджей стран и групп.
+
+
+
+

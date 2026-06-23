@@ -33,7 +33,16 @@ export const monitoringService = {
     return api.get<VacancyFilter[]>('/vacancy-filters')
   },
 
-  createFilter: (data: { searchQuery: string; targetSalary?: number | null }): Promise<VacancyFilter> => {
+  createFilter: (data: {
+    searchQuery: string
+    targetSalary?: number | null
+    experience?: string
+    employment?: string
+    schedule?: string
+    area?: string
+    onlyWithSalary?: boolean
+    pollingInterval?: number
+  }): Promise<VacancyFilter> => {
     if (USE_MOCKS) {
       const newFilter: VacancyFilter = {
         id: `f_mock_${Date.now()}`,
@@ -41,6 +50,12 @@ export const monitoringService = {
         searchQuery: data.searchQuery,
         targetSalary: data.targetSalary ?? null,
         isActive: true,
+        experience: data.experience,
+        employment: data.employment,
+        schedule: data.schedule,
+        area: data.area,
+        onlyWithSalary: data.onlyWithSalary ?? false,
+        pollingInterval: data.pollingInterval ?? 30,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
@@ -52,7 +67,17 @@ export const monitoringService = {
 
   updateFilter: (
     id: string,
-    data: { searchQuery?: string; targetSalary?: number | null; isActive?: boolean }
+    data: {
+      searchQuery?: string
+      targetSalary?: number | null
+      isActive?: boolean
+      experience?: string
+      employment?: string
+      schedule?: string
+      area?: string
+      onlyWithSalary?: boolean
+      pollingInterval?: number
+    }
   ): Promise<VacancyFilter> => {
     if (USE_MOCKS) {
       const index = mockFilters.findIndex((f) => f.id === id)

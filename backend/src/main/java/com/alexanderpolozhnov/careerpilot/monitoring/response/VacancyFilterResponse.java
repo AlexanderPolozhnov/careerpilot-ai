@@ -11,6 +11,12 @@ public record VacancyFilterResponse(
         Boolean isActive,
         Instant lastPolledAt,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        String experience,
+        String employment,
+        String schedule,
+        String area,
+        Boolean onlyWithSalary,
+        Integer pollingInterval
 ) {
 }

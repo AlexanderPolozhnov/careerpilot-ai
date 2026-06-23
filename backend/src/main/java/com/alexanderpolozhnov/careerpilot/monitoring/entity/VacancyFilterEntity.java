@@ -29,4 +29,22 @@ public class VacancyFilterEntity extends BaseAuditableEntity {
 
     @Column(name = "last_polled_at")
     private Instant lastPolledAt;
+
+    @Column(name = "experience", length = 50)
+    private String experience;
+
+    @Column(name = "employment", length = 50)
+    private String employment;
+
+    @Column(name = "schedule", length = 50)
+    private String schedule;
+
+    @Column(name = "area", length = 50)
+    private String area;
+
+    @Column(name = "only_with_salary", nullable = false)
+    private Boolean onlyWithSalary = false;
+
+    @Column(name = "polling_interval", nullable = false)
+    private Integer pollingInterval = 30;
 }

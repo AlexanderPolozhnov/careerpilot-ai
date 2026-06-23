@@ -1,0 +1,7 @@
+ALTER TABLE careerpilot.user_vacancy_filters
+ADD COLUMN experience VARCHAR(50) NULL,
+ADD COLUMN employment VARCHAR(50) NULL,
+ADD COLUMN schedule VARCHAR(50) NULL,
+ADD COLUMN area VARCHAR(50) NULL,
+ADD COLUMN only_with_salary BOOLEAN NOT NULL DEFAULT FALSE,
+ADD COLUMN polling_interval INT NOT NULL DEFAULT 30;

@@ -47,6 +47,12 @@ public class VacancyFilterServiceImpl implements VacancyFilterService {
         if (request.isActive() == null) {
             entity.setIsActive(true);
         }
+        if (entity.getPollingInterval() == null) {
+            entity.setPollingInterval(30);
+        }
+        if (entity.getOnlyWithSalary() == null) {
+            entity.setOnlyWithSalary(false);
+        }
 
         VacancyFilterEntity saved = vacancyFilterRepository.save(entity);
         return vacancyFilterMapper.toResponse(saved);

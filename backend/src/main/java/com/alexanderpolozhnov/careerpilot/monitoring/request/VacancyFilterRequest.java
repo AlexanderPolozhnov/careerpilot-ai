@@ -10,6 +10,18 @@ public record VacancyFilterRequest(
 
         Integer targetSalary,
 
-        Boolean isActive
+        Boolean isActive,
+
+        String experience,
+
+        String employment,
+
+        String schedule,
+
+        String area,
+
+        Boolean onlyWithSalary,
+
+        Integer pollingInterval
 ) {
 }
