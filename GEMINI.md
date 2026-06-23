@@ -60,7 +60,7 @@ frontend/src/
 
 **Backend:** Java 21, Spring Boot 3, Spring Security, JWT, JPA, PostgreSQL, Flyway, MapStruct, Bean Validation, JUnit 5, Mockito, Redis
 **Frontend:** React, TypeScript, Vite, Tailwind, React Router, TanStack Query, RHF + Zod, dnd-kit, i18next
-**Infra:** Docker Compose, PostgreSQL, Redis, GitHub Actions CI
+**Infra:** Docker Compose, PostgreSQL, Redis, Google Cloud Build (перешли с GitHub Actions CI), Google Cloud Run
 
 ---
 
