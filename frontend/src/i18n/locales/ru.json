@@ -522,7 +522,9 @@
       "COVER_LETTER": "Сопроводительное письмо",
       "INTERVIEW_QUESTIONS": "Вопросы на интервью",
       "SKILL_GAP": "Пробелы в навыках",
-      "RESUME_GENERATION": "Улучшение резюме"
+      "RESUME_GENERATION": "Улучшение резюме",
+      "HIRING_PIPELINE_SUMMARY": "Анализ воронки найма",
+      "RESUME_ANALYSIS": "Анализ резюме"
     },
     "fallbackMode": "Режим заглушки",
     "fallbackDescription": "Ollama недоступна. Используются mock-данные."

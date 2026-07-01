@@ -522,7 +522,9 @@
       "COVER_LETTER": "Cover Letter",
       "INTERVIEW_QUESTIONS": "Interview Questions",
       "SKILL_GAP": "Skill Gaps",
-      "RESUME_GENERATION": "Resume Optimization"
+      "RESUME_GENERATION": "Resume Optimization",
+      "HIRING_PIPELINE_SUMMARY": "Hiring Pipeline Summary",
+      "RESUME_ANALYSIS": "Resume Analysis"
     },
     "fallbackMode": "Fallback Mode",
     "fallbackDescription": "Ollama unavailable. Using mock data."
