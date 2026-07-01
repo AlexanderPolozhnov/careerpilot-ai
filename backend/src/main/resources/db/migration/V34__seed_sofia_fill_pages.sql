@@ -49,7 +49,8 @@ VALUES
     ('d4f01231-15d0-4fa0-93b2-0a7e5c8ce410', 'f0d3be01-6dc1-4e11-8b78-52a2f7b9a005', 'c3ef1021-266a-4b88-bd6f-d7f07e7ba305', 'React + Java Developer', 'Djinni', 'https://jobs.example.com/v10', 'Remote', 'FREELANCE', 2500, 3500, 'USD', 'Freelance role for feature delivery.', 'Ship user-facing features across frontend and backend stack.', 'ACTIVE', 'REMOTE', '2026-06-12 23:59:00+00', '2026-04-10 14:00:00+00', '2026-04-10 14:00:00+00')
 ON CONFLICT (id) DO NOTHING;
 
--- Applications: We need at least 6.
+-- Applications: We need at least 6. Unique target is (user_id, vacancy_id).
+-- We changed the 5th application's vacancy to d4f01231-15d0-4fa0-93b2-0a7e5c8ce406 to avoid UNIQUE (user_id, vacancy_id) constraint violation.
 INSERT INTO applications (
     id, user_id, vacancy_id, status, applied_at, next_follow_up_at, last_contact_at, notes, created_at, updated_at
 )
@@ -58,9 +59,9 @@ VALUES
     ('f6b23451-2309-4f39-9c82-d8bc32f3a611', 'f0d3be01-6dc1-4e11-8b78-52a2f7b9a005', 'd4f01231-15d0-4fa0-93b2-0a7e5c8ce401', 'APPLIED', '2026-04-11 09:00:00+00', '2026-04-18 09:00:00+00', '2026-04-11 09:00:00+00', 'Applied note 11', '2026-04-11 09:00:00+00', '2026-04-11 09:00:00+00'),
     ('f6b23451-2309-4f39-9c82-d8bc32f3a612', 'f0d3be01-6dc1-4e11-8b78-52a2f7b9a005', 'd4f01231-15d0-4fa0-93b2-0a7e5c8ce402', 'APPLIED', '2026-04-11 09:00:00+00', '2026-04-18 09:00:00+00', '2026-04-11 09:00:00+00', 'Applied note 12', '2026-04-11 09:00:00+00', '2026-04-11 09:00:00+00'),
     ('f6b23451-2309-4f39-9c82-d8bc32f3a613', 'f0d3be01-6dc1-4e11-8b78-52a2f7b9a005', 'd4f01231-15d0-4fa0-93b2-0a7e5c8ce403', 'APPLIED', '2026-04-11 09:00:00+00', '2026-04-18 09:00:00+00', '2026-04-11 09:00:00+00', 'Applied note 13', '2026-04-11 09:00:00+00', '2026-04-11 09:00:00+00'),
-    ('f6b23451-2309-4f39-9c82-d8bc32f3a614', 'f0d3be01-6dc1-4e11-8b78-52a2f7b9a005', 'd4f01231-15d0-4fa0-93b2-0a7e5c8ce404', 'APPLIED', '2026-04-11 09:00:00+00', '2026-04-18 09:00:00+00', '2026-04-11 09:00:00+00', 'Applied note 14', '2026-04-11 09:00:00+00', '2026-04-11 09:00:00+00'),
+    ('f6b23451-2309-4f39-9c82-d8bc32f3a614', 'f0d3be01-6dc1-4e11-8b78-52a2f7b9a005', 'd4f01231-15d0-4fa0-93b2-0a7e5c8ce406', 'APPLIED', '2026-04-11 09:00:00+00', '2026-04-18 09:00:00+00', '2026-04-11 09:00:00+00', 'Applied note 14', '2026-04-11 09:00:00+00', '2026-04-11 09:00:00+00'),
     ('f6b23451-2309-4f39-9c82-d8bc32f3a615', 'f0d3be01-6dc1-4e11-8b78-52a2f7b9a005', 'd4f01231-15d0-4fa0-93b2-0a7e5c8ce405', 'APPLIED', '2026-04-11 09:00:00+00', '2026-04-18 09:00:00+00', '2026-04-11 09:00:00+00', 'Applied note 15', '2026-04-11 09:00:00+00', '2026-04-11 09:00:00+00')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (user_id, vacancy_id) DO NOTHING;
 
 -- Interviews: We need at least 6.
 INSERT INTO interviews (
