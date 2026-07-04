@@ -38,6 +38,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -112,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
                 calculatedHashHex.append(String.format("%02x", b));
             }
 
-            if (!calculatedHashHex.toString().equalsIgnoreCase(hash)) {
+            if (!MessageDigest.isEqual(calculatedHashHex.toString().toLowerCase().getBytes(StandardCharsets.UTF_8), hash.toLowerCase().getBytes(StandardCharsets.UTF_8))) {
                 throw new InvalidCredentialsException("Invalid initData: hash mismatch");
             }
 

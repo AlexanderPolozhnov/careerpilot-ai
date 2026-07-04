@@ -149,11 +149,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleUnexpected(
             Exception exception,
             HttpServletRequest request) {
-        // Log the exception details (in a real app we'd use a logger)
+        // Log the exception details
         System.err.println("Unexpected error: " + exception.getMessage());
         exception.printStackTrace();
         
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error: " + exception.getMessage(), "INTERNAL_ERROR", request, Map.of());
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected internal error occurred. Please try again later.", "INTERNAL_ERROR", request, Map.of());
     }
 
     private ResponseEntity<ApiErrorResponse> build(

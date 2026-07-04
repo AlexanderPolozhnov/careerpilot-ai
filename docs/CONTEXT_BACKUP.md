@@ -1,4 +1,4 @@
-﻿# CareerPilot AI — Context Backup
+# CareerPilot AI — Context Backup
 
 
 
@@ -138,4 +138,18 @@
 - **Backend:** Исправлена ошибка `407 Proxy Authentication Required` при работе с API hh.ru через прокси.
   - Сетевые свойства JVM `jdk.http.auth.tunneling.disabledSchemes` и `jdk.http.auth.proxying.disabledSchemes` перенесены в статический инициализатор главного класса `CareerpilotAiApplication.java`, чтобы гарантировать их применение до инициализации сети другими компонентами.
   - В `HhVacancyPollingService.java` объект `RestTemplate` переведен на использование `JdkClientHttpRequestFactory` на базе современного `java.net.http.HttpClient` с локальной настройкой аутентификатора. Это изолирует учетные данные прокси от глобального состояния JVM.
+
+## Update 2026-07-04: Comprehensive Security Audit & Hardening Fixes
+
+### Что реализовано
+
+**Backend — Cryptographic & Timing Attack Protection (OWASP A02:2025):**
+- В `AuthServiceImpl.java` (метод `validateTelegramInitData`) сравнение вычисленного HMAC-хеша Telegram Mini App с входящим хешем переведено с `.equalsIgnoreCase(hash)` на constant-time сравнение `MessageDigest.isEqual(...)`. Это устраняет уязвимость к timing-атакам при проверке подлинности инициализационных данных.
+
+**Backend — Exception Sanitization & Information Leakage Prevention (OWASP A05/A10:2025):**
+- В `GlobalExceptionHandler.java` (метод `handleUnexpected`) изменено формирование ответа для 500 Internal Server Error. Удален вывод `exception.getMessage()` клиенту в поле `message` ответа API, чтобы исключить утечку названий таблиц БД, SQL-запросов и внутренней структуры классов при непредвиденных исключениях. Клиент получает безопасный санированный ответ `"An unexpected internal error occurred. Please try again later."`.
+
+**Backend — AI/LLM Security & BOM Stripping (OWASP A04:2025 + AI Shield):**
+- В `AiServiceImpl.java` (метод `getPromptTemplate`) добавлена проверка и удаление символа Byte Order Mark (`\uFEFF`, BOM) при чтении markdown-шаблонов промптов. Это предотвращает возможные сбои парсеров и искажения кодировки в промптах, отправляемых LLM-провайдерам.
+
 

@@ -359,7 +359,11 @@ public class AiServiceImpl implements AiService {
                         if (!resource.exists()) {
                                 resource = new ClassPathResource("prompts/en/" + type + ".md");
                         }
-                        return resource.getContentAsString(StandardCharsets.UTF_8);
+                        String content = resource.getContentAsString(StandardCharsets.UTF_8);
+                        if (content.startsWith("\uFEFF")) {
+                                content = content.substring(1);
+                        }
+                        return content;
                 } catch (IOException e) {
                         throw new RuntimeException("Failed to load prompt template for " + type, e);
                 }
